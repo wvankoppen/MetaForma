@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?eclipse version="3.0"?>
+
+<plugin>
+       <extension point="org.eclipse.imp.runtime.languageDescription">
+          <language extensions="mfa" description="MetaformaLang" language="MetaformaLang" derivedFrom="DynamicRoot" validator="MetaformaLang.MetaformaLangValidator" validatorClass="MetaformaLang.MetaformaLangValidator"></language>
+       </extension>
+       <extension id="MetaformaLang.parser" name="MetaformaLang Parser" point="org.eclipse.imp.runtime.parser">
+          <parser class="MetaformaLang.MetaformaLangParseController" language="MetaformaLang">
+          </parser>
+       </extension>    
+    </plugin>

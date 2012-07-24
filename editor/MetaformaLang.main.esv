@@ -1,0 +1,16 @@
+module MetaformaLang.main
+
+imports MetaformaLang-Builders MetaformaLang-Colorer MetaformaLang-Completions MetaformaLang-Folding MetaformaLang-Outliner MetaformaLang-References MetaformaLang-Syntax
+
+language General properties
+                  
+  name          : MetaformaLang
+  id            : MetaformaLang
+  extends       : Root
+                  
+  description   : "Spoofax/IMP-generated editor for the MetaformaLang language"
+  url           : http://strategoxt.org
+                  
+  extensions    : mfa
+  table         : include/MetaformaLang.tbl
+  start symbols : Start

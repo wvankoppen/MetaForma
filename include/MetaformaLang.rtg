@@ -1,0 +1,31 @@
+regular tree grammar
+  start Start
+  productions
+    ListStarOfProperty1   -> ListPlusOfProperty1
+    ListStarOfProperty1   -> <nil>()
+    ListStarOfProperty1   -> <conc>(ListStarOfProperty1,ListStarOfProperty1)
+    ListPlusOfProperty1   -> <conc>(ListStarOfProperty1,ListPlusOfProperty1)
+    ListPlusOfProperty1   -> <conc>(ListPlusOfProperty1,ListStarOfProperty1)
+    ListPlusOfProperty1   -> <conc>(ListPlusOfProperty1,ListPlusOfProperty1)
+    ListPlusOfProperty1   -> <cons>(Property,ListStarOfProperty1)
+    ListStarOfDefinition1 -> ListPlusOfDefinition1
+    ListStarOfDefinition1 -> <nil>()
+    ListStarOfDefinition1 -> <conc>(ListStarOfDefinition1,ListStarOfDefinition1)
+    ListPlusOfDefinition1 -> <conc>(ListStarOfDefinition1,ListPlusOfDefinition1)
+    ListPlusOfDefinition1 -> <conc>(ListPlusOfDefinition1,ListStarOfDefinition1)
+    ListPlusOfDefinition1 -> <conc>(ListPlusOfDefinition1,ListPlusOfDefinition1)
+    ListPlusOfDefinition1 -> <cons>(Definition,ListStarOfDefinition1)
+    ListStarOfStringChar1 -> <string>
+    ListPlusOfStringChar1 -> <string>
+    OptLit1               -> <string>
+    Type                  -> Type(ID)
+    Property              -> Property(ID,Type)
+    Definition            -> Entity(ID,ListStarOfProperty1)
+    Start                 -> Module(ID,ListStarOfDefinition1)
+    EOF                   -> <string>
+    CommentChar           -> <string>
+    BackSlashChar         -> <string>
+    StringChar            -> <string>
+    STRING                -> <string>
+    INT                   -> <string>
+    ID                    -> <string>

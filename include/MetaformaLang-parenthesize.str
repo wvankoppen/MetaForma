@@ -1,0 +1,10 @@
+module include/MetaformaLang-parenthesize
+
+imports
+  libstratego-lib
+
+
+strategies
+  io-MetaformaLang-parenthesize =
+    io-wrap(id)
+
