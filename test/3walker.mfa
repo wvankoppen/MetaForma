@@ -1,0 +1,69 @@
+module groups
+	Walker {Left,Head,Right}
+	Floor {Uplifter,Downlifter}
+
+globals
+	byte gradH;
+	byte gradV;
+
+
+function gradientPropagate () {
+	boolean isSourceH = $(EAST&MALE).size() == 2 && $(WEST&SOUTH&MALE) || $(EAST&FEMALE).size() == 2 && !$(WEST&NORTH&FEMALE);
+	boolean isSourceV = $(WEST&MALE).size() == 2 && $(EAST&SOUTH&MALE) || $(EAST&FEMALE).size() == 2 && !$(WEST&NORTH&FEMALE);
+	gradientSend(gradH,isSourceH);
+	gradientSend(gradV,isSourceV);
+}
+
+operation ClimbUp {
+	do-repeat (200ms) {
+		gradientPropagate();
+	} until-wait(5s)
+	
+	do-once {
+		if (gradH == 0 && gradV == 1){
+			setId (Walker@Head);
+			commit;
+		}
+		if ($(WEST,Walker@Head)) {
+			setId (Walker@Left);
+			commit;
+		}
+		if ($(EAST,Walker@Head)) {
+			setId (Walker@Right);
+			commit;
+		}
+		if ($(EAST,Walker@Left) && $(EAST,Walker@Right)) {
+			setId (Floor@Uplifter);
+			commit;
+		}
+	} wait-consensus(4);
+	
+	disconnect(Floor@Uplifter,NORTH&WEST+SOUTH&EAST);
+	rotate(Walker@Left,90);
+	rotate(Floor@Uplifter,90);
+	
+	goto Walk;
+}
+
+operation Walk {
+	if (Walker@Right) {
+		if ($(Floor@) && ) { 
+			if (!$().onGroup(Grouping.Floor).maleAlignedWithFemale().disconnected().exists() && nbs().onGroup(Grouping.Floor).genderDismatch().exists()) {
+				rotate(90);
+				discoverNeighbors();
+			}
+			while (!nbs().connected().onGroup(Grouping.Floor).maleAlignedWithFemale().exists()) {
+				for (Module nb: nbs().disconnected().onGroup(Grouping.Floor).maleAlignedWithFemale().modules()) {
+					connect(nb);
+				}
+			notification(nbs().disconnected().onGroup(Grouping.Floor).maleAlignedWithFemale().modules().toString());
+				waitAndDiscover();
+			}
+			stateInstrBroadcastNext();
+		}
+		else {
+			stateOperationBroadcast(GETDOWN_CHECK);
+		}
+	}
+	}
+}

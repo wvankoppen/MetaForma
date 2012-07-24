@@ -1,0 +1,29 @@
+if (!SOUTHEAST && !SOUTHWEST && !SOUTH) {
+	if (!NORTHEAST) {
+		flipThrough(SELF,NORTHWEST,1)
+	}
+	
+	if (!NORTHWEST) {
+		flipThrough(SELF,NORTHEAST,2)
+	}
+}
+
+if (!NORTH) {
+	if (EAST) {
+		if (NORTHEAST) {
+			flipAlong(SELF,NORTHEAST,1);
+		}
+		else {
+			flipThrough(SELF,EAST,3);
+		}
+	}
+	if (WEST) {
+		if (!NORTHWEST) {
+			flipAlong(SELF,NORTHWEST,2);
+		}
+		else {
+			flipThrough(SELF,WEST,4);
+		}
+	}		
+	
+} 

@@ -1,0 +1,77 @@
+function symmetryFix (boolean isReq, byte connectorSource, byte connectorDest) {
+	discover-neighbors();
+	
+	if (isFEMALE(connectorDest)) {
+		if (!fixedYet) {
+			if (isReq == isNORTH(connectorDest)) switchNorthSouth();
+						
+			switchEastWest(isNORTH(p.getSourceConnector()) == isWEST(connector),isSOUTH(connectorDest));
+		}				
+		
+		if (isReq) {
+			unicast(SYMMETRY, REQ, FEMALE&NORTH);
+		}
+		unicast(SYMMETRY, ACK, FEMALE&SOUTH);
+	}
+	else if (isMALE(connectorDest)) {
+		if (!isEAST(connectorDest)) {
+			switchEastWest();
+		}
+		if (isEAST(connectorSource) && !isSOUTH(connectorDest) || isWEST(connectorSource) && !isNORTH(connectorDest)) {
+			switchNorthSouth();
+		}
+		
+		if (isReq) {
+			unicast(SYMMETRY, REQ, MALE&WEST);
+		}
+		unicast(SYMMETRY, ACK, MALE&EAST);
+	}
+	
+	commit;
+}
+	
+	
+function gradientSend (boolean isSource, Var var) {
+	if (isSource) {
+		var = 1;
+	}
+	
+	broadcast(GRADIENT,REQ,var.index(),var);
+}
+
+
+
+
+if (scheduler.isScheduled(Operation.SYMMETRY))
+				
+				
+				if (Conn.isFEMALE(connector)) {
+					if (!fixedYet) {
+
+						if (p.isReq() == Conn.isNORTH(connector)) switchNorthSouth();
+						
+						switchEastWestHemisphere(Conn.isNORTH(p.getSourceConnector()) == Conn.isWEST(connector),Conn.isSOUTH(connector));
+						
+					}
+					if (p.isReq()) {
+						unicast(p, FEMALE&NORTH);
+					}
+					unicast(new Packet(p).setDir(Dir.ACK), FEMALE&SOUTH);
+				}
+				else {
+					if (!fixedYet) {
+						switchEastWestHemisphere(p.isReq() == Conn.isEAST(connector), Conn.isSOUTH(connector));
+						
+						if (Conn.isWEST(p.getSourceConnector()) == Conn.isSOUTH(connector)) {
+							switchNorthSouth(); 
+						}
+					}
+					if (p.isReq()) {
+						unicast(p,MALE&WEST);
+					}
+					unicast(new Packet(p).setDir(Dir.ACK),MALE&EAST);
+				}
+				fixedYet = true;
+				notification("fixedYet = " + fixedYet);
+				commit(true);
+			}

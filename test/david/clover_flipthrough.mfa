@@ -1,0 +1,68 @@
+import
+	symmetry;
+
+	
+byte gradH = 255;
+byte gradV = 255;
+
+Group Uplifter {Top,Bottom,Left,Right}
+
+
+function assign (byte h, byte v, Module m) {
+	if (gradient(gradH) == h && gradient(gradV) == v) {
+		setId(m);
+		commit();
+	}
+}	
+
+sequence Flipover {
+	
+	
+	do-once  {
+		assign(1,1, Left@Uplifter);
+		assign(0,2, Right@Uplifter);
+		assign(0,0, Top@Uplifter);
+		assign(1,3, Bottom@Uplifter);
+	} wait-consensus(4);
+	
+
+						
+	do-once  {				
+		disconnectPart(Left@Uplifter, NORTH&MALE&EAST|SOUTH&MALE&WEST);
+		disconnectPart(Right@Uplifter, NORTH&MALE&EAST);
+	} wait-consensus(2);
+	
+	do-once  {				
+		rotate(Left@Uplifter, -90);
+		rotate(Right@Uplifter, -90);
+	} wait-consensus(2);
+	
+	disconnectPart(Top@Uplifter, NORTH);
+	rotate(Top@Uplifter, -180);
+	
+	do-once  {				
+		rotate(Left@Uplifter, -90);
+		rotate(Right@Uplifter, -90);
+	} wait-consensus(2);
+	
+	do-once  {				
+		rotate(Right@Uplifter, -180);
+		rotate(Bottom@Uplifter, 180);
+	} wait-consensus(2);
+	
+	do-once  {				
+		connect(@Floor, @Uplifter);
+	} wait-consensus(4);
+	
+	
+	do-repeat (500ms) {
+		fix-symmetry ();
+	} wait-consensus(ALL);
+	
+	do-once {
+		if (!@Floor) {
+			renameRestore();
+			commit;
+		}
+	} wait-consensus(4);
+}

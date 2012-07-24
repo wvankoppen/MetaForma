@@ -1,0 +1,96 @@
+import
+	symmetry;
+
+byte gradH = 255;
+byte gradV = 255;
+
+
+Group Left {Top,Bottom}
+Group Right {Top,Bottom}
+
+freqlimiter symmetryDiffuse = 2s;
+
+
+function gradientPropagate () {
+	boolean isSourceH = #(EAST&MALE) == 2 && !$(WEST&SOUTH&MALE) || #(EAST&FEMALE) == 2 && !$(WEST&NORTH&FEMALE);
+	boolean isSourceV = #(WEST&MALE) == 2 && !$(EAST&SOUTH&MALE) || #(EAST&FEMALE) == 2 && !$(WEST&NORTH&FEMALE);
+	gradientSend(gradH,isSourceH);
+	gradientSend(gradV,isSourceV);
+}
+
+
+// For gradients, the state does not matter so this is global
+onReceive GRADIENT (boolean isReq, byte connectorSource, byte connectorDest, byte varNr, byte value) {
+	if (varGet(varNumber) > value) {
+		gradientSend(true, varGet(varNumber));
+	}
+}
+
+sequence Flipover {
+	setInterval (broadcastDiscover,1s);
+	
+	do {
+		gradientPropagate();
+	} while (timeout(5s))
+	
+	setInterval (gradientPropagate,2s);
+	
+	do  {
+		if (gradH == 0 && gradV < 3 || gradV == 0 && gradH < 3) {
+			renameGroup(@Left);
+		}
+		if (gradH > 0 && gradV > 0) {
+			renameGroup(@Right);
+		}
+	} wait (consensus(4))
+					
+	do  {				
+		disconnect(@Left, @Right);
+	} wait (consensus(4))
+	
+	setInterval (gradientPropagate,2s);
+	
+	do {
+		if (gradient(gradH) == 3 && gradient(gradV) == 1) {
+			setId(Bottom@Right);
+		}
+		if (gradient(gradH) == 1 && gradient(gradV) == 3) {
+			setId(Top@Right);
+		}
+		if (gradient(gradH) == 2 && gradient(gradV) == 0) {
+			setId(Bottom@Left);
+		}
+		if (gradient(gradH) == 0 && gradient(gradV) == 2) {
+			setId(Top@Left);
+		}
+	} wait(consensus(4))
+	
+	do {
+		rotate(Bottom@Right,-180);
+		rotate(Top@Right,180);
+	} wait(consensus(2))
+	
+	do {		
+		disconnectPart(Top@Left,SOUTH);
+		disconnectPart(Bottom@Left,NORTH);
+	} wait(consensus(2))
+	
+	do {
+		boolean isFixed;	// This is a state variable, only available in this instruction state (so only in doRepeat)
+		if (#(WEST,@Left) == 1 && #(WEST,@Right) == 1 && #() == 2) {
+			unicast(SYMMETRY,REQ,MALE&WEST);	
+			commit();
+		}
+		onReceive SYMMETRY (boolean isReq, byte connectorSource, byte connectorDest) {
+			if (freqlimit(symmetryDiffuse)) {
+				symmetryFix(isReq,connectorSource,connectorDest);
+			}
+		}
+	} while(consensus(12));
+	
+	do {
+		if (!@Floor) {
+			restoreId();
+		}
+	} wait(consensus(10));
+}
