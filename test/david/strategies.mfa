@@ -1,4 +1,4 @@
-if (!SOUTHEAST && !SOUTHWEST && !SOUTH) {
+if (!SOUTHEAST && !SOUTHWEST && !SOUTH)) {
 	if (!NORTHEAST) {
 		flipThrough(SELF,NORTHWEST,1)
 	}
@@ -13,7 +13,7 @@ if (!NORTH) {
 		if (NORTHEAST) {
 			flipAlong(SELF,NORTHEAST,1);
 		}
-		else {
+		elseif (free(EAST)) {
 			flipThrough(SELF,EAST,3);
 		}
 	}
@@ -21,7 +21,7 @@ if (!NORTH) {
 		if (!NORTHWEST) {
 			flipAlong(SELF,NORTHWEST,2);
 		}
-		else {
+		elseif (free(WEST)) {
 			flipThrough(SELF,WEST,4);
 		}
 	}		

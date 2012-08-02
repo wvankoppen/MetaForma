@@ -17,13 +17,12 @@ function assign (byte h, byte v, Module m) {
 
 sequence Flipover {
 	
-	
-	do-once  {
+	do  {
 		assign(1,1, Left@Uplifter);
 		assign(0,2, Right@Uplifter);
 		assign(0,0, Top@Uplifter);
 		assign(1,3, Bottom@Uplifter);
-	} wait-consensus(4);
+	} waitconsensus(4);
 	
 
 						
@@ -50,14 +49,14 @@ sequence Flipover {
 		rotate(Bottom@Uplifter, 180);
 	} wait-consensus(2);
 	
-	do-once  {				
+	do  {				
 		connect(@Floor, @Uplifter);
 	} wait-consensus(4);
 	
 	
-	do-repeat (500ms) {
+	do (500ms) {
 		fix-symmetry ();
-	} wait-consensus(ALL);
+	} while (waitConsensus(12);
 	
 	do-once {
 		if (!@Floor) {
