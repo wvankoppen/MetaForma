@@ -31,7 +31,7 @@ sequence Flipover {
 	
 	do {
 		gradientPropagate();
-	} while (timeout(5s))
+	} while (waiting(5s))
 	
 	setInterval (gradientPropagate,2s);
 	
@@ -79,14 +79,13 @@ sequence Flipover {
 		boolean isFixed;	// This is a state variable, only available in this instruction state (so only in doRepeat)
 		if (#(WEST,@Left) == 1 && #(WEST,@Right) == 1 && #() == 2) {
 			unicast(SYMMETRY,REQ,MALE&WEST);	
-			commit();
 		}
 		onReceive SYMMETRY (boolean isReq, byte connectorSource, byte connectorDest) {
 			if (freqlimit(symmetryDiffuse)) {
 				symmetryFix(isReq,connectorSource,connectorDest);
 			}
 		}
-	} while(consensus(12));
+	} until(consensus(12));
 	
 	do {
 		if (!@Floor) {

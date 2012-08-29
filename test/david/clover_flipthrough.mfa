@@ -15,53 +15,49 @@ function assign (byte h, byte v, Module m) {
 	}
 }	
 
-sequence Flipover {
+sequence FlipThrough {
 	
 	do  {
 		assign(1,1, Left@Uplifter);
 		assign(0,2, Right@Uplifter);
 		assign(0,0, Top@Uplifter);
 		assign(1,3, Bottom@Uplifter);
-	} waitconsensus(4);
+	} wait (consensus());
 	
-
 						
-	do-once  {				
+	do  {				
 		disconnectPart(Left@Uplifter, NORTH&MALE&EAST|SOUTH&MALE&WEST);
 		disconnectPart(Right@Uplifter, NORTH&MALE&EAST);
-	} wait-consensus(2);
+	} wait (consensus());
 	
-	do-once  {				
+	do  {				
 		rotate(Left@Uplifter, -90);
 		rotate(Right@Uplifter, -90);
-	} wait-consensus(2);
+	} wait (consensus());
 	
 	disconnectPart(Top@Uplifter, NORTH);
 	rotate(Top@Uplifter, -180);
 	
-	do-once  {				
+	do  {				
 		rotate(Left@Uplifter, -90);
 		rotate(Right@Uplifter, -90);
-	} wait-consensus(2);
-	
-	do-once  {				
-		rotate(Right@Uplifter, -180);
-		rotate(Bottom@Uplifter, 180);
-	} wait-consensus(2);
+	} wait (consensus());
 	
 	do  {				
-		connect(@Floor, @Uplifter);
-	} wait-consensus(4);
+		rotate(Right@Uplifter, -180);
+		rotate(Bottom@Uplifter, 180);
+	} wait (consensus());
 	
+	connect(@Floor, @Uplifter);	
 	
-	do (500ms) {
-		fix-symmetry ();
-	} while (waitConsensus(12);
+	do {
+		fixSymmetry ();
+	} until (consensus());
 	
-	do-once {
+	do {
 		if (!@Floor) {
 			renameRestore();
-			commit;
 		}
-	} wait-consensus(4);
+	} wait (consensus());
+	
 }

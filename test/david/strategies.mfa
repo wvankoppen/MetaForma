@@ -1,12 +1,149 @@
-if (!SOUTHEAST && !SOUTHWEST && !SOUTH)) {
-	if (!NORTHEAST) {
-		flipThrough(SELF,NORTHWEST,1)
+state Initialize {
+	do {
+		if (#(EAST&MALE, %None) == 2 && !$(WEST, %None)) {
+			roleSet(%Left);
+			metaIdSet(getId().ord());
+		}
+		if (%Left && metaIdExists()) {
+			unicast(META_ID_SET, [getId().ord())], EAST&MALE&NORTH);
+		}
+		onReceive META_ID_SET (boolean isReq, byte connectorSource, byte connectorDest, byte metaSourceId, byte[] data) {
+			if (!metaIdExists()) {
+				metaIdSet(data[0]);
+				
+				if (isMALE(destCon)) {
+					if (!moduleRoleExists()){
+						moduleRoleSet(ModuleRole.Right);
+					}
+				}
+				else {
+					if (isWEST(destCon)) {
+						moduleRoleSet(ModuleRole.Top);
+					}
+					else {
+						moduleRoleSet(ModuleRole.Bottom);
+					}
+				}
+	
+			}
+			else {
+				if (%Left) {
+					continue();
+				}
+			}
+			
+			if (freqLimit(450)) {
+				unicast(pow2((destCon + 4) % 8),META_ID_SET,false,data);
+			}
+		}	
+		
+	} until (consensus());
+	
+	metaSetupCompleted();
+	
+	do {
+		broadcastDiscover();
+	} until (timeout(5));	
+	
+	do {
+		broadcastMetaNeighbors();
+	}until (timeout(7));
+	
+	goto Choose;
+	
+	
+}
+
+var Top, Bottom, Left, Right, TopLeft,TopRight,BottomLeft,BottomRight;
+
+state Choose {
+	do {
+		if (Top != 0 && Left == 0 && Right == 0 && TopLeft == 0 && Bottom == 0) {
+			metaBossIdSetTo([varGet(VarMeta.Top)]);
+			nextOperation = StateOperation.FLIP_BOTTOM.ord());
+		}
+		if (Top == 0 && Right != 0) {
+			if (TopRight == 0) {
+				metaBossIdSetTo(new byte[]{varGet(VarMeta.Right)});
+				nextOperation = StateOperation.FLIP_TOP.ord());
+			}
+			else {
+				metaBossIdSetTo(new byte[]{varGet(VarMeta.TopRight),varGet(VarMeta.Right)});
+				nextOperation = StateOperation.FLIP_UP.ord();
+			}
+		}
+	}
+	until (consensus());
+	
+	
+	
+}
+
+
+
+function broadcastMetaNeighbors () {
+	broadcastMetaNeighbors(VarMeta.Top,VarMeta.Left,VarMeta.Right);
+	broadcastMetaNeighbors(VarMeta.Bottom,VarMeta.Left,VarMeta.Right);
+	broadcastMetaNeighbors(VarMeta.Left,VarMeta.Top,VarMeta.Bottom);
+	broadcastMetaNeighbors(VarMeta.Right,VarMeta.Top,VarMeta.Bottom);
+}
+
+function broadcastMetaNeighborsTo (Var d, Var v1, Var v2) {
+	if (metaIdExists() && dest != 0) {
+		broadcast(new MetaPacket(metaIdGet(),dest).setType(MetaType.ADD_NEIGHBOR).setData(new byte[]{v1.index(),val1,v2.index(),val2}));
 	}
 	
-	if (!NORTHWEST) {
-		flipThrough(SELF,NORTHEAST,2)
-	}
 }
+
+
+function receiveMetaMessage(MetaType type, byte source, byte dest, byte[] data) {
+	if (type == MetaType.ADD_NEIGHBOR) {
+		if (data[0] == Top.index()) {
+			if (source == varGet(Left)) {
+				TopLeft = data[1];
+			}
+			if (source == varGet(Right)) {
+				TopRight = data[1];
+			}
+		}
+		if (data[2] == Bottom.index()) {
+			if (source == varGet(Left)) {
+				BottomLeft = data[3];
+			}
+			if (source == varGet(Right)) {
+				BottomRight = data[3];
+			}
+		}
+		if (data[0] == Left.index()) {
+			if (source == varGet(Top)) {
+				TopLeft = data[1];
+			}
+			if (source == varGet(Bottom)) {
+				BottomLeft = data[1];
+			}
+		}
+		if (data[2] == Right.index()) {
+			if (source == varGet(Top)) {
+				TopRight = data[3];
+			}
+			if (source == varGet(Bottom)) {
+				BottomRight = data[3];
+			}
+		}
+	}
+	
+	
+	
+	
+
+
+
+
+
+
+
+
+
 
 if (!NORTH) {
 	if (EAST) {
