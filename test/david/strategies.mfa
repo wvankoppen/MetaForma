@@ -1,166 +1,150 @@
+meta.discoverPeriodDirected = 5
+meta.discoverPeriodUndirected = 7
+
+
+meta {
+	byte Top, Bottom, Left, Right, TopLeft,TopRight,BottomLeft,BottomRight;
+}
+
+MetaPacket AddNeighbor {
+	byte first, second;
+}
+
+Packet MetaIdSet {
+	byte newMetaID;
+}
+
 state Initialize {
-	do {
-		if (#(EAST&MALE, %None) == 2 && !$(WEST, %None)) {
-			roleSet(%Left);
-			metaIdSet(getId().ord());
-		}
-		if (%Left && metaIdExists()) {
-			unicast(META_ID_SET, [getId().ord())], EAST&MALE&NORTH);
-		}
-		onReceive META_ID_SET (boolean isReq, byte connectorSource, byte connectorDest, byte metaSourceId, byte[] data) {
-			if (!metaIdExists()) {
-				metaIdSet(data[0]);
-				
-				if (isMALE(destCon)) {
-					if (!moduleRoleExists()){
-						moduleRoleSet(ModuleRole.Right);
-					}
-				}
-				else {
-					if (isWEST(destCon)) {
-						moduleRoleSet(ModuleRole.Top);
-					}
-					else {
-						moduleRoleSet(ModuleRole.Bottom);
-					}
-				}
+	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
+	when (receive (Packet p)) {
+		meta.neighborHook (p);
+	}
 	
-			}
-			else {
-				if (%Left) {
-					continue();
+	
+	do {
+		when (#(EAST&MALE, module.role==None) == 2 && !$(WEST, module.role==None)) {
+			meta.role = Left;
+			meta.id = module.id;
+			unicast MetaIdSet (newMetaID = module.id) on EAST&MALE&NORTH;
+		}
+		when (receive (MetaIdSet p)) {
+			if (module.metaID == 0) {
+				module.metaID = p.newMetaID;
+				
+				if (isMALE(p.destCon) && module.role == null) {
+					module.role = Right;
+				}
+				else if (isWEST(p.destCon)  && module.role == null) {
+					module.role = Top;
+				}
+				else if (isEAST(p.destCon)  && module.role == null) {
+					module.role = Bottom;
 				}
 			}
 			
-			if (freqLimit(450)) {
-				unicast(pow2((destCon + 4) % 8),META_ID_SET,false,data);
+			if (module.role == Left) {
+				continue();
 			}
+			
+			unicast MetaIdSet (newMetaID = p.newMetaID) on (pow2((p.destCon + 4) % 8)) rate 500ms;
 		}	
-		
-	} until (consensus());
+	} 
 	
-	metaSetupCompleted();
+	meta.enable();
 	
-	do {
-		broadcastDiscover();
-	} until (timeout(5));	
-	
-	do {
-		broadcastMetaNeighbors();
-	}until (timeout(7));
-	
-	goto Choose;
-	
-	
+	goto Choose;	
 }
 
-var Top, Bottom, Left, Right, TopLeft,TopRight,BottomLeft,BottomRight;
 
 state Choose {
-	do {
-		if (Top != 0 && Left == 0 && Right == 0 && TopLeft == 0 && Bottom == 0) {
-			metaBossIdSetTo([varGet(VarMeta.Top)]);
-			nextOperation = StateOperation.FLIP_BOTTOM.ord());
-		}
-		if (Top == 0 && Right != 0) {
-			if (TopRight == 0) {
-				metaBossIdSetTo(new byte[]{varGet(VarMeta.Right)});
-				nextOperation = StateOperation.FLIP_TOP.ord());
-			}
-			else {
-				metaBossIdSetTo(new byte[]{varGet(VarMeta.TopRight),varGet(VarMeta.Right)});
-				nextOperation = StateOperation.FLIP_UP.ord();
-			}
-		}
+	when (receive (Packet p)) {
+		// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
+		metaNeighborHook (p);
 	}
-	until (consensus());
 	
-	
-	
+	when (meta.Top != 0 && meta.Left == 0 && meta.Right == 0 && meta.TopLeft == 0 && meta.Bottom == 0) {
+		region.create (id);
+		region.enable([meta.top]);
+		goto FlipBottom;
+	}
+	when (meta.Top == 0 && meta.Right != 0 && meta.TopRight == 0) {
+		region.create (id);
+		region.enable([meta.right]);
+		goto FlipTop;
+	}
+	when (meta.Top == 0 && meta.Right != 0 && meta.TopRight != 0) {
+		region.create (id);
+		region.enable([meta.right,meta.topRight]);
+		goto FlipUp;
+	}
+
 }
 
 
 
-function broadcastMetaNeighbors () {
-	broadcastMetaNeighbors(VarMeta.Top,VarMeta.Left,VarMeta.Right);
-	broadcastMetaNeighbors(VarMeta.Bottom,VarMeta.Left,VarMeta.Right);
-	broadcastMetaNeighbors(VarMeta.Left,VarMeta.Top,VarMeta.Bottom);
-	broadcastMetaNeighbors(VarMeta.Right,VarMeta.Top,VarMeta.Bottom);
+
+
+void metaNeighborHook (Packet p) { 
+	if (p.metaID != module.metaID && module.metaID != 0) {
+		if (p.destCon == 5 || p.destCon == 6) {
+			if (meta.Right != metaId) {
+				meta.Right = metaId;
+				debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
+			}
+		}
+		if (p.destCon == 2 || p.destCon == 7) {
+			if (meta.Top != metaId) {
+				meta.Top = metaId;
+				debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
+			}
+		}
+		if (p.destCon == 0 || p.destCon == 3) {
+			if (meta.Left != metaId) {
+				meta.Left = metaId;
+				debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
+			}
+		}
+		if (p.destCon == 1 || p.destCon == 4) {
+			if (meta.Bottom != metaId) {
+				meta.Bottom = metaId;
+				debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
+			}
+		}
+	}
 }
 
-function broadcastMetaNeighborsTo (Var d, Var v1, Var v2) {
-	if (metaIdExists() && dest != 0) {
-		broadcast(new MetaPacket(metaIdGet(),dest).setType(MetaType.ADD_NEIGHBOR).setData(new byte[]{v1.index(),val1,v2.index(),val2}));
-	}
+
+
+void broadcastMetaNeighbors () {
+	broadcastMetaNeighborsTo([meta.Top, meta.Bottom], meta.Left,meta.Right);
+	broadcastMetaNeighborsTo([meta.Left, meta.Right], meta.Top, meta.Bottom);
+}
 	
+void broadcastMetaNeighborsTo (byte[] dests, byte v1, byte v2) {
+	for (byte dest:dests) {
+		if (dest > 0) {
+			send AddNeighbor(first:val1,second:val2) to dest;
+		}
+	}
+	when (receive (AddNeighbor p)) {
+		if (p.source == meta.Left)) {
+			meta.TopLeft = p.first;
+			meta.BottomLeft = p.second;
+		}
+		if (p.source == meta.Right)) {
+			meta.TopRight = p.first;
+			meta.BottomRight = p.second;
+		}
+		if (p.source == meta.Top)) {
+			meta.TopLeft = p.first;
+			meta.TopRight = p.second;
+		}
+		if (p.source == meta.Bottom)) {
+			meta.BottomLeft = p.first;
+			meta.BottomRight = p.second;
+		}
+	}
 }
 
 
-function receiveMetaMessage(MetaType type, byte source, byte dest, byte[] data) {
-	if (type == MetaType.ADD_NEIGHBOR) {
-		if (data[0] == Top.index()) {
-			if (source == varGet(Left)) {
-				TopLeft = data[1];
-			}
-			if (source == varGet(Right)) {
-				TopRight = data[1];
-			}
-		}
-		if (data[2] == Bottom.index()) {
-			if (source == varGet(Left)) {
-				BottomLeft = data[3];
-			}
-			if (source == varGet(Right)) {
-				BottomRight = data[3];
-			}
-		}
-		if (data[0] == Left.index()) {
-			if (source == varGet(Top)) {
-				TopLeft = data[1];
-			}
-			if (source == varGet(Bottom)) {
-				BottomLeft = data[1];
-			}
-		}
-		if (data[2] == Right.index()) {
-			if (source == varGet(Top)) {
-				TopRight = data[3];
-			}
-			if (source == varGet(Bottom)) {
-				BottomRight = data[3];
-			}
-		}
-	}
 	
-	
-	
-	
-
-
-
-
-
-
-
-
-
-
-if (!NORTH) {
-	if (EAST) {
-		if (NORTHEAST) {
-			flipAlong(SELF,NORTHEAST,1);
-		}
-		elseif (free(EAST)) {
-			flipThrough(SELF,EAST,3);
-		}
-	}
-	if (WEST) {
-		if (!NORTHWEST) {
-			flipAlong(SELF,NORTHWEST,2);
-		}
-		elseif (free(WEST)) {
-			flipThrough(SELF,WEST,4);
-		}
-	}		
-	
-} 
