@@ -4,6 +4,66 @@ meta.discoverPeriodUndirected = 7
 
 meta {
 	byte Top, Bottom, Left, Right, TopLeft,TopRight,BottomLeft,BottomRight;
+	
+	void metaNeighborHook (Packet p) { 
+		if (p.metaID != module.metaID && module.metaID != 0) {
+			if (p.destCon == 5 || p.destCon == 6) {
+				if (Right != metaId) {
+					Right = metaId;
+					debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
+				}
+			}
+			if (p.destCon == 2 || p.destCon == 7) {
+				if (Top != metaId) {
+					Top = metaId;
+					debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
+				}
+			}
+			if (p.destCon == 0 || p.destCon == 3) {
+				if (Left != metaId) {
+					Left = metaId;
+					debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
+				}
+			}
+			if (p.destCon == 1 || p.destCon == 4) {
+				if (Bottom != metaId) {
+					Bottom = metaId;
+					debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
+				}
+			}
+		}
+	}
+		
+	void broadcastMetaNeighbors () {
+		broadcastMetaNeighborsTo([Top, Bottom], Left, Right);
+		broadcastMetaNeighborsTo([Left, Right], Top, Bottom);
+	}
+		
+	void broadcastMetaNeighborsTo (byte[] dests, byte v1, byte v2) {
+		for (byte dest:dests) {
+			if (dest > 0) {
+				send AddNeighbor(first:val1,second:val2) to dest;
+			}
+		}
+		when (receive (AddNeighbor p)) {
+			if (p.source == Left)) {
+				TopLeft = p.first;
+				BottomLeft = p.second;
+			}
+			if (p.source == Right)) {
+				TopRight = p.first;
+				BottomRight = p.second;
+			}
+			if (p.source == Top)) {
+				TopLeft = p.first;
+				TopRight = p.second;
+			}
+			if (p.source == Bottom)) {
+				BottomLeft = p.first;
+				BottomRight = p.second;
+			}
+		}
+	}
 }
 
 MetaPacket AddNeighbor {
@@ -84,67 +144,8 @@ state Choose {
 
 
 
-void metaNeighborHook (Packet p) { 
-	if (p.metaID != module.metaID && module.metaID != 0) {
-		if (p.destCon == 5 || p.destCon == 6) {
-			if (meta.Right != metaId) {
-				meta.Right = metaId;
-				debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
-			}
-		}
-		if (p.destCon == 2 || p.destCon == 7) {
-			if (meta.Top != metaId) {
-				meta.Top = metaId;
-				debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
-			}
-		}
-		if (p.destCon == 0 || p.destCon == 3) {
-			if (meta.Left != metaId) {
-				meta.Left = metaId;
-				debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
-			}
-		}
-		if (p.destCon == 1 || p.destCon == 4) {
-			if (meta.Bottom != metaId) {
-				meta.Bottom = metaId;
-				debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
-			}
-		}
-	}
-}
 
 
-
-void broadcastMetaNeighbors () {
-	broadcastMetaNeighborsTo([meta.Top, meta.Bottom], meta.Left,meta.Right);
-	broadcastMetaNeighborsTo([meta.Left, meta.Right], meta.Top, meta.Bottom);
-}
-	
-void broadcastMetaNeighborsTo (byte[] dests, byte v1, byte v2) {
-	for (byte dest:dests) {
-		if (dest > 0) {
-			send AddNeighbor(first:val1,second:val2) to dest;
-		}
-	}
-	when (receive (AddNeighbor p)) {
-		if (p.source == meta.Left)) {
-			meta.TopLeft = p.first;
-			meta.BottomLeft = p.second;
-		}
-		if (p.source == meta.Right)) {
-			meta.TopRight = p.first;
-			meta.BottomRight = p.second;
-		}
-		if (p.source == meta.Top)) {
-			meta.TopLeft = p.first;
-			meta.TopRight = p.second;
-		}
-		if (p.source == meta.Bottom)) {
-			meta.BottomLeft = p.first;
-			meta.BottomRight = p.second;
-		}
-	}
-}
 
 
 	
