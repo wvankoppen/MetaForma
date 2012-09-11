@@ -20,5 +20,26 @@ folding Default folding definitions
   //
   //   Definition._ (disabled)
   
-  Start.Module
-  Definition.Entity
+  Start.Start
+  Definition.Meta
+  VarDecl.VarDecl
+  FunDecl.FunDecl
+  Event.Event
+  Stmt.Unicast
+  AssignLst.AssignList
+  Assign.Assign
+  Stmt.Assign
+  Stmt.FuncCall
+  Stmt.FuncCall
+  Stmt.IfElse
+  Stmt.If
+  Stmt.Rotate
+  Stmt.Send
+  Definition.Module
+  Definition.MetaPacket
+  Definition.Packet
+  Definition.State
+  Stmt
+  Instr.Instr
+  Instr.Instr
+  Definition.Group

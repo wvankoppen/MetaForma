@@ -1,18 +1,97 @@
-%% Grammar for the MetaformaLang language
-%% By default, based on an example "entities" syntax
 module MetaformaLang
 
 imports Common
+imports Exp
+imports lexical/MetaformaLang-Identifiers
 
 exports
+
+sorts	Group
 
   context-free start-symbols
   
     Start
-
+ 
   context-free syntax
   
-    "module" ID Definition*       -> Start {"Module"}
-    "entity" ID "{" Property* "}" -> Definition {"Entity"}
-    ID ":" Type                   -> Property {"Property"}
-    ID                            -> Type {"Type"}
+  
+  
+   Definition* -> Start {"Start", scope(Include)}
+    
+    
+	
+	"meta" "{" VarDecl* FunDecl* "}" -> Definition{"Meta"}
+	"module" "{" VarDecl* "}" -> Definition{"Module"}
+	
+	Type ID "(" {ListElem ","}* ")" "{" Stmt* "}"	-> FunDecl{"FunDecl"}
+	
+	Type ID 			-> ListElem{"Elem"}
+	ID					-> Type{avoid}
+	
+	"metapacket" ID "{" VarDecl* "}" -> Definition{"MetaPacket"}
+	"packet" ID "{" VarDecl* "}" -> Definition{"Packet"}
+	
+	
+	
+	Type {ID ","}* ";" -> VarDecl{"VarDecl"}
+	
+	ID 					-> Ref{"VarRef"}
+	ID "." ID 			-> Ref{"FieldRef"}
+	Obj "." ID 			-> Ref{"FieldRef"}
+	Ref "=" Exp			-> Assign{"Assign"}
+	{Assign ","}*		-> AssignLst{"AssignList"}
+	
+	"state" ID "{" Instr* "}" -> Definition{"State"}
+	
+	"when" "(" Event ")" "{" Stmt* "}" -> EvHdlr{"EvHdlr"}
+	
+	EvHdlr -> Stmt
+	
+	"receive" "(" ID ID ")" -> Event{"Event"}
+	Exp 					-> Event{"Event"}
+	"rate" Ref				-> Rate{"Rate"}
+	
+	"unicast" ID "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{"Unicast"}
+	
+	
+	
+	Ref "=" Exp ";" -> Stmt{"Assign"}
+	
+	ID  "(" {Exp "," }* ")"   			-> Exp{"FuncCall"}
+	ID  "(" {Exp "," }* ")" ";"			-> Stmt{"FuncCall"}
+	Obj "." ID 	"(" {Exp "," }* ")" ";"  -> Stmt{"FuncCall"}
+	
+	"{" Stmt* "}" -> Stmt{"Stmt"}
+		
+	"if" "(" Exp ")" Stmt "else" Stmt 		-> Stmt{"IfElse"}
+	
+	"if" "(" Exp ")" Stmt 					-> Stmt{"If"}
+		
+	Stmt -> Instr
+	"goto" ID ";"							-> Stmt{"Goto"}
+	
+	"group" ID "{" {ID ","}* "}"			-> Definition{"Group"}
+	
+	"disconnect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{"Disconnect"}
+	"connect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{"Connect"}
+	"rotate" "(" ModHolder "," Exp ")" ";"			-> Stmt{"Rotate"}
+	
+	"for" "(" Type ID ":" ID")" "{" Stmt "}"				-> Stmt{"For"}
+	
+	"send" Type "(" {Assign ","}* ")"	"to" ID ";"			-> Stmt{"Send"}
+	
+	context-free priorities
+	{
+	"@" ID										-> ModHolder{"ModHolder"}
+	} > {
+	ID "@" ID									-> ModHolder{"ModHolder"}
+	}
+	
+	context-free priorities
+	{
+		"do" "{" Stmt* "}" "wait" "(" Exp ")"   -> Instr{"Instr"}
+	} > {
+		"do" "{" Stmt* "}"  -> Instr{"Instr"}		
+	}
+	
+	

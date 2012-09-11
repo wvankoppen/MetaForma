@@ -2,11 +2,80 @@ module MetaformaLang
 
 signature
   constructors
-    Type     : ID -> Type
-    Property : ID * Type -> Property
-    Entity   : ID * List(Property) -> Definition
-    Module   : ID * List(Definition) -> Start
-             : String -> ID
+    ModHolder  : ID * ID -> ModHolder
+    ModHolder  : ID -> ModHolder
+    NbsOp      : List(Exp) -> NbsOp
+    Instr      : List(Stmt) -> Instr
+    Instr      : List(Stmt) * Exp -> Instr
+               : Stmt -> Instr
+    OrBit      : Exp * Exp -> Exp
+    AndBit     : Exp * Exp -> Exp
+    Or         : Exp * Exp -> Exp
+    And        : Exp * Exp -> Exp
+    Neq        : Exp * Exp -> Exp
+    Eq         : Exp * Exp -> Exp
+    GtEq       : Exp * Exp -> Exp
+    LtEq       : Exp * Exp -> Exp
+    Gt         : Exp * Exp -> Exp
+    Lt         : Exp * Exp -> Exp
+    Min        : Exp * Exp -> Exp
+    Plus       : Exp * Exp -> Exp
+    Div        : Exp * Exp -> Exp
+    Mul        : Exp * Exp -> Exp
+    Not        : Exp -> Exp
+    Mod        : Exp * Exp -> Exp
+    String     : STRING -> Exp
+    ByteArr    : List(Exp) -> Exp
+    Par        : Exp -> Exp
+    ModHolder  : ModHolder -> Exp
+    Bool       : Bool -> Exp
+    Const      : Const -> Exp
+    Int        : INT -> Exp
+    Nbs        : NbsOp -> Exp
+    NbsCount   : NbsOp -> Exp
+               : Ref -> Exp
+    FuncCall   : ID * List(Exp) -> Exp
+    Rate       : Ref -> Rate
+    Event      : Exp -> Event
+    Event      : ID * ID -> Event
+    Send       : Type * List(Assign) * ID -> Stmt
+    For        : Type * ID * ID * Stmt -> Stmt
+    Rotate     : ModHolder * Exp -> Stmt
+    Connect    : ModHolder * ModHolder -> Stmt
+    Disconnect : ModHolder * ModHolder -> Stmt
+    Goto       : ID -> Stmt
+    If         : Exp * Stmt -> Stmt
+    IfElse     : Exp * Stmt * Stmt -> Stmt
+    Stmt       : List(Stmt) -> Stmt
+    FuncCall   : Obj * ID * List(Exp) -> Stmt
+    FuncCall   : ID * List(Exp) -> Stmt
+    Assign     : Ref * Exp -> Stmt
+    Unicast    : ID * AssignLst * Exp * Option(Rate) -> Stmt
+               : EvHdlr -> Stmt
+    EvHdlr     : Event * List(Stmt) -> EvHdlr
+    AssignList : List(Assign) -> AssignLst
+    Assign     : Ref * Exp -> Assign
+    FieldRef   : Obj * ID -> Ref
+    FieldRef   : ID * ID -> Ref
+    VarRef     : ID -> Ref
+    VarDecl    : Type * List(ID) -> VarDecl
+    Elem       : Type * ID -> ListElem
+    FunDecl    : Type * ID * List(ListElem) * List(Stmt) -> FunDecl
+    Group      : ID * List(ID) -> Definition
+    State      : ID * List(Instr) -> Definition
+    Packet     : ID * List(VarDecl) -> Definition
+    MetaPacket : ID * List(VarDecl) -> Definition
+    Module     : List(VarDecl) -> Definition
+    Meta       : List(VarDecl) * List(FunDecl) -> Definition
+    Start      : List(Definition) -> Start
+               : String -> Obj
+               : ID -> Type
+               : String -> Type
+               : String -> Const
+               : String -> Bool
+               : String -> STRING
+               : String -> INT
+               : String -> ID
 
 
 signature

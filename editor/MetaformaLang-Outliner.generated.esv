@@ -12,5 +12,16 @@ outliner Default outliner
   //
   //   _.<constructor>
   
-  Start.Module
-  Definition.Entity
+  VarDecl.VarDecl
+  FunDecl.FunDecl
+  EvHdlr.EvHdlr
+  Exp.FuncCall
+  Stmt.Unicast
+  Stmt.FuncCall
+  Stmt.FuncCall
+  Stmt.Send
+  Definition.MetaPacket
+  Definition.Packet
+  Definition.State
+  Instr.Instr
+  Definition.Group

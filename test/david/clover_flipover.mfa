@@ -8,7 +8,6 @@ byte gradV = 255;
 Group Left {Top,Bottom}
 Group Right {Top,Bottom}
 
-freqlimiter symmetryDiffuse = 2s;
 
 
 function gradientPropagate () {

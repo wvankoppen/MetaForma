@@ -1,9 +1,231 @@
 definition
+module lexical/MetaformaLang-Identifiers
+exports
+	sorts Id String Time Obj
+	
+lexical syntax
+	[a-zA-Z][a-zA-Z0-9\_]*	-> Id
+	~[\"]*	-> String
+	[0-9]+[a-z]+ -> Time
+	
+lexical restrictions
+	Id -/- [a-zA-Z0-9\_]
+	"var" -/- [a-zA-Z0-9\_]
+	String -/- ~[\"]
+	Time -/- [a-zA-Z0-9\_]
+	
+	
+
+lexical syntax
+	
+	"if"			-> ID {reject}
+	"else"			-> ID {reject}
+	"for"			-> ID {reject}
+	"while"			-> ID {reject}
+	
+	Const			-> ID {reject}
+	Bool			-> ID {reject}
+	Obj				-> ID {reject}
+	Core			-> ID {reject}
+	
+	
+	"false"			-> Bool
+	"true"			-> Bool
+	
+	"MALE"			-> Const
+	"FEMALE"		-> Const
+	"WEST"			-> Const
+	"EAST"			-> Const
+	"NORTH"			-> Const
+	"SOUTH"			-> Const
+	
+	"byte"			-> Type
+	"void"			-> Type
+	"byte" "[" "]"	-> Type
+	
+	"meta"			-> Obj
+	"module"		-> Obj
+	"region"		-> Obj
+	"debug"			-> Obj
+	
+	"connect"		-> Core
+	"disconnect"	-> Core
+	"rotate"		-> Core
+
+
+module MetaformaLang
+
+imports Common
+imports Exp
+imports lexical/MetaformaLang-Identifiers
+
+exports
+
+sorts	Group
+
+  context-free start-symbols
+  
+    Start
+ 
+  context-free syntax
+  
+  
+  
+   Definition* -> Start {cons("Start"), scope(Include)}
+    
+    
+	
+	"meta" "{" VarDecl* FunDecl* "}" -> Definition{cons("Meta")}
+	"module" "{" VarDecl* "}" -> Definition{cons("Module")}
+	
+	Type ID "(" {ListElem ","}* ")" "{" Stmt* "}"	-> FunDecl{cons("FunDecl")}
+	
+	Type ID 			-> ListElem{cons("Elem")}
+	ID					-> Type{avoid}
+	
+	"metapacket" ID "{" VarDecl* "}" -> Definition{cons("MetaPacket")}
+	"packet" ID "{" VarDecl* "}" -> Definition{cons("Packet")}
+	
+	
+	
+	Type {ID ","}* ";" -> VarDecl{cons("VarDecl")}
+	
+	ID 					-> Ref{cons("VarRef")}
+	ID "." ID 			-> Ref{cons("FieldRef")}
+	Obj "." ID 			-> Ref{cons("FieldRef")}
+	Ref "=" Exp			-> Assign{cons("Assign")}
+	{Assign ","}*		-> AssignLst{cons("AssignList")}
+	
+	"state" ID "{" Instr* "}" -> Definition{cons("State")}
+	
+	"when" "(" Event ")" "{" Stmt* "}" -> EvHdlr{cons("EvHdlr")}
+	
+	EvHdlr -> Stmt
+	
+	"receive" "(" ID ID ")" -> Event{cons("Event")}
+	Exp 					-> Event{cons("Event")}
+	"rate" Ref				-> Rate{cons("Rate")}
+	
+	"unicast" ID "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
+	
+	
+	
+	Ref "=" Exp ";" -> Stmt{cons("Assign")}
+	
+	ID  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
+	ID  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
+	Obj "." ID 	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
+	
+	"{" Stmt* "}" -> Stmt{cons("Stmt")}
+		
+	"if" "(" Exp ")" Stmt "else" Stmt 		-> Stmt{cons("IfElse")}
+	
+	"if" "(" Exp ")" Stmt 					-> Stmt{cons("If")}
+		
+	Stmt -> Instr
+	"goto" ID ";"							-> Stmt{cons("Goto")}
+	
+	"group" ID "{" {ID ","}* "}"			-> Definition{cons("Group")}
+	
+	"disconnect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{cons("Disconnect")}
+	"connect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{cons("Connect")}
+	"rotate" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("Rotate")}
+	
+	"for" "(" Type ID ":" ID")" "{" Stmt "}"				-> Stmt{cons("For")}
+	
+	"send" Type "(" {Assign ","}* ")"	"to" ID ";"			-> Stmt{cons("Send")}
+	
+	context-free priorities
+	{
+	"@" ID										-> ModHolder{cons("ModHolder")}
+	} > {
+	ID "@" ID									-> ModHolder{cons("ModHolder")}
+	}
+	
+	context-free priorities
+	{
+		"do" "{" Stmt* "}" "wait" "(" Exp ")"   -> Instr{cons("Instr")}
+	} > {
+		"do" "{" Stmt* "}"  -> Instr{cons("Instr")}		
+	}
+
+module Exp
+
+imports Common
+imports MetaformaLang
+imports lexical/MetaformaLang-Identifiers
+
+exports
+
+
+  context-free syntax
+	Ref		 				-> Exp
+	"#(" NbsOp ")"			-> Exp{cons("NbsCount")}
+	"$(" NbsOp ")"			-> Exp{cons("Nbs")}
+%%	"!$(" NbsOp ")"			-> Exp{"NbsNone"}
+	{Exp ","}*				-> NbsOp{cons("NbsOp")}
+	INT						-> Exp{cons("Int")}
+	Const					-> Exp{cons("Const")}
+	Bool					-> Exp{cons("Bool")}
+	ModHolder				-> Exp{cons("ModHolder")}
+	"(" Exp ")"			    -> Exp{cons("Par")}
+	"[" {Exp ","}* "]"		-> Exp{cons("ByteArr")}
+	STRING					-> Exp{cons("String")}
+	
+	 
+	
+	Exp "%"	Exp					-> Exp{left,cons("Mod")}
+	"!" Exp 					-> Exp{right,cons("Not")}
+	Exp "*" Exp					-> Exp{left,cons("Mul")}
+	Exp "/" Exp					-> Exp{left,cons("Div")}
+	Exp "+" Exp					-> Exp{left,cons("Plus")}
+	Exp "-" Exp					-> Exp{left,cons("Min")}
+	Exp "<" Exp					-> Exp{left,cons("Lt")} 
+    Exp ">" Exp					-> Exp{left,cons("Gt")}
+    Exp "<=" Exp				-> Exp{left,cons("LtEq")}
+    Exp ">=" Exp				-> Exp{left,cons("GtEq")}
+    Exp "==" Exp				-> Exp{left,cons("Eq")} 
+    Exp "!=" Exp				-> Exp{left,cons("Neq")} 
+	Exp "&&" Exp				-> Exp{left,cons("And")}
+	Exp "||" Exp				-> Exp{left,cons("Or")}
+	Exp "&" Exp					-> Exp{left,cons("AndBit")}
+	Exp "|" Exp					-> Exp{left,cons("OrBit")}
+	
+	context-free priorities
+	{
+		Exp "%"	Exp					-> Exp
+	} > {right:
+		"!" Exp 					-> Exp
+	} > { left:
+		Exp "*" Exp					-> Exp
+		Exp "/" Exp					-> Exp
+	} > { left:
+		Exp "+" Exp					-> Exp
+		Exp "-" Exp					-> Exp
+	} > { non-assoc:
+    	Exp "<" Exp					-> Exp
+    	Exp ">" Exp					-> Exp
+    	Exp "<=" Exp				-> Exp
+    	Exp ">=" Exp				-> Exp
+    	Exp "==" Exp				-> Exp
+    	Exp "!=" Exp				-> Exp
+	} > {left:
+		Exp "&&" Exp				-> Exp
+	} > {left:
+		Exp "||" Exp				-> Exp
+	} > {left:
+		Exp "&" Exp					-> Exp
+	} > {left:	
+		Exp "|" Exp					-> Exp
+	}
+
 module Common
 
 exports
 
   lexical syntax
+  
+  	[0-9]+ "ms"			-> TIME
   
     [a-zA-Z][a-zA-Z0-9]* -> ID
     "-"? [0-9]+          -> INT
@@ -49,16 +271,95 @@ exports
 module MetaformaLang
 
 imports Common
+imports Exp
+imports lexical/MetaformaLang-Identifiers
 
 exports
+
+sorts	Group
 
   context-free start-symbols
   
     Start
-
+ 
   context-free syntax
   
-    "module" ID Definition*       -> Start {cons("Module")}
-    "entity" ID "{" Property* "}" -> Definition {cons("Entity")}
-    ID ":" Type                   -> Property {cons("Property")}
-    ID                            -> Type {cons("Type")}
+  
+  
+   Definition* -> Start {cons("Start"), scope(Include)}
+    
+    
+	
+	"meta" "{" VarDecl* FunDecl* "}" -> Definition{cons("Meta")}
+	"module" "{" VarDecl* "}" -> Definition{cons("Module")}
+	
+	Type ID "(" {ListElem ","}* ")" "{" Stmt* "}"	-> FunDecl{cons("FunDecl")}
+	
+	Type ID 			-> ListElem{cons("Elem")}
+	ID					-> Type{avoid}
+	
+	"metapacket" ID "{" VarDecl* "}" -> Definition{cons("MetaPacket")}
+	"packet" ID "{" VarDecl* "}" -> Definition{cons("Packet")}
+	
+	
+	
+	Type {ID ","}* ";" -> VarDecl{cons("VarDecl")}
+	
+	ID 					-> Ref{cons("VarRef")}
+	ID "." ID 			-> Ref{cons("FieldRef")}
+	Obj "." ID 			-> Ref{cons("FieldRef")}
+	Ref "=" Exp			-> Assign{cons("Assign")}
+	{Assign ","}*		-> AssignLst{cons("AssignList")}
+	
+	"state" ID "{" Instr* "}" -> Definition{cons("State")}
+	
+	"when" "(" Event ")" "{" Stmt* "}" -> EvHdlr{cons("EvHdlr")}
+	
+	EvHdlr -> Stmt
+	
+	"receive" "(" ID ID ")" -> Event{cons("Event")}
+	Exp 					-> Event{cons("Event")}
+	"rate" Ref				-> Rate{cons("Rate")}
+	
+	"unicast" ID "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
+	
+	
+	
+	Ref "=" Exp ";" -> Stmt{cons("Assign")}
+	
+	ID  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
+	ID  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
+	Obj "." ID 	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
+	
+	"{" Stmt* "}" -> Stmt{cons("Stmt")}
+		
+	"if" "(" Exp ")" Stmt "else" Stmt 		-> Stmt{cons("IfElse")}
+	
+	"if" "(" Exp ")" Stmt 					-> Stmt{cons("If")}
+		
+	Stmt -> Instr
+	"goto" ID ";"							-> Stmt{cons("Goto")}
+	
+	"group" ID "{" {ID ","}* "}"			-> Definition{cons("Group")}
+	
+	"disconnect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{cons("Disconnect")}
+	"connect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{cons("Connect")}
+	"rotate" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("Rotate")}
+	
+	"for" "(" Type ID ":" ID")" "{" Stmt "}"				-> Stmt{cons("For")}
+	
+	"send" Type "(" {Assign ","}* ")"	"to" ID ";"			-> Stmt{cons("Send")}
+	
+	context-free priorities
+	{
+	"@" ID										-> ModHolder{cons("ModHolder")}
+	} > {
+	ID "@" ID									-> ModHolder{cons("ModHolder")}
+	}
+	
+	context-free priorities
+	{
+		"do" "{" Stmt* "}" "wait" "(" Exp ")"   -> Instr{cons("Instr")}
+	} > {
+		"do" "{" Stmt* "}"  -> Instr{cons("Instr")}		
+	}
