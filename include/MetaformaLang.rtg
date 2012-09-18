@@ -9,6 +9,13 @@ regular tree grammar
     ListPlusOfStmt0       -> <conc>(ListPlusOfStmt0,ListStarOfStmt0)
     ListPlusOfStmt0       -> <conc>(ListPlusOfStmt0,ListPlusOfStmt0)
     ListPlusOfStmt0       -> <cons>(Stmt,ListStarOfStmt0)
+    ListStarOfDecl0       -> ListPlusOfDecl0
+    ListStarOfDecl0       -> <nil>()
+    ListStarOfDecl0       -> <conc>(ListStarOfDecl0,ListStarOfDecl0)
+    ListPlusOfDecl0       -> <conc>(ListStarOfDecl0,ListPlusOfDecl0)
+    ListPlusOfDecl0       -> <conc>(ListPlusOfDecl0,ListStarOfDecl0)
+    ListPlusOfDecl0       -> <conc>(ListPlusOfDecl0,ListPlusOfDecl0)
+    ListPlusOfDecl0       -> <cons>(Decl,ListStarOfDecl0)
     ListStarOfAssign0     -> ListPlusOfAssign0
     ListStarOfAssign0     -> <nil>()
     ListStarOfAssign0     -> <conc>(ListStarOfAssign0,ListStarOfAssign0)
@@ -70,8 +77,8 @@ regular tree grammar
     ListStarOfStringChar0 -> <string>
     ListPlusOfStringChar0 -> <string>
     OptLit0               -> <string>
-    Instr                 -> Instr(ListStarOfStmt0)
-    Instr                 -> Instr(ListStarOfStmt0,Exp)
+    Instr                 -> Instr(ListStarOfDecl0,ListStarOfStmt0)
+    Instr                 -> Instr(ListStarOfDecl0,ListStarOfStmt0,Exp)
     ModHolder             -> ModHolder(ID,ID)
     ModHolder             -> ModHolder(ID)
     Exp                   -> OrBit(Exp,Exp)
@@ -129,14 +136,15 @@ regular tree grammar
     Ref                   -> FieldRef(ID,ID)
     Ref                   -> VarRef(ID)
     VarDecl               -> VarDecl(Type,ListStarOfID0)
-    Definition            -> Packet(ID,ListStarOfVarDecl0)
-    Definition            -> MetaPacket(ID,ListStarOfVarDecl0)
+    Decl                  -> Packet(ID,ListStarOfVarDecl0)
+    Decl                  -> MetaPacket(ID,ListStarOfVarDecl0)
     Type                  -> ID
     ListElem              -> Elem(Type,ID)
-    FunDecl               -> FunDecl(Type,ID,ListStarOfListElem0,ListStarOfStmt0)
+    FunDecl               -> FunDecl(Type,ID,ListStarOfListElem0,ListStarOfDecl0,ListStarOfStmt0)
     Definition            -> Module(ListStarOfVarDecl0)
     Definition            -> Meta(ListStarOfVarDecl0,ListStarOfFunDecl0)
-    Start                 -> Start(ListStarOfDefinition0)
+    ModuleDef             -> Module(ID)
+    Start                 -> Start(ModuleDef,ListStarOfDecl0,ListStarOfDefinition0)
     Core                  -> <string>
     Obj                   -> <string>
     Type                  -> <string>

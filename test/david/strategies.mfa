@@ -1,3 +1,5 @@
+module Brandt
+
 meta {
 	byte Top, Bottom, Left, Right, TopLeft,TopRight,BottomLeft,BottomRight;
 	
@@ -36,6 +38,10 @@ meta {
 	}
 		
 	void broadcastMetaNeighborsTo (byte[] dests, byte v1, byte v2) {
+		metapacket AddNeighbor {
+			byte first, second;
+		}
+
 		for (byte dest:dests) {
 			if (dest > 0) {
 				send AddNeighbor(first=val1,second=val2) to dest;
@@ -62,13 +68,8 @@ meta {
 	}
 }
 
-metapacket AddNeighbor {
-	byte first, second;
-}
 
-packet MetaIdSet {
-	byte newMetaID;
-}
+
 
 state Initialize {
 	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
@@ -78,6 +79,10 @@ state Initialize {
 	
 	
 	do {
+		packet MetaIdSet {
+			byte newMetaID;
+		}
+		
 		when (#(EAST&MALE, module.role==None) == 2 && !$(WEST, module.role==None)) {
 			meta.role = Left;
 			meta.id = module.id;

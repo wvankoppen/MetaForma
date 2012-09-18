@@ -5,8 +5,8 @@ signature
     ModHolder  : ID * ID -> ModHolder
     ModHolder  : ID -> ModHolder
     NbsOp      : List(Exp) -> NbsOp
-    Instr      : List(Stmt) -> Instr
-    Instr      : List(Stmt) * Exp -> Instr
+    Instr      : List(Decl) * List(Stmt) -> Instr
+    Instr      : List(Decl) * List(Stmt) * Exp -> Instr
                : Stmt -> Instr
     OrBit      : Exp * Exp -> Exp
     AndBit     : Exp * Exp -> Exp
@@ -59,15 +59,16 @@ signature
     FieldRef   : ID * ID -> Ref
     VarRef     : ID -> Ref
     VarDecl    : Type * List(ID) -> VarDecl
+    Packet     : ID * List(VarDecl) -> Decl
+    MetaPacket : ID * List(VarDecl) -> Decl
     Elem       : Type * ID -> ListElem
-    FunDecl    : Type * ID * List(ListElem) * List(Stmt) -> FunDecl
+    FunDecl    : Type * ID * List(ListElem) * List(Decl) * List(Stmt) -> FunDecl
     Group      : ID * List(ID) -> Definition
     State      : ID * List(Instr) -> Definition
-    Packet     : ID * List(VarDecl) -> Definition
-    MetaPacket : ID * List(VarDecl) -> Definition
     Module     : List(VarDecl) -> Definition
     Meta       : List(VarDecl) * List(FunDecl) -> Definition
-    Start      : List(Definition) -> Start
+    Module     : ID -> ModuleDef
+    Start      : ModuleDef * List(Decl) * List(Definition) -> Start
                : String -> Obj
                : ID -> Type
                : String -> Type

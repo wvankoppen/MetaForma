@@ -1,4 +1,5 @@
 /home/wouter/git/MetaformaLang/include/metaformalang.ctree: \
+	 \
 	/home/wouter/git/MetaformaLang/trans/metaformalang.str \
 	/home/wouter/git/MetaformaLang/lib/refactor-common.generated.str \
 	/home/wouter/git/MetaformaLang/trans/refactor.str \
@@ -8,7 +9,6 @@
 	/home/wouter/git/MetaformaLang/lib/nbl-library.generated.str \
 	/home/wouter/git/MetaformaLang/lib/compilation-library.generated.str \
 	/home/wouter/git/MetaformaLang/lib/analysis-library-internal.generated.str \
-	 \
 	/home/wouter/git/MetaformaLang/lib/analysis-library.generated.str \
 	/home/wouter/git/MetaformaLang/lib/index-library.generated.str \
 	/home/wouter/git/MetaformaLang/lib/editor-common.generated.str \

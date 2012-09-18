@@ -15,6 +15,7 @@ imports
   check
   generate
   refactor
+  libjava-front
 
 rules // Analysis
   
@@ -166,3 +167,17 @@ rules // Utility
     files -> None()
     with
       index-parallel-analyze-files(analyze)
+      
+  generate-java-aterm:
+		(selected, position, ast, path, project-path) -> (filename, result)
+		where
+			<guarantee-extension(|"java.aterm")> path => filename ;
+			<base-filename> path => javafile;
+			<to-java-all> ast => result  
+      
+   generate-java:
+		(selected, position, ast, path, project-path) -> (filename, result)
+		where
+			<guarantee-extension(|"java")> path => filename ;
+			<base-filename> path => javafile;
+			<pp-java-string><to-java-all> ast => result

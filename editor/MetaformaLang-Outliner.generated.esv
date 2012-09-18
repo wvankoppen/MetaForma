@@ -12,7 +12,10 @@ outliner Default outliner
   //
   //   _.<constructor>
   
+  Start.Start
+  Decl.MetaPacket
   VarDecl.VarDecl
+  Decl.Packet
   FunDecl.FunDecl
   EvHdlr.EvHdlr
   Exp.FuncCall
@@ -20,8 +23,6 @@ outliner Default outliner
   Stmt.FuncCall
   Stmt.FuncCall
   Stmt.Send
-  Definition.MetaPacket
-  Definition.Packet
   Definition.State
   Instr.Instr
   Definition.Group

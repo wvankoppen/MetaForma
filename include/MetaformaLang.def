@@ -71,22 +71,22 @@ sorts	Group
   
   
   
-   Definition* -> Start {cons("Start"), scope(Include)}
+   ModuleDef Decl* Definition* -> Start {cons("Start"), scope(Include)}
     
-    
+    "module" ID -> ModuleDef{cons("Module")}
 	
 	"meta" "{" VarDecl* FunDecl* "}" -> Definition{cons("Meta")}
 	"module" "{" VarDecl* "}" -> Definition{cons("Module")}
 	
-	Type ID "(" {ListElem ","}* ")" "{" Stmt* "}"	-> FunDecl{cons("FunDecl")}
+	Type ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "}"	-> FunDecl{cons("FunDecl")}
 	
 	Type ID 			-> ListElem{cons("Elem")}
 	ID					-> Type{avoid}
 	
-	"metapacket" ID "{" VarDecl* "}" -> Definition{cons("MetaPacket")}
-	"packet" ID "{" VarDecl* "}" -> Definition{cons("Packet")}
+	"metapacket" ID "{" VarDecl* "}" -> Decl{cons("MetaPacket")}
+	"packet" ID "{" VarDecl* "}" -> Decl{cons("Packet")}
 	
-	
+
 	
 	Type {ID ","}* ";" -> VarDecl{cons("VarDecl")}
 	
@@ -144,9 +144,9 @@ sorts	Group
 	
 	context-free priorities
 	{
-		"do" "{" Stmt* "}" "wait" "(" Exp ")"   -> Instr{cons("Instr")}
+		"do" "{" Decl* Stmt* "}" "wait" "(" Exp ")"   -> Instr{cons("Instr")}
 	} > {
-		"do" "{" Stmt* "}"  -> Instr{cons("Instr")}		
+		"do" "{" Decl* Stmt* "}"  -> Instr{cons("Instr")}		
 	}
 
 module Exp
@@ -286,22 +286,22 @@ sorts	Group
   
   
   
-   Definition* -> Start {cons("Start"), scope(Include)}
+   ModuleDef Decl* Definition* -> Start {cons("Start"), scope(Include)}
     
-    
+    "module" ID -> ModuleDef{cons("Module")}
 	
 	"meta" "{" VarDecl* FunDecl* "}" -> Definition{cons("Meta")}
 	"module" "{" VarDecl* "}" -> Definition{cons("Module")}
 	
-	Type ID "(" {ListElem ","}* ")" "{" Stmt* "}"	-> FunDecl{cons("FunDecl")}
+	Type ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "}"	-> FunDecl{cons("FunDecl")}
 	
 	Type ID 			-> ListElem{cons("Elem")}
 	ID					-> Type{avoid}
 	
-	"metapacket" ID "{" VarDecl* "}" -> Definition{cons("MetaPacket")}
-	"packet" ID "{" VarDecl* "}" -> Definition{cons("Packet")}
+	"metapacket" ID "{" VarDecl* "}" -> Decl{cons("MetaPacket")}
+	"packet" ID "{" VarDecl* "}" -> Decl{cons("Packet")}
 	
-	
+
 	
 	Type {ID ","}* ";" -> VarDecl{cons("VarDecl")}
 	
@@ -359,7 +359,7 @@ sorts	Group
 	
 	context-free priorities
 	{
-		"do" "{" Stmt* "}" "wait" "(" Exp ")"   -> Instr{cons("Instr")}
+		"do" "{" Decl* Stmt* "}" "wait" "(" Exp ")"   -> Instr{cons("Instr")}
 	} > {
-		"do" "{" Stmt* "}"  -> Instr{cons("Instr")}		
+		"do" "{" Decl* Stmt* "}"  -> Instr{cons("Instr")}		
 	}

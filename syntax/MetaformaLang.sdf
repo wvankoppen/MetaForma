@@ -16,22 +16,22 @@ sorts	Group
   
   
   
-   Definition* -> Start {"Start", scope(Include)}
+   ModuleDef Decl* Definition* -> Start {"Start", scope(Include)}
     
-    
+    "module" ID -> ModuleDef{"Module"}
 	
 	"meta" "{" VarDecl* FunDecl* "}" -> Definition{"Meta"}
 	"module" "{" VarDecl* "}" -> Definition{"Module"}
 	
-	Type ID "(" {ListElem ","}* ")" "{" Stmt* "}"	-> FunDecl{"FunDecl"}
+	Type ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "}"	-> FunDecl{"FunDecl"}
 	
 	Type ID 			-> ListElem{"Elem"}
 	ID					-> Type{avoid}
 	
-	"metapacket" ID "{" VarDecl* "}" -> Definition{"MetaPacket"}
-	"packet" ID "{" VarDecl* "}" -> Definition{"Packet"}
+	"metapacket" ID "{" VarDecl* "}" -> Decl{"MetaPacket"}
+	"packet" ID "{" VarDecl* "}" -> Decl{"Packet"}
 	
-	
+
 	
 	Type {ID ","}* ";" -> VarDecl{"VarDecl"}
 	
@@ -89,9 +89,9 @@ sorts	Group
 	
 	context-free priorities
 	{
-		"do" "{" Stmt* "}" "wait" "(" Exp ")"   -> Instr{"Instr"}
+		"do" "{" Decl* Stmt* "}" "wait" "(" Exp ")"   -> Instr{"Instr"}
 	} > {
-		"do" "{" Stmt* "}"  -> Instr{"Instr"}		
+		"do" "{" Decl* Stmt* "}"  -> Instr{"Instr"}		
 	}
 	
 	

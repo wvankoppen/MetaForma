@@ -1,6 +1,8 @@
 module MetaformaLang-Builders
 
-imports MetaformaLang-Builders.generated
+imports 
+	MetaformaLang-Builders.generated
+ 
 
 builders
                                                                                    
@@ -16,14 +18,19 @@ builders
   observer : editor-analyze                        (multifile)                                                              
                                                                                                                             
   builder  : "Show abstract syntax"                = debug-generate-aterm (openeditor) (realtime) (meta) (source)           
-  builder  : "Show deffed syntax"                  = debug-generate-deffed (openeditor) (realtime) (meta) (source)          
-  builder  : "Show analyzed syntax"                = debug-generate-analyzed (openeditor) (realtime) (meta) (source)        
-  builder  : "Show index entries for current file" = debug-index-show-current-file (openeditor) (realtime) (meta) (source)  
-  builder  : "Show index entries for all files"    = debug-index-show-all-files (openeditor) (realtime) (meta) (source)     
-  builder  : "Clear index for current file"        = debug-index-clear-current (meta) (source)                              
-  builder  : "Clear index"                         = debug-index-clear (meta) (source)                                      
-  builder  : "Reload index"                        = debug-index-reload (meta) (source)                                     
-                                                                                                                            
+ //  builder  : "Show deffed syntax"                  = debug-generate-deffed (openeditor) (realtime) (meta) (source)          
+ //  builder  : "Show analyzed syntax"                = debug-generate-analyzed (openeditor) (realtime) (meta) (source)        
+ //  builder  : "Show index entries for current file" = debug-index-show-current-file (openeditor) (realtime) (meta) (source)  
+ //  builder  : "Show index entries for all files"    = debug-index-show-all-files (openeditor) (realtime) (meta) (source)     
+ //  builder  : "Clear index for current file"        = debug-index-clear-current (meta) (source)                              
+ //  builder  : "Clear index"                         = debug-index-clear (meta) (source)                                      
+ //  builder  : "Reload index"                        = debug-index-reload (meta) (source)                
+ //  builder 	: "Show abstract syntax" = generate-aterm (openeditor) (realtime) (meta) (source)  
+ //  builder		: "Desugar (selection)" = desugar-aterm (openeditor) (realtime) (meta) (source)
+	// builder		: "Rename (selection)" = rename-aterm (openeditor) (realtime) (meta) (source)
+	// builder		: "Store (selection)" = store-aterm (openeditor) (realtime) (meta) (source)
+	builder		: "Jtree (selection)" = generate-java-aterm  (openeditor)(meta) (source)                             
+  builder		: "Java code (selection)" = generate-java  (openeditor)(meta) (source)                                                                                                                          
 
 refactorings
 
