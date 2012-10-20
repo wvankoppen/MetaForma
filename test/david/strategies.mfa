@@ -1,33 +1,23 @@
 module Brandt
 
 meta {
+	part [Left, Top, Middle, Right];	
+	
 	byte Top, Bottom, Left, Right, TopLeft,TopRight,BottomLeft,BottomRight;
 	
 	void metaNeighborHook (Packet p) { 
 		if (p.metaID != module.metaID && module.metaID != 0) {
 			if (p.destCon == 5 || p.destCon == 6) {
-				if (Right != metaId) {
-					Right = metaId;
-					debug.print (32 + 22 + 12 - 4 - 5);
-				}
+				Right = p.metaId;
 			}
 			if (p.destCon == 2 || p.destCon == 7) {
-				if (Top != metaId) {
-					Top = metaId;
-					debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
-				}
+				Top = p.metaId;
 			}
 			if (p.destCon == 0 || p.destCon == 3) {
-				if (Left != metaId) {
-					Left = metaId;
-					debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
-				}
+				Left = p.metaId;
 			}
 			if (p.destCon == 1 || p.destCon == 4) {
-				if (Bottom != metaId) {
-					Bottom = metaId;
-					debug.print (".metaNeighborHook at " + p.destCon + " from meta module " + p.metaSourceID);
-				}
+				Bottom = p.metaId;
 			}
 		}
 	}
@@ -38,7 +28,7 @@ meta {
 	}
 		
 	void broadcastMetaNeighborsTo (byte[] dests, byte v1, byte v2) {
-		metapacket AddNeighbor {
+		packet AddNeighbor {
 			byte first, second;
 		}
 
@@ -68,6 +58,56 @@ meta {
 	}
 }
 
+module  {
+	byte gradPri,gradSec;
+	boolean isRef;
+	boolean sourceH;
+	boolean sourceV;	
+	
+	boolean left () {return $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);}
+	
+		
+	
+	void gradientPropagate () { 
+		if (sourceH){
+			print("I am source for H");
+			gradH = 0;
+		}
+		
+		if (sourceV) {
+			print("I am source for V");
+			gradV = 0;
+		}
+		broadcast PacketGradient(h=gradH, v=gradV);
+	}
+	
+
+	void gradientInit(boolean sH, boolean sV) {
+		sourceH = sH;
+		sourceV = sV;
+		print("gradientInit()");
+		gradH = MAX_BYTE;			
+	}
+}
+
+
+
+// For gradients, the state does not matter so this is global	
+when (receive (PacketGradient p)) {
+	boolean updated;
+	
+	if (module.gradPri > p.pri + 1) {
+		module.gradPri = p.pri + 1;
+		updated = true;
+	}
+	if (module.gradSec > p.sec + 1) {
+		module.gradSec = p.sec + 1;
+		updated = true;
+	}
+	if (updated) {
+		module.gradientPropagate();
+	}
+}
 
 
 
@@ -79,12 +119,10 @@ state Initialize {
 	
 	
 	do {
-		packet MetaIdSet {
-			byte newMetaID;
-		}
+		packet MetaIdSet { byte newMetaID; }
 		
-		when (#(EAST&MALE, module.role==None) == 2 && !$(WEST, module.role==None)) {
-			meta.role = Left;
+		when (#(EAST&MALE, module.metaPart==None) == 2 && !$(WEST, module.metaPart==None)) {
+			module.metaPart = Left;
 			meta.id = module.id;
 			unicast MetaIdSet (newMetaID = module.id) on EAST&MALE&NORTH;
 		}
@@ -92,18 +130,19 @@ state Initialize {
 			if (module.metaID == 0) {
 				module.metaID = p.newMetaID;
 				
-				if (isMALE(p.destCon) && module.role == null) {
-					module.role = Right;
+				if (isMALE(p.destCon) && module.metaPart == null) {
+					module.metaPart = Right;
 				}
-				else if (isWEST(p.destCon)  && module.role == null) {
-					module.role = Top;
+				else if (isWEST(p.destCon) && module.metaPart == null) {
+					module.metaPart = Top;
 				}
-				else if (isEAST(p.destCon)  && module.role == null) {
-					module.role = Bottom;
+				else if (isEAST(p.destCon) && module.metaPart == null) {
+					module.metaPart = Bottom;
 				}
+				kill();
 			}
 			
-			if (module.role == Left) {
+			if (module.metaPart == Left) {
 				continue();
 			}
 			
@@ -123,20 +162,18 @@ state Choose {
 		metaNeighborHook (p);
 	}
 	
+	
 	when (meta.Top != 0 && meta.Left == 0 && meta.Right == 0 && meta.TopLeft == 0 && meta.Bottom == 0) {
-		region.create (id);
-		region.enable([meta.top]);
-		goto FlipBottom;
+		region.create ([meta.Top]) ;
+		goto FlipThrough orientating UP_LEFT;
 	}
 	when (meta.Top == 0 && meta.Right != 0 && meta.TopRight == 0) {
-		region.create (id);
-		region.enable([meta.right]);
-		goto FlipTop;
+		region.create ([meta.right]);
+		goto FlipThrough orientating UP_LEFT;
 	}
 	when (meta.Top == 0 && meta.Right != 0 && meta.TopRight != 0) {
-		region.create (id);
 		region.enable([meta.right,meta.topRight]);
-		goto FlipUp;
+		goto FlipThrough orientating UP_LEFT;
 	}
 
 }

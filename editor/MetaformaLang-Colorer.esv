@@ -11,3 +11,4 @@ colorer
 	_.Connect : darkred
 	_.Disconnect : darkred
 	_.Rotate : darkred
+	_.ModHolder : drakgrey

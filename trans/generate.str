@@ -17,21 +17,44 @@ rules // Incremental code generation of project using compilation library.
  
 rules // Transformation to java strings.
 
+to-java-all = to-java
 
 to-java: VarDecl (t,n) -> FieldDec([Public()],t,[VarDec(Id(n))])
 
+
+to-java: ByteArr(e) -> NewArray(Byte(),[Dim()],ArrayInit(e'))
+	with
+		e' := <map(to-java)>e
+
+to-java: Int(e) -> Lit(Deci(e))
+
+to-java: FuncCall(n,p) -> Invoke(Method(MethodName(Id(n))),p')
+	with
+		p' := <map(to-java)>p 
+
+
+to-java: VarRef(n) -> ExprName(Id(n))
+
+
+// to-java: FunDecl(t,n,_,_,s) -> MethodDec(MethodDecHead([],None(),Void(),Id(n),[],None()),Block(s'))
+// where
+// 	s' := <map(to-java)>s
+
+
+// to-java: Send(pckt,assgns,dest) -> ExprStm(Invoke(Method(MethodName(Id("send"))),[CastRef(ClassOrInterfaceType(TypeName(Id(pckt)),None()),Invoke(Method(Invoke(Method(NewInstance(None(),ClassOrInterfaceType(TypeName(Id(p)),None()),[],None()),None(),Id("setVar")),[Lit(String([Chars("nb1")])),ExprName(Id("nb1"))]),None(),Id("setVar")),[Lit(String([Chars("nb2")])),ExprName(Id("nb2"))])),Invoke(Method(Invoke(Method(Invoke(Method(MethodName(Id("nbs"))),[]),None(),Id("nbsWithMetaId")),[ExprName(Id(dest'))]),None(),Id("connectors")),[])]))]))
+
 	// to-java-all: x-> CompilationUnit(None(),[],[ClassDec(ClassDecHead([],Id("BrandtSimulation"),None(),Some(SuperDec(ClassType(TypeName(Id("MfSimulation")),None()))),None()),ClassBody([ClassDec(ClassDecHead([],Id("Settings"),None(),Some(SuperDec(ClassType(TypeName(Id("SettingsBase")),None()))),None()),ClassBody([])),FieldDec([Public()],ClassOrInterfaceType(TypeName(Id("SettingsBase")),None()),[VarDec(Id("set"),NewInstance(None(),ClassOrInterfaceType(TypeName(Id("Settings")),None()),[],None()))]),MethodDec(MethodDecHead([Public(),Static()],None(),Void(),Id("main"),[Param([],ArrayType(ClassOrInterfaceType(TypeName(Id("String")),None())),Id("args"))],None()),Block([ExprStm(Invoke(Method(MethodName(AmbName(Id("MfSimulation")),Id("initSimulator"))),[])),ExprStm(Invoke(Method(NewInstance(None(),ClassOrInterfaceType(TypeName(Id("BrandtSimulation")),None()),[],None()),None(),Id("main")),[]))])),MethodDec(MethodDecHead([Protected()],None(),ClassOrInterfaceType(TypeName(Id("Robot")),None()),Id("getRobot"),[],None()),Block([LocalVarDecStm(LocalVarDec([],ClassOrInterfaceType(TypeName(Id("ATRON")),None()),[VarDec(Id("a"),NewInstance(None(),ClassOrInterfaceType(TypeName(Id("ATRON")),None()),[],Some(ClassBody([MethodDec(MethodDecHead([Public()],None(),ClassOrInterfaceType(TypeName(Id("Controller")),None()),Id("createController"),[],None()),Block([Return(Some(NewInstance(None(),ClassOrInterfaceType(TypeName(Id("BrandtController")),None()),[ExprName(Id("set"))],None())))]))]))))])),Return(Some(ExprName(Id("a"))))])),MethodDec(MethodDecHead([Protected()],None(),ClassOrInterfaceType(TypeName(Id("ArrayList")),Some(TypeArgs([ClassOrInterfaceType(TypeName(Id("ModulePosition")),None())]))),Id("buildRobot"),[],None()),Block([Return(Some(Invoke(Method(NewInstance(None(),ClassOrInterfaceType(TypeName(Id("MfBuilder")),None()),[],None()),None(),Id("buildGrid")),[ExprName(Id("set")),ExprName(AmbName(AmbName(Id("BrandtController")),Id("Mod")),Id("F"))])))]))])),ClassDec(ClassDecHead([],Id("PacketAddNeighbor"),None(),Some(SuperDec(ClassType(TypeName(Id("Packet")),None()))),None()),ClassBody([MethodDec(MethodDecHead([Public(),Static()],None(),Byte(),Id("getTypeNr"),[],None()),Block([Return(Some(Lit(Deci("6"))))])),ConstrDec(ConstrDecHead([Public()],None(),Id("PacketAddNeighbor"),[],None()),ConstrBody(None(),[ExprStm(Invoke(Method(MethodName(Id("setType"))),[Invoke(Method(MethodName(Id("getTypeNr"))),[])]))])),FieldDec([Public()],Byte(),[VarDec(Id("first"))]),FieldDec([Public()],Byte(),[VarDec(Id("second"))])]))])
 
-
-
-
-to-java: Meta(vars, funcs) -> 
-ClassDec(ClassDecHead([],Id("BagMeta"),None(),Some(SuperDec(ClassType(TypeName(Id("BagMetaCore")),None()))),None()),ClassBody(body))
-where
-	<map(to-java)>vars => body
-
-
-to-java: FunDecl(t,n,)
+ 
+// 
+// 
+// to-java: Meta(vars, funcs) -> 
+// ClassDec(ClassDecHead([],Id("BagMeta"),None(),Some(SuperDec(ClassType(TypeName(Id("BagMetaCore")),None()))),None()),ClassBody(body))
+// where
+// 	<map(to-java)>vars => body
+// 
+// 
+// to-java: FunDecl(t,n,)
 
 // 
 // 	

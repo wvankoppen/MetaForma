@@ -2,81 +2,104 @@ module MetaformaLang
 
 signature
   constructors
-    ModHolder  : ID * ID -> ModHolder
-    ModHolder  : ID -> ModHolder
-    NbsOp      : List(Exp) -> NbsOp
-    Instr      : List(Decl) * List(Stmt) -> Instr
-    Instr      : List(Decl) * List(Stmt) * Exp -> Instr
-               : Stmt -> Instr
-    OrBit      : Exp * Exp -> Exp
-    AndBit     : Exp * Exp -> Exp
-    Or         : Exp * Exp -> Exp
-    And        : Exp * Exp -> Exp
-    Neq        : Exp * Exp -> Exp
-    Eq         : Exp * Exp -> Exp
-    GtEq       : Exp * Exp -> Exp
-    LtEq       : Exp * Exp -> Exp
-    Gt         : Exp * Exp -> Exp
-    Lt         : Exp * Exp -> Exp
-    Min        : Exp * Exp -> Exp
-    Plus       : Exp * Exp -> Exp
-    Div        : Exp * Exp -> Exp
-    Mul        : Exp * Exp -> Exp
-    Not        : Exp -> Exp
-    Mod        : Exp * Exp -> Exp
-    String     : STRING -> Exp
-    ByteArr    : List(Exp) -> Exp
-    Par        : Exp -> Exp
-    ModHolder  : ModHolder -> Exp
-    Bool       : Bool -> Exp
-    Const      : Const -> Exp
-    Int        : INT -> Exp
-    Nbs        : NbsOp -> Exp
-    NbsCount   : NbsOp -> Exp
-               : Ref -> Exp
-    FuncCall   : ID * List(Exp) -> Exp
-    Rate       : Ref -> Rate
-    Event      : Exp -> Event
-    Event      : ID * ID -> Event
-    Send       : Type * List(Assign) * ID -> Stmt
-    For        : Type * ID * ID * Stmt -> Stmt
-    Rotate     : ModHolder * Exp -> Stmt
-    Connect    : ModHolder * ModHolder -> Stmt
-    Disconnect : ModHolder * ModHolder -> Stmt
-    Goto       : ID -> Stmt
-    If         : Exp * Stmt -> Stmt
-    IfElse     : Exp * Stmt * Stmt -> Stmt
-    Stmt       : List(Stmt) -> Stmt
-    FuncCall   : Obj * ID * List(Exp) -> Stmt
-    FuncCall   : ID * List(Exp) -> Stmt
-    Assign     : Ref * Exp -> Stmt
-    Unicast    : ID * AssignLst * Exp * Option(Rate) -> Stmt
-               : EvHdlr -> Stmt
-    EvHdlr     : Event * List(Stmt) -> EvHdlr
-    AssignList : List(Assign) -> AssignLst
-    Assign     : Ref * Exp -> Assign
-    FieldRef   : Obj * ID -> Ref
-    FieldRef   : ID * ID -> Ref
-    VarRef     : ID -> Ref
-    VarDecl    : Type * List(ID) -> VarDecl
-    Packet     : ID * List(VarDecl) -> Decl
-    MetaPacket : ID * List(VarDecl) -> Decl
-    Elem       : Type * ID -> ListElem
-    FunDecl    : Type * ID * List(ListElem) * List(Decl) * List(Stmt) -> FunDecl
-    Group      : ID * List(ID) -> Definition
-    State      : ID * List(Instr) -> Definition
-    Module     : List(VarDecl) -> Definition
-    Meta       : List(VarDecl) * List(FunDecl) -> Definition
-    Module     : ID -> ModuleDef
-    Start      : ModuleDef * List(Decl) * List(Definition) -> Start
-               : String -> Obj
-               : ID -> Type
-               : String -> Type
-               : String -> Const
-               : String -> Bool
-               : String -> STRING
-               : String -> INT
-               : String -> ID
+    ModHolder    : ID * ID -> ModHolder
+    ModHolder    : ID -> ModHolder
+                 : String -> STRING
+    Until        : StopCondition
+    Wait         : StopCondition
+    Instr        : List(Decl) * List(Stmt) -> Instr
+    Instr        : List(Decl) * List(Stmt) * StopCondition * Exp -> Instr
+                 : Stmt -> Instr
+    Rate         : Ref -> Rate
+    Event        : Exp -> Event
+    Event        : ID * ID -> Event
+    Send         : Type * List(Assign) * ID -> Stmt
+    For          : Type * ID * ID * Stmt -> Stmt
+    Stop         : ModHolder -> Stmt
+    RotateCont   : ModHolder * Exp -> Stmt
+    Rotate       : ModHolder * Exp -> Stmt
+    Connect      : ModHolder * ModHolder -> Stmt
+    Disconnect   : ModHolder * ModHolder -> Stmt
+    Goto         : ID * ID -> Stmt
+    Goto         : ID -> Stmt
+    If           : Exp * Stmt -> Stmt
+    IfElse       : Exp * Stmt * Stmt -> Stmt
+    Stmt         : List(Stmt) -> Stmt
+    FuncCall     : Obj * ID * List(Exp) -> Stmt
+    FuncCall     : ID * List(Exp) -> Stmt
+    Assign       : Ref * Exp -> Stmt
+    Broadcast    : ID * AssignLst * Option(Rate) -> Stmt
+    Unicast      : ID * AssignLst * Exp * Option(Rate) -> Stmt
+                 : EvHdlr -> Stmt
+    EvHdlr       : Event * List(VarDecl) * List(Stmt) -> EvHdlr
+    AssignList   : List(Assign) -> AssignLst
+    Assign       : Ref * Exp -> Assign
+    FieldRef     : Obj * ID -> Ref
+    FieldRef     : ID * ID -> Ref
+    VarRef       : ID -> Ref
+    MetaPartDecl : List(ID) -> PartDecl
+    VarDecl      : Type * List(ID) -> VarDecl
+                 : FuncDecl -> Decl
+    Packet       : ID * List(VarDecl) -> Decl
+    Elem         : Type * ID -> ListElem
+    FuncDecl     : Type * ID * List(ListElem) * List(Decl) * List(Stmt) * Exp -> FuncDecl
+    FuncDecl     : ID * List(ListElem) * List(Decl) * List(Stmt) -> FuncDecl
+    GroupMum     : ID -> Definition
+    Group        : ID * List(ID) -> Definition
+                 : EvHdlr -> Definition
+    State        : ID * List(VarDecl) * List(FuncDecl) * List(Instr) -> Definition
+    ModuleNS     : List(VarDecl) * List(FuncDecl) -> Definition
+    MetaNS       : List(PartDecl) * List(VarDecl) * List(FuncDecl) -> Definition
+    Module       : ID -> ModuleDef
+    Start        : ModuleDef * List(Definition) * List(Decl) -> Start
+    MetaPart     : ID -> MetaPart
+    'in          : ModHolder -> NbsFilter
+    connSource   : Exp -> NbsFilter
+    connDest     : Exp -> NbsFilter
+    withMetaID   : Exp -> NbsFilter
+    inRegion     : Exp -> NbsFilter
+    connected    : Exp -> NbsFilter
+    metaPart     : MetaPart -> NbsFilter
+    ConnFilter   : Exp * Exp -> ConnFilter
+    ConnFilter   : Exp -> ConnFilter
+    NbsOp        : ConnFilter -> NbsOp
+    NbsOp        : ConnFilter * List(NbsFilter) -> NbsOp
+    FuncCall     : Obj * ID * List(Exp) -> Exp
+    FuncCall     : ID * List(Exp) -> Exp
+    OrBit        : Exp * Exp -> Exp
+    AndBit       : Exp * Exp -> Exp
+    Or           : Exp * Exp -> Exp
+    And          : Exp * Exp -> Exp
+    Neq          : Exp * Exp -> Exp
+    Eq           : Exp * Exp -> Exp
+    GtEq         : Exp * Exp -> Exp
+    LtEq         : Exp * Exp -> Exp
+    Gt           : Exp * Exp -> Exp
+    Lt           : Exp * Exp -> Exp
+    Plus         : Exp * Exp -> Exp
+    Div          : Exp * Exp -> Exp
+    Mul          : Exp * Exp -> Exp
+    Min          : Exp * Exp -> Exp
+    Min          : Exp -> Exp
+    Not          : Exp -> Exp
+    Mod          : Exp * Exp -> Exp
+    String       : STRING -> Exp
+    ByteArr      : List(Exp) -> Exp
+    Par          : Exp -> Exp
+    ModHolder    : ModHolder -> Exp
+    Bool         : Bool -> Exp
+    Const        : Const -> Exp
+    Int          : INT -> Exp
+    Nbs          : NbsOp -> Exp
+    NbsCount     : NbsOp -> Exp
+                 : Ref -> Exp
+                 : String -> Obj
+                 : ID -> Type
+                 : String -> Type
+                 : String -> Const
+                 : String -> Bool
+                 : String -> INT
+                 : String -> ID
 
 
 signature

@@ -1,0 +1,57 @@
+module lexical/MetaformaLang-Identifiers
+exports
+	sorts Id String Time Obj
+	
+lexical syntax
+	[a-zA-Z][a-zA-Z0-9\_]* -> ID
+    [0-9]+          -> INT
+	~[\"]*	-> String
+	
+lexical restrictions
+	ID -/- [a-zA-Z0-9\_]
+	"var" -/- [a-zA-Z0-9\_]
+	String -/- ~[\"]
+	
+	
+
+lexical syntax
+	
+	"if"			-> ID {reject}
+	"else"			-> ID {reject}
+	"for"			-> ID {reject}
+	"while"			-> ID {reject}
+	"wait"			-> ID {reject}
+	"until"			-> ID {reject}
+	
+	Const			-> ID {reject}
+	Bool			-> ID {reject}
+	Obj				-> ID {reject}
+	Core			-> ID {reject}
+	
+	
+	"false"			-> Bool
+	"true"			-> Bool
+	
+	"MALE"			-> Const
+	"FEMALE"		-> Const
+	"WEST"			-> Const
+	"EAST"			-> Const
+	"NORTH"			-> Const
+	"SOUTH"			-> Const
+	
+	"boolean"		-> Type
+	"byte"			-> Type
+	"void"			-> Type
+	"byte" "[" "]"	-> Type
+	
+	"meta"			-> Obj
+	"module"		-> Obj
+	"region"		-> Obj
+	"debug"			-> Obj
+	"config"		-> Obj
+	
+	"connect"		-> Core
+	"disconnect"	-> Core
+	"rotate"		-> Core
+	"stop"			-> Core
+	"rotate_continuous"	-> Core

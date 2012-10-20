@@ -13,6 +13,7 @@ imports
   lib/nbl-library.generated
   names
   check
+  desugar
   generate
   refactor
   libjava-front
@@ -168,16 +169,24 @@ rules // Utility
     with
       index-parallel-analyze-files(analyze)
       
+      
+  desugar-aterm:
+		(selected, position, ast, path, project-path) -> (filename, result)
+		where
+			<guarantee-extension(|"desugered.aterm")> path => filename ;
+			<desugar-all> selected => result
+    
+      
   generate-java-aterm:
 		(selected, position, ast, path, project-path) -> (filename, result)
 		where
 			<guarantee-extension(|"java.aterm")> path => filename ;
 			<base-filename> path => javafile;
-			<to-java-all> ast => result  
+			<to-java-all> selected => result  
       
    generate-java:
 		(selected, position, ast, path, project-path) -> (filename, result)
 		where
 			<guarantee-extension(|"java")> path => filename ;
 			<base-filename> path => javafile;
-			<pp-java-string><to-java-all> ast => result
+			<pp-java-string><to-java-all> selected => result

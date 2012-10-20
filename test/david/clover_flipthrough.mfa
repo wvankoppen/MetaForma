@@ -1,28 +1,28 @@
-import
-	symmetry;
-
-	
-byte gradH = 255;
-byte gradV = 255;
-
-Group Uplifter {Top,Bottom,Left,Right}
+module Uplifter {Top,Bottom,Left,Right}
+module Dummy {Left,Right}
 
 
-function assign (byte h, byte v, Module m) {
-	if (gradient(gradH) == h && gradient(gradV) == v) {
-		setId(m);
-		commit();
+
+module {
+	void identify () {
+		if (gradPri==1 && gradSec==1) { 
+			id = Left@Uplifter);
+		}
+		if (gradPri==1 && gradSec==1) { 
+			id = Left@Uplifter);
+		}
+		if (gradPri==1 && gradSec==1) { 
+			id = Left@Uplifter);
+		}
+		if (gradPri==1 && gradSec==1) { 
+			id = Left@Uplifter);
+		}
 	}
-}	
+}
 
 sequence FlipThrough {
 	
-	do  {
-		assign(1,1, Left@Uplifter);
-		assign(0,2, Right@Uplifter);
-		assign(0,0, Top@Uplifter);
-		assign(1,3, Bottom@Uplifter);
-	} wait (consensus());
+	module.identify();
 	
 						
 	do  {				

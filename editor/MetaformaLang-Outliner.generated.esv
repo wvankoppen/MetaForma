@@ -13,16 +13,19 @@ outliner Default outliner
   //   _.<constructor>
   
   Start.Start
-  Decl.MetaPacket
   VarDecl.VarDecl
+  FuncDecl.FuncDecl
   Decl.Packet
-  FunDecl.FunDecl
   EvHdlr.EvHdlr
+  NbsOp.NbsOp
+  Exp.FuncCall
   Exp.FuncCall
   Stmt.Unicast
+  Stmt.Broadcast
   Stmt.FuncCall
   Stmt.FuncCall
   Stmt.Send
+  FuncDecl.FuncDecl
   Definition.State
   Instr.Instr
   Definition.Group

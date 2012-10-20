@@ -16,24 +16,25 @@ sorts	Group
   
   
   
-   ModuleDef Decl* Definition* -> Start {"Start", scope(Include)}
+   ModuleDef Definition*  Decl* 						-> Start {"Start", scope(Include)}
     
-    "module" ID -> ModuleDef{"Module"}
+    "module" ID 									-> ModuleDef{"Module"}
 	
-	"meta" "{" VarDecl* FunDecl* "}" -> Definition{"Meta"}
-	"module" "{" VarDecl* "}" -> Definition{"Module"}
+	"meta" "{" PartDecl* VarDecl* FuncDecl* "}" 	-> Definition{"MetaNS"}
+	"module" "{" VarDecl* FuncDecl* "}" 			-> Definition{"ModuleNS"}
 	
-	Type ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "}"	-> FunDecl{"FunDecl"}
+	"void" ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "}"					-> FuncDecl{"FuncDecl"}
+	Type ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "return" Exp ";" "}"	-> FuncDecl{"FuncDecl"}
 	
 	Type ID 			-> ListElem{"Elem"}
 	ID					-> Type{avoid}
 	
-	"metapacket" ID "{" VarDecl* "}" -> Decl{"MetaPacket"}
-	"packet" ID "{" VarDecl* "}" -> Decl{"Packet"}
-	
+	"packet" ID "{" VarDecl* "}" 					-> Decl{"Packet"}
+	FuncDecl -> Decl
 
 	
-	Type {ID ","}* ";" -> VarDecl{"VarDecl"}
+	Type {ID ","}+ ";" -> VarDecl{"VarDecl"}
+	"part" "[" {ID ","}* "]" ";" -> PartDecl{"MetaPartDecl"}
 	
 	ID 					-> Ref{"VarRef"}
 	ID "." ID 			-> Ref{"FieldRef"}
@@ -41,9 +42,9 @@ sorts	Group
 	Ref "=" Exp			-> Assign{"Assign"}
 	{Assign ","}*		-> AssignLst{"AssignList"}
 	
-	"state" ID "{" Instr* "}" -> Definition{"State"}
-	
-	"when" "(" Event ")" "{" Stmt* "}" -> EvHdlr{"EvHdlr"}
+	"state" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{"State"}
+	EvHdlr										 -> Definition
+	"when" "(" Event ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
 	EvHdlr -> Stmt
 	
@@ -52,6 +53,7 @@ sorts	Group
 	"rate" Ref				-> Rate{"Rate"}
 	
 	"unicast" ID "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{"Unicast"}
+	"broadcast" ID "(" AssignLst ")" Rate? ";" -> Stmt{"Broadcast"}
 	
 	
 	
@@ -60,6 +62,8 @@ sorts	Group
 	ID  "(" {Exp "," }* ")"   			-> Exp{"FuncCall"}
 	ID  "(" {Exp "," }* ")" ";"			-> Stmt{"FuncCall"}
 	Obj "." ID 	"(" {Exp "," }* ")" ";"  -> Stmt{"FuncCall"}
+	Obj "." ID 	"(" {Exp "," }* ")" 	 -> Exp{"FuncCall"}
+
 	
 	"{" Stmt* "}" -> Stmt{"Stmt"}
 		
@@ -69,16 +73,24 @@ sorts	Group
 		
 	Stmt -> Instr
 	"goto" ID ";"							-> Stmt{"Goto"}
+	"goto" ID "orientating" ID ";"			-> Stmt{"Goto"}
 	
-	"group" ID "{" {ID ","}* "}"			-> Definition{"Group"}
+	"group" ID "[" {ID ","}* "]" ";"			-> Definition{"Group"}
+	"group" ID	";"							-> Definition{"GroupMum"}
 	
 	"disconnect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{"Disconnect"}
 	"connect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{"Connect"}
 	"rotate" "(" ModHolder "," Exp ")" ";"			-> Stmt{"Rotate"}
+	"rotate_continuous" "(" ModHolder "," Exp ")" ";"			-> Stmt{"RotateCont"}
+	"stop" "(" ModHolder ")" ";"			-> Stmt{"Stop"}
 	
 	"for" "(" Type ID ":" ID")" "{" Stmt "}"				-> Stmt{"For"}
 	
 	"send" Type "(" {Assign ","}* ")"	"to" ID ";"			-> Stmt{"Send"}
+	
+	
+	"wait" -> StopCondition {"Wait"}
+	"until" -> StopCondition{"Until"}
 	
 	context-free priorities
 	{
@@ -89,9 +101,11 @@ sorts	Group
 	
 	context-free priorities
 	{
-		"do" "{" Decl* Stmt* "}" "wait" "(" Exp ")"   -> Instr{"Instr"}
+		"do" "{" Decl* Stmt* "}" StopCondition "(" Exp ")" ";"  -> Instr{"Instr"}
 	} > {
 		"do" "{" Decl* Stmt* "}"  -> Instr{"Instr"}		
 	}
+	
+	
 	
 	

@@ -4,15 +4,14 @@ exports
 	sorts Id String Time Obj
 	
 lexical syntax
-	[a-zA-Z][a-zA-Z0-9\_]*	-> Id
+	[a-zA-Z][a-zA-Z0-9\_]* -> ID
+    [0-9]+          -> INT
 	~[\"]*	-> String
-	[0-9]+[a-z]+ -> Time
 	
 lexical restrictions
-	Id -/- [a-zA-Z0-9\_]
+	ID -/- [a-zA-Z0-9\_]
 	"var" -/- [a-zA-Z0-9\_]
 	String -/- ~[\"]
-	Time -/- [a-zA-Z0-9\_]
 	
 	
 
@@ -22,6 +21,8 @@ lexical syntax
 	"else"			-> ID {reject}
 	"for"			-> ID {reject}
 	"while"			-> ID {reject}
+	"wait"			-> ID {reject}
+	"until"			-> ID {reject}
 	
 	Const			-> ID {reject}
 	Bool			-> ID {reject}
@@ -39,6 +40,7 @@ lexical syntax
 	"NORTH"			-> Const
 	"SOUTH"			-> Const
 	
+	"boolean"		-> Type
 	"byte"			-> Type
 	"void"			-> Type
 	"byte" "[" "]"	-> Type
@@ -47,107 +49,14 @@ lexical syntax
 	"module"		-> Obj
 	"region"		-> Obj
 	"debug"			-> Obj
+	"config"		-> Obj
 	
 	"connect"		-> Core
 	"disconnect"	-> Core
 	"rotate"		-> Core
+	"stop"			-> Core
+	"rotate_continuous"	-> Core
 
-
-module MetaformaLang
-
-imports Common
-imports Exp
-imports lexical/MetaformaLang-Identifiers
-
-exports
-
-sorts	Group
-
-  context-free start-symbols
-  
-    Start
- 
-  context-free syntax
-  
-  
-  
-   ModuleDef Decl* Definition* -> Start {cons("Start"), scope(Include)}
-    
-    "module" ID -> ModuleDef{cons("Module")}
-	
-	"meta" "{" VarDecl* FunDecl* "}" -> Definition{cons("Meta")}
-	"module" "{" VarDecl* "}" -> Definition{cons("Module")}
-	
-	Type ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "}"	-> FunDecl{cons("FunDecl")}
-	
-	Type ID 			-> ListElem{cons("Elem")}
-	ID					-> Type{avoid}
-	
-	"metapacket" ID "{" VarDecl* "}" -> Decl{cons("MetaPacket")}
-	"packet" ID "{" VarDecl* "}" -> Decl{cons("Packet")}
-	
-
-	
-	Type {ID ","}* ";" -> VarDecl{cons("VarDecl")}
-	
-	ID 					-> Ref{cons("VarRef")}
-	ID "." ID 			-> Ref{cons("FieldRef")}
-	Obj "." ID 			-> Ref{cons("FieldRef")}
-	Ref "=" Exp			-> Assign{cons("Assign")}
-	{Assign ","}*		-> AssignLst{cons("AssignList")}
-	
-	"state" ID "{" Instr* "}" -> Definition{cons("State")}
-	
-	"when" "(" Event ")" "{" Stmt* "}" -> EvHdlr{cons("EvHdlr")}
-	
-	EvHdlr -> Stmt
-	
-	"receive" "(" ID ID ")" -> Event{cons("Event")}
-	Exp 					-> Event{cons("Event")}
-	"rate" Ref				-> Rate{cons("Rate")}
-	
-	"unicast" ID "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
-	
-	
-	
-	Ref "=" Exp ";" -> Stmt{cons("Assign")}
-	
-	ID  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
-	ID  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
-	Obj "." ID 	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
-	
-	"{" Stmt* "}" -> Stmt{cons("Stmt")}
-		
-	"if" "(" Exp ")" Stmt "else" Stmt 		-> Stmt{cons("IfElse")}
-	
-	"if" "(" Exp ")" Stmt 					-> Stmt{cons("If")}
-		
-	Stmt -> Instr
-	"goto" ID ";"							-> Stmt{cons("Goto")}
-	
-	"group" ID "{" {ID ","}* "}"			-> Definition{cons("Group")}
-	
-	"disconnect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{cons("Disconnect")}
-	"connect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{cons("Connect")}
-	"rotate" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("Rotate")}
-	
-	"for" "(" Type ID ":" ID")" "{" Stmt "}"				-> Stmt{cons("For")}
-	
-	"send" Type "(" {Assign ","}* ")"	"to" ID ";"			-> Stmt{cons("Send")}
-	
-	context-free priorities
-	{
-	"@" ID										-> ModHolder{cons("ModHolder")}
-	} > {
-	ID "@" ID									-> ModHolder{cons("ModHolder")}
-	}
-	
-	context-free priorities
-	{
-		"do" "{" Decl* Stmt* "}" "wait" "(" Exp ")"   -> Instr{cons("Instr")}
-	} > {
-		"do" "{" Decl* Stmt* "}"  -> Instr{cons("Instr")}		
-	}
 
 module Exp
 
@@ -163,7 +72,20 @@ exports
 	"#(" NbsOp ")"			-> Exp{cons("NbsCount")}
 	"$(" NbsOp ")"			-> Exp{cons("Nbs")}
 %%	"!$(" NbsOp ")"			-> Exp{"NbsNone"}
-	{Exp ","}*				-> NbsOp{cons("NbsOp")}
+	ConnFilter "," {NbsFilter ","}+	-> NbsOp{cons("NbsOp")}
+	ConnFilter						-> NbsOp{cons("NbsOp")}
+	Exp 					-> ConnFilter{cons("ConnFilter")}
+	Exp "->" Exp			-> ConnFilter{cons("ConnFilter")}
+	
+	"module.metaPart" "==" MetaPart			-> NbsFilter{cons("metaPart")}
+	"connected" ":" Exp				-> NbsFilter{cons("connected")}
+	"inRegion" ":" Exp				-> NbsFilter{cons("inRegion")}
+	"module.metaID" "==" Exp			-> NbsFilter{cons("withMetaID")}
+	"connDest" ":" Exp				-> NbsFilter{cons("connDest")}
+	"connSource" ":" Exp			-> NbsFilter{cons("connSource")}
+	ModHolder					-> NbsFilter{cons("in")}
+	
+	ID 						-> MetaPart{cons("MetaPart")}
 	INT						-> Exp{cons("Int")}
 	Const					-> Exp{cons("Const")}
 	Bool					-> Exp{cons("Bool")}
@@ -176,6 +98,8 @@ exports
 	
 	Exp "%"	Exp					-> Exp{left,cons("Mod")}
 	"!" Exp 					-> Exp{right,cons("Not")}
+	"-" Exp 					-> Exp{right,cons("Min")}
+	Exp "-" Exp 				-> Exp{right,cons("Min")}
 	Exp "*" Exp					-> Exp{left,cons("Mul")}
 	Exp "/" Exp					-> Exp{left,cons("Div")}
 	Exp "+" Exp					-> Exp{left,cons("Plus")}
@@ -219,7 +143,116 @@ exports
 		Exp "|" Exp					-> Exp
 	}
 
+module MetaformaLang
+
+imports Common
+imports Exp
+imports lexical/MetaformaLang-Identifiers
+
+exports
+
+sorts	Group
+
+  context-free start-symbols
+  
+    Start
+ 
+  context-free syntax
+  
+  
+  
+   ModuleDef Definition*  Decl* 						-> Start {cons("Start"), scope(Include)}
+    
+    "module" ID 									-> ModuleDef{cons("Module")}
+	
+	"meta" "{" PartDecl* VarDecl* FuncDecl* "}" 	-> Definition{cons("MetaNS")}
+	"module" "{" VarDecl* FuncDecl* "}" 			-> Definition{cons("ModuleNS")}
+	
+	"void" ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
+	Type ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
+	
+	Type ID 			-> ListElem{cons("Elem")}
+	ID					-> Type{avoid}
+	
+	"packet" ID "{" VarDecl* "}" 					-> Decl{cons("Packet")}
+	FuncDecl -> Decl
+
+	
+	Type {ID ","}+ ";" -> VarDecl{cons("VarDecl")}
+	"part" "[" {ID ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
+	
+	ID 					-> Ref{cons("VarRef")}
+	ID "." ID 			-> Ref{cons("FieldRef")}
+	Obj "." ID 			-> Ref{cons("FieldRef")}
+	Ref "=" Exp			-> Assign{cons("Assign")}
+	{Assign ","}*		-> AssignLst{cons("AssignList")}
+	
+	"state" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{cons("State")}
+	EvHdlr										 -> Definition
+	"when" "(" Event ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
+	
+	EvHdlr -> Stmt
+	
+	"receive" "(" ID ID ")" -> Event{cons("Event")}
+	Exp 					-> Event{cons("Event")}
+	"rate" Ref				-> Rate{cons("Rate")}
+	
+	"unicast" ID "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
+	"broadcast" ID "(" AssignLst ")" Rate? ";" -> Stmt{cons("Broadcast")}
+	
+	
+	
+	Ref "=" Exp ";" -> Stmt{cons("Assign")}
+	
+	ID  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
+	ID  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
+	Obj "." ID 	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
+	Obj "." ID 	"(" {Exp "," }* ")" 	 -> Exp{cons("FuncCall")}
+
+	
+	"{" Stmt* "}" -> Stmt{cons("Stmt")}
+		
+	"if" "(" Exp ")" Stmt "else" Stmt 		-> Stmt{cons("IfElse")}
+	
+	"if" "(" Exp ")" Stmt 					-> Stmt{cons("If")}
+		
+	Stmt -> Instr
+	"goto" ID ";"							-> Stmt{cons("Goto")}
+	"goto" ID "orientating" ID ";"			-> Stmt{cons("Goto")}
+	
+	"group" ID "[" {ID ","}* "]" ";"			-> Definition{cons("Group")}
+	"group" ID	";"							-> Definition{cons("GroupMum")}
+	
+	"disconnect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{cons("Disconnect")}
+	"connect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{cons("Connect")}
+	"rotate" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("Rotate")}
+	"rotate_continuous" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("RotateCont")}
+	"stop" "(" ModHolder ")" ";"			-> Stmt{cons("Stop")}
+	
+	"for" "(" Type ID ":" ID")" "{" Stmt "}"				-> Stmt{cons("For")}
+	
+	"send" Type "(" {Assign ","}* ")"	"to" ID ";"			-> Stmt{cons("Send")}
+	
+	
+	"wait" -> StopCondition {cons("Wait")}
+	"until" -> StopCondition{cons("Until")}
+	
+	context-free priorities
+	{
+	"@" ID										-> ModHolder{cons("ModHolder")}
+	} > {
+	ID "@" ID									-> ModHolder{cons("ModHolder")}
+	}
+	
+	context-free priorities
+	{
+		"do" "{" Decl* Stmt* "}" StopCondition "(" Exp ")" ";"  -> Instr{cons("Instr")}
+	} > {
+		"do" "{" Decl* Stmt* "}"  -> Instr{cons("Instr")}		
+	}
+
 module Common
+imports MetaformaLang
 
 exports
 
@@ -227,8 +260,7 @@ exports
   
   	[0-9]+ "ms"			-> TIME
   
-    [a-zA-Z][a-zA-Z0-9]* -> ID
-    "-"? [0-9]+          -> INT
+    
     
     "\"" StringChar* "\"" -> STRING
     ~[\"\n]               -> StringChar
@@ -286,24 +318,25 @@ sorts	Group
   
   
   
-   ModuleDef Decl* Definition* -> Start {cons("Start"), scope(Include)}
+   ModuleDef Definition*  Decl* 						-> Start {cons("Start"), scope(Include)}
     
-    "module" ID -> ModuleDef{cons("Module")}
+    "module" ID 									-> ModuleDef{cons("Module")}
 	
-	"meta" "{" VarDecl* FunDecl* "}" -> Definition{cons("Meta")}
-	"module" "{" VarDecl* "}" -> Definition{cons("Module")}
+	"meta" "{" PartDecl* VarDecl* FuncDecl* "}" 	-> Definition{cons("MetaNS")}
+	"module" "{" VarDecl* FuncDecl* "}" 			-> Definition{cons("ModuleNS")}
 	
-	Type ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "}"	-> FunDecl{cons("FunDecl")}
+	"void" ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
+	Type ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
 	
 	Type ID 			-> ListElem{cons("Elem")}
 	ID					-> Type{avoid}
 	
-	"metapacket" ID "{" VarDecl* "}" -> Decl{cons("MetaPacket")}
-	"packet" ID "{" VarDecl* "}" -> Decl{cons("Packet")}
-	
+	"packet" ID "{" VarDecl* "}" 					-> Decl{cons("Packet")}
+	FuncDecl -> Decl
 
 	
-	Type {ID ","}* ";" -> VarDecl{cons("VarDecl")}
+	Type {ID ","}+ ";" -> VarDecl{cons("VarDecl")}
+	"part" "[" {ID ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
 	
 	ID 					-> Ref{cons("VarRef")}
 	ID "." ID 			-> Ref{cons("FieldRef")}
@@ -311,9 +344,9 @@ sorts	Group
 	Ref "=" Exp			-> Assign{cons("Assign")}
 	{Assign ","}*		-> AssignLst{cons("AssignList")}
 	
-	"state" ID "{" Instr* "}" -> Definition{cons("State")}
-	
-	"when" "(" Event ")" "{" Stmt* "}" -> EvHdlr{cons("EvHdlr")}
+	"state" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{cons("State")}
+	EvHdlr										 -> Definition
+	"when" "(" Event ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
 	
 	EvHdlr -> Stmt
 	
@@ -322,6 +355,7 @@ sorts	Group
 	"rate" Ref				-> Rate{cons("Rate")}
 	
 	"unicast" ID "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
+	"broadcast" ID "(" AssignLst ")" Rate? ";" -> Stmt{cons("Broadcast")}
 	
 	
 	
@@ -330,6 +364,8 @@ sorts	Group
 	ID  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
 	ID  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
 	Obj "." ID 	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
+	Obj "." ID 	"(" {Exp "," }* ")" 	 -> Exp{cons("FuncCall")}
+
 	
 	"{" Stmt* "}" -> Stmt{cons("Stmt")}
 		
@@ -339,16 +375,24 @@ sorts	Group
 		
 	Stmt -> Instr
 	"goto" ID ";"							-> Stmt{cons("Goto")}
+	"goto" ID "orientating" ID ";"			-> Stmt{cons("Goto")}
 	
-	"group" ID "{" {ID ","}* "}"			-> Definition{cons("Group")}
+	"group" ID "[" {ID ","}* "]" ";"			-> Definition{cons("Group")}
+	"group" ID	";"							-> Definition{cons("GroupMum")}
 	
 	"disconnect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{cons("Disconnect")}
 	"connect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{cons("Connect")}
 	"rotate" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("Rotate")}
+	"rotate_continuous" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("RotateCont")}
+	"stop" "(" ModHolder ")" ";"			-> Stmt{cons("Stop")}
 	
 	"for" "(" Type ID ":" ID")" "{" Stmt "}"				-> Stmt{cons("For")}
 	
 	"send" Type "(" {Assign ","}* ")"	"to" ID ";"			-> Stmt{cons("Send")}
+	
+	
+	"wait" -> StopCondition {cons("Wait")}
+	"until" -> StopCondition{cons("Until")}
 	
 	context-free priorities
 	{
@@ -359,7 +403,7 @@ sorts	Group
 	
 	context-free priorities
 	{
-		"do" "{" Decl* Stmt* "}" "wait" "(" Exp ")"   -> Instr{cons("Instr")}
+		"do" "{" Decl* Stmt* "}" StopCondition "(" Exp ")" ";"  -> Instr{cons("Instr")}
 	} > {
 		"do" "{" Decl* Stmt* "}"  -> Instr{cons("Instr")}		
 	}
