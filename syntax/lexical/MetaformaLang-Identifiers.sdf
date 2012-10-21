@@ -1,4 +1,6 @@
 module lexical/MetaformaLang-Identifiers
+imports MetaformaLang
+
 exports
 	sorts Id String Time Obj
 	
@@ -22,11 +24,13 @@ lexical syntax
 	"while"			-> ID {reject}
 	"wait"			-> ID {reject}
 	"until"			-> ID {reject}
+	"consensus"			-> ID {reject}
 	
 	Const			-> ID {reject}
 	Bool			-> ID {reject}
 	Obj				-> ID {reject}
 	Core			-> ID {reject}
+	"module"				-> ID {reject}
 	
 	
 	"false"			-> Bool
@@ -44,14 +48,13 @@ lexical syntax
 	"void"			-> Type
 	"byte" "[" "]"	-> Type
 	
-	"meta"			-> Obj
-	"module"		-> Obj
-	"region"		-> Obj
-	"debug"			-> Obj
-	"config"		-> Obj
+	
 	
 	"connect"		-> Core
 	"disconnect"	-> Core
 	"rotate"		-> Core
 	"stop"			-> Core
 	"rotate_continuous"	-> Core
+	"disconnect_part"	-> Core
+	"connect_part"	-> Core
+	

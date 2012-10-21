@@ -8,7 +8,11 @@ colorer
 	Type     : 127 0 85 bold
 	Obj     : 0 128 0      
 	Const	: brown 
+	
 	_.Connect : darkred
 	_.Disconnect : darkred
 	_.Rotate : darkred
-	_.ModHolder : drakgrey
+	_.ConnectPart : darkred
+	_.DisconnectPart : darkred
+	
+	_.ModHolder : 33 33 33

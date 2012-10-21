@@ -19,12 +19,10 @@ outliner Default outliner
   EvHdlr.EvHdlr
   NbsOp.NbsOp
   Exp.FuncCall
-  Exp.FuncCall
   Stmt.Unicast
   Stmt.Broadcast
-  Stmt.FuncCall
-  Stmt.FuncCall
   Stmt.Send
+  Stmt.FuncCall
   FuncDecl.FuncDecl
   Definition.State
   Instr.Instr

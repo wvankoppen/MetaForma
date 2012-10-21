@@ -4,56 +4,62 @@ group Clover [North,South,West,East];
 	
 
 state CloverFlipAlong  {
-	byte QUART;
-	byte HALF;
-	
-	
-	do  {
-		if (region.orientation == BOTTOMLEFT) {
-			QUART = 90;
-			HALF = 180;
-		}
-		
-		if (region.orientation == BOTTOMRIGHT) {
-			QUART = -90;
-			HALF = -180;
-		}
-		module.gradientInit();
-	}
-			
-	do {		
-		if (gradPri==3 && gradSec==0) module.id = West@Clover;
-		if (gradPri==2 && gradSec==0) module.id = South@Clover;
-		if (gradPri==3 && gradSec==1) module.id = North@Clover;
-		if (gradPri==2 && gradSec==1) module.id = East@Clover;
-		
-		module.isRef = (module.gradH == 0 && module.gradV == 3);
-	}
+	// byte QUART;
+	// byte HALF;
+	// 
+	// module.gradientInit();
+	// 
+	// module.gradientPropagate();
+	// 
+	// do  {
+	// 	if (region.orientation == BOTTOMLEFT) {
+	// 		QUART = 90;
+	// 		HALF = 180;
+	// 	}
+	// 	
+	// 	if (region.orientation == BOTTOMRIGHT) {
+	// 		QUART = -90;
+	// 		HALF = -180;
+	// 	}
+	// 	
+	// } 
+	// 		
+	// do {		
+	// 	if (module.gradPri==3 && module.gradSec==0) module.id = West@Clover;
+	// 	if (module.gradPri==2 && module.gradSec==0) module.id = South@Clover;
+	// 	if (module.gradPri==3 && module.gradSec==1) module.id = North@Clover;
+	// 	if (module.gradPri==2 && module.gradSec==1) module.id = East@Clover;
+	// 	
+	// 	module.isRef = (module.gradH == 0 && module.gradV == 3);
+	// }
 						
 	disconnect(West@Clover,South@Clover);
-	rotate(East@Clover,180);
-	rotate(North@Clover,180);
+	rotate(East@Clover,HALF);
+	rotate(North@Clover,HALF);
 	connect(WEast@Clover,@Floor);
 	connect(South@Clover,@Floor);
 	
 	do {
 		disconnect(West@Clover,@Floor);
 		disconnect(North@Clover,@Floor);
-	} wait (consensus());
+	}
 	
-	rotate(North@Clover,180);
-	rotate(East@Clover,180);
+	rotate(North@Clover,HALF);
+	rotate(East@Clover,HALF);
 	
 	connect(South@Clover,West@Clover);
 	
 	do {
-		if (@Clover) {
-			module.id = module.idPrev;
-			module.switchNorthSouth();
-			module.switchEastWest();
-		}	
-	} wait (consensus());
+		when (receive (PacketSymmetry p)) {
+			module.fixSymmetry(p.connSource,p.connDest);
+		}
+		if (module.isRef) {
+			broadcast PacketSymmetry ();	
+		}
+		
+	} until(consensus());
+	
+	module.restoreID();
 	
 	region.finish();
-	
 }

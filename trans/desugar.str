@@ -1,0 +1,60 @@
+module desugar
+
+imports
+  libstratego-lib
+  libstratego-gpp
+  libstratego-aterm
+  include/MetaformaLang
+  include/constructors
+  lib/editor-common.generated
+  lib/compilation-library.generated
+  libjava-front
+
+  
+
+rules // Incremental code generation of project using compilation library.
+  
+  
+ 
+rules // Transformation to java strings.
+
+
+desugar-all = innermost(desugar-core);topdown(try(add-instr));innermost(desugar)
+
+
+// assign-nr: State(instr*) -> State(instr*)
+// where
+// 	<length> instr* => c;
+//     <upto> (c) => nrs*;
+//     <zip>()
+
+
+add-instr: State(n,e,x,instrs) -> State(n,e,x,instrs')  
+where 
+	<list-loop(add-i)>instrs => instrs'
+	// <innermost(add-i2(|2))>instrs' => instrs''
+
+
+add-i2(|i): Instr(d,instr*,postcon) -> Instr(i,d,instr*,postcon) 
+	
+add-i: f@FuncCall(_,_) -> Instr([],[f],Wait(Consensus()))
+where
+	<debug>f
+	
+desugar: "byte" -> Byte()
+desugar: "void" -> Void()
+
+desugar: VarDecl(t,n*) -> decls
+	where
+		decls := <map(fixvar(|t))>n*
+	 
+ 
+desugar-core: ConnectPart(m1,m2) -> FuncCall("connect_part",[m1,m2])
+desugar-core: DisconnectPart(m1,m2) -> FuncCall("disconnect_part",[m1,m2])
+desugar-core: Connect(m1,m2) -> FuncCall("connect",[m1,m2])
+desugar-core: Disconnect(m1,m2) -> FuncCall("disconnect",[m1,m2])
+desugar-core: Rotate(m1,deg) -> FuncCall("rotate",[m1,deg])
+desugar-core: RotateCont(m1,v) -> FuncCall("rotate_continuous",[m1,v])
+
+fixvar(|t): n -> VarDecl(t,n)
+  

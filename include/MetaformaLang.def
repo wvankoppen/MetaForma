@@ -1,5 +1,7 @@
 definition
 module lexical/MetaformaLang-Identifiers
+imports MetaformaLang
+
 exports
 	sorts Id String Time Obj
 	
@@ -23,11 +25,13 @@ lexical syntax
 	"while"			-> ID {reject}
 	"wait"			-> ID {reject}
 	"until"			-> ID {reject}
+	"consensus"			-> ID {reject}
 	
 	Const			-> ID {reject}
 	Bool			-> ID {reject}
 	Obj				-> ID {reject}
 	Core			-> ID {reject}
+	"module"				-> ID {reject}
 	
 	
 	"false"			-> Bool
@@ -45,17 +49,16 @@ lexical syntax
 	"void"			-> Type
 	"byte" "[" "]"	-> Type
 	
-	"meta"			-> Obj
-	"module"		-> Obj
-	"region"		-> Obj
-	"debug"			-> Obj
-	"config"		-> Obj
+	
 	
 	"connect"		-> Core
 	"disconnect"	-> Core
 	"rotate"		-> Core
 	"stop"			-> Core
 	"rotate_continuous"	-> Core
+	"disconnect_part"	-> Core
+	"connect_part"	-> Core
+	
 
 
 module Exp
@@ -182,8 +185,7 @@ sorts	Group
 	"part" "[" {ID ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
 	
 	ID 					-> Ref{cons("VarRef")}
-	ID "." ID 			-> Ref{cons("FieldRef")}
-	Obj "." ID 			-> Ref{cons("FieldRef")}
+	
 	Ref "=" Exp			-> Assign{cons("Assign")}
 	{Assign ","}*		-> AssignLst{cons("AssignList")}
 	
@@ -204,10 +206,6 @@ sorts	Group
 	
 	Ref "=" Exp ";" -> Stmt{cons("Assign")}
 	
-	ID  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
-	ID  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
-	Obj "." ID 	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
-	Obj "." ID 	"(" {Exp "," }* ")" 	 -> Exp{cons("FuncCall")}
 
 	
 	"{" Stmt* "}" -> Stmt{cons("Stmt")}
@@ -227,6 +225,9 @@ sorts	Group
 	"connect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{cons("Connect")}
 	"rotate" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("Rotate")}
 	"rotate_continuous" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("RotateCont")}
+	"disconnect_part" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("DisconnectPart")}
+	"connect_part" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("ConnectPart")}
+	
 	"stop" "(" ModHolder ")" ";"			-> Stmt{cons("Stop")}
 	
 	"for" "(" Type ID ":" ID")" "{" Stmt "}"				-> Stmt{cons("For")}
@@ -234,8 +235,27 @@ sorts	Group
 	"send" Type "(" {Assign ","}* ")"	"to" ID ";"			-> Stmt{cons("Send")}
 	
 	
-	"wait" -> StopCondition {cons("Wait")}
-	"until" -> StopCondition{cons("Until")}
+	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
+	"until" "(" Stop ")" ";" -> StopCondition{cons("Until")}
+	
+	"consensus" "(" ")" 	-> Stop {cons("Consensus")}
+	Exp						-> Stop	
+	
+	"meta"			-> Obj{cons("Meta")}
+	"module"		-> Obj{cons("Module")}
+	"region"		-> Obj{cons("Region")}
+	"debug"			-> Obj{cons("Debug")}
+	"config"		-> Obj{cons("Config")}
+	
+	
+	Obj "." ID -> MethodRef{cons("MethodRef")}
+	
+	context-free priorities
+	{
+	Obj "." ID 			-> Ref{cons("FieldRef")}
+	} > {
+	ID "." ID 			-> Ref{cons("FieldRef")}
+	}
 	
 	context-free priorities
 	{
@@ -244,11 +264,22 @@ sorts	Group
 	ID "@" ID									-> ModHolder{cons("ModHolder")}
 	}
 	
+	
 	context-free priorities
 	{
-		"do" "{" Decl* Stmt* "}" StopCondition "(" Exp ")" ";"  -> Instr{cons("Instr")}
+	"do" "{" Decl* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
 	} > {
-		"do" "{" Decl* Stmt* "}"  -> Instr{cons("Instr")}		
+	"do" "{" Decl* Stmt* "}" -> Instr{cons("Instr")}
+	}
+	
+	
+	context-free priorities
+	{
+	MethodRef	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
+	MethodRef 	"(" {Exp "," }* ")" 	 -> Exp{cons("FuncCall")}
+	} > {
+	ID  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
+	ID  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
 	}
 
 module Common
@@ -339,8 +370,7 @@ sorts	Group
 	"part" "[" {ID ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
 	
 	ID 					-> Ref{cons("VarRef")}
-	ID "." ID 			-> Ref{cons("FieldRef")}
-	Obj "." ID 			-> Ref{cons("FieldRef")}
+	
 	Ref "=" Exp			-> Assign{cons("Assign")}
 	{Assign ","}*		-> AssignLst{cons("AssignList")}
 	
@@ -361,10 +391,6 @@ sorts	Group
 	
 	Ref "=" Exp ";" -> Stmt{cons("Assign")}
 	
-	ID  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
-	ID  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
-	Obj "." ID 	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
-	Obj "." ID 	"(" {Exp "," }* ")" 	 -> Exp{cons("FuncCall")}
 
 	
 	"{" Stmt* "}" -> Stmt{cons("Stmt")}
@@ -384,6 +410,9 @@ sorts	Group
 	"connect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{cons("Connect")}
 	"rotate" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("Rotate")}
 	"rotate_continuous" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("RotateCont")}
+	"disconnect_part" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("DisconnectPart")}
+	"connect_part" "(" ModHolder "," Exp ")" ";"			-> Stmt{cons("ConnectPart")}
+	
 	"stop" "(" ModHolder ")" ";"			-> Stmt{cons("Stop")}
 	
 	"for" "(" Type ID ":" ID")" "{" Stmt "}"				-> Stmt{cons("For")}
@@ -391,8 +420,27 @@ sorts	Group
 	"send" Type "(" {Assign ","}* ")"	"to" ID ";"			-> Stmt{cons("Send")}
 	
 	
-	"wait" -> StopCondition {cons("Wait")}
-	"until" -> StopCondition{cons("Until")}
+	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
+	"until" "(" Stop ")" ";" -> StopCondition{cons("Until")}
+	
+	"consensus" "(" ")" 	-> Stop {cons("Consensus")}
+	Exp						-> Stop	
+	
+	"meta"			-> Obj{cons("Meta")}
+	"module"		-> Obj{cons("Module")}
+	"region"		-> Obj{cons("Region")}
+	"debug"			-> Obj{cons("Debug")}
+	"config"		-> Obj{cons("Config")}
+	
+	
+	Obj "." ID -> MethodRef{cons("MethodRef")}
+	
+	context-free priorities
+	{
+	Obj "." ID 			-> Ref{cons("FieldRef")}
+	} > {
+	ID "." ID 			-> Ref{cons("FieldRef")}
+	}
 	
 	context-free priorities
 	{
@@ -401,9 +449,20 @@ sorts	Group
 	ID "@" ID									-> ModHolder{cons("ModHolder")}
 	}
 	
+	
 	context-free priorities
 	{
-		"do" "{" Decl* Stmt* "}" StopCondition "(" Exp ")" ";"  -> Instr{cons("Instr")}
+	"do" "{" Decl* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
 	} > {
-		"do" "{" Decl* Stmt* "}"  -> Instr{cons("Instr")}		
+	"do" "{" Decl* Stmt* "}" -> Instr{cons("Instr")}
+	}
+	
+	
+	context-free priorities
+	{
+	MethodRef	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
+	MethodRef 	"(" {Exp "," }* ")" 	 -> Exp{cons("FuncCall")}
+	} > {
+	ID  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
+	ID  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
 	}

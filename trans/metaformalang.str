@@ -5,6 +5,7 @@ imports
   libstratego-gpp
   libstratego-aterm
   include/MetaformaLang
+  include/constructors
   lib/editor-common.generated
   lib/index-library.generated
   lib/analysis-library.generated
@@ -189,4 +190,4 @@ rules // Utility
 		where
 			<guarantee-extension(|"java")> path => filename ;
 			<base-filename> path => javafile;
-			<pp-java-string><to-java-all> selected => result
+			<to-java-all><desugar-all> selected => result

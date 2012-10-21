@@ -8,7 +8,24 @@ group Outside;
 
 
 state Flipover {
+	byte QUART;
+	byte HALF;
+	
+	module.gradientInit();
 	module.gradientPropagate();
+
+	do  {
+		if (region.orientation == BOTTOMLEFT) {
+			QUART = 90;
+			HALF = 180;
+		}
+		
+		if (region.orientation == BOTTOMRIGHT) {
+			QUART = -90;
+			HALF = -180;
+		}
+		
+	}
 
 	do  {
 		if (module.gradPri == 0 && module.gradSec < 3 || module.gradSec==0 && module.gradPri<3) { 

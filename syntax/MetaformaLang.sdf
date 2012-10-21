@@ -37,8 +37,7 @@ sorts	Group
 	"part" "[" {ID ","}* "]" ";" -> PartDecl{"MetaPartDecl"}
 	
 	ID 					-> Ref{"VarRef"}
-	ID "." ID 			-> Ref{"FieldRef"}
-	Obj "." ID 			-> Ref{"FieldRef"}
+	
 	Ref "=" Exp			-> Assign{"Assign"}
 	{Assign ","}*		-> AssignLst{"AssignList"}
 	
@@ -59,10 +58,6 @@ sorts	Group
 	
 	Ref "=" Exp ";" -> Stmt{"Assign"}
 	
-	ID  "(" {Exp "," }* ")"   			-> Exp{"FuncCall"}
-	ID  "(" {Exp "," }* ")" ";"			-> Stmt{"FuncCall"}
-	Obj "." ID 	"(" {Exp "," }* ")" ";"  -> Stmt{"FuncCall"}
-	Obj "." ID 	"(" {Exp "," }* ")" 	 -> Exp{"FuncCall"}
 
 	
 	"{" Stmt* "}" -> Stmt{"Stmt"}
@@ -82,6 +77,9 @@ sorts	Group
 	"connect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{"Connect"}
 	"rotate" "(" ModHolder "," Exp ")" ";"			-> Stmt{"Rotate"}
 	"rotate_continuous" "(" ModHolder "," Exp ")" ";"			-> Stmt{"RotateCont"}
+	"disconnect_part" "(" ModHolder "," Exp ")" ";"			-> Stmt{"DisconnectPart"}
+	"connect_part" "(" ModHolder "," Exp ")" ";"			-> Stmt{"ConnectPart"}
+	
 	"stop" "(" ModHolder ")" ";"			-> Stmt{"Stop"}
 	
 	"for" "(" Type ID ":" ID")" "{" Stmt "}"				-> Stmt{"For"}
@@ -89,8 +87,27 @@ sorts	Group
 	"send" Type "(" {Assign ","}* ")"	"to" ID ";"			-> Stmt{"Send"}
 	
 	
-	"wait" -> StopCondition {"Wait"}
-	"until" -> StopCondition{"Until"}
+	"wait" "(" Stop ")" ";" -> StopCondition {"Wait"}
+	"until" "(" Stop ")" ";" -> StopCondition{"Until"}
+	
+	"consensus" "(" ")" 	-> Stop {"Consensus"}
+	Exp						-> Stop	
+	
+	"meta"			-> Obj{"Meta"}
+	"module"		-> Obj{"Module"}
+	"region"		-> Obj{"Region"}
+	"debug"			-> Obj{"Debug"}
+	"config"		-> Obj{"Config"}
+	
+	
+	Obj "." ID -> MethodRef{"MethodRef"}
+	
+	context-free priorities
+	{
+	Obj "." ID 			-> Ref{"FieldRef"}
+	} > {
+	ID "." ID 			-> Ref{"FieldRef"}
+	}
 	
 	context-free priorities
 	{
@@ -99,12 +116,29 @@ sorts	Group
 	ID "@" ID									-> ModHolder{"ModHolder"}
 	}
 	
+	
 	context-free priorities
 	{
-		"do" "{" Decl* Stmt* "}" StopCondition "(" Exp ")" ";"  -> Instr{"Instr"}
+	"do" "{" Decl* Stmt* "}" StopCondition  -> Instr{"Instr"}
 	} > {
-		"do" "{" Decl* Stmt* "}"  -> Instr{"Instr"}		
+	"do" "{" Decl* Stmt* "}" -> Instr{"Instr"}
 	}
+	
+	
+	context-free priorities
+	{
+	MethodRef	"(" {Exp "," }* ")" ";"  -> Stmt{"FuncCall"}
+	MethodRef 	"(" {Exp "," }* ")" 	 -> Exp{"FuncCall"}
+	} > {
+	ID  "(" {Exp "," }* ")"   			-> Exp{"FuncCall"}
+	ID  "(" {Exp "," }* ")" ";"			-> Stmt{"FuncCall"}
+	}
+	
+	
+	
+	
+	
+	
 	
 	
 	

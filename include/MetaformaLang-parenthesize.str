@@ -392,24 +392,36 @@ rules
             + fail)> t_1
 
   MetaformaLangParenthesize :
-    Instr(t_0, t_1, t_2, t_3) -> Instr(Parenthetical(t_0), t_1, t_2, t_3)
+    FuncCall(t_0, t_1) -> FuncCall(Parenthetical(t_0), t_1)
+    where <(?FuncCall(_, _) + fail)> t_0
+
+  MetaformaLangParenthesize :
+    FuncCall(t_0, t_1) -> FuncCall(t_0, Parenthetical(t_1))
+    where <(?FuncCall(_, _) + fail)> t_1
+
+  MetaformaLangParenthesize :
+    Instr(t_0, t_1, t_2) -> Instr(Parenthetical(t_0), t_1, t_2)
     where <(?Instr(_, _) + fail)> t_0
 
   MetaformaLangParenthesize :
-    Instr(t_0, t_1, t_2, t_3) -> Instr(t_0, Parenthetical(t_1), t_2, t_3)
+    Instr(t_0, t_1, t_2) -> Instr(t_0, Parenthetical(t_1), t_2)
     where <(?Instr(_, _) + fail)> t_1
 
   MetaformaLangParenthesize :
-    Instr(t_0, t_1, t_2, t_3) -> Instr(t_0, t_1, Parenthetical(t_2), t_3)
+    Instr(t_0, t_1, t_2) -> Instr(t_0, t_1, Parenthetical(t_2))
     where <(?Instr(_, _) + fail)> t_2
-
-  MetaformaLangParenthesize :
-    Instr(t_0, t_1, t_2, t_3) -> Instr(t_0, t_1, t_2, Parenthetical(t_3))
-    where <(?Instr(_, _) + fail)> t_3
 
   MetaformaLangParenthesize :
     ModHolder(t_0) -> ModHolder(Parenthetical(t_0))
     where <(?ModHolder(_, _) + fail)> t_0
+
+  MetaformaLangParenthesize :
+    FieldRef(t_0, t_1) -> FieldRef(Parenthetical(t_0), t_1)
+    where <(?FieldRef(_, _) + fail)> t_0
+
+  MetaformaLangParenthesize :
+    FieldRef(t_0, t_1) -> FieldRef(t_0, Parenthetical(t_1))
+    where <(?FieldRef(_, _) + fail)> t_1
 
   MetaformaLangParenthesize :
     AndBit(t_0, t_1) -> AndBit(Parenthetical(t_0), t_1)

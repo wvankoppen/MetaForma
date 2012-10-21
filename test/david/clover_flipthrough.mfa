@@ -1,63 +1,78 @@
-module Uplifter {Top,Bottom,Left,Right}
-module Dummy {Left,Right}
+module Brandt
+
+group Uplifter [Top,Bottom,Left,Right];
+group Dummy [Left,Right];
 
 
-
-module {
-	void identify () {
-		if (gradPri==1 && gradSec==1) { 
-			id = Left@Uplifter);
-		}
-		if (gradPri==1 && gradSec==1) { 
-			id = Left@Uplifter);
-		}
-		if (gradPri==1 && gradSec==1) { 
-			id = Left@Uplifter);
-		}
-		if (gradPri==1 && gradSec==1) { 
-			id = Left@Uplifter);
-		}
-	}
-}
-
-sequence FlipThrough {
+state FlipThrough {
 	
-	module.identify();
+	// byte QUART;
+	// byte HALF;
+	
+	module.gradientInit();
+	
+	module.gradientPropagate();
+	
+	
+	// do  {
+	// 	if (region.orientation == BOTTOMLEFT) {
+	// 		QUART = 90;
+	// 		HALF = 180;
+	// 	}
+	// 	
+	// 	if (region.orientation == BOTTOMRIGHT) {
+	// 		QUART = -90;
+	// 		HALF = -180;
+	// 	}
+	// }
+	// 
+	// do {		
+	// 	if (module.gradPri==3 && module.gradSec==0) module.id = West@Clover;
+	// 	if (module.gradPri==2 && module.gradSec==0) module.id = South@Clover;
+	// 	if (module.gradPri==3 && module.gradSec==1) module.id = North@Clover;
+	// 	if (module.gradPri==2 && module.gradSec==1) module.id = East@Clover;
+	// 	
+	// 	module.isRef = (module.gradH == 0 && module.gradV == 3);
+	// }
 	
 						
 	do  {				
-		disconnectPart(Left@Uplifter, NORTH&MALE&EAST|SOUTH&MALE&WEST);
-		disconnectPart(Right@Uplifter, NORTH&MALE&EAST);
+		disconnect_part(Left@Uplifter, NORTH&MALE&EAST|SOUTH&MALE&WEST);
+		disconnect_part(Right@Uplifter, NORTH&MALE&EAST);
 	} wait (consensus());
 	
 	do  {				
-		rotate(Left@Uplifter, -90);
-		rotate(Right@Uplifter, -90);
+		rotate(Left@Uplifter, QUART);
+		rotate(Right@Uplifter, QUART);
 	} wait (consensus());
 	
-	disconnectPart(Top@Uplifter, NORTH);
-	rotate(Top@Uplifter, -180);
+	disconnect_part(Top@Uplifter, NORTH);
+	rotate(Top@Uplifter, HALF);
 	
 	do  {				
-		rotate(Left@Uplifter, -90);
-		rotate(Right@Uplifter, -90);
+		rotate(Left@Uplifter, -QUART);
+		rotate(Right@Uplifter, -QUART);
 	} wait (consensus());
 	
 	do  {				
-		rotate(Right@Uplifter, -180);
-		rotate(Bottom@Uplifter, 180);
+		rotate(Right@Uplifter, -HALF);
+		rotate(Bottom@Uplifter, HALF);
 	} wait (consensus());
 	
 	connect(@Floor, @Uplifter);	
 	
 	do {
-		fixSymmetry ();
-	} until (consensus());
-	
-	do {
-		if (!@Floor) {
-			renameRestore();
+		when (receive (PacketSymmetry p)) {
+			module.fixSymmetry(p.connSource,p.connDest);
 		}
-	} wait (consensus());
+		if (module.isRef) {
+			broadcast PacketSymmetry ();	
+		}
+		
+	} until(consensus());
+	
+	module.restoreID();
+	
+	region.finish();
 	
 }

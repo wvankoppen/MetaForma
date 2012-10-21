@@ -5,6 +5,7 @@ imports
   libstratego-gpp
   libstratego-aterm
   include/MetaformaLang
+  include/constructors
   lib/editor-common.generated
   lib/compilation-library.generated
   libjava-front
@@ -28,13 +29,25 @@ to-java: ByteArr(e) -> NewArray(Byte(),[Dim()],ArrayInit(e'))
 
 to-java: Int(e) -> Lit(Deci(e))
 
-to-java: FuncCall(n,p) -> Invoke(Method(MethodName(Id(n))),p')
-	with
-		p' := <map(to-java)>p 
+// to-java: FuncCall(n,p) -> Invoke(Method(MethodName(Id(n))),p')
+// 	with
+// 		p' := <map(to-java)>p 
 
 
 to-java: VarRef(n) -> ExprName(Id(n))
 
+
+
+add-comma: e -> (e,",") 
+concat-comma: l ->  <rtrim-chars(?',')><concat-strings><map(conc-strings)><map(add-comma)>l
+
+to-java: FuncCall(n,args) -> $[[n]([<concat-comma><map(to-java)>args]);]
+to-java: ModHolder(m,g) -> $[Mod.[g]_[m]] 
+
+to-java: Instr(instr*,postcon) -> $[ if (stateMngr.doWait(1))  {
+				scheduler.enable("module.gradientPropagate");
+				stateMngr.commitEnd();
+			} ] 
 
 // to-java: FunDecl(t,n,_,_,s) -> MethodDec(MethodDecHead([],None(),Void(),Id(n),[],None()),Block(s'))
 // where

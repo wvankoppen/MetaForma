@@ -2,6 +2,13 @@
 regular tree grammar
   start Start
   productions
+    ListStarOfExp0        -> ListPlusOfExp0
+    ListStarOfExp0        -> <nil>()
+    ListStarOfExp0        -> <conc>(ListStarOfExp0,ListStarOfExp0)
+    ListPlusOfExp0        -> <conc>(ListStarOfExp0,ListPlusOfExp0)
+    ListPlusOfExp0        -> <conc>(ListPlusOfExp0,ListStarOfExp0)
+    ListPlusOfExp0        -> <conc>(ListPlusOfExp0,ListPlusOfExp0)
+    ListPlusOfExp0        -> <cons>(Exp,ListStarOfExp0)
     ListStarOfStmt0       -> ListPlusOfStmt0
     ListStarOfStmt0       -> <nil>()
     ListStarOfStmt0       -> <conc>(ListStarOfStmt0,ListStarOfStmt0)
@@ -23,13 +30,6 @@ regular tree grammar
     ListPlusOfAssign0     -> <conc>(ListPlusOfAssign0,ListStarOfAssign0)
     ListPlusOfAssign0     -> <conc>(ListPlusOfAssign0,ListPlusOfAssign0)
     ListPlusOfAssign0     -> <cons>(Assign,ListStarOfAssign0)
-    ListStarOfExp0        -> ListPlusOfExp0
-    ListStarOfExp0        -> <nil>()
-    ListStarOfExp0        -> <conc>(ListStarOfExp0,ListStarOfExp0)
-    ListPlusOfExp0        -> <conc>(ListStarOfExp0,ListPlusOfExp0)
-    ListPlusOfExp0        -> <conc>(ListPlusOfExp0,ListStarOfExp0)
-    ListPlusOfExp0        -> <conc>(ListPlusOfExp0,ListPlusOfExp0)
-    ListPlusOfExp0        -> <cons>(Exp,ListStarOfExp0)
     OptRate0              -> <some>(Rate)
     OptRate0              -> <none>()
     ListStarOfVarDecl0    -> ListPlusOfVarDecl0
@@ -90,21 +90,37 @@ regular tree grammar
     ListPlusOfNbsFilter0  -> <conc>(ListPlusOfNbsFilter0,ListStarOfNbsFilter0)
     ListPlusOfNbsFilter0  -> <conc>(ListPlusOfNbsFilter0,ListPlusOfNbsFilter0)
     ListPlusOfNbsFilter0  -> <cons>(NbsFilter,ListStarOfNbsFilter0)
+    Exp                   -> FuncCall(MethodRef,ListStarOfExp0)
+    Stmt                  -> FuncCall(ID,ListStarOfExp0)
+    Exp                   -> FuncCall(ID,ListStarOfExp0)
+    Stmt                  -> FuncCall(MethodRef,ListStarOfExp0)
     Instr                 -> Instr(ListStarOfDecl0,ListStarOfStmt0)
-    Instr                 -> Instr(ListStarOfDecl0,ListStarOfStmt0,StopCondition,Exp)
+    Instr                 -> Instr(ListStarOfDecl0,ListStarOfStmt0,StopCondition)
     ModHolder             -> ModHolder(ID,ID)
     ModHolder             -> ModHolder(ID)
+    Ref                   -> FieldRef(ID,ID)
+    Ref                   -> FieldRef(Obj,ID)
     EOF                   -> <string>
     CommentChar           -> <string>
     BackSlashChar         -> <string>
     StringChar            -> <string>
     STRING                -> <string>
     TIME                  -> <string>
-    StopCondition         -> Until()
-    StopCondition         -> Wait()
+    MethodRef             -> MethodRef(Obj,ID)
+    Obj                   -> Config()
+    Obj                   -> Debug()
+    Obj                   -> Region()
+    Obj                   -> Module()
+    Obj                   -> Meta()
+    Stop                  -> Exp
+    Stop                  -> Consensus()
+    StopCondition         -> Until(Stop)
+    StopCondition         -> Wait(Stop)
     Stmt                  -> Send(Type,ListStarOfAssign0,ID)
     Stmt                  -> For(Type,ID,ID,Stmt)
     Stmt                  -> Stop(ModHolder)
+    Stmt                  -> ConnectPart(ModHolder,Exp)
+    Stmt                  -> DisconnectPart(ModHolder,Exp)
     Stmt                  -> RotateCont(ModHolder,Exp)
     Stmt                  -> Rotate(ModHolder,Exp)
     Stmt                  -> Connect(ModHolder,ModHolder)
@@ -117,10 +133,6 @@ regular tree grammar
     Stmt                  -> If(Exp,Stmt)
     Stmt                  -> IfElse(Exp,Stmt,Stmt)
     Stmt                  -> Stmt(ListStarOfStmt0)
-    Exp                   -> FuncCall(Obj,ID,ListStarOfExp0)
-    Stmt                  -> FuncCall(Obj,ID,ListStarOfExp0)
-    Stmt                  -> FuncCall(ID,ListStarOfExp0)
-    Exp                   -> FuncCall(ID,ListStarOfExp0)
     Stmt                  -> Assign(Ref,Exp)
     Stmt                  -> Broadcast(ID,AssignLst,OptRate0)
     Stmt                  -> Unicast(ID,AssignLst,Exp,OptRate0)
@@ -133,8 +145,6 @@ regular tree grammar
     Definition            -> State(ID,ListStarOfVarDecl0,ListStarOfFuncDecl0,ListStarOfInstr0)
     AssignLst             -> AssignList(ListStarOfAssign0)
     Assign                -> Assign(Ref,Exp)
-    Ref                   -> FieldRef(Obj,ID)
-    Ref                   -> FieldRef(ID,ID)
     Ref                   -> VarRef(ID)
     PartDecl              -> MetaPartDecl(ListStarOfID0)
     VarDecl               -> VarDecl(Type,ListPlusOfID0)
@@ -188,7 +198,6 @@ regular tree grammar
     Exp                   -> NbsCount(NbsOp)
     Exp                   -> Ref
     Core                  -> <string>
-    Obj                   -> <string>
     Type                  -> <string>
     Const                 -> <string>
     Bool                  -> <string>

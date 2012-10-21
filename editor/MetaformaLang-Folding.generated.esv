@@ -31,16 +31,21 @@ folding Default folding definitions
   Assign.Assign
   Stmt.Broadcast
   Stmt.Assign
-  Stmt.FuncCall
-  Stmt.FuncCall
   Stmt.IfElse
   Stmt.If
   Stmt.Rotate
   Stmt.RotateCont
+  Stmt.DisconnectPart
+  Stmt.ConnectPart
   Stmt.Send
+  Stmt.FuncCall
+  Stmt.FuncCall
   Definition.ModuleNS
   Definition.State
   Stmt
   Instr.Instr
+  StopCondition.Wait
+  Exp
+  StopCondition.Until
   Instr.Instr
   Definition.Group

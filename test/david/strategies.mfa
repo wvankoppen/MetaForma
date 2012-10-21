@@ -61,53 +61,55 @@ meta {
 module  {
 	byte gradPri,gradSec;
 	boolean isRef;
-	boolean sourceH;
-	boolean sourceV;	
+	boolean sourcePri;
+	boolean sourceSec;	
 	
-	boolean left () {return $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);}
+	border left = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+	border right = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+	border top = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+	border bottom = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
 	
-		
-	
-	void gradientPropagate () { 
-		if (sourceH){
-			print("I am source for H");
-			gradH = 0;
+	void gradientPropagate () {
+		// For gradients, the state does not matter so this is global	
+		when (receive (PacketGradient p)) {
+			boolean updated;
+			
+			if (gradPri > p.pri + 1) {
+				gradPri = p.pri + 1;
+				updated = true;
+			}
+			if (gradSec > p.sec + 1) {
+				gradSec = p.sec + 1;
+				updated = true;
+			}
+			if (updated) {
+				gradientPropagate();
+			}
+		}
+
+		 
+		if (sourcePri){
+			gradPri = 0;
 		}
 		
-		if (sourceV) {
-			print("I am source for V");
-			gradV = 0;
+		if (sourceSec) {
+			gradSec = 0;
 		}
-		broadcast PacketGradient(h=gradH, v=gradV);
+		broadcast PacketGradient(pri=gradPri, sec=gradSec);
 	}
 	
 
-	void gradientInit(boolean sH, boolean sV) {
-		sourceH = sH;
-		sourceV = sV;
-		print("gradientInit()");
-		gradH = MAX_BYTE;			
+	void gradientInit() {
+		sourcePri = orientation.primaryBorder();
+		sourceSec = orientation.secondaryBorder();
+		
+		gradPri = MAX_BYTE;
+		gradSec = MAX_BYTE;			
 	}
 }
 
 
 
-// For gradients, the state does not matter so this is global	
-when (receive (PacketGradient p)) {
-	boolean updated;
-	
-	if (module.gradPri > p.pri + 1) {
-		module.gradPri = p.pri + 1;
-		updated = true;
-	}
-	if (module.gradSec > p.sec + 1) {
-		module.gradSec = p.sec + 1;
-		updated = true;
-	}
-	if (updated) {
-		module.gradientPropagate();
-	}
-}
 
 
 
