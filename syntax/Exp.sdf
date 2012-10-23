@@ -23,13 +23,13 @@ exports
 	"module.metaID" "==" Exp			-> NbsFilter{"withMetaID"}
 	"connDest" ":" Exp				-> NbsFilter{"connDest"}
 	"connSource" ":" Exp			-> NbsFilter{"connSource"}
-	ModHolder					-> NbsFilter{"in"}
+	ModHolderRef					-> NbsFilter{"in"}
 	
 	ID 						-> MetaPart{"MetaPart"}
 	INT						-> Exp{"Int"}
 	Const					-> Exp{"Const"}
 	Bool					-> Exp{"Bool"}
-	ModHolder				-> Exp{"ModHolder"}
+	ModHolderRef				-> Exp
 	"(" Exp ")"			    -> Exp{"Par"}
 	"[" {Exp ","}* "]"		-> Exp{"ByteArr"}
 	STRING					-> Exp{"String"}

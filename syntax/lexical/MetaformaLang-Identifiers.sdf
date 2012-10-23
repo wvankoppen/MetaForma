@@ -26,11 +26,9 @@ lexical syntax
 	"until"			-> ID {reject}
 	"consensus"			-> ID {reject}
 	
-	Const			-> ID {reject}
-	Bool			-> ID {reject}
-	Obj				-> ID {reject}
-	Core			-> ID {reject}
-	"module"				-> ID {reject}
+	
+	 
+	 
 	
 	
 	"false"			-> Bool
@@ -43,10 +41,7 @@ lexical syntax
 	"NORTH"			-> Const
 	"SOUTH"			-> Const
 	
-	"boolean"		-> Type
-	"byte"			-> Type
-	"void"			-> Type
-	"byte" "[" "]"	-> Type
+	
 	
 	
 	
@@ -57,4 +52,25 @@ lexical syntax
 	"rotate_continuous"	-> Core
 	"disconnect_part"	-> Core
 	"connect_part"	-> Core
+	
+	
+	
+	
+	
+	context-free syntax
+	"boolean"		-> Type{"Boolean"}
+	"byte"			-> Type{"Byte"}
+	"void"			-> Type{"Void"}
+	"byte" "[" "]"	-> Type{"ByteArr"}
+	
+	"meta"			-> Obj{"Meta"}
+	"module"		-> Obj{"Module"}
+	"region"		-> Obj{"Region"}
+	"debug"			-> Obj{"Debug"}
+	"config"		-> Obj{"Config"}
+	%% 
+	 Const			-> ID {reject}
+	 Bool			-> ID {reject}
+	 Obj				-> ID {reject}
+	 Core			-> ID {reject}
 	

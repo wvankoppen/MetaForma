@@ -12,8 +12,8 @@ outliner Default outliner
   //
   //   _.<constructor>
   
-  Start.Start
-  VarDecl.VarDecl
+  Start.Program
+  GroupDef.Group
   FuncDecl.FuncDecl
   Decl.Packet
   EvHdlr.EvHdlr
@@ -26,4 +26,3 @@ outliner Default outliner
   FuncDecl.FuncDecl
   Definition.State
   Instr.Instr
-  Definition.Group

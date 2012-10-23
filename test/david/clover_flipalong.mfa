@@ -1,11 +1,14 @@
-module Brandt
+program Brandt
 
-group Clover [North,South,West,East];
-	
 
+group Clover [North,South,West,East]
+
+
+	 
 state CloverFlipAlong  {
-	// byte QUART;
-	// byte HALF;
+	
+	byte QUART; 
+	byte HALF;
 	// 
 	// module.gradientInit();
 	// 
@@ -24,25 +27,26 @@ state CloverFlipAlong  {
 	// 	
 	// } 
 	// 		
-	// do {		
-	// 	if (module.gradPri==3 && module.gradSec==0) module.id = West@Clover;
-	// 	if (module.gradPri==2 && module.gradSec==0) module.id = South@Clover;
-	// 	if (module.gradPri==3 && module.gradSec==1) module.id = North@Clover;
-	// 	if (module.gradPri==2 && module.gradSec==1) module.id = East@Clover;
-	// 	
-	// 	module.isRef = (module.gradH == 0 && module.gradV == 3);
-	// }
-						
-	disconnect(West@Clover,South@Clover);
+	do {		
+		if (module.gradPri==3 && module.gradSec==0) module.id = West@Clover;
+		if (module.gradPri==2 && module.gradSec==0) module.id = South@Clover;
+		if (module.gradPri==3 && module.gradSec==1) module.id = North@Clover;
+		if (module.gradPri==2 && module.gradSec==1) module.id = East@Clover;
+		// 
+		 module.isRef = (module.gradH == 0 && module.gradV == 3);
+	}
+			 
+	
+	 
 	rotate(East@Clover,HALF);
 	rotate(North@Clover,HALF);
-	connect(WEast@Clover,@Floor);
+	connect(East@Clover,@Floor);
 	connect(South@Clover,@Floor);
 	
 	do {
 		disconnect(West@Clover,@Floor);
 		disconnect(North@Clover,@Floor);
-	}
+	}until(config.time);
 	
 	rotate(North@Clover,HALF);
 	rotate(East@Clover,HALF);
@@ -50,6 +54,10 @@ state CloverFlipAlong  {
 	connect(South@Clover,West@Clover);
 	
 	do {
+		packet PacketSymmetry {
+				
+		}
+		
 		when (receive (PacketSymmetry p)) {
 			module.fixSymmetry(p.connSource,p.connDest);
 		}
@@ -58,8 +66,8 @@ state CloverFlipAlong  {
 		}
 		
 	} until(consensus());
-	
-	module.restoreID();
-	
-	region.finish();
+	// 
+	// module.restoreID();
+	// 
+	// region.finish();
 }

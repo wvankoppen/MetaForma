@@ -1,9 +1,9 @@
 module Brandt
  
-group InsideLifter [Top,Bottom];
-group OutsideLifter [Top,Bottom];
-group Inside;
-group Outside;
+group InsideLifter [Top,Bottom]
+group OutsideLifter [Top,Bottom]
+group Inside
+group Outside
 
 
 

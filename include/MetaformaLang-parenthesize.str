@@ -412,8 +412,8 @@ rules
     where <(?Instr(_, _) + fail)> t_2
 
   MetaformaLangParenthesize :
-    ModHolder(t_0) -> ModHolder(Parenthetical(t_0))
-    where <(?ModHolder(_, _) + fail)> t_0
+    ModHolderRef(t_0) -> ModHolderRef(Parenthetical(t_0))
+    where <(?ModHolderRef(_, _) + fail)> t_0
 
   MetaformaLangParenthesize :
     FieldRef(t_0, t_1) -> FieldRef(Parenthetical(t_0), t_1)

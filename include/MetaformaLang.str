@@ -2,41 +2,41 @@ module MetaformaLang
 
 signature
   constructors
-    ModHolder      : ID * ID -> ModHolder
-    ModHolder      : ID -> ModHolder
+    ModHolderRef   : ID * ID -> ModHolderRef
+    ModHolderRef   : ID -> ModHolderRef
                    : String -> STRING
     MethodRef      : Obj * ID -> MethodRef
-    Config         : Obj
-    Debug          : Obj
-    Region         : Obj
-    Module         : Obj
-    Meta           : Obj
                    : Exp -> Stop
     Consensus      : Stop
     Until          : Stop -> StopCondition
     Wait           : Stop -> StopCondition
+    Mod            : ID -> Mod
+    GroupNum       : ID -> GroupDef
+    Group          : ID * List(Mod) -> GroupDef
     Instr          : List(Decl) * List(Stmt) -> Instr
     Instr          : List(Decl) * List(Stmt) * StopCondition -> Instr
                    : Stmt -> Instr
+    Block          : List(Stmt) -> Block
+    Block          : Stmt -> Block
     Rate           : Ref -> Rate
     Event          : Exp -> Event
-    Event          : ID * ID -> Event
+    Receive        : PacketRef * ID -> Event
+    PacketRef      : ID -> PacketRef
     FuncCall       : ID * List(Exp) -> Stmt
     FuncCall       : MethodRef * List(Exp) -> Stmt
-    Send           : Type * List(Assign) * ID -> Stmt
-    For            : Type * ID * ID * Stmt -> Stmt
-    Stop           : ModHolder -> Stmt
-    ConnectPart    : ModHolder * Exp -> Stmt
-    DisconnectPart : ModHolder * Exp -> Stmt
-    RotateCont     : ModHolder * Exp -> Stmt
-    Rotate         : ModHolder * Exp -> Stmt
-    Connect        : ModHolder * ModHolder -> Stmt
-    Disconnect     : ModHolder * ModHolder -> Stmt
+    Send           : Type * List(Assign) * Exp -> Stmt
+    For            : Type * ID * ID * Block -> Stmt
+    Stop           : ModHolderRef -> Stmt
+    ConnectPart    : ModHolderRef * Exp -> Stmt
+    DisconnectPart : ModHolderRef * Exp -> Stmt
+    RotateCont     : ModHolderRef * Exp -> Stmt
+    Rotate         : ModHolderRef * Exp -> Stmt
+    Connect        : ModHolderRef * ModHolderRef -> Stmt
+    Disconnect     : ModHolderRef * ModHolderRef -> Stmt
     Goto           : ID * ID -> Stmt
     Goto           : ID -> Stmt
-    If             : Exp * Stmt -> Stmt
-    IfElse         : Exp * Stmt * Stmt -> Stmt
-    Stmt           : List(Stmt) -> Stmt
+    If             : Exp * Block -> Stmt
+    IfElse         : Exp * Block * Block -> Stmt
     Assign         : Ref * Exp -> Stmt
     Broadcast      : ID * AssignLst * Option(Rate) -> Stmt
     Unicast        : ID * AssignLst * Exp * Option(Rate) -> Stmt
@@ -48,22 +48,24 @@ signature
     FieldRef       : Obj * ID -> Ref
     VarRef         : ID -> Ref
     MetaPartDecl   : List(ID) -> PartDecl
-    VarDecl        : Type * List(ID) -> VarDecl
+    PayloadDecl    : Type * ID -> PayloadDecl
+    FieldDecl      : Type * ID -> FieldDecl
+    VarDecl        : Type * ID -> VarDecl
                    : FuncDecl -> Decl
-    Packet         : ID * List(VarDecl) -> Decl
-    Elem           : Type * ID -> ListElem
-    FuncDecl       : Type * ID * List(ListElem) * List(Decl) * List(Stmt) * Exp -> FuncDecl
-    FuncDecl       : ID * List(ListElem) * List(Decl) * List(Stmt) -> FuncDecl
-    GroupMum       : ID -> Definition
-    Group          : ID * List(ID) -> Definition
+    Packet         : ID * List(PayloadDecl) -> Decl
+    Param          : Type * ID -> ParamListElem
+    FuncDecl       : Type * ID * List(ParamListElem) * List(Decl) * List(Stmt) * Exp -> FuncDecl
+    FuncDecl       : ID * List(ParamListElem) * List(Decl) * List(Stmt) -> FuncDecl
+    Module         : Module
+    Meta           : Meta
                    : EvHdlr -> Definition
     State          : ID * List(VarDecl) * List(FuncDecl) * List(Instr) -> Definition
-    ModuleNS       : List(VarDecl) * List(FuncDecl) -> Definition
-    MetaNS         : List(PartDecl) * List(VarDecl) * List(FuncDecl) -> Definition
-    Module         : ID -> ModuleDef
-    Start          : ModuleDef * List(Definition) * List(Decl) -> Start
+    Class          : Module * List(FieldDecl) * List(FuncDecl) -> Definition
+    Class          : Meta * List(PartDecl) * List(FieldDecl) * List(FuncDecl) -> Definition
+                   : GroupDef -> Definition
+    Program        : ID * List(Definition) * List(Decl) -> Start
     MetaPart       : ID -> MetaPart
-    'in            : ModHolder -> NbsFilter
+    'in            : ModHolderRef -> NbsFilter
     connSource     : Exp -> NbsFilter
     connDest       : Exp -> NbsFilter
     withMetaID     : Exp -> NbsFilter
@@ -96,15 +98,23 @@ signature
     String         : STRING -> Exp
     ByteArr        : List(Exp) -> Exp
     Par            : Exp -> Exp
-    ModHolder      : ModHolder -> Exp
+                   : ModHolderRef -> Exp
     Bool           : Bool -> Exp
     Const          : Const -> Exp
     Int            : INT -> Exp
     Nbs            : NbsOp -> Exp
     NbsCount       : NbsOp -> Exp
                    : Ref -> Exp
+    Config         : Obj
+    Debug          : Obj
+    Region         : Obj
+    Module         : Obj
+    Meta           : Obj
                    : ID -> Type
-                   : String -> Type
+    ByteArr        : Type
+    Void           : Type
+    Byte           : Type
+    Boolean        : Type
                    : String -> Const
                    : String -> Bool
                    : String -> INT

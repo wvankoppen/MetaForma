@@ -2,28 +2,106 @@ module names
 
 imports
 	
-	include/MetaformaLang
+	libstratego-lib
+  libstratego-gpp
+  libstratego-aterm
+  include/MetaformaLang
+  trans/constructors
+  lib/editor-common.generated
+  lib/compilation-library.generated
+  libjava-front
+ 
 	
 namespaces
 	
-	Module
-	Entity
-	Property
+	Mod
+	Group
+	Packet
+	Var
+	Field
+	Class
+	State
 	
+	Payload
+	Program
 rules
 
-	Module(x, _) : 
-		defines Module x
-		scopes Entity
+	Program(n,_,_):
+		defines non-unique Program n
+		scopes Group, Packet, Var, Class, State
+
+	Group(n,_) :
+		defines Group n
+		scopes Mod
+
+	Mod (n):
+		defines Mod n
 		
-	Entity(x, _) :
-		defines Entity x of type Type(x)
-		scopes Property
+	GroupNum(n) :
+		defines Group n
+	
+	State (n,_,_,_):
+		defines State n	
 		
-	Property(x, t) :
-		defines Property x of type t
+	Packet (n,_):
+		defines Packet n
 		
-	Type(x) :
-		refers to Entity x
-		refers to Entity "String"
-		refers to Entity "Int"
+
+	Receive (PacketRef(p),n):
+		refers to Packet p
+		defines Var n
+		
+		
+	Broadcast(p,_,_):
+		refers to Packet p
+		
+		
+	ModHolderRef(m,g): 
+	 	refers to Mod m in Group g
+	
+	ModHolderRef(g): 
+		refers to Group g
+			
+			
+	VarDecl(_,n): 
+		defines Var n 
+		
+	Param(t, x) :
+    	defines Var x	
+	
+	FieldDecl(_,n): 
+		defines Field n 
+		
+	PayloadDecl(_,n): 
+		defines Payload n
+		 
+	
+	PacketRef(p):
+		refers to Packet p
+	
+	VarRef(n): 
+		refers to Var n			
+		refers to Field n
+		
+	FieldRef(c,n):
+		refers to Field n in Class c
+		refers to Payload n in Packet c
+		refers to Field "id" in Class "module"
+	
+	
+	Class (n,_,_):
+		defines Class n
+		scopes Field
+		
+	Class (n,_,_,_):
+		defines Class n
+		scopes Field
+		
+	ModuleClass ():
+		defines Class "Module"
+		scopes Field
+	
+	MetaClass ():
+		defines Class "Meta"
+		scopes Field
+			

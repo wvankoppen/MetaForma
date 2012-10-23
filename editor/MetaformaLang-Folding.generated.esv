@@ -20,10 +20,10 @@ folding Default folding definitions
   //
   //   Definition._ (disabled)
   
-  Start.Start
-  Definition.MetaNS
+  Start.Program
+  GroupDef.Group
+  Definition.Class
   PartDecl.MetaPartDecl
-  VarDecl.VarDecl
   Decl.Packet
   Event.Event
   Stmt.Unicast
@@ -31,8 +31,6 @@ folding Default folding definitions
   Assign.Assign
   Stmt.Broadcast
   Stmt.Assign
-  Stmt.IfElse
-  Stmt.If
   Stmt.Rotate
   Stmt.RotateCont
   Stmt.DisconnectPart
@@ -40,12 +38,10 @@ folding Default folding definitions
   Stmt.Send
   Stmt.FuncCall
   Stmt.FuncCall
-  Definition.ModuleNS
+  Definition.Class
   Definition.State
-  Stmt
   Instr.Instr
   StopCondition.Wait
   Exp
   StopCondition.Until
   Instr.Instr
-  Definition.Group

@@ -1,23 +1,32 @@
-module Brandt
+program Brandt
+
+group Floor
 
 meta {
 	part [Left, Top, Middle, Right];	
 	
-	byte Top, Bottom, Left, Right, TopLeft,TopRight,BottomLeft,BottomRight;
+	byte Top;
+	byte Bottom;
+	byte Left;
+	byte Right;
+	byte TopLeft;
+	byte TopRight;
+	byte BottomLeft; 
+	byte BottomRight;
 	
-	void metaNeighborHook (Packet p) { 
-		if (p.metaID != module.metaID && module.metaID != 0) {
-			if (p.destCon == 5 || p.destCon == 6) {
-				Right = p.metaId;
+	void metaNeighborHook (byte metaID, byte destConn) { 
+		if (metaID != module.metaID && module.metaID != 0) {
+			if (destConn == 5 || destConn == 6) {
+				Right = metaID;
 			}
-			if (p.destCon == 2 || p.destCon == 7) {
-				Top = p.metaId;
+			if (destConn == 2 || destConn == 7) {
+				Top = metaID;
 			}
-			if (p.destCon == 0 || p.destCon == 3) {
-				Left = p.metaId;
+			if (destConn == 0 || destConn == 3) {
+				Left = metaID;
 			}
-			if (p.destCon == 1 || p.destCon == 4) {
-				Bottom = p.metaId;
+			if (destConn == 1 || destConn == 4) {
+				Bottom = metaID;
 			}
 		}
 	}
@@ -29,28 +38,26 @@ meta {
 		
 	void broadcastMetaNeighborsTo (byte[] dests, byte v1, byte v2) {
 		packet AddNeighbor {
-			byte first, second;
+			byte first;
+			byte second;
 		}
 
-		for (byte dest:dests) {
-			if (dest > 0) {
-				send AddNeighbor(first=val1,second=val2) to dest;
-			}
-		}
+		send AddNeighbor(first=v1, second=v2) to dests;
+		
 		when (receive (AddNeighbor p)) {
-			if (p.source == Left) {
+			if (p.metaID == Left) {
 				TopLeft = p.first;
 				BottomLeft = p.second;
 			}
-			if (p.source == Right) {
+			if (p.metaID == Right) {
 				TopRight = p.first;
 				BottomRight = p.second;
 			}
-			if (p.source == Top) {
+			if (p.metaID == Top) {
 				TopLeft = p.first;
 				TopRight = p.second;
 			}
-			if (p.source == Bottom) {
+			if (p.metaID == Bottom) {
 				BottomLeft = p.first;
 				BottomRight = p.second;
 			}
@@ -58,20 +65,23 @@ meta {
 	}
 }
 
+
+
 module  {
-	byte gradPri,gradSec;
+	byte gradPri;
+	byte gradSec;
 	boolean isRef;
 	boolean sourcePri;
 	boolean sourceSec;	
 	
-	border left = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-	border right = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-	border top = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-	border bottom = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+	// border left = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+	// border right = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+	// border top = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+	// border bottom = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
 	
 	void gradientPropagate () {
 		// For gradients, the state does not matter so this is global	
-		when (receive (PacketGradient p)) {
+		when (receive (Gradient p)) {
 			boolean updated;
 			
 			if (gradPri > p.pri + 1) {
@@ -95,13 +105,13 @@ module  {
 		if (sourceSec) {
 			gradSec = 0;
 		}
-		broadcast PacketGradient(pri=gradPri, sec=gradSec);
+		broadcast Gradient(pri=gradPri, sec=gradSec);
 	}
 	
 
 	void gradientInit() {
-		sourcePri = orientation.primaryBorder();
-		sourceSec = orientation.secondaryBorder();
+		// sourcePri = orientation.primaryBorder();
+		// sourceSec = orientation.secondaryBorder();
 		
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;			
@@ -161,7 +171,7 @@ state Initialize {
 state Choose {
 	when (receive (Packet p)) {
 		// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
-		metaNeighborHook (p);
+		metaNeighborHook (p.metaID,p.destConn,p.pri);
 	}
 	
 	
@@ -177,5 +187,9 @@ state Choose {
 		region.enable([meta.right,meta.topRight]);
 		goto FlipThrough orientating UP_LEFT;
 	}
+}
 
+packet Gradient {
+	byte pri;
+	byte sec;
 }

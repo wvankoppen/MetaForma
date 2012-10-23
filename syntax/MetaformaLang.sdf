@@ -1,12 +1,13 @@
 module MetaformaLang
 
-imports Common
-imports Exp
-imports lexical/MetaformaLang-Identifiers
+imports 
+	Common
+	Exp
+	lexical/MetaformaLang-Identifiers
 
 exports
 
-sorts	Group
+sorts	Group MetaClass
 
   context-free start-symbols
   
@@ -16,24 +17,31 @@ sorts	Group
   
   
   
-   ModuleDef Definition*  Decl* 						-> Start {"Start", scope(Include)}
+   "program" ID Definition*  Decl* 						-> Start {"Program"}
+   %%ModuleDef GroupDef* Definition 						-> Start {"Start", scope(Include)}
     
-    "module" ID 									-> ModuleDef{"Module"}
+	GroupDef 										-> Definition
+	Meta "{" PartDecl* FieldDecl* FuncDecl* "}" 	-> Definition{"Class"}
+	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{"Class"}
 	
-	"meta" "{" PartDecl* VarDecl* FuncDecl* "}" 	-> Definition{"MetaNS"}
-	"module" "{" VarDecl* FuncDecl* "}" 			-> Definition{"ModuleNS"}
+	"meta" 							-> Meta{"Meta"}
+	"module"						-> Module{"Module"}
 	
-	"void" ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "}"					-> FuncDecl{"FuncDecl"}
-	Type ID "(" {ListElem ","}* ")" "{" Decl* Stmt* "return" Exp ";" "}"	-> FuncDecl{"FuncDecl"}
+	"void" ID "(" {ParamListElem ","}* ")" "{" Decl* Stmt* "}"					-> FuncDecl{"FuncDecl"}
+	Type ID "(" {ParamListElem ","}* ")" "{" Decl* Stmt* "return" Exp ";" "}"	-> FuncDecl{"FuncDecl"}
 	
-	Type ID 			-> ListElem{"Elem"}
+	Type ID 			-> ParamListElem{"Param"}
 	ID					-> Type{avoid}
 	
-	"packet" ID "{" VarDecl* "}" 					-> Decl{"Packet"}
+	"packet" ID "{" PayloadDecl* "}" 					-> Decl{"Packet"}
 	FuncDecl -> Decl
 
 	
-	Type {ID ","}+ ";" -> VarDecl{"VarDecl"}
+	%%Type {ID ","}+ ";" -> VarDecl{"VarDecl"}
+	Type ID ";" -> VarDecl{"VarDecl"}
+	Type ID ";" -> FieldDecl{"FieldDecl"}
+	Type ID ";" -> PayloadDecl{"PayloadDecl"}
+	
 	"part" "[" {ID ","}* "]" ";" -> PartDecl{"MetaPartDecl"}
 	
 	ID 					-> Ref{"VarRef"}
@@ -47,9 +55,11 @@ sorts	Group
 	
 	EvHdlr -> Stmt
 	
-	"receive" "(" ID ID ")" -> Event{"Event"}
-	Exp 					-> Event{"Event"}
-	"rate" Ref				-> Rate{"Rate"}
+	ID								-> PacketRef {"PacketRef"}
+	
+	"receive" "(" PacketRef ID ")" 	-> Event{"Receive"}
+	Exp 							-> Event{"Event"}
+	"rate" Ref						-> Rate{"Rate"}
 	
 	"unicast" ID "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{"Unicast"}
 	"broadcast" ID "(" AssignLst ")" Rate? ";" -> Stmt{"Broadcast"}
@@ -59,32 +69,34 @@ sorts	Group
 	Ref "=" Exp ";" -> Stmt{"Assign"}
 	
 
-	
-	"{" Stmt* "}" -> Stmt{"Stmt"}
+	Stmt							-> Block{"Block"}
+	"{" Stmt* "}" 							-> Block{"Block"}
 		
-	"if" "(" Exp ")" Stmt "else" Stmt 		-> Stmt{"IfElse"}
+	"if" "(" Exp ")" Block "else" Block 		-> Stmt{"IfElse"}
 	
-	"if" "(" Exp ")" Stmt 					-> Stmt{"If"}
+	"if" "(" Exp ")" Block 					-> Stmt{"If"}
 		
 	Stmt -> Instr
 	"goto" ID ";"							-> Stmt{"Goto"}
 	"goto" ID "orientating" ID ";"			-> Stmt{"Goto"}
 	
-	"group" ID "[" {ID ","}* "]" ";"			-> Definition{"Group"}
-	"group" ID	";"							-> Definition{"GroupMum"}
+	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{"Group"}
+	"group" ID							-> GroupDef{"GroupNum"}
 	
-	"disconnect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{"Disconnect"}
-	"connect" "(" ModHolder "," ModHolder ")" ";"			-> Stmt{"Connect"}
-	"rotate" "(" ModHolder "," Exp ")" ";"			-> Stmt{"Rotate"}
-	"rotate_continuous" "(" ModHolder "," Exp ")" ";"			-> Stmt{"RotateCont"}
-	"disconnect_part" "(" ModHolder "," Exp ")" ";"			-> Stmt{"DisconnectPart"}
-	"connect_part" "(" ModHolder "," Exp ")" ";"			-> Stmt{"ConnectPart"}
+	ID 								-> Mod{"Mod"}
 	
-	"stop" "(" ModHolder ")" ";"			-> Stmt{"Stop"}
+	"disconnect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{"Disconnect"}
+	"connect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{"Connect"}
+	"rotate" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Rotate"}
+	"rotate_continuous" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"RotateCont"}
+	"disconnect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"DisconnectPart"}
+	"connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"ConnectPart"}
 	
-	"for" "(" Type ID ":" ID")" "{" Stmt "}"				-> Stmt{"For"}
+	"stop" "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
 	
-	"send" Type "(" {Assign ","}* ")"	"to" ID ";"			-> Stmt{"Send"}
+	"for" "(" Type ID ":" ID")" Block				-> Stmt{"For"}
+	
+	"send" Type "(" {Assign ","}* ")"	"to" Exp ";"			-> Stmt{"Send"}
 	
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {"Wait"}
@@ -93,11 +105,7 @@ sorts	Group
 	"consensus" "(" ")" 	-> Stop {"Consensus"}
 	Exp						-> Stop	
 	
-	"meta"			-> Obj{"Meta"}
-	"module"		-> Obj{"Module"}
-	"region"		-> Obj{"Region"}
-	"debug"			-> Obj{"Debug"}
-	"config"		-> Obj{"Config"}
+	
 	
 	
 	Obj "." ID -> MethodRef{"MethodRef"}
@@ -111,9 +119,9 @@ sorts	Group
 	
 	context-free priorities
 	{
-	"@" ID										-> ModHolder{"ModHolder"}
+	"@" ID										-> ModHolderRef{"ModHolderRef"}
 	} > {
-	ID "@" ID									-> ModHolder{"ModHolder"}
+	ID "@" ID									-> ModHolderRef{"ModHolderRef"}
 	}
 	
 	

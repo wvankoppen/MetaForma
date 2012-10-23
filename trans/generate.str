@@ -5,7 +5,7 @@ imports
   libstratego-gpp
   libstratego-aterm
   include/MetaformaLang
-  include/constructors
+  trans/constructors
   lib/editor-common.generated
   lib/compilation-library.generated
   libjava-front
@@ -18,23 +18,9 @@ rules // Incremental code generation of project using compilation library.
  
 rules // Transformation to java strings.
 
-to-java-all = to-java
-
-to-java: VarDecl (t,n) -> FieldDec([Public()],t,[VarDec(Id(n))])
 
 
-to-java: ByteArr(e) -> NewArray(Byte(),[Dim()],ArrayInit(e'))
-	with
-		e' := <map(to-java)>e
 
-to-java: Int(e) -> Lit(Deci(e))
-
-// to-java: FuncCall(n,p) -> Invoke(Method(MethodName(Id(n))),p')
-// 	with
-// 		p' := <map(to-java)>p 
-
-
-to-java: VarRef(n) -> ExprName(Id(n))
 
 
 
@@ -42,46 +28,94 @@ add-comma: e -> (e,",")
 concat-comma: l ->  <rtrim-chars(?',')><concat-strings><map(conc-strings)><map(add-comma)>l
 
 to-java: FuncCall(n,args) -> $[[n]([<concat-comma><map(to-java)>args]);]
-to-java: ModHolder(m,g) -> $[Mod.[g]_[m]] 
+to-java: ModHolderRef(m,g) -> $[Mod.[g]_[m]]
+to-java: ModHolderRef(g) -> $[Group.[g]]  
 
-to-java: Instr(instr*,postcon) -> $[ if (stateMngr.doWait(1))  {
-				scheduler.enable("module.gradientPropagate");
-				stateMngr.commitEnd();
-			} ] 
+to-java-instrs: Instr(c,d,stat*,postcon) -> $[ 
+	[instr] 
+	] 
+where
+	<debug>c;
+	<concat-strings><map(to-java)>stat* => block;
+	<to-java-stop(|c,block)>postcon => instr
 
-// to-java: FunDecl(t,n,_,_,s) -> MethodDec(MethodDecHead([],None(),Void(),Id(n),[],None()),Block(s'))
-// where
-// 	s' := <map(to-java)>s
+// to-java-all: Start(Module(m),defs,decls) -> $[public class [m]Controller extends MfController implements ControllerInformationProvider {
+// 	[<concat><map(to-java-def)>defs]
+// 	}]
 
+to-java-stop(|c,s): Wait(w) -> $[
+	if (stateMngr.doWait([c]))  {
+		[s]
+		[mngr]
+	}]
+where
+	<to-java-stop>w => mngr
 
-// to-java: Send(pckt,assgns,dest) -> ExprStm(Invoke(Method(MethodName(Id("send"))),[CastRef(ClassOrInterfaceType(TypeName(Id(pckt)),None()),Invoke(Method(Invoke(Method(NewInstance(None(),ClassOrInterfaceType(TypeName(Id(p)),None()),[],None()),None(),Id("setVar")),[Lit(String([Chars("nb1")])),ExprName(Id("nb1"))]),None(),Id("setVar")),[Lit(String([Chars("nb2")])),ExprName(Id("nb2"))])),Invoke(Method(Invoke(Method(Invoke(Method(MethodName(Id("nbs"))),[]),None(),Id("nbsWithMetaId")),[ExprName(Id(dest'))]),None(),Id("connectors")),[])]))]))
+to-java-stop(|c,s): Until(w) -> $[
+	if (stateMngr.doUntil([c]))  {
+		[s]
+		[mngr]
+	}]
+where
+	<to-java-stop>w => mngr
 
-	// to-java-all: x-> CompilationUnit(None(),[],[ClassDec(ClassDecHead([],Id("BrandtSimulation"),None(),Some(SuperDec(ClassType(TypeName(Id("MfSimulation")),None()))),None()),ClassBody([ClassDec(ClassDecHead([],Id("Settings"),None(),Some(SuperDec(ClassType(TypeName(Id("SettingsBase")),None()))),None()),ClassBody([])),FieldDec([Public()],ClassOrInterfaceType(TypeName(Id("SettingsBase")),None()),[VarDec(Id("set"),NewInstance(None(),ClassOrInterfaceType(TypeName(Id("Settings")),None()),[],None()))]),MethodDec(MethodDecHead([Public(),Static()],None(),Void(),Id("main"),[Param([],ArrayType(ClassOrInterfaceType(TypeName(Id("String")),None())),Id("args"))],None()),Block([ExprStm(Invoke(Method(MethodName(AmbName(Id("MfSimulation")),Id("initSimulator"))),[])),ExprStm(Invoke(Method(NewInstance(None(),ClassOrInterfaceType(TypeName(Id("BrandtSimulation")),None()),[],None()),None(),Id("main")),[]))])),MethodDec(MethodDecHead([Protected()],None(),ClassOrInterfaceType(TypeName(Id("Robot")),None()),Id("getRobot"),[],None()),Block([LocalVarDecStm(LocalVarDec([],ClassOrInterfaceType(TypeName(Id("ATRON")),None()),[VarDec(Id("a"),NewInstance(None(),ClassOrInterfaceType(TypeName(Id("ATRON")),None()),[],Some(ClassBody([MethodDec(MethodDecHead([Public()],None(),ClassOrInterfaceType(TypeName(Id("Controller")),None()),Id("createController"),[],None()),Block([Return(Some(NewInstance(None(),ClassOrInterfaceType(TypeName(Id("BrandtController")),None()),[ExprName(Id("set"))],None())))]))]))))])),Return(Some(ExprName(Id("a"))))])),MethodDec(MethodDecHead([Protected()],None(),ClassOrInterfaceType(TypeName(Id("ArrayList")),Some(TypeArgs([ClassOrInterfaceType(TypeName(Id("ModulePosition")),None())]))),Id("buildRobot"),[],None()),Block([Return(Some(Invoke(Method(NewInstance(None(),ClassOrInterfaceType(TypeName(Id("MfBuilder")),None()),[],None()),None(),Id("buildGrid")),[ExprName(Id("set")),ExprName(AmbName(AmbName(Id("BrandtController")),Id("Mod")),Id("F"))])))]))])),ClassDec(ClassDecHead([],Id("PacketAddNeighbor"),None(),Some(SuperDec(ClassType(TypeName(Id("Packet")),None()))),None()),ClassBody([MethodDec(MethodDecHead([Public(),Static()],None(),Byte(),Id("getTypeNr"),[],None()),Block([Return(Some(Lit(Deci("6"))))])),ConstrDec(ConstrDecHead([Public()],None(),Id("PacketAddNeighbor"),[],None()),ConstrBody(None(),[ExprStm(Invoke(Method(MethodName(Id("setType"))),[Invoke(Method(MethodName(Id("getTypeNr"))),[])]))])),FieldDec([Public()],Byte(),[VarDec(Id("first"))]),FieldDec([Public()],Byte(),[VarDec(Id("second"))])]))])
+to-java-stop: Consensus() -> $[stateMngr.autoCommit();]
 
- 
-// 
-// 
-// to-java: Meta(vars, funcs) -> 
-// ClassDec(ClassDecHead([],Id("BagMeta"),None(),Some(SuperDec(ClassType(TypeName(Id("BagMetaCore")),None()))),None()),ClassBody(body))
-// where
-// 	<map(to-java)>vars => body
-// 
-// 
-// to-java: FunDecl(t,n,)
-
-// 
-// 	
-// 	class PacketAddNeighbor extends Packet {
-//         public static byte getTypeNr() {return 6;}
-// 
-//         public PacketAddNeighbor() {
-//                 setType(getTypeNr());
-//         }
-// 
-//         public byte first;
-//         public byte second;
-// }
+to-java-stop: e -> $[stateMngr.spend([e']);] 
+	where
+		not (<?Consensus()>e);
+		<to-java>e => e'
 
 
 
+to-java-all : Program(_,_,State(n,_,_,instrs)) -> $[sdds[<concat-strings><map(to-java-instrs)>instrs]]
 
+
+to-java-def: Group(n,mod*) -> $[enum Mod {[mods]}]
+where
+	<concat-comma>mod* => mods 
+
+to-java-def: State(n,d1,d2,instrs) -> $[[<concat-strings><map(to-java-instrs)>instrs]]
+
+
+to-java: BinOp (op,e1,e2) -> $[([<to-java>e1] [<to-java>op] [<to-java>e2])]
+
+to-java: And() -> $[ && ]
+to-java: Or() -> $[ || ]
+to-java: Eq() -> $[ == ]
+to-java: Plus() -> $[ + ]
+to-java: Min() -> $[ - ]
+to-java: Lt() -> $[ < ]
+to-java: LtEq() -> $[ <= ]
+to-java: Gt() -> $[ > ]
+to-java: GtEq() -> $[ >= ]
+
+to-java: Block(stats) -> $[[<concat-strings><map(to-java)>stats]]
+
+to-java: If(c,stats) -> $[ if ([<to-java>c]) {
+		[<concat-strings><map(to-java)>stats]
+}
+]
+
+to-java: FieldRef(obj,f) -> $[[<to-java>obj].getVar("[f]")]
+
+to-java: Assign(FieldRef(obj,field),val) -> $[[<to-java>obj].setVar("[field]",[val']);]
+where
+	<to-java>val => val'
+	
+to-java: Config() -> $[config()]
+to-java: Module() -> $[module()]
+to-java: Meta() -> $[meta()]
+to-java: VarRef(n) -> n
+to-java: Par(e) -> $[ ([<to-java>e]) ]
+
+to-java: Int(i) -> i
+to-java: Bool(b) -> b
+
+
+
+
+to-java: Receive(p,var) -> $[
+	public boolean receivePacket ([p] p) {
+	
+]
