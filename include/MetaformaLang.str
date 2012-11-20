@@ -10,12 +10,14 @@ signature
     Consensus      : Stop
     Until          : Stop -> StopCondition
     Wait           : Stop -> StopCondition
+    TryRegion      : ID * ID * List(ID) * List(ID) -> TryReg
     Mod            : ID -> Mod
     GroupNum       : ID -> GroupDef
     Group          : ID * List(Mod) -> GroupDef
     Instr          : List(Decl) * List(Stmt) -> Instr
     Instr          : List(Decl) * List(Stmt) * StopCondition -> Instr
                    : Stmt -> Instr
+    StateRef       : ID -> StateRef
     Block          : List(Stmt) -> Block
     Block          : Stmt -> Block
     Rate           : Ref -> Rate
@@ -24,7 +26,6 @@ signature
     PacketRef      : ID -> PacketRef
     FuncCall       : ID * List(Exp) -> Stmt
     FuncCall       : MethodRef * List(Exp) -> Stmt
-    Send           : Type * List(Assign) * Exp -> Stmt
     For            : Type * ID * ID * Block -> Stmt
     Stop           : ModHolderRef -> Stmt
     ConnectPart    : ModHolderRef * Exp -> Stmt
@@ -34,16 +35,18 @@ signature
     Connect        : ModHolderRef * ModHolderRef -> Stmt
     Disconnect     : ModHolderRef * ModHolderRef -> Stmt
     Goto           : ID * ID -> Stmt
-    Goto           : ID -> Stmt
+    Goto           : StateRef -> Stmt
     If             : Exp * Block -> Stmt
     IfElse         : Exp * Block * Block -> Stmt
     Assign         : Ref * Exp -> Stmt
-    Broadcast      : ID * AssignLst * Option(Rate) -> Stmt
-    Unicast        : ID * AssignLst * Exp * Option(Rate) -> Stmt
+    Send           : PacketRef * List(Assign) * Exp -> Stmt
+    Broadcast      : PacketRef * AssignLst * Option(Rate) -> Stmt
+    Unicast        : PacketRef * AssignLst * Exp * Option(Rate) -> Stmt
                    : EvHdlr -> Stmt
     EvHdlr         : Event * List(VarDecl) * List(Stmt) -> EvHdlr
     AssignList     : List(Assign) -> AssignLst
-    Assign         : Ref * Exp -> Assign
+    Assign         : PayloadRef * Exp -> Assign
+    PayloadRef     : ID -> PayloadRef
     FieldRef       : ID * ID -> Ref
     FieldRef       : Obj * ID -> Ref
     VarRef         : ID -> Ref
@@ -59,6 +62,7 @@ signature
     Module         : Module
     Meta           : Meta
                    : EvHdlr -> Definition
+    State          : ID * List(EvHdlr) * List(TryReg) -> Definition
     State          : ID * List(VarDecl) * List(FuncDecl) * List(Instr) -> Definition
     Class          : Module * List(FieldDecl) * List(FuncDecl) -> Definition
     Class          : Meta * List(PartDecl) * List(FieldDecl) * List(FuncDecl) -> Definition

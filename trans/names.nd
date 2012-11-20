@@ -11,6 +11,15 @@ imports
   lib/compilation-library.generated
   libjava-front
  
+ 
+ 
+ // What about the scoping bug? That it should scope multiple items?
+ // How to make NBL recognize basic field variables like id and group?
+ // Front@Axis; is not recognized
+ // send AddNeighbor(first=v1, second=v2) to dests;       first must refer to a var defined in AddNeighbor
+//
+
+
 	
 namespaces
 	
@@ -21,6 +30,7 @@ namespaces
 	Field
 	Class
 	State
+	Function
 	
 	Payload
 	Program
@@ -28,7 +38,7 @@ rules
 
 	Program(n,_,_):
 		defines non-unique Program n
-		scopes Group, Packet, Var, Class, State
+		scopes Group, Packet, Class, State,Function
 
 	Group(n,_) :
 		defines Group n
@@ -42,15 +52,25 @@ rules
 	
 	State (n,_,_,_):
 		defines State n	
+		scopes Packet
+		
+	StateRef(n):
+		refers to State n
+		
 		
 	Packet (n,_):
-		defines Packet n
+		defines Packet n of type Type(n)
+		scopes Payload,Field,Var,Program
 		
 
 	Receive (PacketRef(p),n):
 		refers to Packet p
 		defines Var n
-		
+		scopes Payload,Field,Var
+	
+	FuncDecl (n,_,_,_): 
+		defines Function n
+		scopes Payload,Field,Var
 		
 	Broadcast(p,_,_):
 		refers to Packet p
@@ -69,39 +89,43 @@ rules
 	Param(t, x) :
     	defines Var x	
 	
+	FuncCall(MethodRef(obj,n),args):
+		refers to Function n in Class c
+		where obj has type Type(c)
+	
+	
 	FieldDecl(_,n): 
-		defines Field n 
+		defines Field n
 		
 	PayloadDecl(_,n): 
-		defines Payload n
+		defines Payload n 
 		 
 	
 	PacketRef(p):
 		refers to Packet p
+		scopes Payload,Field,Var
+	
+	PayloadRef (n):
+		refers to Payload n
 	
 	VarRef(n): 
 		refers to Var n			
 		refers to Field n
 		
 	FieldRef(c,n):
-		refers to Field n in Class c
-		refers to Payload n in Packet c
-		refers to Field "id" in Class "module"
+		// refers to Field n in Class c
+		refers to Payload n in Packet p
+		where c has type Type(p)
+		// refers to Class c
 	
+	// Class (n,_,_):
+	// 	defines Class n
 	
-	Class (n,_,_):
-		defines Class n
-		scopes Field
 		
 	Class (n,_,_,_):
-		defines Class n
-		scopes Field
+		defines Class n of type Type(n)
+		scopes Payload,Field,Var,Function
 		
-	ModuleClass ():
-		defines Class "Module"
-		scopes Field
-	
-	MetaClass ():
-		defines Class "Meta"
-		scopes Field
+	Instr(_,_,_,_):
+		scopes Packet
 			

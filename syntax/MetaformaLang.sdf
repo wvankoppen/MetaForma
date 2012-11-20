@@ -45,11 +45,15 @@ sorts	Group MetaClass
 	"part" "[" {ID ","}* "]" ";" -> PartDecl{"MetaPartDecl"}
 	
 	ID 					-> Ref{"VarRef"}
+	ID 					-> PayloadRef{"PayloadRef"}
 	
-	Ref "=" Exp			-> Assign{"Assign"}
+	PayloadRef "=" Exp			-> Assign{"Assign"}
 	{Assign ","}*		-> AssignLst{"AssignList"}
 	
-	"state" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{"State"}
+	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{"State"}
+	"state" ID "{" EvHdlr* TryReg* "}" -> Definition{"State"}
+	
+	
 	EvHdlr										 -> Definition
 	"when" "(" Event ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
@@ -61,9 +65,9 @@ sorts	Group MetaClass
 	Exp 							-> Event{"Event"}
 	"rate" Ref						-> Rate{"Rate"}
 	
-	"unicast" ID "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{"Unicast"}
-	"broadcast" ID "(" AssignLst ")" Rate? ";" -> Stmt{"Broadcast"}
-	
+	"unicast" PacketRef "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{"Unicast"}
+	"broadcast" PacketRef "(" AssignLst ")" Rate? ";" -> Stmt{"Broadcast"}
+	"send" PacketRef "(" {Assign ","}* ")"	"to" Exp ";"			-> Stmt{"Send"}
 	
 	
 	Ref "=" Exp ";" -> Stmt{"Assign"}
@@ -76,14 +80,20 @@ sorts	Group MetaClass
 	
 	"if" "(" Exp ")" Block 					-> Stmt{"If"}
 		
+	ID 										-> StateRef{"StateRef"}	
+		
 	Stmt -> Instr
-	"goto" ID ";"							-> Stmt{"Goto"}
+	"goto" StateRef ";"							-> Stmt{"Goto"}
 	"goto" ID "orientating" ID ";"			-> Stmt{"Goto"}
 	
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{"Group"}
 	"group" ID							-> GroupDef{"GroupNum"}
 	
 	ID 								-> Mod{"Mod"}
+	
+	"try" "region" ID "orientating" ID "from" {ID ","}* "excluding" {ID ","}* ";" -> TryReg{"TryRegion"}
+	
+	 
 	
 	"disconnect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{"Disconnect"}
 	"connect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{"Connect"}
@@ -96,7 +106,7 @@ sorts	Group MetaClass
 	
 	"for" "(" Type ID ":" ID")" Block				-> Stmt{"For"}
 	
-	"send" Type "(" {Assign ","}* ")"	"to" Exp ";"			-> Stmt{"Send"}
+	
 	
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {"Wait"}

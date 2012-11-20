@@ -207,11 +207,15 @@ sorts	Group MetaClass
 	"part" "[" {ID ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
 	
 	ID 					-> Ref{cons("VarRef")}
+	ID 					-> PayloadRef{cons("PayloadRef")}
 	
-	Ref "=" Exp			-> Assign{cons("Assign")}
+	PayloadRef "=" Exp			-> Assign{cons("Assign")}
 	{Assign ","}*		-> AssignLst{cons("AssignList")}
 	
-	"state" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{cons("State")}
+	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{cons("State")}
+	"state" ID "{" EvHdlr* TryReg* "}" -> Definition{cons("State")}
+	
+	
 	EvHdlr										 -> Definition
 	"when" "(" Event ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
 	
@@ -223,9 +227,9 @@ sorts	Group MetaClass
 	Exp 							-> Event{cons("Event")}
 	"rate" Ref						-> Rate{cons("Rate")}
 	
-	"unicast" ID "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
-	"broadcast" ID "(" AssignLst ")" Rate? ";" -> Stmt{cons("Broadcast")}
-	
+	"unicast" PacketRef "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
+	"broadcast" PacketRef "(" AssignLst ")" Rate? ";" -> Stmt{cons("Broadcast")}
+	"send" PacketRef "(" {Assign ","}* ")"	"to" Exp ";"			-> Stmt{cons("Send")}
 	
 	
 	Ref "=" Exp ";" -> Stmt{cons("Assign")}
@@ -238,14 +242,20 @@ sorts	Group MetaClass
 	
 	"if" "(" Exp ")" Block 					-> Stmt{cons("If")}
 		
+	ID 										-> StateRef{cons("StateRef")}	
+		
 	Stmt -> Instr
-	"goto" ID ";"							-> Stmt{cons("Goto")}
+	"goto" StateRef ";"							-> Stmt{cons("Goto")}
 	"goto" ID "orientating" ID ";"			-> Stmt{cons("Goto")}
 	
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{cons("Group")}
 	"group" ID							-> GroupDef{cons("GroupNum")}
 	
 	ID 								-> Mod{cons("Mod")}
+	
+	"try" "region" ID "orientating" ID "from" {ID ","}* "excluding" {ID ","}* ";" -> TryReg{cons("TryRegion")}
+	
+	 
 	
 	"disconnect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{cons("Disconnect")}
 	"connect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{cons("Connect")}
@@ -258,7 +268,7 @@ sorts	Group MetaClass
 	
 	"for" "(" Type ID ":" ID")" Block				-> Stmt{cons("For")}
 	
-	"send" Type "(" {Assign ","}* ")"	"to" Exp ";"			-> Stmt{cons("Send")}
+	
 	
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
@@ -400,11 +410,15 @@ sorts	Group MetaClass
 	"part" "[" {ID ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
 	
 	ID 					-> Ref{cons("VarRef")}
+	ID 					-> PayloadRef{cons("PayloadRef")}
 	
-	Ref "=" Exp			-> Assign{cons("Assign")}
+	PayloadRef "=" Exp			-> Assign{cons("Assign")}
 	{Assign ","}*		-> AssignLst{cons("AssignList")}
 	
-	"state" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{cons("State")}
+	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{cons("State")}
+	"state" ID "{" EvHdlr* TryReg* "}" -> Definition{cons("State")}
+	
+	
 	EvHdlr										 -> Definition
 	"when" "(" Event ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
 	
@@ -416,9 +430,9 @@ sorts	Group MetaClass
 	Exp 							-> Event{cons("Event")}
 	"rate" Ref						-> Rate{cons("Rate")}
 	
-	"unicast" ID "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
-	"broadcast" ID "(" AssignLst ")" Rate? ";" -> Stmt{cons("Broadcast")}
-	
+	"unicast" PacketRef "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
+	"broadcast" PacketRef "(" AssignLst ")" Rate? ";" -> Stmt{cons("Broadcast")}
+	"send" PacketRef "(" {Assign ","}* ")"	"to" Exp ";"			-> Stmt{cons("Send")}
 	
 	
 	Ref "=" Exp ";" -> Stmt{cons("Assign")}
@@ -431,14 +445,20 @@ sorts	Group MetaClass
 	
 	"if" "(" Exp ")" Block 					-> Stmt{cons("If")}
 		
+	ID 										-> StateRef{cons("StateRef")}	
+		
 	Stmt -> Instr
-	"goto" ID ";"							-> Stmt{cons("Goto")}
+	"goto" StateRef ";"							-> Stmt{cons("Goto")}
 	"goto" ID "orientating" ID ";"			-> Stmt{cons("Goto")}
 	
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{cons("Group")}
 	"group" ID							-> GroupDef{cons("GroupNum")}
 	
 	ID 								-> Mod{cons("Mod")}
+	
+	"try" "region" ID "orientating" ID "from" {ID ","}* "excluding" {ID ","}* ";" -> TryReg{cons("TryRegion")}
+	
+	 
 	
 	"disconnect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{cons("Disconnect")}
 	"connect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{cons("Connect")}
@@ -451,7 +471,7 @@ sorts	Group MetaClass
 	
 	"for" "(" Type ID ":" ID")" Block				-> Stmt{cons("For")}
 	
-	"send" Type "(" {Assign ","}* ")"	"to" Exp ";"			-> Stmt{cons("Send")}
+	
 	
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}

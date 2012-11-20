@@ -30,12 +30,12 @@ folding Default folding definitions
   AssignLst.AssignList
   Assign.Assign
   Stmt.Broadcast
+  Stmt.Send
   Stmt.Assign
   Stmt.Rotate
   Stmt.RotateCont
   Stmt.DisconnectPart
   Stmt.ConnectPart
-  Stmt.Send
   Stmt.FuncCall
   Stmt.FuncCall
   Definition.Class
@@ -45,3 +45,5 @@ folding Default folding definitions
   Exp
   StopCondition.Until
   Instr.Instr
+  Definition.State
+  TryReg.TryRegion

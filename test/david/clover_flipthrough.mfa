@@ -1,50 +1,31 @@
-module Brandt
+program Brandt
 
-group Uplifter [Top,Bottom,Left,Right];
-group Dummy [Left,Right];
+group Uplifter [Top,Bottom,Left,Right]
+group Dummy [Left,Right]
 
-
-state FlipThrough {
-	
+sequence FlipThrough {
 	// byte QUART;
 	// byte HALF;
-	
 	module.gradientInit();
-	
 	module.gradientPropagate();
 	
+	do {		
+		if (gradPri==3 && gradSec==0) module.id = West@Clover;
+		if (gradPri==2 && gradSec==0) module.id = South@Clover;
+		if (gradPri==3 && gradSec==1) module.id = North@Clover;
+		if (gradPri==2 && gradSec==1) module.id = East@Clover;
+		isRef = (gradPri == 0 && gradSec == 3);
+	}
 	
-	// do  {
-	// 	if (region.orientation == BOTTOMLEFT) {
-	// 		QUART = 90;
-	// 		HALF = 180;
-	// 	}
-	// 	
-	// 	if (region.orientation == BOTTOMRIGHT) {
-	// 		QUART = -90;
-	// 		HALF = -180;
-	// 	}
-	// }
-	// 
-	// do {		
-	// 	if (module.gradPri==3 && module.gradSec==0) module.id = West@Clover;
-	// 	if (module.gradPri==2 && module.gradSec==0) module.id = South@Clover;
-	// 	if (module.gradPri==3 && module.gradSec==1) module.id = North@Clover;
-	// 	if (module.gradPri==2 && module.gradSec==1) module.id = East@Clover;
-	// 	
-	// 	module.isRef = (module.gradH == 0 && module.gradV == 3);
-	// }
-	
-						
 	do  {				
 		disconnect_part(Left@Uplifter, NORTH&MALE&EAST|SOUTH&MALE&WEST);
 		disconnect_part(Right@Uplifter, NORTH&MALE&EAST);
-	} wait (consensus());
+	} 
 	
 	do  {				
 		rotate(Left@Uplifter, QUART);
 		rotate(Right@Uplifter, QUART);
-	} wait (consensus());
+	} 
 	
 	disconnect_part(Top@Uplifter, NORTH);
 	rotate(Top@Uplifter, HALF);
@@ -52,27 +33,16 @@ state FlipThrough {
 	do  {				
 		rotate(Left@Uplifter, -QUART);
 		rotate(Right@Uplifter, -QUART);
-	} wait (consensus());
+	} 
 	
 	do  {				
 		rotate(Right@Uplifter, -HALF);
 		rotate(Bottom@Uplifter, HALF);
-	} wait (consensus());
+	} 
 	
 	connect(@Floor, @Uplifter);	
 	
-	do {
-		when (receive (PacketSymmetry p)) {
-			module.fixSymmetry(p.connSource,p.connDest);
-		}
-		if (module.isRef) {
-			broadcast PacketSymmetry ();	
-		}
-		
-	} until(consensus());
-	
+	region.fixSymmetry();
 	module.restoreID();
-	
-	region.finish();
-	
+	region.finish();	
 }

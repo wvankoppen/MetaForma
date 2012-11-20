@@ -25,15 +25,16 @@ signature
     CurrentFile : ImportAnno
 
   constructors
-    Mod     : Namespace
-    Group   : Namespace
-    Packet  : Namespace
-    Var     : Namespace
-    Field   : Namespace
-    Class   : Namespace
-    State   : Namespace
-    Payload : Namespace
-    Program : Namespace
+    Mod      : Namespace
+    Group    : Namespace
+    Packet   : Namespace
+    Var      : Namespace
+    Field    : Namespace
+    Class    : Namespace
+    State    : Namespace
+    Function : Namespace
+    Payload  : Namespace
+    Program  : Namespace
 
 
 rules
@@ -41,9 +42,9 @@ rules
   nam-get-scope-types :
     Program(n, _, _) -> [ Group()
                         , Packet()
-                        , Var()
                         , Class()
                         , State()
+                        , Function()
                         ]
 
   nam-get-definition-keys :
@@ -106,6 +107,9 @@ rules
 
 rules
 
+  nam-get-scope-types :
+    State(n, _, _, _) -> [Packet()]
+
   nam-get-definition-keys :
     State(n, _, _, _) -> [n]
 
@@ -121,6 +125,25 @@ rules
 
 rules
 
+  nam-get-uses-keys :
+    StateRef(n) -> [n]
+
+  nam-get-uses :
+    StateRef(n) -> [(State(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    StateRef(n) -> <StateRef(nam-annotate-use(|paths__, State()))>
+
+
+rules
+
+  nam-get-scope-types :
+    Packet(n, _) -> [ Payload()
+                    , Field()
+                    , Var()
+                    , Program()
+                    ]
+
   nam-get-definition-keys :
     Packet(n, _) -> [n]
 
@@ -130,11 +153,24 @@ rules
   nam-annotate-names(|paths__, path__):
     Packet(n, _) -> <Packet(nam-annotate-def(|path__), id)>
 
+  adjust-index-def-data(store__|namespace__, path__):
+    Packet(n, _) -> <store__> DefData(
+                                [namespace__|path__]
+                              , Type()
+                              , Type(n)
+                              )
+
+  type-of :
+    Packet(n, _) -> Type(n)
+
   nam-unique :
     Packet(n, _) -> <id>
 
 
 rules
+
+  nam-get-scope-types :
+    Receive(PacketRef(p), n) -> [Payload(), Field(), Var()]
 
   nam-get-definition-keys :
     Receive(PacketRef(p), n) -> [n]
@@ -156,6 +192,24 @@ rules
 
   nam-unique :
     Receive(PacketRef(p), n) -> <id>
+
+
+rules
+
+  nam-get-scope-types :
+    FuncDecl(n, _, _, _) -> [Payload(), Field(), Var()]
+
+  nam-get-definition-keys :
+    FuncDecl(n, _, _, _) -> [n]
+
+  nam-get-definitions :
+    FuncDecl(n, _, _, _) -> [(Function(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    FuncDecl(n, _, _, _) -> <FuncDecl(nam-annotate-def(|path__), id, id, id)>
+
+  nam-unique :
+    FuncDecl(n, _, _, _) -> <id>
 
 
 rules
@@ -234,6 +288,28 @@ rules
 
 rules
 
+  nam-get-uses-keys :
+    FuncCall(MethodRef(obj, n), args) -> [n]
+    where Type(c) := <type-of> obj
+
+  nam-get-uses :
+    FuncCall(MethodRef(obj, n), args) -> [(Function(), [n])]
+    where Type(c) := <type-of> obj
+
+  nam-annotate-names(|paths__, path__):
+    FuncCall(MethodRef(obj, n), args) -> <FuncCall(
+                                            MethodRef(id, nam-annotate-use(|paths__, Function()))
+                                          , id
+                                          )>
+
+  adjust-index-lookup(target__|namespace__, path__, prefix__):
+    FuncCall(MethodRef(obj, n), args) -> <index-lookup-children(|Function(), prefix__)> c
+    where <target__> n
+    where Type(c) := <type-of> obj
+
+
+rules
+
   nam-get-definition-keys :
     FieldDecl(_, n) -> [n]
 
@@ -264,6 +340,9 @@ rules
 
 rules
 
+  nam-get-scope-types :
+    PacketRef(p) -> [Payload(), Field(), Var()]
+
   nam-get-uses-keys :
     PacketRef(p) -> [p]
 
@@ -272,6 +351,18 @@ rules
 
   nam-annotate-names(|paths__, path__):
     PacketRef(p) -> <PacketRef(nam-annotate-use(|paths__, Packet()))>
+
+
+rules
+
+  nam-get-uses-keys :
+    PayloadRef(n) -> [n]
+
+  nam-get-uses :
+    PayloadRef(n) -> [(Payload(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    PayloadRef(n) -> <PayloadRef(nam-annotate-use(|paths__, Payload()))>
 
 
 rules
@@ -297,43 +388,30 @@ rules
 rules
 
   nam-get-uses-keys :
-    FieldRef(c, n) -> [n, "id"]
+    FieldRef(c, n) -> [n]
+    where Type(p) := <type-of> c
 
   nam-get-uses :
-    FieldRef(c, n) -> [ (Field(), [n])
-                      , (Payload(), [n])
-                      , (Field(), ["id"])
-                      ]
+    FieldRef(c, n) -> [(Payload(), [n])]
+    where Type(p) := <type-of> c
 
   nam-annotate-names(|paths__, path__):
-    FieldRef(c, n) -> <FieldRef(id, nam-annotate-use(|paths__, Field()))>
+    FieldRef(c, n) -> <FieldRef(id, nam-annotate-use(|paths__, Payload()))>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    FieldRef(c, n) -> <concat> [ <index-lookup-children(|Field(), prefix__)> c
-                               , <index-lookup-children(|Payload(), prefix__)> c
-                               ]
+    FieldRef(c, n) -> <index-lookup-children(|Payload(), prefix__)> p
     where <target__> n
-
-
-rules
-
-  nam-get-definition-keys :
-    Class(n, _, _) -> [n]
-
-  nam-get-definitions :
-    Class(n, _, _) -> [(Class(), [n])]
-
-  nam-annotate-names(|paths__, path__):
-    Class(n, _, _) -> <Class(nam-annotate-def(|path__), id, id)>
-
-  nam-unique :
-    Class(n, _, _) -> <id>
+    where Type(p) := <type-of> c
 
 
 rules
 
   nam-get-scope-types :
-    Class(n, _, _, _) -> [Field()]
+    Class(n, _, _, _) -> [ Payload()
+                         , Field()
+                         , Var()
+                         , Function()
+                         ]
 
   nam-get-definition-keys :
     Class(n, _, _, _) -> [n]
@@ -344,6 +422,16 @@ rules
   nam-annotate-names(|paths__, path__):
     Class(n, _, _, _) -> <Class(nam-annotate-def(|path__), id, id, id)>
 
+  adjust-index-def-data(store__|namespace__, path__):
+    Class(n, _, _, _) -> <store__> DefData(
+                                     [namespace__|path__]
+                                   , Type()
+                                   , Type(n)
+                                   )
+
+  type-of :
+    Class(n, _, _, _) -> Type(n)
+
   nam-unique :
     Class(n, _, _, _) -> <id>
 
@@ -351,34 +439,4 @@ rules
 rules
 
   nam-get-scope-types :
-    ModuleClass() -> [Field()]
-
-  nam-get-definition-keys :
-    ModuleClass() -> ["Module"]
-
-  nam-get-definitions :
-    ModuleClass() -> [(Class(), ["Module"])]
-
-  nam-annotate-names(|paths__, path__):
-    ModuleClass() -> <ModuleClass()>
-
-  nam-unique :
-    ModuleClass() -> <id>
-
-
-rules
-
-  nam-get-scope-types :
-    MetaClass() -> [Field()]
-
-  nam-get-definition-keys :
-    MetaClass() -> ["Meta"]
-
-  nam-get-definitions :
-    MetaClass() -> [(Class(), ["Meta"])]
-
-  nam-annotate-names(|paths__, path__):
-    MetaClass() -> <MetaClass()>
-
-  nam-unique :
-    MetaClass() -> <id>
+    Instr(_, _, _, _) -> [Packet()]

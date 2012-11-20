@@ -26,3 +26,5 @@ outliner Default outliner
   FuncDecl.FuncDecl
   Definition.State
   Instr.Instr
+  Definition.State
+  TryReg.TryRegion

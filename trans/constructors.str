@@ -1,0 +1,23 @@
+module constructors
+
+imports
+	include/MetaformaLang
+
+signature
+  constructors
+    Instr          : Nr * Dec *Stmt * PostCon -> Instr
+    Instr          : Stmt * PostCon -> Instr
+    Instr          : Stmt  -> Instr
+    BinOp		   : Op * Exp * Exp -> Exp 
+	And	: Exp
+	Or	: Exp
+	Eq	: Exp
+	Plus	: Exp
+	Min	: Exp
+	Gt	: Exp
+	GtEq	: Exp
+	Lt	: Exp
+	LtEq	: Exp
+	Group: Group * Group -> Group
+	MetaClass : MetaClass
+	ModuleClass : ModuleClass

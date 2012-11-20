@@ -1,0 +1,11 @@
+program Test
+
+sequence Eight2Snake {
+	do {
+		disconnect (F3,0);
+		disconnect (F3,6);
+	}
+
+	rotate(F0,180);
+	rotate(F6,180);
+}	 

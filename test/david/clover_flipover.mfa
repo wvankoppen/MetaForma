@@ -1,4 +1,4 @@
-module Brandt
+program Brandt
  
 group InsideLifter [Top,Bottom]
 group OutsideLifter [Top,Bottom]
@@ -6,45 +6,29 @@ group Inside
 group Outside
 
 
-
-state Flipover {
-	byte QUART;
-	byte HALF;
+sequence Flipover {
 	
-	module.gradientInit();
-	module.gradientPropagate();
+	gradientInit();
+	gradientPropagate();
 
 	do  {
-		if (region.orientation == BOTTOMLEFT) {
-			QUART = 90;
-			HALF = 180;
+		if (gradPri == 0 && gradSec < 3 || gradSec==0 && gradPri<3) { 
+			group = @Outside;
 		}
-		
-		if (region.orientation == BOTTOMRIGHT) {
-			QUART = -90;
-			HALF = -180;
+		if (gradPri > 0 && gradSec > 0) { 
+			group = @Inside;
 		}
-		
-	}
-
-	do  {
-		if (module.gradPri == 0 && module.gradSec < 3 || module.gradSec==0 && module.gradPri<3) { 
-			module.group = @Outside;
+		if (gradPri==3 && gradSec==1) { 
+			id = Top@InsideLifter;
 		}
-		if (module.gradPri > 0 && module.gradSec > 0) { 
-			module.group = @Inside;
+		if (gradPri==1 && gradSec==3) { 
+			id = Bottom@InsideLifter;
 		}
-		if (module.gradPri==3 && module.gradSec==1) { 
-			module.id = Top@InsideLifter;
+		if (gradPri==2 && gradSec==0) { 
+			id = Top@OutsideLifter;
 		}
-		if (module.gradPri==1 && module.gradSec==3) { 
-			module.id = Bottom@InsideLifter;
-		}
-		if (module.gradPri==2 && module.gradSec==0) { 
-			module.id = Top@OutsideLifter;
-		}
-		if (module.gradPri==0 && module.gradSec==2) { 
-			module.id = Bottom@OutsideLifter;
+		if (gradPri==0 && gradSec==2) { 
+			id = Bottom@OutsideLifter;
 		}
 	} wait (consensus());
 					
@@ -67,15 +51,15 @@ state Flipover {
 	
 	do {
 		when (receive (PacketSymmetry p)) {
-			module.fixSymmetry(p.connSource,p.connDest);
+			fixSymmetry(p.connSource,p.connDest);
 		}
-		if (module.isRef) {
+		if (isRef) {
 			broadcast PacketSymmetry ();	
 		}
 		
 	} until(consensus());
 	
-	module.restoreID();
+	restoreID();
 	
 	region.finish();
 }
