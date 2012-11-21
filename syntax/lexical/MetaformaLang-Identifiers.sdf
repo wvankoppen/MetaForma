@@ -24,22 +24,30 @@ lexical syntax
 	"while"			-> ID {reject}
 	"wait"			-> ID {reject}
 	"until"			-> ID {reject}
-	"consensus"			-> ID {reject}
+	"consensus"		-> ID {reject}
 	
 	
 	 
-	 
+	 "red"			-> Color
+	 "blue"			-> Color
+	 "green"		-> Color
+	 "yellow"		-> Color
+	 "cyan"		-> Color
+	
 	
 	
 	"false"			-> Bool
 	"true"			-> Bool
 	
-	"MALE"			-> Const
-	"FEMALE"		-> Const
-	"WEST"			-> Const
-	"EAST"			-> Const
-	"NORTH"			-> Const
-	"SOUTH"			-> Const
+	"MALE"			-> ConstLan
+	"FEMALE"		-> ConstLan
+	"WEST"			-> ConstLan
+	"EAST"			-> ConstLan
+	"NORTH"			-> ConstLan
+	"SOUTH"			-> ConstLan
+	"MAX_BYTE"		-> Const
+	"null"			-> Const
+
 	
 	
 	
@@ -68,9 +76,10 @@ lexical syntax
 	"region"		-> Obj{"Region"}
 	"debug"			-> Obj{"Debug"}
 	"config"		-> Obj{"Config"}
-	%% 
+	"config"		-> Obj{"Config"}
+	
 	 Const			-> ID {reject}
 	 Bool			-> ID {reject}
-	 Obj				-> ID {reject}
+	 Obj			-> ID {reject}
 	 Core			-> ID {reject}
 	

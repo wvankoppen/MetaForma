@@ -28,6 +28,7 @@ exports
 	ID 						-> MetaPart{"MetaPart"}
 	INT						-> Exp{"Int"}
 	Const					-> Exp{"Const"}
+	ConstLan					-> Exp{"Const"}
 	Bool					-> Exp{"Bool"}
 	ModHolderRef				-> Exp
 	"(" Exp ")"			    -> Exp{"Par"}

@@ -12,6 +12,7 @@ signature
 	And	: Exp
 	Or	: Exp
 	Eq	: Exp
+	Neq	: Exp
 	Plus	: Exp
 	Min	: Exp
 	Gt	: Exp
@@ -21,3 +22,4 @@ signature
 	Group: Group * Group -> Group
 	MetaClass : MetaClass
 	ModuleClass : ModuleClass
+	VisItem: X * X * X * X -> VisItem

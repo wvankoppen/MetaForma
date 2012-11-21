@@ -1,0 +1,96 @@
+program obstacleavoidance
+
+group Axis [Driver,Front,Back]
+group LeftWheel
+group RightWheel
+	
+
+sequence Init {
+	do {
+		// $ format: SOURCE CONDITIONS -> DESTINATION CONDITIONS
+		// so: module must be connected through SOUTH&EAST&FMALE and connected by EAST by neighbors
+		when ($(SOUTH&EAST&FEMALE -> EAST)) {
+			module.group = @LeftWheel;
+		}
+		
+		when ($(SOUTH&EAST&FEMALE -> WEST)) {
+			module.group = @RightWheel;
+		} 
+		
+		when ($(@RightWheel, @LeftWheel) && !$(NORTH&EAST&FEMALE)) {
+			module.id = Front@Axis;
+		}
+		
+		when ($(@RightWheel, @LeftWheel) && !$(NORTH&EAST&FEMALE)) {
+			module.id = Back@Axis;
+		}
+		
+		when (#(@Axis) == 2) {
+			module.id = Driver@Axis;
+		}
+	} until (config.assignTime);
+	
+	goto Drive;
+}	
+
+
+sequence Drive {
+	when (@Axis && module.proximity() > config.proximity) {
+		if (#(@Axis) == 2) {
+			meta.size = 3;
+			goto TurnTwoWheeler;
+		}
+		
+		if (#(@Axis) == 3) {
+			meta.size = 7;
+			goto TurnFourWheeler;
+		}	
+		
+	}	
+	
+	drive(FORWARD,FORWARD);
+}
+
+
+sequence TurnTwoWheeler {
+	do {
+		drive (BACKWARD,BACKWARD);	
+	} wait(backwardTime);
+	
+	do {
+		drive (BACKWARD,FORWARD);	
+	} wait(turnaroundTime);
+	
+	halt();
+
+	goto Drive;
+}
+
+
+
+sequence TurnFourWheeler {
+	void steer (byte degrees) {
+		rotate(Front@Axis,degrees);
+		rotate(Back@Axis,-degrees);
+	}
+	
+	steer(config.steerDegrees);
+		
+	do {
+		drive (BACKWARD,BACKWARD);	
+	} wait(config.backwardTime);
+	
+	steer(-config.steerDegrees);
+	
+	goto Drive;
+}
+
+void drive (byte dirLeft, byte dirRight) {
+	rotate_continuous(@LeftWheel,dirLeft);
+	rotate_continuous(@RightWheel,dirRight);
+}
+
+void halt () {
+	stop(@LeftWheel);
+	stop(@RightWheel);
+}

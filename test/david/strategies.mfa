@@ -1,20 +1,20 @@
 program Brandt
 
-// visualize {
-// 	north {
-// 		FlipOver: Red;
-// 		FlipThrough: Cyan;
-// 		FlipAlong: Red;
-// 	}
-// 	
-// 	south {
-// 		Left@Walker: Blue;
-// 	}
-// 		 
-// }
+visualize {
+ 	north {
+ 		FlipOver: red 0;
+ 		FlipThrough: blue 1;
+ 		FlipAlong: green 2;
+ 	}
+ 	
+ 	south {
+ 		Left@Walker: green 3;
+ 	}
+ 	
+}
 
 meta {
-	part [Left, Top, Middle, Right];	
+ 	part [Left, Top, Bottom, Right];	
 	
 	byte Top;
 	byte Bottom;
@@ -24,15 +24,15 @@ meta {
 	byte TopRight;
 	byte BottomLeft; 
 	byte BottomRight;
-	
-	void metaNeighborHook (byte metaID, byte destConn) { 
+
+	void metaNeighborHook (byte metaID, byte destConn) {
 		if (metaID != module.metaID && module.metaID != 0) {
 			if (destConn == 5 || destConn == 6) {
 				Right = metaID;
 			}
-			if (destConn == 2 || destConn == 7) {
-				Top = metaID;
-			}
+		 	if (destConn == 2 || destConn == 7) {
+		 		Top = metaID;
+		 	}
 			if (destConn == 0 || destConn == 3) {
 				Left = metaID;
 			}
@@ -41,40 +41,40 @@ meta {
 			}
 		}
 	}
-		
+ 		
 	void broadcastMetaNeighbors () {
 		broadcastMetaNeighborsTo([Top, Bottom], Left, Right);
 		broadcastMetaNeighborsTo([Left, Right], Top, Bottom);
 	}
-		
-	void broadcastMetaNeighborsTo (byte[] dests, byte v1, byte v2) {
-		packet AddNeighbor {
-			byte first;
-			byte second;
-		}
-
-		send AddNeighbor(first=v1, second=v2) to dests;
-		
-		when (receive (AddNeighbor p)) {
-			if (p.metaID == Left) {
-				TopLeft = p.first;
-				BottomLeft = p.second;
-			}
-			if (p.metaID == Right) {
-				TopRight = p.first;
-				BottomRight = p.second;
-			}
-			if (p.metaID == Top) {
-				TopLeft = p.first;
-				TopRight = p.second;
-			}
-			if (p.metaID == Bottom) {
-				BottomLeft = p.first;
-				BottomRight = p.second;
-			}
-		}
-	}
-}
+// 		
+ 	void broadcastMetaNeighborsTo (byte[] dests, byte v1, byte v2) {
+// 		packet AddNeighbor {
+// 			byte first;
+// 			byte second;
+// 		}
+// 
+		 send AddNeighbor(first = v1, second = v2) to dests;
+// 		
+		// when (receive (AddNeighbor p)) {
+		// 	if (p.metaID == Left) {
+		// 		TopLeft = p.first;
+		// 		BottomLeft = p.second;
+		// 	}
+		// 	if (p.metaID == Right) {
+		// 		TopRight = p.first;
+		// 		BottomRight = p.second;
+		// 	}
+		// 	if (p.metaID == Top) {
+		// 		TopLeft = p.first;
+		// 		TopRight = p.second;
+		// 	}
+		// 	if (p.metaID == Bottom) {
+		// 		BottomLeft = p.first;
+		// 		BottomRight = p.second;
+		// 	}
+		// }
+ 	}
+ }
 
 
 
@@ -83,31 +83,31 @@ module  {
 	byte gradSec;
 	boolean isRef;
 	boolean sourcePri;
-	boolean sourceSec;	
-	
-	// border left = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-	// border right = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-	// border top = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-	// border bottom = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-	
+	boolean sourceSec;
+// 	
+// 	// border left = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+// 	// border right = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+// 	// border top = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+// 	// border bottom = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+// 	
 	void gradientPropagate () {
 		// For gradients, the state does not matter so this is global	
-		when (receive (Gradient p)) {
-			boolean updated;
-			
-			if (gradPri > p.prim + 1) {
-				gradPri = p.pri + 1;
-				updated = true; 
-			}
-			if (gradSec > p.sec + 1) {
-				gradSec = p.sec + 1;
-				updated = true;
-			}
-			if (updated) {
-				gradientPropagate();
-			}
-		}
-
+// 		when (receive (Gradient p)) {
+// 			boolean updated;
+// 			
+// 			if (gradPri > p.prim + 1) {
+// 				gradPri = p.pri + 1;
+// 				updated = true; 
+// 			}
+// 			if (gradSec > p.sec + 1) {
+// 				gradSec = p.sec + 1;
+// 				updated = true;
+// 			}
+// 			if (updated) {
+// 				gradientPropagate();
+// 			}
+// 		}
+// 
 		 
 		if (sourcePri){
 			gradPri = 0;
@@ -118,8 +118,8 @@ module  {
 		}
 		broadcast Gradient(pri=gradPri, sec=gradSec);
 	}
-	
-
+// 	
+// 
 	void gradientInit() {
 		// sourcePri = orientation.primaryBorder();
 		// sourceSec = orientation.secondaryBorder();
@@ -127,79 +127,74 @@ module  {
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;			
 	}
-}
+ }
 
-
-
-
-
-
-sequence Initialize {
-	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
-	when (receive (Packet p)) {
-		meta.neighborHook (p);
-	}
-	
-	do {
-		packet MetaIdSet { byte newMetaID; }
-		
-		when (#(EAST&MALE, module.metaPart==None) == 2 && !$(WEST, module.metaPart==None)) {
-			module.metaPart = Left;
-			meta.id = module.id;
-			unicast MetaIdSet (newMetaID = module.id) on EAST&MALE&NORTH;
-		}
-		when (receive (MetaIdSet p)) {
-			if (module.metaID == 0) {
-				module.metaID = p.newMetaID;
-				
-				if (isMALE(p.destCon) && module.metaPart == null) {
-					module.metaPart = Right;
-				}
-				else if (isWEST(p.destCon) && module.metaPart == null) {
-					module.metaPart = Top;
-				}
-				else if (isEAST(p.destCon) && module.metaPart == null) {
-					module.metaPart = Bottom;
-				}
-			}
-			
-			if (module.metaPart == Left) {
-				continue();
-			}
-			
-			unicast MetaIdSet (newMetaID = p.newMetaID) on (pow2((p.destCon + 4) % 8)) rate config.rate;
-		}	
-	} 
-	
-	meta.enable();
-	
-	goto Choose;	
-}
-
-
-sequence Choose {
-	when (receive (Packet p)) {
-		// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
-		metaNeighborHook (p.metaID,p.destConn,p.pri);
-	}
-	
-	meta.broadcastNeighbors();
-	
-	// UP
-	try region FLIPTHROUGH orientating BOTTOM_RIGHT from Top excluding TopLeft,Left,Bottom;
-	try region FLIPALONG orientating BOTTOM_RIGHT from Right,TopRight excluding Top;
-	try region FLIPTHROUGH orientating LEFT_BOTTOM from Right excluding Top, TopRight;
-	
-	// DIAGONAL DOWN
-	try region FLIPTHROUGH orientating TOP_RIGHT from Bottom excluding Left, Top;
-	try region FLIPTHOVER orientating TOP_RIGHT from Bottom,Left excluding Top;
-	try region FLIPTHROUGH orientating RIGHT_TOP from Left excluding Top,Bottom;
-	
-	
-	
-}
-
-packet Gradient {
-	byte prim;
-	byte sec;
-}
+// sequence Initialize {
+// 	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
+// 	when (receive (Packet p)) {
+// 		meta.neighborHook (p.connSource,p.connDest);
+// 	}
+// 	
+// 	do {
+// 		packet MetaIdSet { byte newMetaID; }
+// 		
+// 		when (#(EAST&MALE, module.metaPart==None) == 2 && !$(WEST, module.metaPart==None)) {
+// 			module.metaPart = Left;
+// 			meta.id = module.id;
+// 			unicast MetaIdSet (newMetaID = module.id) on EAST&MALE&NORTH;
+// 		}
+// 		when (receive (MetaIdSet p)) {
+// 			if (module.metaID == 0) {
+// 				module.metaID = p.newMetaID;
+// 				
+// 				if (isMALE(p.destCon) && module.metaPart == null) {
+// 					module.metaPart = Right;
+// 				}
+// 				else if (isWEST(p.destCon) && module.metaPart == null) {
+// 					module.metaPart = Top;
+// 				}
+// 				else if (isEAST(p.destCon) && module.metaPart == null) {
+// 					module.metaPart = Bottom;
+// 				}
+// 			}
+// 			
+// 			if (module.metaPart == Left) {
+// 				continue();
+// 			}
+// 			
+// 			unicast MetaIdSet (newMetaID = p.newMetaID) on (pow2((p.destCon + 4) % 8)) rate config.rate;
+// 		}	
+// 	} 
+// 	
+// 	meta.enable();
+// 	
+// 	goto Choose;	
+// }
+// 
+// 
+// sequence Choose {
+// 	when (receive (Packet p)) {
+// 		// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
+// 		metaNeighborHook (p.metaID,p.destConn);
+// 	}
+// 	
+// 	meta.broadcastNeighbors();
+// 	
+// 	// UP
+// 	try region FLIPTHROUGH orientating BOTTOM_RIGHT from Top excluding TopLeft,Left,Bottom;
+// 	try region FLIPALONG orientating BOTTOM_RIGHT from Right,TopRight excluding Top;
+// 	try region FLIPTHROUGH orientating LEFT_BOTTOM from Right excluding Top, TopRight;
+// 	
+// 	// DIAGONAL DOWN
+// 	try region FLIPTHROUGH orientating TOP_RIGHT from Bottom excluding Left, Top;
+// 	try region FLIPTHOVER orientating TOP_RIGHT from Bottom,Left excluding Top;
+// 	try region FLIPTHROUGH orientating RIGHT_TOP from Left excluding Top,Bottom;
+// 	
+// 	
+// 	
+// }
+// 
+// packet Gradient {
+// 	byte prim;
+// 	byte sec;
+// }

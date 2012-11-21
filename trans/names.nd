@@ -17,7 +17,8 @@ imports
  // How to make NBL recognize basic field variables like id and group?
  // Front@Axis; is not recognized
  // send AddNeighbor(first=v1, second=v2) to dests;       first must refer to a var defined in AddNeighbor
-//
+ 
+ // how to store Receive event handlers in global or instruction states
 
 
 	
@@ -31,14 +32,23 @@ namespaces
 	Class
 	State
 	Function
-	
+	MetaPart
 	Payload
 	Program
+	VisItem
+	VisGroup
 rules
+	
+	VisGroup(n,g):
+		defines VisGroup n
+	
+		
+
+
 
 	Program(n,_,_):
 		defines non-unique Program n
-		scopes Group, Packet, Class, State,Function
+		scopes Group, Packet, Class, State,Function,MetaPart
 
 	Group(n,_) :
 		defines Group n
@@ -52,7 +62,7 @@ rules
 	
 	State (n,_,_,_):
 		defines State n	
-		scopes Packet
+		scopes Packet,Var
 		
 	StateRef(n):
 		refers to State n
@@ -76,11 +86,12 @@ rules
 		refers to Packet p
 		
 		
-	ModHolderRef(m,g): 
+	ModHolderRef(m,ug): 
 	 	refers to Mod m in Group g
+	 	where ug refers to Group g
 	
-	ModHolderRef(g): 
-		refers to Group g
+	// ModHolderRef(g): 
+	// 	refers to Group g
 			
 			
 	VarDecl(_,n): 
@@ -93,13 +104,11 @@ rules
 		refers to Function n in Class c
 		where obj has type Type(c)
 	
-	
 	FieldDecl(_,n): 
 		defines Field n
 		
 	PayloadDecl(_,n): 
 		defines Payload n 
-		 
 	
 	PacketRef(p):
 		refers to Packet p
@@ -111,6 +120,7 @@ rules
 	VarRef(n): 
 		refers to Var n			
 		refers to Field n
+		refers to MetaPart n
 		
 	FieldRef(c,n):
 		// refers to Field n in Class c
@@ -122,10 +132,16 @@ rules
 	// 	defines Class n
 	
 		
-	Class (n,_,_,_):
+	Class (n,_,_):
 		defines Class n of type Type(n)
 		scopes Payload,Field,Var,Function
 		
 	Instr(_,_,_,_):
 		scopes Packet
+
+	
+	MetaPart (n):
+		defines MetaPart n
+		
+		
 			

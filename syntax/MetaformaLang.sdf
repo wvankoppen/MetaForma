@@ -20,8 +20,16 @@ sorts	Group MetaClass
    "program" ID Definition*  Decl* 						-> Start {"Program"}
    %%ModuleDef GroupDef* Definition 						-> Start {"Start", scope(Include)}
     
+    "visualize" "{" VisGroup*"}" -> Definition {"Visualize"}
+    ID "{" VisItem* "}" 		 -> VisGroup{"VisGroup"}
+	
+	ModHolderOrStateRef ":" Color [0-9] ";" -> VisItem{"VisItem"}
+    
+    ModHolderRef -> ModHolderOrStateRef
+    StateRef -> ModHolderOrStateRef
+    
 	GroupDef 										-> Definition
-	Meta "{" PartDecl* FieldDecl* FuncDecl* "}" 	-> Definition{"Class"}
+	Meta "{" FieldOrPartDecl* FuncDecl* "}" 	-> Definition{"Class"}
 	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{"Class"}
 	
 	"meta" 							-> Meta{"Meta"}
@@ -42,13 +50,15 @@ sorts	Group MetaClass
 	Type ID ";" -> FieldDecl{"FieldDecl"}
 	Type ID ";" -> PayloadDecl{"PayloadDecl"}
 	
-	"part" "[" {ID ","}* "]" ";" -> PartDecl{"MetaPartDecl"}
+	FieldDecl -> FieldOrPartDecl
+	"part" "[" {MetaPart ","}* "]" ";" -> FieldOrPartDecl{"MetaPartDecl"}
+	ID 		-> MetaPart{"MetaPart"}
 	
 	ID 					-> Ref{"VarRef"}
 	ID 					-> PayloadRef{"PayloadRef"}
 	
-	PayloadRef "=" Exp			-> Assign{"Assign"}
-	{Assign ","}*		-> AssignLst{"AssignList"}
+	PayloadRef "=" ID			-> AssignElem{"AssignElem"}
+	{AssignElem ","}*				-> AssignList{"AssignList"}
 	
 	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{"State"}
 	"state" ID "{" EvHdlr* TryReg* "}" -> Definition{"State"}
@@ -65,12 +75,13 @@ sorts	Group MetaClass
 	Exp 							-> Event{"Event"}
 	"rate" Ref						-> Rate{"Rate"}
 	
-	"unicast" PacketRef "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{"Unicast"}
-	"broadcast" PacketRef "(" AssignLst ")" Rate? ";" -> Stmt{"Broadcast"}
-	"send" PacketRef "(" {Assign ","}* ")"	"to" Exp ";"			-> Stmt{"Send"}
+	"unicast" PacketRef "(" AssignList ")" "on"  Exp  Rate? ";" -> Stmt{"Unicast"}
+	"broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{"Broadcast"}
+	"send" PacketRef "(" AssignList ")"	"to" Exp ";"			-> Stmt{"Send"}
 	
 	
 	Ref "=" Exp ";" -> Stmt{"Assign"}
+	
 	
 
 	Stmt							-> Block{"Block"}

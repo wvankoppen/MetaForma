@@ -7,7 +7,7 @@ colorer
                                                                       
 	Type     : 127 0 85 bold
 	Obj     : 0 128 0      
-	Const	: brown 
+	ConstLan	: brown 
 	
 	_.Connect : darkred
 	_.Disconnect : darkred

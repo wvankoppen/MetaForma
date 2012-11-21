@@ -9,7 +9,7 @@ imports
   lib/editor-common.generated
   lib/compilation-library.generated
   libjava-front
-
+  constructors
   
 
 rules // Incremental code generation of project using compilation library.
@@ -19,13 +19,26 @@ rules // Incremental code generation of project using compilation library.
 rules // Transformation to java strings.
 
 
-desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(add-instr));innermost(desugar)
+desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(desugar-td));innermost(desugar)
 
 
 tail: [x|xs] -> xs
 
 
-add-instr: State(n,e,x,instrs) -> State(n,e,x,instrs''')  
+
+desugar-td: Visualize (groups) -> Visualize (items)
+where
+	<flatten-list><map(rem-visgroup)>groups => items
+	
+
+rem-visgroup: VisGroup (n,g) -> g'
+where
+	<map(add-visgroup(|n))>g => g'
+
+
+add-visgroup(|n): VisItem(r,c,nr) -> VisItem(n,r,c,nr) 
+
+desugar-td: State(n,e,x,instrs) -> State(n,e,x,instrs''')  
 where 
 	<debug>"=====START=======";
 	<map(try(add-instrblock))>instrs => instrs';
@@ -68,7 +81,6 @@ desugar-functions: RotateCont(m1,v) -> FuncCall("rotate_continuous",[m1,v])
 
 
 
-
 desugar: Block(stats) -> [stats]
 where
 	not(<?[_|_]>stats)
@@ -82,6 +94,7 @@ desugar: Plus(e1,e2) -> BinOp(Plus(),e1,e2)
 desugar: And(e1,e2) -> BinOp(And(),e1,e2)
 desugar: Or(e1,e2) -> BinOp(Or(),e1,e2)
 desugar: Eq(e1,e2) -> BinOp(Eq(),e1,e2)
+desugar: Neq(e1,e2) -> BinOp(Neq(),e1,e2)
 desugar: Lt(e1,e2) -> BinOp(Lt(),e1,e2)
 desugar: LtEq(e1,e2) -> BinOp(LtEq(),e1,e2)
 desugar: Gt(e1,e2) -> BinOp(Gt(),e1,e2)

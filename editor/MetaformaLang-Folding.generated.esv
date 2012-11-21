@@ -21,14 +21,15 @@ folding Default folding definitions
   //   Definition._ (disabled)
   
   Start.Program
+  Definition.Visualize
+  VisGroup.VisGroup
   GroupDef.Group
   Definition.Class
-  PartDecl.MetaPartDecl
+  FieldOrPartDecl.MetaPartDecl
   Decl.Packet
   Event.Event
   Stmt.Unicast
-  AssignLst.AssignList
-  Assign.Assign
+  AssignList.AssignList
   Stmt.Broadcast
   Stmt.Send
   Stmt.Assign

@@ -4,8 +4,9 @@ group Uplifter [Top,Bottom,Left,Right]
 group Dummy [Left,Right]
 
 sequence FlipThrough {
-	// byte QUART;
-	// byte HALF;
+	byte QUART;
+	byte HALF;
+	
 	module.gradientInit();
 	module.gradientPropagate();
 	
@@ -42,7 +43,5 @@ sequence FlipThrough {
 	
 	connect(@Floor, @Uplifter);	
 	
-	region.fixSymmetry();
-	module.restoreID();
 	region.finish();	
 }

@@ -13,6 +13,7 @@ outliner Default outliner
   //   _.<constructor>
   
   Start.Program
+  VisGroup.VisGroup
   GroupDef.Group
   FuncDecl.FuncDecl
   Decl.Packet

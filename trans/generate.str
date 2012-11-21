@@ -9,7 +9,13 @@ imports
   lib/editor-common.generated
   lib/compilation-library.generated
   libjava-front
-
+  lib/editor-common.generated
+  lib/index-library.generated
+  lib/analysis-library.generated
+  lib/analysis-library-internal.generated
+  lib/compilation-library.generated
+  lib/nbl-library.generated
+	names
   
 
 rules // Incremental code generation of project using compilation library.
@@ -19,6 +25,10 @@ rules // Incremental code generation of project using compilation library.
 rules // Transformation to java strings.
 
 
+
+to-java-all : Program(_,_,State(n,_,_,instrs)) -> $[sdds[<concat-strings><map(to-java-instrs)>instrs]]
+
+to-java-all : Program(_,decls,states) -> $[[<concat-strings><map(to-java-decls)>decls]]
 
 
 
@@ -68,8 +78,6 @@ to-java-stop: e -> $[stateMngr.spend([e']);]
 
 
 
-to-java-all : Program(_,_,State(n,_,_,instrs)) -> $[sdds[<concat-strings><map(to-java-instrs)>instrs]]
-
 
 to-java-def: Group(n,mod*) -> $[enum Mod {[mods]}]
 where
@@ -83,6 +91,7 @@ to-java: BinOp (op,e1,e2) -> $[([<to-java>e1] [<to-java>op] [<to-java>e2])]
 to-java: And() -> $[ && ]
 to-java: Or() -> $[ || ]
 to-java: Eq() -> $[ == ]
+to-java: Neq() -> $[ != ]
 to-java: Plus() -> $[ + ]
 to-java: Min() -> $[ - ]
 to-java: Lt() -> $[ < ]
@@ -99,23 +108,116 @@ to-java: If(c,stats) -> $[ if ([<to-java>c]) {
 
 to-java: FieldRef(obj,f) -> $[[<to-java>obj].getVar("[f]")]
 
+to-java: Assign(v, e) -> $[[<to-java>v] = [<to-java>e];
+]
+
+to-java: VarRef(v) -> $[[v]]
+
 to-java: Assign(FieldRef(obj,field),val) -> $[[<to-java>obj].setVar("[field]",[val']);]
 where
 	<to-java>val => val'
+
+
+
+to-java: FuncDecl (n,params,evts,stats) -> $[ void [n] ([<concat-comma><map(to-java)>params]) {
+	[<concat-strings><map(to-java)>stats]	
+	
+}
+
+]
+
+
+to-java: Param(t,n) -> $[[<to-java>t] n]
+
 	
 to-java: Config() -> $[config()]
 to-java: Module() -> $[module()]
 to-java: Meta() -> $[meta()]
 to-java: VarRef(n) -> n
+to-java: PayloadRef(n) -> n
 to-java: Par(e) -> $[ ([<to-java>e]) ]
 
+to-java: Const(n) -> n
 to-java: Int(i) -> i
 to-java: Bool(b) -> b
 
+to-java: Byte() -> $[byte]
+to-java: Boolean() -> $[boolean]
 
+to-java: ByteArr() -> $[byte[brackets]] where
+	brackets := "[]"
 
+to-java: ByteArr(bytes) -> $[new byte [brackets]{[<concat-comma><map(to-java)>bytes]}]
+where
+	brackets := "[]"
 
 to-java: Receive(p,var) -> $[
 	public boolean receivePacket ([p] p) {
 	
+]
+
+to-java: PacketRef(p) -> $[Packet[p]]
+
+to-java: Send(p@PacketRef(_),AssignList(assigns),dests) -> $[unicast(([p'])new [p'](ctrl)[assigns'],[<to-java>dests]);]
+where
+	p' := <to-java>p;
+	assigns' := <concat-strings><map(to-java)>assigns
+
+
+to-java: Broadcast(p@PacketRef(_),AssignList(assigns),dests) -> $[broadcast(([p'])new [p'](ctrl)[assigns']);]
+where
+	p' := <to-java>p;
+	assigns' := <concat-strings><map(to-java)>assigns
+
+
+to-java: AssignElem(var,val) -> $[.setVar("[<to-java>var]",[val])]
+
+
+
+// index-lookup-type: 
+// ref -> type 
+// where
+// definition := <index-lookup> ref ; 
+// type := <index-get-data(|Type())> definition
+
+
+to-java-decls: Visualize (vis) -> $[[<concat-strings><map(to-java)>vis]]
+
+to-java: VisItem (g,StateRef(n),c,_) -> $[visual.setColor("[g]",Sequence.[n],Color.[c]);
+]
+
+to-java: VisItem (g,r@ModHolderRef(_,_),c,_) -> $[visual.setColor("[g]",[<to-java>r],Color.[c]);
+]
+
+
+to-java-decls: Class(Meta(),decls,funcs) -> $[class BagMeta extends CoreMeta implements IMetaBag {
+	[decls']
+	[funcs']
+	}
+	]
+	where
+		<concat-strings><map(to-java)>decls => decls';
+		<concat-strings><map(to-java)>funcs => funcs'
+
+to-java: MetaPartDecl (parts) -> $[enum MetaPart implements IMetaPart {
+		NONE,[parts'];
+	} 
+	]
+	where
+		<concat-strings><map(to-java)>parts => parts'
+
+
+to-java-decls: Class(Module(),decls,funcs) -> $[class BagModule extends CoreModule implements IModuleBag {
+	[decls']
+	[funcs']
+	}
+	]
+	where
+		<concat-strings><map(to-java)>decls => decls';
+		<concat-strings><map(to-java)>funcs => funcs'
+
+	
+to-java: MetaPart(n) -> $[[n],]
+
+to-java: FieldDecl(t,n) -> $[[<to-java>t] [n];
 ]

@@ -39,18 +39,19 @@ signature
     If             : Exp * Block -> Stmt
     IfElse         : Exp * Block * Block -> Stmt
     Assign         : Ref * Exp -> Stmt
-    Send           : PacketRef * List(Assign) * Exp -> Stmt
-    Broadcast      : PacketRef * AssignLst * Option(Rate) -> Stmt
-    Unicast        : PacketRef * AssignLst * Exp * Option(Rate) -> Stmt
+    Send           : PacketRef * AssignList * Exp -> Stmt
+    Broadcast      : PacketRef * AssignList * Option(Rate) -> Stmt
+    Unicast        : PacketRef * AssignList * Exp * Option(Rate) -> Stmt
                    : EvHdlr -> Stmt
     EvHdlr         : Event * List(VarDecl) * List(Stmt) -> EvHdlr
-    AssignList     : List(Assign) -> AssignLst
-    Assign         : PayloadRef * Exp -> Assign
+    AssignList     : List(AssignElem) -> AssignList
+    AssignElem     : PayloadRef * ID -> AssignElem
     PayloadRef     : ID -> PayloadRef
     FieldRef       : ID * ID -> Ref
     FieldRef       : Obj * ID -> Ref
     VarRef         : ID -> Ref
-    MetaPartDecl   : List(ID) -> PartDecl
+    MetaPartDecl   : List(MetaPart) -> FieldOrPartDecl
+                   : FieldDecl -> FieldOrPartDecl
     PayloadDecl    : Type * ID -> PayloadDecl
     FieldDecl      : Type * ID -> FieldDecl
     VarDecl        : Type * ID -> VarDecl
@@ -61,12 +62,17 @@ signature
     FuncDecl       : ID * List(ParamListElem) * List(Decl) * List(Stmt) -> FuncDecl
     Module         : Module
     Meta           : Meta
+                   : StateRef -> ModHolderOrStateRef
+                   : ModHolderRef -> ModHolderOrStateRef
+    VisItem        : ModHolderOrStateRef * Color * Int -> VisItem
+    VisGroup       : ID * List(VisItem) -> VisGroup
                    : EvHdlr -> Definition
     State          : ID * List(EvHdlr) * List(TryReg) -> Definition
     State          : ID * List(VarDecl) * List(FuncDecl) * List(Instr) -> Definition
     Class          : Module * List(FieldDecl) * List(FuncDecl) -> Definition
-    Class          : Meta * List(PartDecl) * List(FieldDecl) * List(FuncDecl) -> Definition
+    Class          : Meta * List(FieldOrPartDecl) * List(FuncDecl) -> Definition
                    : GroupDef -> Definition
+    Visualize      : List(VisGroup) -> Definition
     Program        : ID * List(Definition) * List(Decl) -> Start
     MetaPart       : ID -> MetaPart
     'in            : ModHolderRef -> NbsFilter
@@ -104,6 +110,7 @@ signature
     Par            : Exp -> Exp
                    : ModHolderRef -> Exp
     Bool           : Bool -> Exp
+    Const          : ConstLan -> Exp
     Const          : Const -> Exp
     Int            : INT -> Exp
     Nbs            : NbsOp -> Exp
@@ -120,7 +127,9 @@ signature
     Byte           : Type
     Boolean        : Type
                    : String -> Const
+                   : String -> ConstLan
                    : String -> Bool
+                   : String -> Color
                    : String -> INT
                    : String -> ID
 

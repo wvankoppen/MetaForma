@@ -25,22 +25,30 @@ lexical syntax
 	"while"			-> ID {reject}
 	"wait"			-> ID {reject}
 	"until"			-> ID {reject}
-	"consensus"			-> ID {reject}
+	"consensus"		-> ID {reject}
 	
 	
 	 
-	 
+	 "red"			-> Color
+	 "blue"			-> Color
+	 "green"		-> Color
+	 "yellow"		-> Color
+	 "cyan"		-> Color
+	
 	
 	
 	"false"			-> Bool
 	"true"			-> Bool
 	
-	"MALE"			-> Const
-	"FEMALE"		-> Const
-	"WEST"			-> Const
-	"EAST"			-> Const
-	"NORTH"			-> Const
-	"SOUTH"			-> Const
+	"MALE"			-> ConstLan
+	"FEMALE"		-> ConstLan
+	"WEST"			-> ConstLan
+	"EAST"			-> ConstLan
+	"NORTH"			-> ConstLan
+	"SOUTH"			-> ConstLan
+	"MAX_BYTE"		-> Const
+	"null"			-> Const
+
 	
 	
 	
@@ -69,10 +77,11 @@ lexical syntax
 	"region"		-> Obj{cons("Region")}
 	"debug"			-> Obj{cons("Debug")}
 	"config"		-> Obj{cons("Config")}
-	%% 
+	"config"		-> Obj{cons("Config")}
+	
 	 Const			-> ID {reject}
 	 Bool			-> ID {reject}
-	 Obj				-> ID {reject}
+	 Obj			-> ID {reject}
 	 Core			-> ID {reject}
 
 module Exp
@@ -105,6 +114,7 @@ exports
 	ID 						-> MetaPart{cons("MetaPart")}
 	INT						-> Exp{cons("Int")}
 	Const					-> Exp{cons("Const")}
+	ConstLan					-> Exp{cons("Const")}
 	Bool					-> Exp{cons("Bool")}
 	ModHolderRef				-> Exp
 	"(" Exp ")"			    -> Exp{cons("Par")}
@@ -182,8 +192,16 @@ sorts	Group MetaClass
    "program" ID Definition*  Decl* 						-> Start {cons("Program")}
    %%ModuleDef GroupDef* Definition 						-> Start {"Start", scope(Include)}
     
+    "visualize" "{" VisGroup*"}" -> Definition {cons("Visualize")}
+    ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
+	
+	ModHolderOrStateRef ":" Color [0-9] ";" -> VisItem{cons("VisItem")}
+    
+    ModHolderRef -> ModHolderOrStateRef
+    StateRef -> ModHolderOrStateRef
+    
 	GroupDef 										-> Definition
-	Meta "{" PartDecl* FieldDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
+	Meta "{" FieldOrPartDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
 	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{cons("Class")}
 	
 	"meta" 							-> Meta{cons("Meta")}
@@ -204,13 +222,15 @@ sorts	Group MetaClass
 	Type ID ";" -> FieldDecl{cons("FieldDecl")}
 	Type ID ";" -> PayloadDecl{cons("PayloadDecl")}
 	
-	"part" "[" {ID ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
+	FieldDecl -> FieldOrPartDecl
+	"part" "[" {MetaPart ","}* "]" ";" -> FieldOrPartDecl{cons("MetaPartDecl")}
+	ID 		-> MetaPart{cons("MetaPart")}
 	
 	ID 					-> Ref{cons("VarRef")}
 	ID 					-> PayloadRef{cons("PayloadRef")}
 	
-	PayloadRef "=" Exp			-> Assign{cons("Assign")}
-	{Assign ","}*		-> AssignLst{cons("AssignList")}
+	PayloadRef "=" ID			-> AssignElem{cons("AssignElem")}
+	{AssignElem ","}*				-> AssignList{cons("AssignList")}
 	
 	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{cons("State")}
 	"state" ID "{" EvHdlr* TryReg* "}" -> Definition{cons("State")}
@@ -227,12 +247,13 @@ sorts	Group MetaClass
 	Exp 							-> Event{cons("Event")}
 	"rate" Ref						-> Rate{cons("Rate")}
 	
-	"unicast" PacketRef "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
-	"broadcast" PacketRef "(" AssignLst ")" Rate? ";" -> Stmt{cons("Broadcast")}
-	"send" PacketRef "(" {Assign ","}* ")"	"to" Exp ";"			-> Stmt{cons("Send")}
+	"unicast" PacketRef "(" AssignList ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
+	"broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{cons("Broadcast")}
+	"send" PacketRef "(" AssignList ")"	"to" Exp ";"			-> Stmt{cons("Send")}
 	
 	
 	Ref "=" Exp ";" -> Stmt{cons("Assign")}
+	
 	
 
 	Stmt							-> Block{cons("Block")}
@@ -385,8 +406,16 @@ sorts	Group MetaClass
    "program" ID Definition*  Decl* 						-> Start {cons("Program")}
    %%ModuleDef GroupDef* Definition 						-> Start {"Start", scope(Include)}
     
+    "visualize" "{" VisGroup*"}" -> Definition {cons("Visualize")}
+    ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
+	
+	ModHolderOrStateRef ":" Color [0-9] ";" -> VisItem{cons("VisItem")}
+    
+    ModHolderRef -> ModHolderOrStateRef
+    StateRef -> ModHolderOrStateRef
+    
 	GroupDef 										-> Definition
-	Meta "{" PartDecl* FieldDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
+	Meta "{" FieldOrPartDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
 	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{cons("Class")}
 	
 	"meta" 							-> Meta{cons("Meta")}
@@ -407,13 +436,15 @@ sorts	Group MetaClass
 	Type ID ";" -> FieldDecl{cons("FieldDecl")}
 	Type ID ";" -> PayloadDecl{cons("PayloadDecl")}
 	
-	"part" "[" {ID ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
+	FieldDecl -> FieldOrPartDecl
+	"part" "[" {MetaPart ","}* "]" ";" -> FieldOrPartDecl{cons("MetaPartDecl")}
+	ID 		-> MetaPart{cons("MetaPart")}
 	
 	ID 					-> Ref{cons("VarRef")}
 	ID 					-> PayloadRef{cons("PayloadRef")}
 	
-	PayloadRef "=" Exp			-> Assign{cons("Assign")}
-	{Assign ","}*		-> AssignLst{cons("AssignList")}
+	PayloadRef "=" ID			-> AssignElem{cons("AssignElem")}
+	{AssignElem ","}*				-> AssignList{cons("AssignList")}
 	
 	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{cons("State")}
 	"state" ID "{" EvHdlr* TryReg* "}" -> Definition{cons("State")}
@@ -430,12 +461,13 @@ sorts	Group MetaClass
 	Exp 							-> Event{cons("Event")}
 	"rate" Ref						-> Rate{cons("Rate")}
 	
-	"unicast" PacketRef "(" AssignLst ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
-	"broadcast" PacketRef "(" AssignLst ")" Rate? ";" -> Stmt{cons("Broadcast")}
-	"send" PacketRef "(" {Assign ","}* ")"	"to" Exp ";"			-> Stmt{cons("Send")}
+	"unicast" PacketRef "(" AssignList ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
+	"broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{cons("Broadcast")}
+	"send" PacketRef "(" AssignList ")"	"to" Exp ";"			-> Stmt{cons("Send")}
 	
 	
 	Ref "=" Exp ";" -> Stmt{cons("Assign")}
+	
 	
 
 	Stmt							-> Block{cons("Block")}

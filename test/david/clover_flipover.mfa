@@ -6,10 +6,13 @@ group Inside
 group Outside
 
 
-sequence Flipover {
+sequence FlipOver {
+	byte HALF;
+	byte QUART;
 	
-	gradientInit();
-	gradientPropagate();
+	
+	module.gradientInit();
+	module.gradientPropagate();
 
 	do  {
 		if (gradPri == 0 && gradSec < 3 || gradSec==0 && gradPri<3) { 
@@ -30,7 +33,8 @@ sequence Flipover {
 		if (gradPri==0 && gradSec==2) { 
 			id = Bottom@OutsideLifter;
 		}
-	} wait (consensus());
+		isRef = (gradPri == 0 && gradSec == 3);
+	}
 					
 	
 	disconnect(@Outside, @Inside);
@@ -39,27 +43,16 @@ sequence Flipover {
 	do {
 		rotate(Top@InsideLifter,HALF);
 		rotate(Bottom@InsideLifter,-HALF);
-	} wait(consensus());
+	} 
 	
 	do {
 		rotate(Top@OutsideLifter,HALF);
 		rotate(Bottom@OutsideLifter,-HALF);
-	} wait(consensus());
+	} 
 	
 	connect(@Outside, @Inside);
 	connect(@OutsideLifter, @Inside);
-	
-	do {
-		when (receive (PacketSymmetry p)) {
-			fixSymmetry(p.connSource,p.connDest);
-		}
-		if (isRef) {
-			broadcast PacketSymmetry ();	
-		}
 		
-	} until(consensus());
-	
-	restoreID();
 	
 	region.finish();
 }

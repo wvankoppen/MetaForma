@@ -1,7 +1,7 @@
 program Brandt
 group Clover [North,South,West,East]
 
-sequence CloverFlipAlong  {
+sequence FlipAlong  {
 	byte QUART; 
 	byte HALF;
 	

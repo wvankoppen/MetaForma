@@ -1,0 +1,45 @@
+program Christensen
+
+sequence Getup {
+	module.gradientInit();
+	
+	do {
+		assign (0,2,Mod.Walker_Left);
+		assign (1,3,Mod.Walker_Top);
+		assign (2,2,Mod.Walker_Right);
+	} wait (consensus())
+	
+	disconnect_part(Group.Uplifter, (NORTH&EAST&FEMALE)|(SOUTH&WEST)&FEMALE);
+		
+	rotate(Mod.Uplifter_Left,-QUART);
+	rotate(Mod.Walker_Right,-QUART);
+	
+	connect(Mod.Walker_Left,Group.Floor,true);
+		
+	disconnect(Mod.Walker_Right,Group.Uplifter,true);
+		
+	do {
+		actuation.rotate(Mod.Uplifter_Left,QUART);
+		actuation.rotate(Mod.Walker_Right,QUART);
+	} wait (consensus())			
+	
+	rotate(Mod.Walker_Top,-EIGHT);
+	rotate(Mod.Walker_Left,HALF);
+	rotate(Mod.Walker_Top,EIGHT);
+			
+	do {
+		module.restoreID();
+		if (meta.regionID == module.metaID) {
+			module.metaIDprevious = module.metaID;
+		}
+	}
+	
+	meta.releaseRegion();
+				
+	if (module().metaID != module().metaIDprevious) {
+		meta().resetVars();
+		goto INIT;
+	}
+	goto WALKSTEP;
+	
+}

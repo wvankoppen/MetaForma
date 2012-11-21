@@ -33,8 +33,26 @@ signature
     Class    : Namespace
     State    : Namespace
     Function : Namespace
+    MetaPart : Namespace
     Payload  : Namespace
     Program  : Namespace
+    VisItem  : Namespace
+    VisGroup : Namespace
+
+
+rules
+
+  nam-get-definition-keys :
+    VisGroup(n, g) -> [n]
+
+  nam-get-definitions :
+    VisGroup(n, g) -> [(VisGroup(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    VisGroup(n, g) -> <VisGroup(nam-annotate-def(|path__), id)>
+
+  nam-unique :
+    VisGroup(n, g) -> <id>
 
 
 rules
@@ -45,6 +63,7 @@ rules
                         , Class()
                         , State()
                         , Function()
+                        , MetaPart()
                         ]
 
   nam-get-definition-keys :
@@ -108,7 +127,7 @@ rules
 rules
 
   nam-get-scope-types :
-    State(n, _, _, _) -> [Packet()]
+    State(n, _, _, _) -> [Packet(), Var()]
 
   nam-get-definition-keys :
     State(n, _, _, _) -> [n]
@@ -231,29 +250,20 @@ rules
 rules
 
   nam-get-uses-keys :
-    ModHolderRef(m, g) -> [m]
+    ModHolderRef(m, ug) -> [m]
+    where Def([Group()|g]) := <index-find-key ; index-lookup> ug
 
   nam-get-uses :
-    ModHolderRef(m, g) -> [(Mod(), [m])]
+    ModHolderRef(m, ug) -> [(Mod(), [m])]
+    where Def([Group()|g]) := <index-find-key ; index-lookup> ug
 
   nam-annotate-names(|paths__, path__):
-    ModHolderRef(m, g) -> <ModHolderRef(nam-annotate-use(|paths__, Mod()), id)>
+    ModHolderRef(m, ug) -> <ModHolderRef(nam-annotate-use(|paths__, Mod()), id)>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    ModHolderRef(m, g) -> <index-lookup-children(|Mod(), prefix__)> g
+    ModHolderRef(m, ug) -> <index-lookup-children(|Mod(), prefix__)> g
     where <target__> m
-
-
-rules
-
-  nam-get-uses-keys :
-    ModHolderRef(g) -> [g]
-
-  nam-get-uses :
-    ModHolderRef(g) -> [(Group(), [g])]
-
-  nam-annotate-names(|paths__, path__):
-    ModHolderRef(g) -> <ModHolderRef(nam-annotate-use(|paths__, Group()))>
+    where Def([Group()|g]) := <index-find-key ; index-lookup> ug
 
 
 rules
@@ -373,6 +383,7 @@ rules
   nam-get-uses :
     VarRef(n) -> [ (Var(), [n])
                  , (Field(), [n])
+                 , (MetaPart(), [n])
                  ]
 
   nam-annotate-names(|paths__, path__):
@@ -381,6 +392,7 @@ rules
   adjust-index-lookup(target__|namespace__, path__, prefix__):
     VarRef(n) -> [ [Var()|path__]
                  , [Field()|path__]
+                 , [MetaPart()|path__]
                  ]
     where <target__> n
 
@@ -407,36 +419,51 @@ rules
 rules
 
   nam-get-scope-types :
-    Class(n, _, _, _) -> [ Payload()
-                         , Field()
-                         , Var()
-                         , Function()
-                         ]
+    Class(n, _, _) -> [ Payload()
+                      , Field()
+                      , Var()
+                      , Function()
+                      ]
 
   nam-get-definition-keys :
-    Class(n, _, _, _) -> [n]
+    Class(n, _, _) -> [n]
 
   nam-get-definitions :
-    Class(n, _, _, _) -> [(Class(), [n])]
+    Class(n, _, _) -> [(Class(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Class(n, _, _, _) -> <Class(nam-annotate-def(|path__), id, id, id)>
+    Class(n, _, _) -> <Class(nam-annotate-def(|path__), id, id)>
 
   adjust-index-def-data(store__|namespace__, path__):
-    Class(n, _, _, _) -> <store__> DefData(
-                                     [namespace__|path__]
-                                   , Type()
-                                   , Type(n)
-                                   )
+    Class(n, _, _) -> <store__> DefData(
+                                  [namespace__|path__]
+                                , Type()
+                                , Type(n)
+                                )
 
   type-of :
-    Class(n, _, _, _) -> Type(n)
+    Class(n, _, _) -> Type(n)
 
   nam-unique :
-    Class(n, _, _, _) -> <id>
+    Class(n, _, _) -> <id>
 
 
 rules
 
   nam-get-scope-types :
     Instr(_, _, _, _) -> [Packet()]
+
+
+rules
+
+  nam-get-definition-keys :
+    MetaPart(n) -> [n]
+
+  nam-get-definitions :
+    MetaPart(n) -> [(MetaPart(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    MetaPart(n) -> <MetaPart(nam-annotate-def(|path__))>
+
+  nam-unique :
+    MetaPart(n) -> <id>
