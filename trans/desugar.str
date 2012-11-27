@@ -19,12 +19,19 @@ rules // Incremental code generation of project using compilation library.
 rules // Transformation to java strings.
 
 
-desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(desugar-td));innermost(desugar)
+desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(desugar-td));innermost(desugar)//;alltd(desugar-flatten)
 
-
+head: [x|xs] -> x
 tail: [x|xs] -> xs
 
 
+// desugar-flatten: Program(n,decls) -> Program(n,<flatten-list>decls)
+
+desugar-td: Group (n,elems) -> Group (n,items)
+where
+	<flatten-list><map(add-modgroup(|n))>elems => items
+	
+add-modgroup(|g): Mod(n) -> Mod(g,n) 
 
 desugar-td: Visualize (groups) -> Visualize (items)
 where
@@ -71,14 +78,14 @@ where
 
 desugar-functions: Instr(d,instrs) -> Instr(d,instrs,Wait(Consensus()))  	 
  
-desugar-functions: ConnectPart(m1,m2) -> FuncCall("connect_part",[m1,m2])
-desugar-functions: DisconnectPart(m1,m2) -> FuncCall("disconnect_part",[m1,m2])
-desugar-functions: Connect(m1,m2) -> FuncCall("connect",[m1,m2])
-desugar-functions: Disconnect(m1,m2) -> FuncCall("disconnect",[m1,m2])
-desugar-functions: Rotate(m1,deg) -> FuncCall("rotate",[m1,deg])
-desugar-functions: RotateCont(m1,v) -> FuncCall("rotate_continuous",[m1,v])
+desugar-functions: ConnectPart(m1,m2) -> FuncCall(MethodRef(Actuation(),"connect_part"),[m1,m2])
+desugar-functions: DisconnectPart(m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect_part"),[m1,m2])
+desugar-functions: Connect(m1,m2) -> FuncCall(MethodRef(Actuation(),"connect"),[m1,m2])
+desugar-functions: Disconnect(m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect"),[m1,m2])
+desugar-functions: Rotate(m1,deg) -> FuncCall(MethodRef(Actuation(),"rotate"),[m1,deg])
+desugar-functions: RotateCont(m1,v) -> FuncCall(MethodRef(Actuation(),"rotate_continuous"),[m1,v])
 
-
+desugar: If(c,stats) -> IfElse(c,stats,[])
 
 
 desugar: Block(stats) -> [stats]
@@ -99,4 +106,10 @@ desugar: Lt(e1,e2) -> BinOp(Lt(),e1,e2)
 desugar: LtEq(e1,e2) -> BinOp(LtEq(),e1,e2)
 desugar: Gt(e1,e2) -> BinOp(Gt(),e1,e2)
 desugar: GtEq(e1,e2) -> BinOp(GtEq(),e1,e2)
-  
+
+
+
+
+
+
+desugar: Broadcast(p,assignlist,rate) -> Unicast(p,assignlist,Conn(),Int(255),rate)

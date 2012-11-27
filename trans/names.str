@@ -27,6 +27,7 @@ signature
   constructors
     Mod      : Namespace
     Group    : Namespace
+    GroupNum : Namespace
     Packet   : Namespace
     Var      : Namespace
     Field    : Namespace
@@ -58,22 +59,22 @@ rules
 rules
 
   nam-get-scope-types :
-    Program(n, _, _) -> [ Group()
-                        , Packet()
-                        , Class()
-                        , State()
-                        , Function()
-                        , MetaPart()
-                        ]
+    Program(n, _) -> [ Group()
+                     , Packet()
+                     , Class()
+                     , State()
+                     , Function()
+                     , MetaPart()
+                     ]
 
   nam-get-definition-keys :
-    Program(n, _, _) -> [n]
+    Program(n, _) -> [n]
 
   nam-get-definitions :
-    Program(n, _, _) -> [(Program(), [n])]
+    Program(n, _) -> [(Program(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Program(n, _, _) -> <Program(nam-annotate-def(|path__), id, id)>
+    Program(n, _) -> <Program(nam-annotate-def(|path__), id)>
 
 
 rules
@@ -97,16 +98,16 @@ rules
 rules
 
   nam-get-definition-keys :
-    Mod(n) -> [n]
+    Mod(g, n) -> [n]
 
   nam-get-definitions :
-    Mod(n) -> [(Mod(), [n])]
+    Mod(g, n) -> [(Mod(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Mod(n) -> <Mod(nam-annotate-def(|path__))>
+    Mod(g, n) -> <Mod(id, nam-annotate-def(|path__))>
 
   nam-unique :
-    Mod(n) -> <id>
+    Mod(g, n) -> <id>
 
 
 rules
@@ -115,7 +116,7 @@ rules
     GroupNum(n) -> [n]
 
   nam-get-definitions :
-    GroupNum(n) -> [(Group(), [n])]
+    GroupNum(n) -> [(GroupNum(), [n])]
 
   nam-annotate-names(|paths__, path__):
     GroupNum(n) -> <GroupNum(nam-annotate-def(|path__))>

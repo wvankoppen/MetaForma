@@ -5,26 +5,26 @@ sequence FlipAlong  {
 	byte QUART; 
 	byte HALF;
 	
+	if (orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
+		QUART = -90;
+		HALF = -180;
+	}
+	else {
+		QUART = 90;
+		HALF = 180;
+	}
+	
+	
 	module.gradientInit();
 	module.gradientPropagate();
-	
-	do  {
-		if (region.orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
-			QUART = -90;
-			HALF = -180;
-		}
-		else {
-			QUART = 90;
-			HALF = 180;
-		}
-	} 
-			
+
+		
 	do {		
 		if (gradPri==3 && gradSec==0) module.id = West@Clover;
 		if (gradPri==2 && gradSec==0) module.id = South@Clover;
 		if (gradPri==3 && gradSec==1) module.id = North@Clover;
 		if (gradPri==2 && gradSec==1) module.id = East@Clover;
-		 module.isRef = (gradPri == 0 && gradSec == 3);
+		module.isRef = (gradPri == 0 && gradSec == 3);
 	}
 			 
 	
@@ -45,19 +45,8 @@ sequence FlipAlong  {
 	rotate(East@Clover,-QUART);
 	rotate(North@Clover,QUART);
 	connect(South@Clover,West@Clover);
-	
-	do {
-		packet PacketSymmetry {	}
-		
-		when (receive (PacketSymmetry p)) {
-			module.fixSymmetry(p.connSource,p.connDest);
-		}
-		if (module.isRef) {
-			broadcast PacketSymmetry ();	
-		}
-		
-	} until(consensus());
-	
-	module.restoreID();
-	region.finish();
+	// 
+	// 
+	module.restoreID(1);
+	region.finish(1);
 }

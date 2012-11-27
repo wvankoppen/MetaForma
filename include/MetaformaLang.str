@@ -6,25 +6,31 @@ signature
     ModHolderRef   : ID -> ModHolderRef
                    : String -> STRING
     MethodRef      : Obj * ID -> MethodRef
+    FuncRef        : ID -> FuncRef
                    : Exp -> Stop
     Consensus      : Stop
     Until          : Stop -> StopCondition
     Wait           : Stop -> StopCondition
-    TryRegion      : ID * ID * List(ID) * List(ID) -> TryReg
+    ByteArr        : List(Exp) -> ByteList
     Mod            : ID -> Mod
     GroupNum       : ID -> GroupDef
     Group          : ID * List(Mod) -> GroupDef
-    Instr          : List(Decl) * List(Stmt) -> Instr
-    Instr          : List(Decl) * List(Stmt) * StopCondition -> Instr
+    Instr          : ListStarOfDecl0 * List(Stmt) -> Instr
+    Instr          : ListStarOfDecl0 * List(Stmt) * StopCondition -> Instr
                    : Stmt -> Instr
+    OrientRef      : ID -> OrientRef
     StateRef       : ID -> StateRef
     Block          : List(Stmt) -> Block
     Block          : Stmt -> Block
+    Conn           : DestMulti
+    Meta           : DestMulti
+    Conn           : DestSingle
+    Meta           : DestSingle
     Rate           : Ref -> Rate
     Event          : Exp -> Event
     Receive        : PacketRef * ID -> Event
     PacketRef      : ID -> PacketRef
-    FuncCall       : ID * List(Exp) -> Stmt
+    FuncCall       : FuncRef * List(Exp) -> Stmt
     FuncCall       : MethodRef * List(Exp) -> Stmt
     For            : Type * ID * ID * Block -> Stmt
     Stop           : ModHolderRef -> Stmt
@@ -34,14 +40,15 @@ signature
     Rotate         : ModHolderRef * Exp -> Stmt
     Connect        : ModHolderRef * ModHolderRef -> Stmt
     Disconnect     : ModHolderRef * ModHolderRef -> Stmt
+    TryRegion      : StateRef * OrientRef * ByteList * ByteList -> Stmt
     Goto           : ID * ID -> Stmt
     Goto           : StateRef -> Stmt
     If             : Exp * Block -> Stmt
     IfElse         : Exp * Block * Block -> Stmt
     Assign         : Ref * Exp -> Stmt
-    Send           : PacketRef * AssignList * Exp -> Stmt
     Broadcast      : PacketRef * AssignList * Option(Rate) -> Stmt
-    Unicast        : PacketRef * AssignList * Exp * Option(Rate) -> Stmt
+    Unicast        : PacketRef * AssignList * DestMulti * Exp * Option(Rate) -> Stmt
+    Send           : PacketRef * AssignList * DestSingle * Exp * Option(Rate) -> Stmt
                    : EvHdlr -> Stmt
     EvHdlr         : Event * List(VarDecl) * List(Stmt) -> EvHdlr
     AssignList     : List(AssignElem) -> AssignList
@@ -55,11 +62,12 @@ signature
     PayloadDecl    : Type * ID -> PayloadDecl
     FieldDecl      : Type * ID -> FieldDecl
     VarDecl        : Type * ID -> VarDecl
-                   : FuncDecl -> Decl
-    Packet         : ID * List(PayloadDecl) -> Decl
+    State          : ID * List(VarDecl) * List(FuncDecl) * List(Instr) -> Declaration
+                   : FuncDecl -> Declaration
+    Packet         : ID * List(PayloadDecl) -> Declaration
     Param          : Type * ID -> ParamListElem
-    FuncDecl       : Type * ID * List(ParamListElem) * List(Decl) * List(Stmt) * Exp -> FuncDecl
-    FuncDecl       : ID * List(ParamListElem) * List(Decl) * List(Stmt) -> FuncDecl
+    FuncDecl       : Type * ID * List(ParamListElem) * ListStarOfDecl0 * List(Stmt) * Exp -> FuncDecl
+    FuncDecl       : ID * List(ParamListElem) * ListStarOfDecl0 * List(Stmt) -> FuncDecl
     Module         : Module
     Meta           : Meta
                    : StateRef -> ModHolderOrStateRef
@@ -67,13 +75,11 @@ signature
     VisItem        : ModHolderOrStateRef * Color * Int -> VisItem
     VisGroup       : ID * List(VisItem) -> VisGroup
                    : EvHdlr -> Definition
-    State          : ID * List(EvHdlr) * List(TryReg) -> Definition
-    State          : ID * List(VarDecl) * List(FuncDecl) * List(Instr) -> Definition
     Class          : Module * List(FieldDecl) * List(FuncDecl) -> Definition
     Class          : Meta * List(FieldOrPartDecl) * List(FuncDecl) -> Definition
                    : GroupDef -> Definition
     Visualize      : List(VisGroup) -> Definition
-    Program        : ID * List(Definition) * List(Decl) -> Start
+    Program        : ID * List(Definition) * List(Declaration) -> Start
     MetaPart       : ID -> MetaPart
     'in            : ModHolderRef -> NbsFilter
     connSource     : Exp -> NbsFilter
@@ -87,7 +93,8 @@ signature
     NbsOp          : ConnFilter -> NbsOp
     NbsOp          : ConnFilter * List(NbsFilter) -> NbsOp
     FuncCall       : MethodRef * List(Exp) -> Exp
-    FuncCall       : ID * List(Exp) -> Exp
+    FuncCall       : FuncRef * List(Exp) -> Exp
+    OrientMatch    : List(OrientRef) -> Exp
     OrBit          : Exp * Exp -> Exp
     AndBit         : Exp * Exp -> Exp
     Or             : Exp * Exp -> Exp

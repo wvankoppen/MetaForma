@@ -21,24 +21,27 @@ folding Default folding definitions
   //   Definition._ (disabled)
   
   Start.Program
-  Definition.Visualize
-  VisGroup.VisGroup
-  GroupDef.Group
-  Definition.Class
-  FieldOrPartDecl.MetaPartDecl
   Decl.Packet
   Event.Event
-  Stmt.Unicast
-  AssignList.AssignList
-  Stmt.Broadcast
+  Exp.OrientMatch
   Stmt.Send
+  AssignList.AssignList
+  Stmt.Unicast
+  Stmt.Broadcast
   Stmt.Assign
+  Stmt.TryRegion
+  ByteList.ByteArr
   Stmt.Rotate
   Stmt.RotateCont
   Stmt.DisconnectPart
   Stmt.ConnectPart
   Stmt.FuncCall
   Stmt.FuncCall
+  Definition.Visualize
+  VisGroup.VisGroup
+  GroupDef.Group
+  Definition.Class
+  FieldOrPartDecl.MetaPartDecl
   Definition.Class
   Definition.State
   Instr.Instr
@@ -46,5 +49,3 @@ folding Default folding definitions
   Exp
   StopCondition.Until
   Instr.Instr
-  Definition.State
-  TryReg.TryRegion

@@ -173,8 +173,94 @@ rules // Utility
 			<to-java-all> selected => result  
       
    generate-java:
-		(selected, position, ast, path, project-path) -> (filename, result)
+		(selected, position, ast, path, project-path) -> (filename, result3)
 		where
 			<guarantee-extension(|"java")> path => filename ;
 			<base-filename> path => javafile;
-			<to-java-all><desugar-all> selected => result
+			<to-java-all><desugar-all> selected => result;
+			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+			<map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-data;
+			<concat-strings><map(try(to-java-mods))>index-data => result2; 
+			result3 := $[[result]
+			public enum Mod  implements IModule,IModEnum{
+			 [<concat-glue(|",")><map(to-java)><filter(to-java-mods)>result2]
+			 private Mod (boolean isNumGroup) {
+			if (isNumGroup) {
+				count = 48;
+			}
+		}
+		
+		
+		
+		public IModule module () {
+			return new Module (this.getMod());
+		}
+		
+		public byte getCount() {
+			return count;
+		}
+		
+		public Set<IModule> modules() {
+			Set<IModule> m = new HashSet<IModule>();
+			m.add(this);
+			return m;
+		}
+
+		public boolean equals(IModule m) {
+			return this.ordinal() == m.getMod().ordinal();
+		}
+
+		@Override
+		public IModEnum getMod() {
+			return this;
+		}
+
+		@Override
+		public byte getNr() {
+			return 0;
+		}
+
+		@Override
+		public Coll getGroup () {
+			return Coll.valueOf(name().split("_")[0]);
+		}
+
+		@Override
+		public int ord() {
+			int ret = 0;
+			for (Mod m:values()) {
+				if (m.ordinal() != ordinal()) {
+					ret+=m.count;
+				}
+				else {
+					if (ret > 255) {
+						throw new Error("Enum overflow: 255<" + ret + "  " + this);
+					}
+					return (byte)ret;
+				}
+			}
+			throw new Error ("Enum value not found!");
+		}
+		
+		@Override
+		public boolean contains(IModule m) {
+			return equals(m);
+		}
+
+		@Override
+		public IModEnum getNone() {
+			return NONE;
+		}
+		
+		@Override
+		public IModEnum valueFrom(String string) {
+			return valueOf(string);
+		}
+
+		@Override
+		public IModEnum getValues() {
+			return values();
+		}
+
+	}
+]

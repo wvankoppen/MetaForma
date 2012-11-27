@@ -79,6 +79,7 @@ lexical syntax
 	"config"		-> Obj{"Config"}
 	
 	 Const			-> ID {reject}
+	 ConstLan			-> ID {reject}
 	 Bool			-> ID {reject}
 	 Obj			-> ID {reject}
 	 Core			-> ID {reject}

@@ -23,3 +23,7 @@ signature
 	MetaClass : MetaClass
 	ModuleClass : ModuleClass
 	VisItem: X * X * X * X -> VisItem
+	Actuation : Actuation
+	Def: X * X * X * X -> Def
+	Def: X * X * X -> Def
+	Def: X * X -> Def

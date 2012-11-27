@@ -53,7 +53,7 @@ meta {
 // 			byte second;
 // 		}
 // 
-		 send AddNeighbor(first = v1, second = v2) to dests;
+		 unicast AddNeighbor(first = v1, second = v2) to meta-modules dests;
 // 		
 		// when (receive (AddNeighbor p)) {
 		// 	if (p.metaID == Left) {
@@ -116,7 +116,7 @@ module  {
 		if (sourceSec) {
 			gradSec = 0;
 		}
-		broadcast Gradient(pri=gradPri, sec=gradSec);
+		 broadcast Gradient(pri=gradPri, sec=gradSec);
 	}
 // 	
 // 
@@ -129,72 +129,73 @@ module  {
 	}
  }
 
-// sequence Initialize {
-// 	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
-// 	when (receive (Packet p)) {
-// 		meta.neighborHook (p.connSource,p.connDest);
-// 	}
-// 	
-// 	do {
-// 		packet MetaIdSet { byte newMetaID; }
-// 		
-// 		when (#(EAST&MALE, module.metaPart==None) == 2 && !$(WEST, module.metaPart==None)) {
-// 			module.metaPart = Left;
-// 			meta.id = module.id;
-// 			unicast MetaIdSet (newMetaID = module.id) on EAST&MALE&NORTH;
-// 		}
-// 		when (receive (MetaIdSet p)) {
-// 			if (module.metaID == 0) {
-// 				module.metaID = p.newMetaID;
-// 				
-// 				if (isMALE(p.destCon) && module.metaPart == null) {
-// 					module.metaPart = Right;
-// 				}
-// 				else if (isWEST(p.destCon) && module.metaPart == null) {
-// 					module.metaPart = Top;
-// 				}
-// 				else if (isEAST(p.destCon) && module.metaPart == null) {
-// 					module.metaPart = Bottom;
-// 				}
-// 			}
-// 			
-// 			if (module.metaPart == Left) {
-// 				continue();
-// 			}
-// 			
-// 			unicast MetaIdSet (newMetaID = p.newMetaID) on (pow2((p.destCon + 4) % 8)) rate config.rate;
-// 		}	
-// 	} 
-// 	
-// 	meta.enable();
-// 	
-// 	goto Choose;	
-// }
-// 
-// 
-// sequence Choose {
-// 	when (receive (Packet p)) {
-// 		// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
-// 		metaNeighborHook (p.metaID,p.destConn);
-// 	}
-// 	
-// 	meta.broadcastNeighbors();
-// 	
-// 	// UP
-// 	try region FLIPTHROUGH orientating BOTTOM_RIGHT from Top excluding TopLeft,Left,Bottom;
-// 	try region FLIPALONG orientating BOTTOM_RIGHT from Right,TopRight excluding Top;
-// 	try region FLIPTHROUGH orientating LEFT_BOTTOM from Right excluding Top, TopRight;
-// 	
-// 	// DIAGONAL DOWN
-// 	try region FLIPTHROUGH orientating TOP_RIGHT from Bottom excluding Left, Top;
-// 	try region FLIPTHOVER orientating TOP_RIGHT from Bottom,Left excluding Top;
-// 	try region FLIPTHROUGH orientating RIGHT_TOP from Left excluding Top,Bottom;
-// 	
-// 	
-// 	
-// }
-// 
-// packet Gradient {
-// 	byte prim;
-// 	byte sec;
-// }
+sequence Initialize {
+ 	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
+	// when (receive (Packet p)) {
+	// 	meta.neighborHook (p.connSource,p.connDest);
+	// }
+	
+	do {
+		// packet MetaIdSet { byte newMetaID; }
+		// 
+		// when (#(EAST&MALE, module.metaPart==None) == 2 && !$(WEST, module.metaPart==None)) {
+		// 	module.metaPart = Left;
+		// 	meta.id = module.id;
+		// 	unicast MetaIdSet (newMetaID = module.id) on connectors EAST&MALE&NORTH;
+		// }
+		// when (receive (MetaIdSet p)) {
+		// 	if (module.metaID == 0) {
+		// 		module.metaID = p.newMetaID;
+		// 		
+		// 		if (isMALE(p.destCon) && module.metaPart == null) {
+		// 			module.metaPart = Right;
+		// 		}
+		// 		else if (isWEST(p.destCon) && module.metaPart == null) {
+		// 			module.metaPart = Top;
+		// 		}
+		// 		else if (isEAST(p.destCon) && module.metaPart == null) {
+		// 			module.metaPart = Bottom;
+		// 		}
+		// 	}
+		// 	
+		// 	if (module.metaPart == Left) {
+		// 		continue();
+		// 	}
+		// 	
+		// 	unicast MetaIdSet (newMetaID = p.newMetaID) on connectors (pow2((p.destCon + 4) % 8)) rate config.rate;
+		// }	
+	} 
+
+	 meta.enable();
+	
+	goto Choose;	
+}
+
+
+sequence Choose {
+	// when (receive (Packet p)) {
+	// 	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
+	// 	metaNeighborHook (p.metaID,p.destConn);
+	// }
+	
+	meta.broadcastNeighbors();
+	
+	do {
+		// UP
+		try region FLIPTHROUGH orientating BOTTOM_RIGHT from Top excluding TopLeft,Left,Bottom;
+		try region FLIPALONG orientating BOTTOM_RIGHT from Right,TopRight excluding Top;
+		try region FLIPTHROUGH orientating LEFT_BOTTOM from Right excluding Top, TopRight;
+		
+		// DIAGONAL DOWN
+		try region FLIPTHROUGH orientating TOP_RIGHT from Bottom excluding Left, Top;
+		try region FLIPTHOVER orientating TOP_RIGHT from Bottom,Left excluding Top;
+		try region FLIPTHROUGH orientating RIGHT_TOP from Left excluding Top,Bottom;
+	}
+	
+	
+}
+
+packet Gradient {
+	byte prim;
+	byte sec;
+}

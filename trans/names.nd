@@ -19,6 +19,8 @@ imports
  // send AddNeighbor(first=v1, second=v2) to dests;       first must refer to a var defined in AddNeighbor
  
  // how to store Receive event handlers in global or instruction states
+ 
+ // How to store scattered declarations from multiple files in a single namespace, and retrieve them from it
 
 
 	
@@ -26,6 +28,7 @@ namespaces
 	
 	Mod
 	Group
+	GroupNum
 	Packet
 	Var
 	Field
@@ -37,6 +40,7 @@ namespaces
 	Program
 	VisItem
 	VisGroup
+	
 rules
 	
 	VisGroup(n,g):
@@ -46,7 +50,7 @@ rules
 
 
 
-	Program(n,_,_):
+	Program(n,_):
 		defines non-unique Program n
 		scopes Group, Packet, Class, State,Function,MetaPart
 
@@ -54,12 +58,12 @@ rules
 		defines Group n
 		scopes Mod
 
-	Mod (n):
+	Mod (g,n):
 		defines Mod n
 		
 	GroupNum(n) :
-		defines Group n
-	
+	 	defines GroupNum n
+	 
 	State (n,_,_,_):
 		defines State n	
 		scopes Packet,Var

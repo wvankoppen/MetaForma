@@ -80,6 +80,7 @@ lexical syntax
 	"config"		-> Obj{cons("Config")}
 	
 	 Const			-> ID {reject}
+	 ConstLan			-> ID {reject}
 	 Bool			-> ID {reject}
 	 Obj			-> ID {reject}
 	 Core			-> ID {reject}
@@ -186,11 +187,13 @@ sorts	Group MetaClass
     Start
  
   context-free syntax
+  %% Definition:  INDIRECT code generation
+  %% Declaration: DIRECT code generation
   
-  
-  
-   "program" ID Definition*  Decl* 						-> Start {cons("Program")}
+   "program" ID Definition* Declaration*						-> Start {cons("Program")}
    %%ModuleDef GroupDef* Definition 						-> Start {"Start", scope(Include)}
+    
+    Decl -> Definition
     
     "visualize" "{" VisGroup*"}" -> Definition {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
@@ -213,8 +216,8 @@ sorts	Group MetaClass
 	Type ID 			-> ParamListElem{cons("Param")}
 	ID					-> Type{avoid}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> Decl{cons("Packet")}
-	FuncDecl -> Decl
+	"packet" ID "{" PayloadDecl* "}" 					-> Declaration{cons("Packet")}
+	FuncDecl -> Declaration
 
 	
 	%%Type {ID ","}+ ";" -> VarDecl{"VarDecl"}
@@ -232,8 +235,8 @@ sorts	Group MetaClass
 	PayloadRef "=" ID			-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*				-> AssignList{cons("AssignList")}
 	
-	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{cons("State")}
-	"state" ID "{" EvHdlr* TryReg* "}" -> Definition{cons("State")}
+	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Declaration{cons("State")}
+	%% "state" ID "{" EvHdlr* TryReg* "}" -> Definition{"State"}
 	
 	
 	EvHdlr										 -> Definition
@@ -247,9 +250,15 @@ sorts	Group MetaClass
 	Exp 							-> Event{cons("Event")}
 	"rate" Ref						-> Rate{cons("Rate")}
 	
-	"unicast" PacketRef "(" AssignList ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
+	
+	"to" "meta-module" -> DestSingle{cons("Meta")}
+	"on" "connector" -> DestSingle{cons("Conn")}
+	"to" "meta-modules" -> DestMulti{cons("Meta")}
+	"on" "connectors" -> DestMulti{cons("Conn")}
+	
+	"send" PacketRef "(" AssignList ")"	DestSingle Exp Rate? ";"		-> Stmt{cons("Send")}
+	"unicast" PacketRef "(" AssignList ")" DestMulti  Exp  Rate? ";" -> Stmt{cons("Unicast")}
 	"broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{cons("Broadcast")}
-	"send" PacketRef "(" AssignList ")"	"to" Exp ";"			-> Stmt{cons("Send")}
 	
 	
 	Ref "=" Exp ";" -> Stmt{cons("Assign")}
@@ -263,7 +272,8 @@ sorts	Group MetaClass
 	
 	"if" "(" Exp ")" Block 					-> Stmt{cons("If")}
 		
-	ID 										-> StateRef{cons("StateRef")}	
+	ID 										-> StateRef{cons("StateRef")}
+	ID 										-> OrientRef{cons("OrientRef")}	
 		
 	Stmt -> Instr
 	"goto" StateRef ";"							-> Stmt{cons("Goto")}
@@ -274,9 +284,9 @@ sorts	Group MetaClass
 	
 	ID 								-> Mod{cons("Mod")}
 	
-	"try" "region" ID "orientating" ID "from" {ID ","}* "excluding" {ID ","}* ";" -> TryReg{cons("TryRegion")}
+	"try" "region" StateRef "orientating" OrientRef "from" ByteList "excluding" ByteList ";" -> Stmt{cons("TryRegion")}
 	
-	 
+	 {Exp ","}* 				-> ByteList {cons("ByteArr")}
 	
 	"disconnect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{cons("Disconnect")}
 	"connect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{cons("Connect")}
@@ -299,9 +309,13 @@ sorts	Group MetaClass
 	Exp						-> Stop	
 	
 	
-	
+	ID -> FuncRef{cons("FuncRef")}
 	
 	Obj "." ID -> MethodRef{cons("MethodRef")}
+	
+	
+	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
+	
 	
 	context-free priorities
 	{
@@ -331,8 +345,8 @@ sorts	Group MetaClass
 	MethodRef	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
 	MethodRef 	"(" {Exp "," }* ")" 	 -> Exp{cons("FuncCall")}
 	} > {
-	ID  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
-	ID  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
+	FuncRef  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
+	FuncRef  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
 	}
 
 module Common
@@ -400,11 +414,13 @@ sorts	Group MetaClass
     Start
  
   context-free syntax
+  %% Definition:  INDIRECT code generation
+  %% Declaration: DIRECT code generation
   
-  
-  
-   "program" ID Definition*  Decl* 						-> Start {cons("Program")}
+   "program" ID Definition* Declaration*						-> Start {cons("Program")}
    %%ModuleDef GroupDef* Definition 						-> Start {"Start", scope(Include)}
+    
+    Decl -> Definition
     
     "visualize" "{" VisGroup*"}" -> Definition {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
@@ -427,8 +443,8 @@ sorts	Group MetaClass
 	Type ID 			-> ParamListElem{cons("Param")}
 	ID					-> Type{avoid}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> Decl{cons("Packet")}
-	FuncDecl -> Decl
+	"packet" ID "{" PayloadDecl* "}" 					-> Declaration{cons("Packet")}
+	FuncDecl -> Declaration
 
 	
 	%%Type {ID ","}+ ";" -> VarDecl{"VarDecl"}
@@ -446,8 +462,8 @@ sorts	Group MetaClass
 	PayloadRef "=" ID			-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*				-> AssignList{cons("AssignList")}
 	
-	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Definition{cons("State")}
-	"state" ID "{" EvHdlr* TryReg* "}" -> Definition{cons("State")}
+	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Declaration{cons("State")}
+	%% "state" ID "{" EvHdlr* TryReg* "}" -> Definition{"State"}
 	
 	
 	EvHdlr										 -> Definition
@@ -461,9 +477,15 @@ sorts	Group MetaClass
 	Exp 							-> Event{cons("Event")}
 	"rate" Ref						-> Rate{cons("Rate")}
 	
-	"unicast" PacketRef "(" AssignList ")" "on"  Exp  Rate? ";" -> Stmt{cons("Unicast")}
+	
+	"to" "meta-module" -> DestSingle{cons("Meta")}
+	"on" "connector" -> DestSingle{cons("Conn")}
+	"to" "meta-modules" -> DestMulti{cons("Meta")}
+	"on" "connectors" -> DestMulti{cons("Conn")}
+	
+	"send" PacketRef "(" AssignList ")"	DestSingle Exp Rate? ";"		-> Stmt{cons("Send")}
+	"unicast" PacketRef "(" AssignList ")" DestMulti  Exp  Rate? ";" -> Stmt{cons("Unicast")}
 	"broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{cons("Broadcast")}
-	"send" PacketRef "(" AssignList ")"	"to" Exp ";"			-> Stmt{cons("Send")}
 	
 	
 	Ref "=" Exp ";" -> Stmt{cons("Assign")}
@@ -477,7 +499,8 @@ sorts	Group MetaClass
 	
 	"if" "(" Exp ")" Block 					-> Stmt{cons("If")}
 		
-	ID 										-> StateRef{cons("StateRef")}	
+	ID 										-> StateRef{cons("StateRef")}
+	ID 										-> OrientRef{cons("OrientRef")}	
 		
 	Stmt -> Instr
 	"goto" StateRef ";"							-> Stmt{cons("Goto")}
@@ -488,9 +511,9 @@ sorts	Group MetaClass
 	
 	ID 								-> Mod{cons("Mod")}
 	
-	"try" "region" ID "orientating" ID "from" {ID ","}* "excluding" {ID ","}* ";" -> TryReg{cons("TryRegion")}
+	"try" "region" StateRef "orientating" OrientRef "from" ByteList "excluding" ByteList ";" -> Stmt{cons("TryRegion")}
 	
-	 
+	 {Exp ","}* 				-> ByteList {cons("ByteArr")}
 	
 	"disconnect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{cons("Disconnect")}
 	"connect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{cons("Connect")}
@@ -513,9 +536,13 @@ sorts	Group MetaClass
 	Exp						-> Stop	
 	
 	
-	
+	ID -> FuncRef{cons("FuncRef")}
 	
 	Obj "." ID -> MethodRef{cons("MethodRef")}
+	
+	
+	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
+	
 	
 	context-free priorities
 	{
@@ -545,6 +572,6 @@ sorts	Group MetaClass
 	MethodRef	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
 	MethodRef 	"(" {Exp "," }* ")" 	 -> Exp{cons("FuncCall")}
 	} > {
-	ID  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
-	ID  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
+	FuncRef  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
+	FuncRef  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
 	}
