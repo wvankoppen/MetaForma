@@ -17,12 +17,29 @@ imports
   lib/nbl-library.generated
 	names
 	desugar
-  
+ //  .tbl in includes zetten
+
+// strategies
+// 	 generate =
+//     !compilation-unit |[
+//        public class HelloWorld
+//        {
+//          public static void main(String[] ps)
+//          {
+//            System.err.println("Hello world!");
+//          }
+//        }
+//      ]|
 
 rules // Incremental code generation of project using compilation library.
   
   
+
  
+  
+  // 
+  // to-java-bla: x->y 
+  // where y := java:bstm*|[ a = 1 +1; ]|
  
  to-java-mods: Def(Mod(),n,g,_) -> $[[g]_[n]]
  to-java-mods: Def(GroupNum(),n) -> $[[n](true)]  
@@ -35,7 +52,7 @@ rules // Transformation to java strings.
 
 // to-java-all : Program(_,_,State(n,_,_,instrs)) -> $[sdds[<concat-strings><map(to-java-instrs)>instrs]]
 
-to-java-all : Program(_,decls) -> $[[<concat-strings><map(to-java-decls)>decls]
+to-java-all : Program(_,vis,defs,decls) -> $[[<concat-strings><map(to-java-decls)>decls]
 ]
 
 

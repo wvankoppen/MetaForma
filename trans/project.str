@@ -1,0 +1,27 @@
+module project
+
+imports
+  libstratego-lib
+  libstratego-gpp
+  libstratego-aterm
+  include/MetaformaLang
+  trans/constructors
+  lib/editor-common.generated
+  lib/compilation-library.generated
+  libjava-front
+  lib/editor-common.generated
+  lib/index-library.generated
+  lib/analysis-library.generated
+  lib/analysis-library-internal.generated
+  lib/compilation-library.generated
+  lib/nbl-library.generated
+	names
+	desugar
+	
+	
+rules
+	project-name: Program(n,_,_,_) -> n
+
+	get-sequences: (p,index) -> Def([State(), n, p])
+	where
+		n := <project-name>

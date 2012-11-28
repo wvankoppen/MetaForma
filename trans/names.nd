@@ -34,25 +34,26 @@ namespaces
 	Field
 	Class
 	State
+	Instruction
 	Function
 	MetaPart
 	Payload
 	Program
 	VisItem
 	VisGroup
+	EventHandler
 	
 rules
 	
 	VisGroup(n,g):
 		defines VisGroup n
-	
 		
-
-
-
-	Program(n,_):
+	// s@EvHdlr (e,s,decl,stats):
+	// 	defines EventHandler s
+	
+	Program(n,_,_,_):
 		defines non-unique Program n
-		scopes Group, Packet, Class, State,Function,MetaPart
+		scopes Group, Packet, Class, State,Function,MetaPart,EventHandler
 
 	Group(n,_) :
 		defines Group n
@@ -66,11 +67,14 @@ rules
 	 
 	State (n,_,_,_):
 		defines State n	
-		scopes Packet,Var
+		scopes Packet,Var,Instruction
+		
+	Instr(i,_,_,_):
+		defines Instruction i
+		scopes EventHandler
 		
 	StateRef(n):
 		refers to State n
-		
 		
 	Packet (n,_):
 		defines Packet n of type Type(n)

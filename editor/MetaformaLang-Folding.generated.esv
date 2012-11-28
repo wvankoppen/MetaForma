@@ -21,7 +21,13 @@ folding Default folding definitions
   //   Definition._ (disabled)
   
   Start.Program
-  Decl.Packet
+  OptVisualize0
+  Visualize.Visualize
+  VisGroup.VisGroup
+  GroupDef.Group
+  Definition.Class
+  FieldOrPartDecl.MetaPartDecl
+  Declaration.Packet
   Event.Event
   Exp.OrientMatch
   Stmt.Send
@@ -37,15 +43,7 @@ folding Default folding definitions
   Stmt.ConnectPart
   Stmt.FuncCall
   Stmt.FuncCall
-  Definition.Visualize
-  VisGroup.VisGroup
-  GroupDef.Group
-  Definition.Class
-  FieldOrPartDecl.MetaPartDecl
-  Definition.Class
-  Definition.State
-  Instr.Instr
   StopCondition.Wait
   Exp
   StopCondition.Until
-  Instr.Instr
+  Definition.Class

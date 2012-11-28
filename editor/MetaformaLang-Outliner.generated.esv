@@ -13,8 +13,11 @@ outliner Default outliner
   //   _.<constructor>
   
   Start.Program
-  Decl.Packet
+  VisGroup.VisGroup
+  GroupDef.Group
   FuncDecl.FuncDecl
+  Declaration.Packet
+  Declaration.State
   EvHdlr.EvHdlr
   NbsOp.NbsOp
   Exp.FuncCall
@@ -23,8 +26,5 @@ outliner Default outliner
   Stmt.Broadcast
   Stmt.TryRegion
   Stmt.FuncCall
-  FuncDecl.FuncDecl
-  VisGroup.VisGroup
-  GroupDef.Group
-  Definition.State
   Instr.Instr
+  FuncDecl.FuncDecl

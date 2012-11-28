@@ -190,12 +190,12 @@ sorts	Group MetaClass
   %% Definition:  INDIRECT code generation
   %% Declaration: DIRECT code generation
   
-   "program" ID Definition* Declaration*						-> Start {cons("Program")}
+   "program" ID Visualize? Definition* Declaration*						-> Start {cons("Program")}
    %%ModuleDef GroupDef* Definition 						-> Start {"Start", scope(Include)}
     
-    Decl -> Definition
+    %% Declaration -> Definition
     
-    "visualize" "{" VisGroup*"}" -> Definition {cons("Visualize")}
+    "visualize" "{" VisGroup*"}" -> Visualize {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
 	
 	ModHolderOrStateRef ":" Color [0-9] ";" -> VisItem{cons("VisItem")}
@@ -210,8 +210,8 @@ sorts	Group MetaClass
 	"meta" 							-> Meta{cons("Meta")}
 	"module"						-> Module{cons("Module")}
 	
-	"void" ID "(" {ParamListElem ","}* ")" "{" Decl* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
-	Type ID "(" {ParamListElem ","}* ")" "{" Decl* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
+	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
+	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
 	
 	Type ID 			-> ParamListElem{cons("Param")}
 	ID					-> Type{avoid}
@@ -334,9 +334,9 @@ sorts	Group MetaClass
 	
 	context-free priorities
 	{
-	"do" "{" Decl* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
+	"do" "{" Declaration* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
 	} > {
-	"do" "{" Decl* Stmt* "}" -> Instr{cons("Instr")}
+	"do" "{" Declaration* Stmt* "}" -> Instr{cons("Instr")}
 	}
 	
 	
@@ -417,12 +417,12 @@ sorts	Group MetaClass
   %% Definition:  INDIRECT code generation
   %% Declaration: DIRECT code generation
   
-   "program" ID Definition* Declaration*						-> Start {cons("Program")}
+   "program" ID Visualize? Definition* Declaration*						-> Start {cons("Program")}
    %%ModuleDef GroupDef* Definition 						-> Start {"Start", scope(Include)}
     
-    Decl -> Definition
+    %% Declaration -> Definition
     
-    "visualize" "{" VisGroup*"}" -> Definition {cons("Visualize")}
+    "visualize" "{" VisGroup*"}" -> Visualize {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
 	
 	ModHolderOrStateRef ":" Color [0-9] ";" -> VisItem{cons("VisItem")}
@@ -437,8 +437,8 @@ sorts	Group MetaClass
 	"meta" 							-> Meta{cons("Meta")}
 	"module"						-> Module{cons("Module")}
 	
-	"void" ID "(" {ParamListElem ","}* ")" "{" Decl* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
-	Type ID "(" {ParamListElem ","}* ")" "{" Decl* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
+	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
+	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
 	
 	Type ID 			-> ParamListElem{cons("Param")}
 	ID					-> Type{avoid}
@@ -561,9 +561,9 @@ sorts	Group MetaClass
 	
 	context-free priorities
 	{
-	"do" "{" Decl* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
+	"do" "{" Declaration* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
 	} > {
-	"do" "{" Decl* Stmt* "}" -> Instr{cons("Instr")}
+	"do" "{" Declaration* Stmt* "}" -> Instr{cons("Instr")}
 	}
 	
 	

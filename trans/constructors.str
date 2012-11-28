@@ -2,6 +2,24 @@ module constructors
 
 imports
 	include/MetaformaLang
+	names
+	
+imports
+  lib/analysis-library.generated
+  lib/analysis-library-internal.generated
+  lib/index-library.generated
+
+
+imports
+  libstratego-lib
+  libstratego-gpp
+  libstratego-aterm
+  include/MetaformaLang
+  trans/constructors
+  lib/editor-common.generated
+  lib/compilation-library.generated
+  libjava-front
+
 
 signature
   constructors
@@ -27,3 +45,7 @@ signature
 	Def: X * X * X * X -> Def
 	Def: X * X * X -> Def
 	Def: X * X -> Def
+	State : X * X -> State
+	EvHdlr : X * X * X * X -> EvHdlr
+	
+	

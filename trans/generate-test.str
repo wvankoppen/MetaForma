@@ -1,0 +1,21 @@
+module generate-test
+imports
+  libstratego-lib
+  libjava-front
+
+strategies
+
+  main =
+    output-wrap(generate)
+
+  generate =
+    !compilation-unit |[
+       public class HelloWorld
+       {
+         public static void main(String[] ps)
+         {
+           System.err.println("Hello world!");
+         }
+       }
+     ]|
+    

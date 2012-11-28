@@ -39,9 +39,7 @@ exports
     INSERTSTART ( ~[\*] | CommentChar )* WATEREOF -> LAYOUT          {cons("INSERTEND")}
                                                   -> "program"       {recover, cons("INSERTION")}
                                                   -> "visualize"     {recover, cons("INSERTION")}
-                                                  -> "packet"        {recover, cons("INSERTION")}
                                                   -> "part"          {recover, cons("INSERTION")}
-                                                  -> "sequence"      {recover, cons("INSERTION")}
                                                   -> "receive"       {recover, cons("INSERTION")}
                                                   -> "rate"          {recover, cons("INSERTION")}
                                                   -> "meta-module"   {recover, cons("INSERTION")}
@@ -221,9 +219,8 @@ exports
     Start
 
   context-free syntax
-    "program" ID Definition* Declaration*                                                    -> Start               {cons("Program")}
-    Decl                                                                                     -> Definition          
-    "visualize" "{" VisGroup* "}"                                                            -> Definition          {cons("Visualize")}
+    "program" ID Visualize? Definition* Declaration*                                         -> Start               {cons("Program")}
+    "visualize" "{" VisGroup* "}"                                                            -> Visualize           {cons("Visualize")}
     ID "{" VisItem* "}"                                                                      -> VisGroup            {cons("VisGroup")}
     ModHolderOrStateRef ":" Color [0-9] ";"                                                  -> VisItem             {cons("VisItem")}
     ModHolderRef                                                                             -> ModHolderOrStateRef 
@@ -233,8 +230,8 @@ exports
     Module "{" FieldDecl* FuncDecl* "}"                                                      -> Definition          {cons("Class")}
     "meta"                                                                                   -> Meta                {cons("Meta")}
     "module"                                                                                 -> Module              {cons("Module")}
-    "void" ID "(" {ParamListElem ","}* ")" "{" Decl* Stmt* "}"                               -> FuncDecl            {cons("FuncDecl")}
-    Type ID "(" {ParamListElem ","}* ")" "{" Decl* Stmt* "return" Exp ";" "}"                -> FuncDecl            {cons("FuncDecl")}
+    "void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"                        -> FuncDecl            {cons("FuncDecl")}
+    Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"         -> FuncDecl            {cons("FuncDecl")}
     Type ID                                                                                  -> ParamListElem       {cons("Param")}
     ID                                                                                       -> Type                {avoid}
     "packet" ID "{" PayloadDecl* "}"                                                         -> Declaration         {cons("Packet")}
@@ -304,8 +301,8 @@ exports
     { ID "@" ID -> ModHolderRef {cons("ModHolderRef")} }
 
   context-free priorities
-    { "do" "{" Decl* Stmt* "}" StopCondition -> Instr {cons("Instr")} } >
-    { "do" "{" Decl* Stmt* "}" -> Instr {cons("Instr")} }
+    { "do" "{" Declaration* Stmt* "}" StopCondition -> Instr {cons("Instr")} } >
+    { "do" "{" Declaration* Stmt* "}" -> Instr {cons("Instr")} }
 
   context-free priorities
     { MethodRef "(" {Exp ","}* ")" ";" -> Stmt {cons("FuncCall")}
@@ -352,9 +349,8 @@ exports
     Start
 
   context-free syntax
-    "program" ID Definition* Declaration*                                                    -> Start               {cons("Program")}
-    Decl                                                                                     -> Definition          
-    "visualize" "{" VisGroup* "}"                                                            -> Definition          {cons("Visualize")}
+    "program" ID Visualize? Definition* Declaration*                                         -> Start               {cons("Program")}
+    "visualize" "{" VisGroup* "}"                                                            -> Visualize           {cons("Visualize")}
     ID "{" VisItem* "}"                                                                      -> VisGroup            {cons("VisGroup")}
     ModHolderOrStateRef ":" Color [0-9] ";"                                                  -> VisItem             {cons("VisItem")}
     ModHolderRef                                                                             -> ModHolderOrStateRef 
@@ -364,8 +360,8 @@ exports
     Module "{" FieldDecl* FuncDecl* "}"                                                      -> Definition          {cons("Class")}
     "meta"                                                                                   -> Meta                {cons("Meta")}
     "module"                                                                                 -> Module              {cons("Module")}
-    "void" ID "(" {ParamListElem ","}* ")" "{" Decl* Stmt* "}"                               -> FuncDecl            {cons("FuncDecl")}
-    Type ID "(" {ParamListElem ","}* ")" "{" Decl* Stmt* "return" Exp ";" "}"                -> FuncDecl            {cons("FuncDecl")}
+    "void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"                        -> FuncDecl            {cons("FuncDecl")}
+    Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"         -> FuncDecl            {cons("FuncDecl")}
     Type ID                                                                                  -> ParamListElem       {cons("Param")}
     ID                                                                                       -> Type                {avoid}
     "packet" ID "{" PayloadDecl* "}"                                                         -> Declaration         {cons("Packet")}
@@ -435,8 +431,8 @@ exports
     { ID "@" ID -> ModHolderRef {cons("ModHolderRef")} }
 
   context-free priorities
-    { "do" "{" Decl* Stmt* "}" StopCondition -> Instr {cons("Instr")} } >
-    { "do" "{" Decl* Stmt* "}" -> Instr {cons("Instr")} }
+    { "do" "{" Declaration* Stmt* "}" StopCondition -> Instr {cons("Instr")} } >
+    { "do" "{" Declaration* Stmt* "}" -> Instr {cons("Instr")} }
 
   context-free priorities
     { MethodRef "(" {Exp ","}* ")" ";" -> Stmt {cons("FuncCall")}

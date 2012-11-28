@@ -18,14 +18,14 @@ rules // Incremental code generation of project using compilation library.
  
 rules // Transformation to java strings.
 
-
-desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(desugar-td));innermost(desugar)//;alltd(desugar-flatten)
-
 head: [x|xs] -> x
 tail: [x|xs] -> xs
 
 
-// desugar-flatten: Program(n,decls) -> Program(n,<flatten-list>decls)
+
+desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(desugar-td));innermost(desugar)//;alltd(desugar-flatten)
+
+desugar-events(|state,c): EvHdlr(r,decls,stats) -> EvHdlr(State(state,c),r,decls,stats) 
 
 desugar-td: Group (n,elems) -> Group (n,items)
 where
@@ -47,18 +47,15 @@ add-visgroup(|n): VisItem(r,c,nr) -> VisItem(n,r,c,nr)
 
 desugar-td: State(n,e,x,instrs) -> State(n,e,x,instrs''')  
 where 
-	<debug>"=====START=======";
 	<map(try(add-instrblock))>instrs => instrs';
 	<upto><dec><length>instrs' => nrs;
-	<debug>nrs;
 	<zip>(nrs,instrs') => instrs'';
-	<map(try(swap-counter))>instrs'' => instrs''';
-	<debug>instrs''
+	<map(try(swap-counter(|n)))>instrs'' => instrs'''
 	// <map(try(add-ix))>instrs' => instrs''
 
 
-swap-counter: (c,Instr(d,instr*,postcon)) -> Instr(c,d,instr*,postcon)
-swap-counter: (c,Instr(d,instr*)) -> Instr(c,d,instr*,Wait(Consensus())) 
+swap-counter(|state): (c,Instr(d,instr*,postcon)) -> Instr(c,d,<map(try(desugar-events(|state,c)))>instr*,postcon)
+swap-counter(|state): (c,Instr(d,instr*)) -> Instr(c,d,<map(try(desugar-events(|state,c)))>instr*,Wait(Consensus())) 
 
 	
 add-instrblock: f -> Instr([],[f])
@@ -111,5 +108,5 @@ desugar: GtEq(e1,e2) -> BinOp(GtEq(),e1,e2)
 
 
 
-
+desugar: EvHdlr (Event(e),vardecls,stats) -> If(e,<conc>(vardecls,stats))
 desugar: Broadcast(p,assignlist,rate) -> Unicast(p,assignlist,Conn(),Int(255),rate)

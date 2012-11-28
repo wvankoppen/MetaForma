@@ -1,3 +1,11 @@
+// How to efficiently dispatch between packet calls in Java?
+	// How to number classes?
+
+// Filtering index content - straightforward approach?
+// Event handlers are sensitive to context - but index is only global? So maybe need manual store taking context into account? How to do that?
+//  
+
+
 module metaformalang
 
 imports
@@ -15,6 +23,7 @@ imports
   names
   check
   desugar
+  project
   generate
   refactor
   libjava-front
@@ -173,94 +182,148 @@ rules // Utility
 			<to-java-all> selected => result  
       
    generate-java:
-		(selected, position, ast, path, project-path) -> (filename, result3)
+		(selected, position, ast, path, project-path) -> (filename, controller)
 		where
 			<guarantee-extension(|"java")> path => filename ;
 			<base-filename> path => javafile;
-			<to-java-all><desugar-all> selected => result;
+			// <to-java-all><desugar-all> selected => java-main;
+			<project-name>ast => name;
 			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
-			<map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-data;
-			<concat-strings><map(try(to-java-mods))>index-data => result2; 
-			result3 := $[[result]
-			public enum Mod  implements IModule,IModEnum{
-			 [<concat-glue(|",")><map(to-java)><filter(to-java-mods)>result2]
-			 private Mod (boolean isNumGroup) {
-			if (isNumGroup) {
-				count = 48;
-			}
-		}
-		
-		
-		
-		public IModule module () {
-			return new Module (this.getMod());
-		}
-		
-		public byte getCount() {
-			return count;
-		}
-		
-		public Set<IModule> modules() {
-			Set<IModule> m = new HashSet<IModule>();
-			m.add(this);
-			return m;
-		}
-
-		public boolean equals(IModule m) {
-			return this.ordinal() == m.getMod().ordinal();
-		}
-
-		@Override
-		public IModEnum getMod() {
-			return this;
-		}
-
-		@Override
-		public byte getNr() {
-			return 0;
-		}
-
-		@Override
-		public Coll getGroup () {
-			return Coll.valueOf(name().split("_")[0]);
-		}
-
-		@Override
-		public int ord() {
-			int ret = 0;
-			for (Mod m:values()) {
-				if (m.ordinal() != ordinal()) {
-					ret+=m.count;
-				}
-				else {
-					if (ret > 255) {
-						throw new Error("Enum overflow: 255<" + ret + "  " + this);
-					}
-					return (byte)ret;
-				}
-			}
-			throw new Error ("Enum value not found!");
-		}
-		
-		@Override
-		public boolean contains(IModule m) {
-			return equals(m);
-		}
-
-		@Override
-		public IModEnum getNone() {
-			return NONE;
-		}
-		
-		@Override
-		public IModEnum valueFrom(String string) {
-			return valueOf(string);
-		}
-
-		@Override
-		public IModEnum getValues() {
-			return values();
-		}
-
-	}
-]
+			<map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
+			<index-get-data(|Type())> Def([Instruction(), 0, "Choose", "Brandt"]) => x;
+			controller := "d"
+			
+// 			java-indexentries := <concat-strings><map(try(to-java-mods))>index-entries; 
+// 			java-states	:= 
+// 			<get-sequences>(name,index-entries) => names-sequence;
+// 			controller := $<
+// package ussr.samples.atron.simulations.metaforma.gen;
+// 
+// import java.awt.Color;
+// import java.util.ArrayList;
+// import java.util.HashSet;
+// import java.util.Set;
+// 
+// import ussr.description.Robot;
+// import ussr.description.setup.ModulePosition;
+// import ussr.model.Controller;
+// import ussr.model.debugging.ControllerInformationProvider;
+// import ussr.samples.atron.ATRON;
+// import ussr.samples.atron.simulations.metaforma.lib.*;
+// import ussr.samples.atron.simulations.metaforma.lib.Packet.*;
+// 
+// class <name>Simulation extends MfSimulation {
+// 
+// 	public static void main(String[] args) {
+// 		MfSimulation.initSimulator();		
+// 		new <name>Simulation().main();
+// 	
+// 	}
+// 
+// 	protected Robot getRobot() {
+// 		ATRON a = new ATRON() {
+// 			public Controller createController() {
+// 				return new [name]Controller();
+// 			}
+// 		};
+// 		return a;
+// 	}
+// 
+// 	protected ArrayList$<$ModulePosition$>$ buildRobot() {
+// 		return new MfBuilder().buildGrid([name]Controller.Mod.Sc);
+// 	}
+// }
+// 				
+// public class <name>Controller extends MfController implements ControllerInformationProvider {
+// 	
+// 	public enum Sequence implements ISequence {
+// 		NONE <names-sequence>;
+// 		public byte ord() {return (byte) (ordinal() - 1 + SequenceGeneric.values().length);	}
+// 		public ISequence fromByte(byte b) {return values()[b+1 - SequenceGeneric.values().length];}
+// 	}
+// 
+// 	public enum Mod  implements IModule,IModEnum{
+// 		 <names-mod>
+// 		 private Mod (boolean isNumGroup) {
+// 		if (isNumGroup) {
+// 			count = 48;
+// 		}
+// 	}
+// 	
+// 		public IModule module () {
+// 			return new Module (this.getMod());
+// 		}
+// 		
+// 		public byte getCount() {
+// 			return count;
+// 		}
+// 		
+// 		public Set$<$IModule$>$ modules() {
+// 			Set$<$IModule$>$ m = new HashSet$<$IModule$>$();
+// 			m.add(this);
+// 			return m;
+// 		}
+// 
+// 		public boolean equals(IModule m) {
+// 			return this.ordinal() == m.getMod().ordinal();
+// 		}
+// 
+// 		@Override
+// 		public IModEnum getMod() {
+// 			return this;
+// 		}
+// 
+// 		@Override
+// 		public byte getNr() {
+// 			return 0;
+// 		}
+// 
+// 		@Override
+// 		public Coll getGroup () {
+// 			return Coll.valueOf(name().split("_")[0]);
+// 		}
+// 
+// 		@Override
+// 		public int ord() {
+// 			int ret = 0;
+// 			for (Mod m:values()) {
+// 				if (m.ordinal() != ordinal()) {
+// 					ret+=m.count;
+// 				}
+// 				else {
+// 					if (ret $>$ 255) {
+// 						throw new Error("Enum overflow: 255 bigger than " + ret + "  " + this);
+// 					}
+// 					return (byte)ret;
+// 				}
+// 			}
+// 			throw new Error ("Enum value not found!");
+// 		}
+// 		
+// 		@Override
+// 		public boolean contains(IModule m) {
+// 			return equals(m);
+// 		}
+// 
+// 		@Override
+// 		public IModEnum getNone() {
+// 			return NONE;
+// 		}
+// 		
+// 		@Override
+// 		public IModEnum valueFrom(String string) {
+// 			return valueOf(string);
+// 		}
+// 
+// 		@Override
+// 		public IModEnum getValues() {
+// 			return values();
+// 		}
+// 
+// 	}
+// 	public void handleStates() {
+// 		<java-states>	
+// 	}	
+// 	
+// 	<java-packet-classes>
+// >

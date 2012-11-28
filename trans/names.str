@@ -25,20 +25,22 @@ signature
     CurrentFile : ImportAnno
 
   constructors
-    Mod      : Namespace
-    Group    : Namespace
-    GroupNum : Namespace
-    Packet   : Namespace
-    Var      : Namespace
-    Field    : Namespace
-    Class    : Namespace
-    State    : Namespace
-    Function : Namespace
-    MetaPart : Namespace
-    Payload  : Namespace
-    Program  : Namespace
-    VisItem  : Namespace
-    VisGroup : Namespace
+    Mod          : Namespace
+    Group        : Namespace
+    GroupNum     : Namespace
+    Packet       : Namespace
+    Var          : Namespace
+    Field        : Namespace
+    Class        : Namespace
+    State        : Namespace
+    Instruction  : Namespace
+    Function     : Namespace
+    MetaPart     : Namespace
+    Payload      : Namespace
+    Program      : Namespace
+    VisItem      : Namespace
+    VisGroup     : Namespace
+    EventHandler : Namespace
 
 
 rules
@@ -59,22 +61,23 @@ rules
 rules
 
   nam-get-scope-types :
-    Program(n, _) -> [ Group()
-                     , Packet()
-                     , Class()
-                     , State()
-                     , Function()
-                     , MetaPart()
-                     ]
+    Program(n, _, _, _) -> [ Group()
+                           , Packet()
+                           , Class()
+                           , State()
+                           , Function()
+                           , MetaPart()
+                           , EventHandler()
+                           ]
 
   nam-get-definition-keys :
-    Program(n, _) -> [n]
+    Program(n, _, _, _) -> [n]
 
   nam-get-definitions :
-    Program(n, _) -> [(Program(), [n])]
+    Program(n, _, _, _) -> [(Program(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Program(n, _) -> <Program(nam-annotate-def(|path__), id)>
+    Program(n, _, _, _) -> <Program(nam-annotate-def(|path__), id, id, id)>
 
 
 rules
@@ -128,7 +131,7 @@ rules
 rules
 
   nam-get-scope-types :
-    State(n, _, _, _) -> [Packet(), Var()]
+    State(n, _, _, _) -> [Packet(), Var(), Instruction()]
 
   nam-get-definition-keys :
     State(n, _, _, _) -> [n]
@@ -141,6 +144,24 @@ rules
 
   nam-unique :
     State(n, _, _, _) -> <id>
+
+
+rules
+
+  nam-get-scope-types :
+    Instr(i, _, _, _) -> [EventHandler()]
+
+  nam-get-definition-keys :
+    Instr(i, _, _, _) -> [i]
+
+  nam-get-definitions :
+    Instr(i, _, _, _) -> [(Instruction(), [i])]
+
+  nam-annotate-names(|paths__, path__):
+    Instr(i, _, _, _) -> <Instr(nam-annotate-def(|path__), id, id, id)>
+
+  nam-unique :
+    Instr(i, _, _, _) -> <id>
 
 
 rules

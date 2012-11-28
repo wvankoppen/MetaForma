@@ -17,12 +17,12 @@ sorts	Group MetaClass
   %% Definition:  INDIRECT code generation
   %% Declaration: DIRECT code generation
   
-   "program" ID Definition* Declaration*						-> Start {"Program"}
+   "program" ID Visualize? Definition* Declaration*						-> Start {"Program"}
    %%ModuleDef GroupDef* Definition 						-> Start {"Start", scope(Include)}
     
-    Decl -> Definition
+    %% Declaration -> Definition
     
-    "visualize" "{" VisGroup*"}" -> Definition {"Visualize"}
+    "visualize" "{" VisGroup*"}" -> Visualize {"Visualize"}
     ID "{" VisItem* "}" 		 -> VisGroup{"VisGroup"}
 	
 	ModHolderOrStateRef ":" Color [0-9] ";" -> VisItem{"VisItem"}
@@ -37,8 +37,8 @@ sorts	Group MetaClass
 	"meta" 							-> Meta{"Meta"}
 	"module"						-> Module{"Module"}
 	
-	"void" ID "(" {ParamListElem ","}* ")" "{" Decl* Stmt* "}"					-> FuncDecl{"FuncDecl"}
-	Type ID "(" {ParamListElem ","}* ")" "{" Decl* Stmt* "return" Exp ";" "}"	-> FuncDecl{"FuncDecl"}
+	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{"FuncDecl"}
+	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{"FuncDecl"}
 	
 	Type ID 			-> ParamListElem{"Param"}
 	ID					-> Type{avoid}
@@ -161,9 +161,9 @@ sorts	Group MetaClass
 	
 	context-free priorities
 	{
-	"do" "{" Decl* Stmt* "}" StopCondition  -> Instr{"Instr"}
+	"do" "{" Declaration* Stmt* "}" StopCondition  -> Instr{"Instr"}
 	} > {
-	"do" "{" Decl* Stmt* "}" -> Instr{"Instr"}
+	"do" "{" Declaration* Stmt* "}" -> Instr{"Instr"}
 	}
 	
 	

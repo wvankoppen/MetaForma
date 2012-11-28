@@ -131,39 +131,39 @@ module  {
 
 sequence Initialize {
  	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
-	// when (receive (Packet p)) {
-	// 	meta.neighborHook (p.connSource,p.connDest);
-	// }
+	when (receive (Packet p)) {
+		meta.neighborHook (p.connSource,p.connDest);
+	}
 	
 	do {
-		// packet MetaIdSet { byte newMetaID; }
-		// 
-		// when (#(EAST&MALE, module.metaPart==None) == 2 && !$(WEST, module.metaPart==None)) {
-		// 	module.metaPart = Left;
-		// 	meta.id = module.id;
-		// 	unicast MetaIdSet (newMetaID = module.id) on connectors EAST&MALE&NORTH;
-		// }
-		// when (receive (MetaIdSet p)) {
-		// 	if (module.metaID == 0) {
-		// 		module.metaID = p.newMetaID;
-		// 		
-		// 		if (isMALE(p.destCon) && module.metaPart == null) {
-		// 			module.metaPart = Right;
-		// 		}
-		// 		else if (isWEST(p.destCon) && module.metaPart == null) {
-		// 			module.metaPart = Top;
-		// 		}
-		// 		else if (isEAST(p.destCon) && module.metaPart == null) {
-		// 			module.metaPart = Bottom;
-		// 		}
-		// 	}
-		// 	
-		// 	if (module.metaPart == Left) {
-		// 		continue();
-		// 	}
-		// 	
-		// 	unicast MetaIdSet (newMetaID = p.newMetaID) on connectors (pow2((p.destCon + 4) % 8)) rate config.rate;
-		// }	
+		packet MetaIdSet { byte newMetaID; }
+		
+		when (#(EAST&MALE, module.metaPart==None) == 2 && !$(WEST, module.metaPart==None)) {
+			module.metaPart = Left;
+			meta.id = module.id;
+			unicast MetaIdSet (newMetaID = module.id) on connectors EAST&MALE&NORTH;
+		}
+		when (receive (MetaIdSet p)) {
+			if (module.metaID == 0) {
+				module.metaID = p.newMetaID;
+				
+				if (isMALE(p.destCon) && module.metaPart == null) {
+					module.metaPart = Right;
+				}
+				else if (isWEST(p.destCon) && module.metaPart == null) {
+					module.metaPart = Top;
+				}
+				else if (isEAST(p.destCon) && module.metaPart == null) {
+					module.metaPart = Bottom;
+				}
+			}
+			
+			if (module.metaPart == Left) {
+				continue();
+			}
+			
+			unicast MetaIdSet (newMetaID = p.newMetaID) on connectors (pow2((p.destCon + 4) % 8)) rate config.rate;
+		}	
 	} 
 
 	 meta.enable();

@@ -15,8 +15,8 @@ signature
     Mod            : ID -> Mod
     GroupNum       : ID -> GroupDef
     Group          : ID * List(Mod) -> GroupDef
-    Instr          : ListStarOfDecl0 * List(Stmt) -> Instr
-    Instr          : ListStarOfDecl0 * List(Stmt) * StopCondition -> Instr
+    Instr          : List(Declaration) * List(Stmt) -> Instr
+    Instr          : List(Declaration) * List(Stmt) * StopCondition -> Instr
                    : Stmt -> Instr
     OrientRef      : ID -> OrientRef
     StateRef       : ID -> StateRef
@@ -66,20 +66,20 @@ signature
                    : FuncDecl -> Declaration
     Packet         : ID * List(PayloadDecl) -> Declaration
     Param          : Type * ID -> ParamListElem
-    FuncDecl       : Type * ID * List(ParamListElem) * ListStarOfDecl0 * List(Stmt) * Exp -> FuncDecl
-    FuncDecl       : ID * List(ParamListElem) * ListStarOfDecl0 * List(Stmt) -> FuncDecl
+    FuncDecl       : Type * ID * List(ParamListElem) * List(Declaration) * List(Stmt) * Exp -> FuncDecl
+    FuncDecl       : ID * List(ParamListElem) * List(Declaration) * List(Stmt) -> FuncDecl
     Module         : Module
     Meta           : Meta
-                   : StateRef -> ModHolderOrStateRef
-                   : ModHolderRef -> ModHolderOrStateRef
-    VisItem        : ModHolderOrStateRef * Color * Int -> VisItem
-    VisGroup       : ID * List(VisItem) -> VisGroup
                    : EvHdlr -> Definition
     Class          : Module * List(FieldDecl) * List(FuncDecl) -> Definition
     Class          : Meta * List(FieldOrPartDecl) * List(FuncDecl) -> Definition
                    : GroupDef -> Definition
-    Visualize      : List(VisGroup) -> Definition
-    Program        : ID * List(Definition) * List(Declaration) -> Start
+                   : StateRef -> ModHolderOrStateRef
+                   : ModHolderRef -> ModHolderOrStateRef
+    VisItem        : ModHolderOrStateRef * Color * Int -> VisItem
+    VisGroup       : ID * List(VisItem) -> VisGroup
+    Visualize      : List(VisGroup) -> Visualize
+    Program        : ID * Option(Visualize) * List(Definition) * List(Declaration) -> Start
     MetaPart       : ID -> MetaPart
     'in            : ModHolderRef -> NbsFilter
     connSource     : Exp -> NbsFilter
