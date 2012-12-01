@@ -20,33 +20,32 @@ sequence FlipAlong  {
 
 		
 	do {		
-		if (gradPri==3 && gradSec==0) module.id = West@Clover;
-		if (gradPri==2 && gradSec==0) module.id = South@Clover;
-		if (gradPri==3 && gradSec==1) module.id = North@Clover;
-		if (gradPri==2 && gradSec==1) module.id = East@Clover;
+		if (gradPri==3 && gradSec==0) module.id = @Clover.West;
+		if (gradPri==2 && gradSec==0) module.id = @Clover.South;
+		if (gradPri==3 && gradSec==1) module.id = @Clover.North;
+		if (gradPri==2 && gradSec==1) module.id = @Clover.East;
 		module.isRef = (gradPri == 0 && gradSec == 3);
 	}
 			 
 	
-	disconnect(West@Clover,South@Clover);
-	rotate(East@Clover,QUART);
-	rotate(North@Clover,HALF);
-	rotate(East@Clover,QUART);
-	connect(North@Clover,@Floor);
-	connect(West@Clover,@Floor);
-	
-	do {
-		disconnect(East@Clover,@Floor);
-		disconnect(South@Clover,@Floor);
-	}
-	
-	rotate(East@Clover,-QUART);
-	rotate(North@Clover,QUART);
-	rotate(East@Clover,-QUART);
-	rotate(North@Clover,QUART);
-	connect(South@Clover,West@Clover);
+	disconnect(@Clover.West,@Clover.South);
+	rotate(@Clover.East,QUART);
+	// rotate(North@Clover,HALF);
+	// rotate(East@Clover,QUART);
+	// connect(North@Clover,@Floor);
+	// connect(West@Clover,@Floor);
 	// 
+	// do {
+	// 	disconnect(East@Clover,@Floor);
+	// 	disconnect(South@Clover,@Floor);
+	// }
 	// 
-	module.restoreID(1);
-	region.finish(1);
+	// rotate(East@Clover,-QUART);
+	// rotate(North@Clover,QUART);
+	// rotate(East@Clover,-QUART);
+	// rotate(North@Clover,QUART);
+	// connect(South@Clover,West@Clover);
+	
+	module.fixSymmetry(isRef);
+	region.finish();
 }

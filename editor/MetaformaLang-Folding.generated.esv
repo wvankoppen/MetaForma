@@ -25,14 +25,13 @@ folding Default folding definitions
   Visualize.Visualize
   VisGroup.VisGroup
   GroupDef.Group
-  Definition.Class
   FieldOrPartDecl.MetaPartDecl
-  Declaration.Packet
+  EvHdlr.EvHdlr
   Event.Event
   Exp.OrientMatch
-  Stmt.Send
-  AssignList.AssignList
   Stmt.Unicast
+  AssignList.AssignList
+  Nbs.Nbs
   Stmt.Broadcast
   Stmt.Assign
   Stmt.TryRegion
@@ -46,4 +45,4 @@ folding Default folding definitions
   StopCondition.Wait
   Exp
   StopCondition.Until
-  Definition.Class
+  Definition.Packet

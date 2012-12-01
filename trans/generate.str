@@ -1,6 +1,7 @@
 module generate
 
 imports
+	
   libstratego-lib
   libstratego-gpp
   libstratego-aterm
@@ -17,29 +18,25 @@ imports
   lib/nbl-library.generated
 	names
 	desugar
- //  .tbl in includes zetten
-
-// strategies
-// 	 generate =
-//     !compilation-unit |[
-//        public class HelloWorld
-//        {
-//          public static void main(String[] ps)
-//          {
-//            System.err.println("Hello world!");
-//          }
-//        }
-//      ]|
-
-rules // Incremental code generation of project using compilation library.
-  
-  
 
  
+strategies
+ 
   
-  // 
-  // to-java-bla: x->y 
-  // where y := java:bstm*|[ a = 1 +1; ]|
+// generate :
+    // msg -> 
+    //   compilation-unit |[
+    //     public class Print
+    //     {
+    //       public static void main(String[] ps)
+    //       {
+    //         System.err.println(~expr:msg);
+    //       }
+    //     }
+    //  ]|
+  
+  
+ 
  
  to-java-mods: Def(Mod(),n,g,_) -> $[[g]_[n]]
  to-java-mods: Def(GroupNum(),n) -> $[[n](true)]  
@@ -118,7 +115,7 @@ to-java-stop: e -> $[stateMngr.spend([e']);]
 mod-enum: Mod(groupname,name) -> $[[groupname]_[name]]
 mod-enum: GroupNum(groupname) -> $[[groupname](true)]
 
-to-java-decls: State(n,d1,d2,instrs) -> 
+to-java-decls: State(n,evhdlrs,vars,funcs,instrs) -> 
 $[if (mfStateMngr.at(StateOperation.[n])) {  [<concat-strings><map(to-java-instrs)>instrs]
 }
 ]
@@ -220,13 +217,13 @@ to-java: Receive(p,var) -> $[
 
 to-java: PacketRef(p) -> $[Packet[p]]
 
-to-java: Send(p@PacketRef(_),AssignList(assigns),car,dests,rate) -> $[send(([p'])new [p'](ctrl)[assigns'],[<to-java>dests]);]
+to-java: Unicast(p@PacketRef(_),AssignList(assigns),dests,rate) -> $[send(([p'])new [p'](ctrl)[assigns'],[<to-java>dests]);]
 where
 	p' := <to-java>p;
 	assigns' := <concat-strings><map(to-java)>assigns
 
 
-to-java: Unicast(p@PacketRef(_),AssignList(assigns),car,dests,rate) -> $[unicast(([p'])new [p'](ctrl)[assigns'],[<to-java>dests]);]
+to-java: Unicast(p@PacketRef(_),AssignList(assigns),dests,rate) -> $[unicast(([p'])new [p'](ctrl)[assigns'],[<to-java>dests]);]
 where
 	p' := <to-java>p;
 	assigns' := <concat-strings><map(to-java)>assigns

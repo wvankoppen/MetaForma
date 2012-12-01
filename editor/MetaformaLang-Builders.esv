@@ -21,6 +21,7 @@ builders
   builder  : "Show desugared syntax"                = desugar-aterm (openeditor) (realtime) (meta) (source)
   builder  : "Show deffed syntax" = generate-deffed (openeditor) (meta) (source)
   builder  : "Show analyzed syntax" = generate-analyzed (openeditor) (realtime) (meta) (source)
+  builder  : "Show index entries for global" = index-global (openeditor) (meta)
   builder  : "Show index entries for current file" = index-currentfile (openeditor) (meta) 
   builder  : "Show index entries for all files" = index-allfiles (openeditor) (meta) 
   builder  : "Clear index" = index-cleanall (meta) (source)           

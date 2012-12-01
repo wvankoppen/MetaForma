@@ -23,9 +23,7 @@ imports
 
 signature
   constructors
-    Instr          : Nr * Dec *Stmt * PostCon -> Instr
-    Instr          : Stmt * PostCon -> Instr
-    Instr          : Stmt  -> Instr
+    Instr          : Nr * X * Dec *Stmt * PostCon -> Instr
     BinOp		   : Op * Exp * Exp -> Exp 
 	And	: Exp
 	Or	: Exp
@@ -46,6 +44,8 @@ signature
 	Def: X * X * X -> Def
 	Def: X * X -> Def
 	State : X * X -> State
+	State : X -> State
+	State : State
 	EvHdlr : X * X * X * X -> EvHdlr
 	
 	

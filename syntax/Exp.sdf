@@ -10,17 +10,18 @@ exports
   context-free syntax
 	Ref		 				-> Exp
 	"#(" NbsOp ")"			-> Exp{"NbsCount"}
-	"$(" NbsOp ")"			-> Exp{"Nbs"}
+	"$(" NbsOp ")"			-> Nbs{"Nbs"}
 %%	"!$(" NbsOp ")"			-> Exp{"NbsNone"}
-	ConnFilter "," {NbsFilter ","}+	-> NbsOp{"NbsOp"}
-	ConnFilter						-> NbsOp{"NbsOp"}
-	Exp 					-> ConnFilter{"ConnFilter"}
-	Exp "->" Exp			-> ConnFilter{"ConnFilter"}
+	{NbsFilter ","}+	-> NbsOp{"NbsOp"}
+	%% ConnFilter						-> NbsOp{"NbsOp"}
+	%% {NbsFilter ","}+				-> NbsOp{"NbsOp"}
+	%% Exp 					-> ConnFilter{"ConnFilter"}
+	%% Exp "->" Exp			-> ConnFilter{"ConnFilter"}
 	
-	"module.metaPart" "==" MetaPart			-> NbsFilter{"metaPart"}
+	"metaPart" ":" MetaPart		-> NbsFilter{"metaPart"}
 	"connected" ":" Exp				-> NbsFilter{"connected"}
 	"inRegion" ":" Exp				-> NbsFilter{"inRegion"}
-	"module.metaID" "==" Exp			-> NbsFilter{"withMetaID"}
+	"metaID" ":" Exp				-> NbsFilter{"withMetaID"}
 	"connDest" ":" Exp				-> NbsFilter{"connDest"}
 	"connSource" ":" Exp			-> NbsFilter{"connSource"}
 	ModHolderRef					-> NbsFilter{"in"}

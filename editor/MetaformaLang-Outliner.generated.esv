@@ -16,15 +16,13 @@ outliner Default outliner
   VisGroup.VisGroup
   GroupDef.Group
   FuncDecl.FuncDecl
-  Declaration.Packet
   Declaration.State
   EvHdlr.EvHdlr
-  NbsOp.NbsOp
   Exp.FuncCall
-  Stmt.Send
   Stmt.Unicast
   Stmt.Broadcast
   Stmt.TryRegion
   Stmt.FuncCall
   Instr.Instr
   FuncDecl.FuncDecl
+  Definition.Packet

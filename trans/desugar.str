@@ -10,7 +10,7 @@ imports
   lib/compilation-library.generated
   libjava-front
   constructors
-  
+  store
 
 rules // Incremental code generation of project using compilation library.
   
@@ -21,11 +21,14 @@ rules // Transformation to java strings.
 head: [x|xs] -> x
 tail: [x|xs] -> xs
 
-
+ 
 
 desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(desugar-td));innermost(desugar)//;alltd(desugar-flatten)
 
-desugar-events(|state,c): EvHdlr(r,decls,stats) -> EvHdlr(State(state,c),r,decls,stats) 
+
+desugar-events3(|state,c): EvHdlr(r,decls,stats) -> EvHdlr(State(state,c),r,decls,stats)
+desugar-events2(|state): EvHdlr(r,decls,stats) -> EvHdlr(State(state),r,decls,stats)
+desugar-events: EvHdlr(r,decls,stats) -> EvHdlr(State(),r,decls,stats)  
 
 desugar-td: Group (n,elems) -> Group (n,items)
 where
@@ -45,22 +48,28 @@ where
 
 add-visgroup(|n): VisItem(r,c,nr) -> VisItem(n,r,c,nr) 
 
-desugar-td: State(n,e,x,instrs) -> State(n,e,x,instrs''')  
+
+desugar-td: Program(n,vis,defs,decls) -> Program(n,vis,defs',decls)
+where
+	<topdown(try(desugar-events))>defs => defs'
+
+desugar-td: State(n,ehdlrs,x,e,instrs) -> State(n,ehdlrs',x,e,instrs''')  
 where 
 	<map(try(add-instrblock))>instrs => instrs';
 	<upto><dec><length>instrs' => nrs;
 	<zip>(nrs,instrs') => instrs'';
+	<map(try(desugar-events2(|n)))>ehdlrs => ehdlrs';
 	<map(try(swap-counter(|n)))>instrs'' => instrs'''
 	// <map(try(add-ix))>instrs' => instrs''
 
 
-swap-counter(|state): (c,Instr(d,instr*,postcon)) -> Instr(c,d,<map(try(desugar-events(|state,c)))>instr*,postcon)
-swap-counter(|state): (c,Instr(d,instr*)) -> Instr(c,d,<map(try(desugar-events(|state,c)))>instr*,Wait(Consensus())) 
+swap-counter(|state): (c,Instr(evts,d,instr*,postcon)) -> Instr(c,<map(try(desugar-events3(|state,c)))>evts,d,instr*,postcon)
+swap-counter(|state): (c,Instr(evts,d,instr*)) -> Instr(c,<map(try(desugar-events3(|state,c)))>evts,d,instr*,Wait(Consensus())) 
 
 	
-add-instrblock: f -> Instr([],[f])
+add-instrblock: f -> Instr([],[],[f])
 where
-	not (<?Instr(_,_)>f);
+	not (<?Instr(_,_,_,_,_)>f);
 	not (<?Instr(_,_,_)>f);
 	not (<?Instr(_,_,_,_)>f)
 
@@ -73,7 +82,7 @@ where
 // fixvar(|t): n -> VarDecl(t,n)
 
 
-desugar-functions: Instr(d,instrs) -> Instr(d,instrs,Wait(Consensus()))  	 
+desugar-functions: Instr(d,evts,instrs) -> Instr(d,evts,instrs,Wait(Consensus()))  	 
  
 desugar-functions: ConnectPart(m1,m2) -> FuncCall(MethodRef(Actuation(),"connect_part"),[m1,m2])
 desugar-functions: DisconnectPart(m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect_part"),[m1,m2])
@@ -104,9 +113,26 @@ desugar: LtEq(e1,e2) -> BinOp(LtEq(),e1,e2)
 desugar: Gt(e1,e2) -> BinOp(Gt(),e1,e2)
 desugar: GtEq(e1,e2) -> BinOp(GtEq(),e1,e2)
 
-
-
-
+desugar: FuncCall(MethodRef(Module(), "fixSymmetry"), [v]) -> 
+Instr(
+          [ EvHdlr(
+              Receive(PacketRef("PacketSymmetry"), "p")
+            , []
+            , [ FuncCall(
+                  MethodRef(Module(), "fixSymmetry")
+                , [FieldRef("p", "connSource"), FieldRef("p", "connDest")]
+                )
+              ]
+            )], 
+            [ Packet("PacketSymmetry", [])],
+            [],
+            [
+           If(
+              v
+            , Block([Broadcast(PacketRef("PacketSymmetry"), AssignList([]), None())])
+            )
+          ]
+        )
 
 desugar: EvHdlr (Event(e),vardecls,stats) -> If(e,<conc>(vardecls,stats))
-desugar: Broadcast(p,assignlist,rate) -> Unicast(p,assignlist,Conn(),Int(255),rate)
+// desugar: Broadcast(p,assignlist,rate) -> Unicast(p,assignlist,Conn(),Int(255),rate)

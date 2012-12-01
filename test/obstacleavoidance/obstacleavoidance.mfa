@@ -9,24 +9,24 @@ sequence Init {
 	do {
 		// $ format: SOURCE CONDITIONS -> DESTINATION CONDITIONS
 		// so: module must be connected through SOUTH&EAST&FMALE and connected by EAST by neighbors
-		when ($(SOUTH&EAST&FEMALE -> EAST)) {
+		when (#(connSource:SOUTH&EAST&FEMALE, connDest:EAST)) {
 			module.group = @LeftWheel;
 		}
 		
-		when ($(SOUTH&EAST&FEMALE -> WEST)) {
+		when (#(connSource:SOUTH&EAST&FEMALE, connDest:WEST)) {
 			module.group = @RightWheel;
 		} 
 		
-		when ($(@RightWheel, @LeftWheel) && !$(NORTH&EAST&FEMALE)) {
-			module.id = Front@Axis;
+		when (#(@RightWheel) || #(@LeftWheel) && !#(connSource: NORTH&EAST&FEMALE)) {
+			// module.id = Front@Axis;
 		}
 		
-		when ($(@RightWheel, @LeftWheel) && !$(NORTH&EAST&FEMALE)) {
-			module.id = Back@Axis;
+		when (#(@RightWheel) || #(@LeftWheel) && !#(connSource: NORTH&EAST&FEMALE)) {
+			// module.id = Back@Axis;
 		}
 		
 		when (#(@Axis) == 2) {
-			module.id = Driver@Axis;
+			// module.id = Driver@Axis;
 		}
 	} until (config.assignTime);
 	
@@ -35,7 +35,7 @@ sequence Init {
 
 
 sequence Drive {
-	when (@Axis && module.proximity() > config.proximity) {
+	when (module.group == @Axis && module.proximity() > config.proximity) {
 		if (#(@Axis) == 2) {
 			meta.size = 3;
 			goto TurnTwoWheeler;
@@ -70,8 +70,8 @@ sequence TurnTwoWheeler {
 
 sequence TurnFourWheeler {
 	void steer (byte degrees) {
-		rotate(Front@Axis,degrees);
-		rotate(Back@Axis,-degrees);
+		rotate(@Axis.Front,degrees);
+		rotate(@Axis.Back,-degrees);
 	}
 	
 	steer(config.steerDegrees);

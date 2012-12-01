@@ -1,16 +1,61 @@
 program Brandt
 
-visualize {
+
+
+visualize { 
  	north {
  		FlipOver: red 0;
  		FlipThrough: blue 1;
- 		FlipAlong: green 2;
+ 		FlipAlong: green 2; 
  	}
  	
  	south {
- 		Left@Walker: green 3;
+ 		@Walker.Left: green 3;
  	}
  	
+} 
+
+packet MetaIdSet { 
+	byte newMetaID; 
+}	
+
+packet AddNeighbor {
+	byte first;
+	byte second;
+}
+
+
+packet Gradient {
+	byte prim;
+	byte sec;
+}
+
+when (receive (AddNeighbor p)) {
+	if (p.metaID == Left) {
+		meta.TopLeft = p.first;
+		meta.BottomLeft = p.second;
+	}
+	if (p.metaID == Right) {
+		meta.TopRight = p.first;
+		meta.BottomRight = p.second;
+	}
+	if (p.metaID == Top) {
+		meta.TopLeft = p.first;
+		meta.TopRight = p.second;
+	}
+	if (p.metaID == Bottom) {
+		meta.BottomLeft = p.first;
+		meta.BottomRight = p.second;
+	}
+}
+
+
+when (receive (PacketGradient p)) {
+	if (p.gradPri < gradPri || p.gradSec < gradSec) {
+		gradPri = MIN (p.gradPri,gradPri);
+		gradSec = MIN (p.gradSec,gradSec);
+		module.gradientPropagate();
+	}	
 }
 
 meta {
@@ -47,33 +92,12 @@ meta {
 		broadcastMetaNeighborsTo([Left, Right], Top, Bottom);
 	}
 // 		
+
+
  	void broadcastMetaNeighborsTo (byte[] dests, byte v1, byte v2) {
-// 		packet AddNeighbor {
-// 			byte first;
-// 			byte second;
-// 		}
-// 
-		 unicast AddNeighbor(first = v1, second = v2) to meta-modules dests;
-// 		
-		// when (receive (AddNeighbor p)) {
-		// 	if (p.metaID == Left) {
-		// 		TopLeft = p.first;
-		// 		BottomLeft = p.second;
-		// 	}
-		// 	if (p.metaID == Right) {
-		// 		TopRight = p.first;
-		// 		BottomRight = p.second;
-		// 	}
-		// 	if (p.metaID == Top) {
-		// 		TopLeft = p.first;
-		// 		TopRight = p.second;
-		// 	}
-		// 	if (p.metaID == Bottom) {
-		// 		BottomLeft = p.first;
-		// 		BottomRight = p.second;
-		// 	}
-		// }
+		 unicast AddNeighbor(first = v1, second = v2) to $(metaID: dests);
  	}
+ 	
  }
 
 
@@ -90,25 +114,7 @@ module  {
 // 	// border top = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
 // 	// border bottom = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
 // 	
-	void gradientPropagate () {
-		// For gradients, the state does not matter so this is global	
-// 		when (receive (Gradient p)) {
-// 			boolean updated;
-// 			
-// 			if (gradPri > p.prim + 1) {
-// 				gradPri = p.pri + 1;
-// 				updated = true; 
-// 			}
-// 			if (gradSec > p.sec + 1) {
-// 				gradSec = p.sec + 1;
-// 				updated = true;
-// 			}
-// 			if (updated) {
-// 				gradientPropagate();
-// 			}
-// 		}
-// 
-		 
+	void gradientPropagate () {		 
 		if (sourcePri){
 			gradPri = 0;
 		}
@@ -116,7 +122,7 @@ module  {
 		if (sourceSec) {
 			gradSec = 0;
 		}
-		 broadcast Gradient(pri=gradPri, sec=gradSec);
+		 unicast Gradient(pri=gradPri, sec=gradSec) to $(inRegion: true);
 	}
 // 	
 // 
@@ -134,14 +140,16 @@ sequence Initialize {
 	when (receive (Packet p)) {
 		meta.neighborHook (p.connSource,p.connDest);
 	}
+	when (receive (Packet p)) {
+		meta.neighborHook (p.connSource,p.connDest);
+	}
 	
-	do {
-		packet MetaIdSet { byte newMetaID; }
+	do {	
 		
-		when (#(EAST&MALE, module.metaPart==None) == 2 && !$(WEST, module.metaPart==None)) {
+		when ( #(connSource: EAST&MALE, metaPart:None) == 2 && !#(connSource: WEST, metaPart:None)) {
 			module.metaPart = Left;
 			meta.id = module.id;
-			unicast MetaIdSet (newMetaID = module.id) on connectors EAST&MALE&NORTH;
+			unicast MetaIdSet (newMetaID = module.id) to $(connSource: EAST&MALE&NORTH);
 		}
 		when (receive (MetaIdSet p)) {
 			if (module.metaID == 0) {
@@ -162,7 +170,7 @@ sequence Initialize {
 				continue();
 			}
 			
-			unicast MetaIdSet (newMetaID = p.newMetaID) on connectors (pow2((p.destCon + 4) % 8)) rate config.rate;
+			unicast MetaIdSet (newMetaID = newMetaID) to $(connSource: pow2((p.destCon + 4) % 8)) rate config.rate;
 		}	
 	} 
 
@@ -173,10 +181,10 @@ sequence Initialize {
 
 
 sequence Choose {
-	// when (receive (Packet p)) {
-	// 	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
-	// 	metaNeighborHook (p.metaID,p.destConn);
-	// }
+	when (receive (Packet p)) {
+		// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
+		metaNeighborHook (p.metaID,p.destConn);
+	}
 	
 	meta.broadcastNeighbors();
 	
@@ -195,7 +203,5 @@ sequence Choose {
 	
 }
 
-packet Gradient {
-	byte prim;
-	byte sec;
-}
+
+

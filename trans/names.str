@@ -131,19 +131,19 @@ rules
 rules
 
   nam-get-scope-types :
-    State(n, _, _, _) -> [Packet(), Var(), Instruction()]
+    State(n, _, _, _, _) -> [Packet(), Var(), Instruction()]
 
   nam-get-definition-keys :
-    State(n, _, _, _) -> [n]
+    State(n, _, _, _, _) -> [n]
 
   nam-get-definitions :
-    State(n, _, _, _) -> [(State(), [n])]
+    State(n, _, _, _, _) -> [(State(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    State(n, _, _, _) -> <State(nam-annotate-def(|path__), id, id, id)>
+    State(n, _, _, _, _) -> <State(nam-annotate-def(|path__), id, id, id, id)>
 
   nam-unique :
-    State(n, _, _, _) -> <id>
+    State(n, _, _, _, _) -> <id>
 
 
 rules
@@ -426,14 +426,14 @@ rules
     where Type(p) := <type-of> c
 
   nam-get-uses :
-    FieldRef(c, n) -> [(Payload(), [n])]
+    FieldRef(c, n) -> [(Field(), [n])]
     where Type(p) := <type-of> c
 
   nam-annotate-names(|paths__, path__):
-    FieldRef(c, n) -> <FieldRef(id, nam-annotate-use(|paths__, Payload()))>
+    FieldRef(c, n) -> <FieldRef(id, nam-annotate-use(|paths__, Field()))>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    FieldRef(c, n) -> <index-lookup-children(|Payload(), prefix__)> p
+    FieldRef(c, n) -> <index-lookup-children(|Field(), prefix__)> c
     where <target__> n
     where Type(p) := <type-of> c
 

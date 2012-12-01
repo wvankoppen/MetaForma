@@ -24,6 +24,7 @@ imports
   check
   desugar
   project
+  store
   generate
   refactor
   libjava-front
@@ -147,6 +148,17 @@ rules // Debugging
       filename := <guarantee-extension(|"index.allfiles.aterm")> path;
       result   := <map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files>
       
+   // Prints the entries in the index of the current file.
+  index-global:
+    (selected, position, ast, path, project-path) -> (filename, result)
+    with
+      index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+      index-clear;
+      filename := <guarantee-extension(|"index.global.aterm")> path;
+      <store-all><desugar-all> ast;  
+      index-get-all-globals(|"EventHandlers") => result
+      
+      
   // Cleans all data from the index.
   index-cleanall:
     (selected, position, ast, path, project-path)  -> None()
@@ -189,8 +201,8 @@ rules // Utility
 			// <to-java-all><desugar-all> selected => java-main;
 			<project-name>ast => name;
 			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+			
 			<map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
-			<index-get-data(|Type())> Def([Instruction(), 0, "Choose", "Brandt"]) => x;
 			controller := "d"
 			
 // 			java-indexentries := <concat-strings><map(try(to-java-mods))>index-entries; 

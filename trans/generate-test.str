@@ -5,8 +5,7 @@ imports
 
 strategies
 
-  main =
-    output-wrap(generate)
+  
 
   generate =
     !compilation-unit |[
@@ -14,7 +13,7 @@ strategies
        {
          public static void main(String[] ps)
          {
-           System.err.println("Hello world!");
+           System.err.println("Hello world!" + "df");
          }
        }
      ]|

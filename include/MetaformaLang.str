@@ -2,9 +2,9 @@ module MetaformaLang
 
 signature
   constructors
-    ModHolderRef   : ID * ID -> ModHolderRef
-    ModHolderRef   : ID -> ModHolderRef
                    : String -> STRING
+    ModHolderRef   : ID -> ModHolderRef
+    ModHolderRef   : ID * ID -> ModHolderRef
     MethodRef      : Obj * ID -> MethodRef
     FuncRef        : ID -> FuncRef
                    : Exp -> Stop
@@ -15,24 +15,15 @@ signature
     Mod            : ID -> Mod
     GroupNum       : ID -> GroupDef
     Group          : ID * List(Mod) -> GroupDef
-    Instr          : List(Declaration) * List(Stmt) -> Instr
-    Instr          : List(Declaration) * List(Stmt) * StopCondition -> Instr
+    Instr          : List(Definition) * List(Declaration) * List(Stmt) -> Instr
+    Instr          : List(Definition) * List(Declaration) * List(Stmt) * StopCondition -> Instr
                    : Stmt -> Instr
     OrientRef      : ID -> OrientRef
     StateRef       : ID -> StateRef
     Block          : List(Stmt) -> Block
     Block          : Stmt -> Block
-    Conn           : DestMulti
-    Meta           : DestMulti
-    Conn           : DestSingle
-    Meta           : DestSingle
-    Rate           : Ref -> Rate
-    Event          : Exp -> Event
-    Receive        : PacketRef * ID -> Event
-    PacketRef      : ID -> PacketRef
     FuncCall       : FuncRef * List(Exp) -> Stmt
     FuncCall       : MethodRef * List(Exp) -> Stmt
-    For            : Type * ID * ID * Block -> Stmt
     Stop           : ModHolderRef -> Stmt
     ConnectPart    : ModHolderRef * Exp -> Stmt
     DisconnectPart : ModHolderRef * Exp -> Stmt
@@ -47,9 +38,11 @@ signature
     IfElse         : Exp * Block * Block -> Stmt
     Assign         : Ref * Exp -> Stmt
     Broadcast      : PacketRef * AssignList * Option(Rate) -> Stmt
-    Unicast        : PacketRef * AssignList * DestMulti * Exp * Option(Rate) -> Stmt
-    Send           : PacketRef * AssignList * DestSingle * Exp * Option(Rate) -> Stmt
-                   : EvHdlr -> Stmt
+    Unicast        : PacketRef * AssignList * Nbs * Option(Rate) -> Stmt
+    Rate           : Ref -> Rate
+    Event          : Exp -> Event
+    Receive        : PacketRef * ID -> Event
+    PacketRef      : ID -> PacketRef
     EvHdlr         : Event * List(VarDecl) * List(Stmt) -> EvHdlr
     AssignList     : List(AssignElem) -> AssignList
     AssignElem     : PayloadRef * ID -> AssignElem
@@ -62,15 +55,15 @@ signature
     PayloadDecl    : Type * ID -> PayloadDecl
     FieldDecl      : Type * ID -> FieldDecl
     VarDecl        : Type * ID -> VarDecl
-    State          : ID * List(VarDecl) * List(FuncDecl) * List(Instr) -> Declaration
+    State          : ID * List(EvHdlr) * List(VarDecl) * List(FuncDecl) * List(Instr) -> Declaration
                    : FuncDecl -> Declaration
-    Packet         : ID * List(PayloadDecl) -> Declaration
     Param          : Type * ID -> ParamListElem
     FuncDecl       : Type * ID * List(ParamListElem) * List(Declaration) * List(Stmt) * Exp -> FuncDecl
     FuncDecl       : ID * List(ParamListElem) * List(Declaration) * List(Stmt) -> FuncDecl
     Module         : Module
     Meta           : Meta
                    : EvHdlr -> Definition
+    Packet         : ID * List(PayloadDecl) -> Definition
     Class          : Module * List(FieldDecl) * List(FuncDecl) -> Definition
     Class          : Meta * List(FieldOrPartDecl) * List(FuncDecl) -> Definition
                    : GroupDef -> Definition
@@ -88,10 +81,8 @@ signature
     inRegion       : Exp -> NbsFilter
     connected      : Exp -> NbsFilter
     metaPart       : MetaPart -> NbsFilter
-    ConnFilter     : Exp * Exp -> ConnFilter
-    ConnFilter     : Exp -> ConnFilter
-    NbsOp          : ConnFilter -> NbsOp
-    NbsOp          : ConnFilter * List(NbsFilter) -> NbsOp
+    NbsOp          : List(NbsFilter) -> NbsOp
+    Nbs            : NbsOp -> Nbs
     FuncCall       : MethodRef * List(Exp) -> Exp
     FuncCall       : FuncRef * List(Exp) -> Exp
     OrientMatch    : List(OrientRef) -> Exp
@@ -120,7 +111,6 @@ signature
     Const          : ConstLan -> Exp
     Const          : Const -> Exp
     Int            : INT -> Exp
-    Nbs            : NbsOp -> Exp
     NbsCount       : NbsOp -> Exp
                    : Ref -> Exp
     Config         : Obj

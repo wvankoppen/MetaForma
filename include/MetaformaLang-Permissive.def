@@ -32,6 +32,7 @@ exports
 
   lexical syntax
     %% Lexical insertion recovery rules                              
+                                                  -> "$("            {recover, cons("INSERTION")}
     "\""                                          -> INSERTOPENQUOTE {recover}
     INSERTOPENQUOTE StringChar* "\n"              -> STRING          {cons("INSERTEND")}
     INSERTOPENQUOTE StringChar* WATEREOF          -> STRING          {cons("INSERTEND")}
@@ -40,12 +41,9 @@ exports
                                                   -> "program"       {recover, cons("INSERTION")}
                                                   -> "visualize"     {recover, cons("INSERTION")}
                                                   -> "part"          {recover, cons("INSERTION")}
+                                                  -> "when"          {recover, cons("INSERTION")}
                                                   -> "receive"       {recover, cons("INSERTION")}
                                                   -> "rate"          {recover, cons("INSERTION")}
-                                                  -> "meta-module"   {recover, cons("INSERTION")}
-                                                  -> "connector"     {recover, cons("INSERTION")}
-                                                  -> "meta-modules"  {recover, cons("INSERTION")}
-                                                  -> "connectors"    {recover, cons("INSERTION")}
                                                   -> "}"             {recover, cons("INSERTION")}
                                                   -> "]"             {recover, cons("INSERTION")}
                                                   -> "group"         {recover, cons("INSERTION")}
@@ -54,6 +52,7 @@ exports
                                                   -> "until"         {recover, cons("INSERTION")}
                                                   -> ")"             {recover, cons("INSERTION")}
                                                   -> ","             {recover, cons("INSERTION")}
+                                                  -> "@"             {recover, cons("INSERTION")}
 
   syntax
     %% Kernel syntax insertion recovery rules   
@@ -82,6 +81,8 @@ exports
     "wait"              -> ID       {reject}
     "until"             -> ID       {reject}
     "consensus"         -> ID       {reject}
+    "goto"              -> ID       {reject}
+    "when"              -> ID       {reject}
     "red"               -> Color    
     "blue"              -> Color    
     "green"             -> Color    
@@ -133,47 +134,44 @@ imports lexical/MetaformaLang-Identifiers
 
 exports
   context-free syntax
-    Ref                             -> Exp        
-    "#(" NbsOp ")"                  -> Exp        {cons("NbsCount")}
-    "$(" NbsOp ")"                  -> Exp        {cons("Nbs")}
-    ConnFilter "," {NbsFilter ","}+ -> NbsOp      {cons("NbsOp")}
-    ConnFilter                      -> NbsOp      {cons("NbsOp")}
-    Exp                             -> ConnFilter {cons("ConnFilter")}
-    Exp "->" Exp                    -> ConnFilter {cons("ConnFilter")}
-    "module.metaPart" "==" MetaPart -> NbsFilter  {cons("metaPart")}
-    "connected" ":" Exp             -> NbsFilter  {cons("connected")}
-    "inRegion" ":" Exp              -> NbsFilter  {cons("inRegion")}
-    "module.metaID" "==" Exp        -> NbsFilter  {cons("withMetaID")}
-    "connDest" ":" Exp              -> NbsFilter  {cons("connDest")}
-    "connSource" ":" Exp            -> NbsFilter  {cons("connSource")}
-    ModHolderRef                    -> NbsFilter  {cons("in")}
-    ID                              -> MetaPart   {cons("MetaPart")}
-    INT                             -> Exp        {cons("Int")}
-    Const                           -> Exp        {cons("Const")}
-    ConstLan                        -> Exp        {cons("Const")}
-    Bool                            -> Exp        {cons("Bool")}
-    ModHolderRef                    -> Exp        
-    "(" Exp ")"                     -> Exp        {cons("Par")}
-    "[" {Exp ","}* "]"              -> Exp        {cons("ByteArr")}
-    STRING                          -> Exp        {cons("String")}
-    Exp "%" Exp                     -> Exp        {left, cons("Mod")}
-    "!" Exp                         -> Exp        {right, cons("Not")}
-    "-" Exp                         -> Exp        {right, cons("Min")}
-    Exp "-" Exp                     -> Exp        {right, cons("Min")}
-    Exp "*" Exp                     -> Exp        {left, cons("Mul")}
-    Exp "/" Exp                     -> Exp        {left, cons("Div")}
-    Exp "+" Exp                     -> Exp        {left, cons("Plus")}
-    Exp "-" Exp                     -> Exp        {left, cons("Min")}
-    Exp "<" Exp                     -> Exp        {left, cons("Lt")}
-    Exp ">" Exp                     -> Exp        {left, cons("Gt")}
-    Exp "<=" Exp                    -> Exp        {left, cons("LtEq")}
-    Exp ">=" Exp                    -> Exp        {left, cons("GtEq")}
-    Exp "==" Exp                    -> Exp        {left, cons("Eq")}
-    Exp "!=" Exp                    -> Exp        {left, cons("Neq")}
-    Exp "&&" Exp                    -> Exp        {left, cons("And")}
-    Exp "||" Exp                    -> Exp        {left, cons("Or")}
-    Exp "&" Exp                     -> Exp        {left, cons("AndBit")}
-    Exp "|" Exp                     -> Exp        {left, cons("OrBit")}
+    Ref                     -> Exp       
+    "#(" NbsOp ")"          -> Exp       {cons("NbsCount")}
+    "$(" NbsOp ")"          -> Nbs       {cons("Nbs")}
+    {NbsFilter ","}+        -> NbsOp     {cons("NbsOp")}
+    "metaPart" ":" MetaPart -> NbsFilter {cons("metaPart")}
+    "connected" ":" Exp     -> NbsFilter {cons("connected")}
+    "inRegion" ":" Exp      -> NbsFilter {cons("inRegion")}
+    "metaID" ":" Exp        -> NbsFilter {cons("withMetaID")}
+    "connDest" ":" Exp      -> NbsFilter {cons("connDest")}
+    "connSource" ":" Exp    -> NbsFilter {cons("connSource")}
+    ModHolderRef            -> NbsFilter {cons("in")}
+    ID                      -> MetaPart  {cons("MetaPart")}
+    INT                     -> Exp       {cons("Int")}
+    Const                   -> Exp       {cons("Const")}
+    ConstLan                -> Exp       {cons("Const")}
+    Bool                    -> Exp       {cons("Bool")}
+    ModHolderRef            -> Exp       
+    "(" Exp ")"             -> Exp       {cons("Par")}
+    "[" {Exp ","}* "]"      -> Exp       {cons("ByteArr")}
+    STRING                  -> Exp       {cons("String")}
+    Exp "%" Exp             -> Exp       {left, cons("Mod")}
+    "!" Exp                 -> Exp       {right, cons("Not")}
+    "-" Exp                 -> Exp       {right, cons("Min")}
+    Exp "-" Exp             -> Exp       {right, cons("Min")}
+    Exp "*" Exp             -> Exp       {left, cons("Mul")}
+    Exp "/" Exp             -> Exp       {left, cons("Div")}
+    Exp "+" Exp             -> Exp       {left, cons("Plus")}
+    Exp "-" Exp             -> Exp       {left, cons("Min")}
+    Exp "<" Exp             -> Exp       {left, cons("Lt")}
+    Exp ">" Exp             -> Exp       {left, cons("Gt")}
+    Exp "<=" Exp            -> Exp       {left, cons("LtEq")}
+    Exp ">=" Exp            -> Exp       {left, cons("GtEq")}
+    Exp "==" Exp            -> Exp       {left, cons("Eq")}
+    Exp "!=" Exp            -> Exp       {left, cons("Neq")}
+    Exp "&&" Exp            -> Exp       {left, cons("And")}
+    Exp "||" Exp            -> Exp       {left, cons("Or")}
+    Exp "&" Exp             -> Exp       {left, cons("AndBit")}
+    Exp "|" Exp             -> Exp       {left, cons("OrBit")}
 
   context-free priorities
     { Exp "%" Exp -> Exp } >
@@ -234,7 +232,7 @@ exports
     Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"         -> FuncDecl            {cons("FuncDecl")}
     Type ID                                                                                  -> ParamListElem       {cons("Param")}
     ID                                                                                       -> Type                {avoid}
-    "packet" ID "{" PayloadDecl* "}"                                                         -> Declaration         {cons("Packet")}
+    "packet" ID "{" PayloadDecl* "}"                                                         -> Definition          {cons("Packet")}
     FuncDecl                                                                                 -> Declaration         
     Type ID ";"                                                                              -> VarDecl             {cons("VarDecl")}
     Type ID ";"                                                                              -> FieldDecl           {cons("FieldDecl")}
@@ -246,20 +244,14 @@ exports
     ID                                                                                       -> PayloadRef          {cons("PayloadRef")}
     PayloadRef "=" ID                                                                        -> AssignElem          {cons("AssignElem")}
     {AssignElem ","}*                                                                        -> AssignList          {cons("AssignList")}
-    "sequence" ID "{" VarDecl* FuncDecl* Instr* "}"                                          -> Declaration         {cons("State")}
+    "sequence" ID "{" EvHdlr* VarDecl* FuncDecl* Instr* "}"                                  -> Declaration         {cons("State")}
     EvHdlr                                                                                   -> Definition          
     "when" "(" Event ")" "{" VarDecl* Stmt* "}"                                              -> EvHdlr              {cons("EvHdlr")}
-    EvHdlr                                                                                   -> Stmt                
     ID                                                                                       -> PacketRef           {cons("PacketRef")}
     "receive" "(" PacketRef ID ")"                                                           -> Event               {cons("Receive")}
     Exp                                                                                      -> Event               {cons("Event")}
     "rate" Ref                                                                               -> Rate                {cons("Rate")}
-    "to" "meta-module"                                                                       -> DestSingle          {cons("Meta")}
-    "on" "connector"                                                                         -> DestSingle          {cons("Conn")}
-    "to" "meta-modules"                                                                      -> DestMulti           {cons("Meta")}
-    "on" "connectors"                                                                        -> DestMulti           {cons("Conn")}
-    "send" PacketRef "(" AssignList ")" DestSingle Exp Rate? ";"                             -> Stmt                {cons("Send")}
-    "unicast" PacketRef "(" AssignList ")" DestMulti Exp Rate? ";"                           -> Stmt                {cons("Unicast")}
+    "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";"                                -> Stmt                {cons("Unicast")}
     "broadcast" PacketRef "(" AssignList ")" Rate? ";"                                       -> Stmt                {cons("Broadcast")}
     Ref "=" Exp ";"                                                                          -> Stmt                {cons("Assign")}
     Stmt                                                                                     -> Block               {cons("Block")}
@@ -283,7 +275,6 @@ exports
     "disconnect_part" "(" ModHolderRef "," Exp ")" ";"                                       -> Stmt                {cons("DisconnectPart")}
     "connect_part" "(" ModHolderRef "," Exp ")" ";"                                          -> Stmt                {cons("ConnectPart")}
     "stop" "(" ModHolderRef ")" ";"                                                          -> Stmt                {cons("Stop")}
-    "for" "(" Type ID ":" ID ")" Block                                                       -> Stmt                {cons("For")}
     "wait" "(" Stop ")" ";"                                                                  -> StopCondition       {cons("Wait")}
     "until" "(" Stop ")" ";"                                                                 -> StopCondition       {cons("Until")}
     "consensus" "(" ")"                                                                      -> Stop                {cons("Consensus")}
@@ -291,18 +282,17 @@ exports
     ID                                                                                       -> FuncRef             {cons("FuncRef")}
     Obj "." ID                                                                               -> MethodRef           {cons("MethodRef")}
     "orientation" "matches" {OrientRef ","}*                                                 -> Exp                 {cons("OrientMatch")}
+    "@" ID "." ID                                                                            -> ModHolderRef        {cons("ModHolderRef")}
+    "@" ID                                                                                   -> ModHolderRef        {cons("ModHolderRef")}
 
   context-free priorities
     { Obj "." ID -> Ref {cons("FieldRef")} } >
     { ID "." ID -> Ref {cons("FieldRef")} }
 
   context-free priorities
-    { "@" ID -> ModHolderRef {cons("ModHolderRef")} } >
-    { ID "@" ID -> ModHolderRef {cons("ModHolderRef")} }
-
-  context-free priorities
-    { "do" "{" Declaration* Stmt* "}" StopCondition -> Instr {cons("Instr")} } >
-    { "do" "{" Declaration* Stmt* "}" -> Instr {cons("Instr")} }
+    { "do" "{" Definition* Declaration* Stmt* "}" StopCondition -> Instr
+      {cons("Instr")} } >
+    { "do" "{" Definition* Declaration* Stmt* "}" -> Instr {cons("Instr")} }
 
   context-free priorities
     { MethodRef "(" {Exp ","}* ")" ";" -> Stmt {cons("FuncCall")}
@@ -364,7 +354,7 @@ exports
     Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"         -> FuncDecl            {cons("FuncDecl")}
     Type ID                                                                                  -> ParamListElem       {cons("Param")}
     ID                                                                                       -> Type                {avoid}
-    "packet" ID "{" PayloadDecl* "}"                                                         -> Declaration         {cons("Packet")}
+    "packet" ID "{" PayloadDecl* "}"                                                         -> Definition          {cons("Packet")}
     FuncDecl                                                                                 -> Declaration         
     Type ID ";"                                                                              -> VarDecl             {cons("VarDecl")}
     Type ID ";"                                                                              -> FieldDecl           {cons("FieldDecl")}
@@ -376,20 +366,14 @@ exports
     ID                                                                                       -> PayloadRef          {cons("PayloadRef")}
     PayloadRef "=" ID                                                                        -> AssignElem          {cons("AssignElem")}
     {AssignElem ","}*                                                                        -> AssignList          {cons("AssignList")}
-    "sequence" ID "{" VarDecl* FuncDecl* Instr* "}"                                          -> Declaration         {cons("State")}
+    "sequence" ID "{" EvHdlr* VarDecl* FuncDecl* Instr* "}"                                  -> Declaration         {cons("State")}
     EvHdlr                                                                                   -> Definition          
     "when" "(" Event ")" "{" VarDecl* Stmt* "}"                                              -> EvHdlr              {cons("EvHdlr")}
-    EvHdlr                                                                                   -> Stmt                
     ID                                                                                       -> PacketRef           {cons("PacketRef")}
     "receive" "(" PacketRef ID ")"                                                           -> Event               {cons("Receive")}
     Exp                                                                                      -> Event               {cons("Event")}
     "rate" Ref                                                                               -> Rate                {cons("Rate")}
-    "to" "meta-module"                                                                       -> DestSingle          {cons("Meta")}
-    "on" "connector"                                                                         -> DestSingle          {cons("Conn")}
-    "to" "meta-modules"                                                                      -> DestMulti           {cons("Meta")}
-    "on" "connectors"                                                                        -> DestMulti           {cons("Conn")}
-    "send" PacketRef "(" AssignList ")" DestSingle Exp Rate? ";"                             -> Stmt                {cons("Send")}
-    "unicast" PacketRef "(" AssignList ")" DestMulti Exp Rate? ";"                           -> Stmt                {cons("Unicast")}
+    "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";"                                -> Stmt                {cons("Unicast")}
     "broadcast" PacketRef "(" AssignList ")" Rate? ";"                                       -> Stmt                {cons("Broadcast")}
     Ref "=" Exp ";"                                                                          -> Stmt                {cons("Assign")}
     Stmt                                                                                     -> Block               {cons("Block")}
@@ -413,7 +397,6 @@ exports
     "disconnect_part" "(" ModHolderRef "," Exp ")" ";"                                       -> Stmt                {cons("DisconnectPart")}
     "connect_part" "(" ModHolderRef "," Exp ")" ";"                                          -> Stmt                {cons("ConnectPart")}
     "stop" "(" ModHolderRef ")" ";"                                                          -> Stmt                {cons("Stop")}
-    "for" "(" Type ID ":" ID ")" Block                                                       -> Stmt                {cons("For")}
     "wait" "(" Stop ")" ";"                                                                  -> StopCondition       {cons("Wait")}
     "until" "(" Stop ")" ";"                                                                 -> StopCondition       {cons("Until")}
     "consensus" "(" ")"                                                                      -> Stop                {cons("Consensus")}
@@ -421,18 +404,17 @@ exports
     ID                                                                                       -> FuncRef             {cons("FuncRef")}
     Obj "." ID                                                                               -> MethodRef           {cons("MethodRef")}
     "orientation" "matches" {OrientRef ","}*                                                 -> Exp                 {cons("OrientMatch")}
+    "@" ID "." ID                                                                            -> ModHolderRef        {cons("ModHolderRef")}
+    "@" ID                                                                                   -> ModHolderRef        {cons("ModHolderRef")}
 
   context-free priorities
     { Obj "." ID -> Ref {cons("FieldRef")} } >
     { ID "." ID -> Ref {cons("FieldRef")} }
 
   context-free priorities
-    { "@" ID -> ModHolderRef {cons("ModHolderRef")} } >
-    { ID "@" ID -> ModHolderRef {cons("ModHolderRef")} }
-
-  context-free priorities
-    { "do" "{" Declaration* Stmt* "}" StopCondition -> Instr {cons("Instr")} } >
-    { "do" "{" Declaration* Stmt* "}" -> Instr {cons("Instr")} }
+    { "do" "{" Definition* Declaration* Stmt* "}" StopCondition -> Instr
+      {cons("Instr")} } >
+    { "do" "{" Definition* Declaration* Stmt* "}" -> Instr {cons("Instr")} }
 
   context-free priorities
     { MethodRef "(" {Exp ","}* ")" ";" -> Stmt {cons("FuncCall")}

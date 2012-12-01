@@ -26,7 +26,8 @@ lexical syntax
 	"wait"			-> ID {reject}
 	"until"			-> ID {reject}
 	"consensus"		-> ID {reject}
-	
+	"goto"			-> ID {reject}
+	"when"			-> ID {reject}
 	
 	 
 	 "red"			-> Color
@@ -97,17 +98,18 @@ exports
   context-free syntax
 	Ref		 				-> Exp
 	"#(" NbsOp ")"			-> Exp{cons("NbsCount")}
-	"$(" NbsOp ")"			-> Exp{cons("Nbs")}
+	"$(" NbsOp ")"			-> Nbs{cons("Nbs")}
 %%	"!$(" NbsOp ")"			-> Exp{"NbsNone"}
-	ConnFilter "," {NbsFilter ","}+	-> NbsOp{cons("NbsOp")}
-	ConnFilter						-> NbsOp{cons("NbsOp")}
-	Exp 					-> ConnFilter{cons("ConnFilter")}
-	Exp "->" Exp			-> ConnFilter{cons("ConnFilter")}
+	{NbsFilter ","}+	-> NbsOp{cons("NbsOp")}
+	%% ConnFilter						-> NbsOp{"NbsOp"}
+	%% {NbsFilter ","}+				-> NbsOp{"NbsOp"}
+	%% Exp 					-> ConnFilter{"ConnFilter"}
+	%% Exp "->" Exp			-> ConnFilter{"ConnFilter"}
 	
-	"module.metaPart" "==" MetaPart			-> NbsFilter{cons("metaPart")}
+	"metaPart" ":" MetaPart		-> NbsFilter{cons("metaPart")}
 	"connected" ":" Exp				-> NbsFilter{cons("connected")}
 	"inRegion" ":" Exp				-> NbsFilter{cons("inRegion")}
-	"module.metaID" "==" Exp			-> NbsFilter{cons("withMetaID")}
+	"metaID" ":" Exp				-> NbsFilter{cons("withMetaID")}
 	"connDest" ":" Exp				-> NbsFilter{cons("connDest")}
 	"connSource" ":" Exp			-> NbsFilter{cons("connSource")}
 	ModHolderRef					-> NbsFilter{cons("in")}
@@ -216,7 +218,7 @@ sorts	Group MetaClass
 	Type ID 			-> ParamListElem{cons("Param")}
 	ID					-> Type{avoid}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> Declaration{cons("Packet")}
+	"packet" ID "{" PayloadDecl* "}" 					-> Definition{cons("Packet")}
 	FuncDecl -> Declaration
 
 	
@@ -235,14 +237,14 @@ sorts	Group MetaClass
 	PayloadRef "=" ID			-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*				-> AssignList{cons("AssignList")}
 	
-	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Declaration{cons("State")}
-	%% "state" ID "{" EvHdlr* TryReg* "}" -> Definition{"State"}
+	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("State")}
+	%% "state" ID "{" EvHdlr*EvHdlr ->  TryReg* "}" -> Definition{"State"}
 	
 	
 	EvHdlr										 -> Definition
 	"when" "(" Event ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
 	
-	EvHdlr -> Stmt
+
 	
 	ID								-> PacketRef {cons("PacketRef")}
 	
@@ -251,13 +253,14 @@ sorts	Group MetaClass
 	"rate" Ref						-> Rate{cons("Rate")}
 	
 	
-	"to" "meta-module" -> DestSingle{cons("Meta")}
-	"on" "connector" -> DestSingle{cons("Conn")}
-	"to" "meta-modules" -> DestMulti{cons("Meta")}
-	"on" "connectors" -> DestMulti{cons("Conn")}
+	%% "to" "meta-module" -> DestSingle{"Meta"}
+	%% "on" "connector" -> DestSingle{"Conn"}
+	%% "to" "meta-modules" -> DestMulti{"Meta"}
+	%% "on" "connectors" -> DestMulti{"Conn"}
+	%% "in" "region" -> DestMulti{"Region"}
 	
-	"send" PacketRef "(" AssignList ")"	DestSingle Exp Rate? ";"		-> Stmt{cons("Send")}
-	"unicast" PacketRef "(" AssignList ")" DestMulti  Exp  Rate? ";" -> Stmt{cons("Unicast")}
+	
+	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{cons("Unicast")}
 	"broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{cons("Broadcast")}
 	
 	
@@ -297,7 +300,7 @@ sorts	Group MetaClass
 	
 	"stop" "(" ModHolderRef ")" ";"			-> Stmt{cons("Stop")}
 	
-	"for" "(" Type ID ":" ID")" Block				-> Stmt{cons("For")}
+	%% "for" "(" Type ID ":" ID")" Block				-> Stmt{"For"}
 	
 	
 	
@@ -317,6 +320,9 @@ sorts	Group MetaClass
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
 	
+	 "@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
+	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
+	
 	context-free priorities
 	{
 	Obj "." ID 			-> Ref{cons("FieldRef")}
@@ -324,19 +330,19 @@ sorts	Group MetaClass
 	ID "." ID 			-> Ref{cons("FieldRef")}
 	}
 	
+	%% context-free priorities
+	%% {
+	%% "@" ID										-> ModHolderRef{"ModHolderRef"}
+	%% } > {
+	%% ID "@" ID									-> ModHolderRef{"ModHolderRef"}
+	%% }
+	%% 
+	
 	context-free priorities
 	{
-	"@" ID										-> ModHolderRef{cons("ModHolderRef")}
+	"do" "{" Definition* Declaration* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
 	} > {
-	ID "@" ID									-> ModHolderRef{cons("ModHolderRef")}
-	}
-	
-	
-	context-free priorities
-	{
-	"do" "{" Declaration* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
-	} > {
-	"do" "{" Declaration* Stmt* "}" -> Instr{cons("Instr")}
+	"do" "{" Definition* Declaration* Stmt* "}" -> Instr{cons("Instr")}
 	}
 	
 	
@@ -443,7 +449,7 @@ sorts	Group MetaClass
 	Type ID 			-> ParamListElem{cons("Param")}
 	ID					-> Type{avoid}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> Declaration{cons("Packet")}
+	"packet" ID "{" PayloadDecl* "}" 					-> Definition{cons("Packet")}
 	FuncDecl -> Declaration
 
 	
@@ -462,14 +468,14 @@ sorts	Group MetaClass
 	PayloadRef "=" ID			-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*				-> AssignList{cons("AssignList")}
 	
-	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Declaration{cons("State")}
-	%% "state" ID "{" EvHdlr* TryReg* "}" -> Definition{"State"}
+	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("State")}
+	%% "state" ID "{" EvHdlr*EvHdlr ->  TryReg* "}" -> Definition{"State"}
 	
 	
 	EvHdlr										 -> Definition
 	"when" "(" Event ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
 	
-	EvHdlr -> Stmt
+
 	
 	ID								-> PacketRef {cons("PacketRef")}
 	
@@ -478,13 +484,14 @@ sorts	Group MetaClass
 	"rate" Ref						-> Rate{cons("Rate")}
 	
 	
-	"to" "meta-module" -> DestSingle{cons("Meta")}
-	"on" "connector" -> DestSingle{cons("Conn")}
-	"to" "meta-modules" -> DestMulti{cons("Meta")}
-	"on" "connectors" -> DestMulti{cons("Conn")}
+	%% "to" "meta-module" -> DestSingle{"Meta"}
+	%% "on" "connector" -> DestSingle{"Conn"}
+	%% "to" "meta-modules" -> DestMulti{"Meta"}
+	%% "on" "connectors" -> DestMulti{"Conn"}
+	%% "in" "region" -> DestMulti{"Region"}
 	
-	"send" PacketRef "(" AssignList ")"	DestSingle Exp Rate? ";"		-> Stmt{cons("Send")}
-	"unicast" PacketRef "(" AssignList ")" DestMulti  Exp  Rate? ";" -> Stmt{cons("Unicast")}
+	
+	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{cons("Unicast")}
 	"broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{cons("Broadcast")}
 	
 	
@@ -524,7 +531,7 @@ sorts	Group MetaClass
 	
 	"stop" "(" ModHolderRef ")" ";"			-> Stmt{cons("Stop")}
 	
-	"for" "(" Type ID ":" ID")" Block				-> Stmt{cons("For")}
+	%% "for" "(" Type ID ":" ID")" Block				-> Stmt{"For"}
 	
 	
 	
@@ -544,6 +551,9 @@ sorts	Group MetaClass
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
 	
+	 "@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
+	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
+	
 	context-free priorities
 	{
 	Obj "." ID 			-> Ref{cons("FieldRef")}
@@ -551,19 +561,19 @@ sorts	Group MetaClass
 	ID "." ID 			-> Ref{cons("FieldRef")}
 	}
 	
+	%% context-free priorities
+	%% {
+	%% "@" ID										-> ModHolderRef{"ModHolderRef"}
+	%% } > {
+	%% ID "@" ID									-> ModHolderRef{"ModHolderRef"}
+	%% }
+	%% 
+	
 	context-free priorities
 	{
-	"@" ID										-> ModHolderRef{cons("ModHolderRef")}
+	"do" "{" Definition* Declaration* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
 	} > {
-	ID "@" ID									-> ModHolderRef{cons("ModHolderRef")}
-	}
-	
-	
-	context-free priorities
-	{
-	"do" "{" Declaration* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
-	} > {
-	"do" "{" Declaration* Stmt* "}" -> Instr{cons("Instr")}
+	"do" "{" Definition* Declaration* Stmt* "}" -> Instr{cons("Instr")}
 	}
 	
 	

@@ -43,7 +43,7 @@ sorts	Group MetaClass
 	Type ID 			-> ParamListElem{"Param"}
 	ID					-> Type{avoid}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> Declaration{"Packet"}
+	"packet" ID "{" PayloadDecl* "}" 					-> Definition{"Packet"}
 	FuncDecl -> Declaration
 
 	
@@ -62,14 +62,14 @@ sorts	Group MetaClass
 	PayloadRef "=" ID			-> AssignElem{"AssignElem"}
 	{AssignElem ","}*				-> AssignList{"AssignList"}
 	
-	"sequence" ID "{" VarDecl* FuncDecl* Instr* "}" -> Declaration{"State"}
-	%% "state" ID "{" EvHdlr* TryReg* "}" -> Definition{"State"}
+	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{"State"}
+	%% "state" ID "{" EvHdlr*EvHdlr ->  TryReg* "}" -> Definition{"State"}
 	
 	
 	EvHdlr										 -> Definition
 	"when" "(" Event ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
-	EvHdlr -> Stmt
+
 	
 	ID								-> PacketRef {"PacketRef"}
 	
@@ -78,13 +78,14 @@ sorts	Group MetaClass
 	"rate" Ref						-> Rate{"Rate"}
 	
 	
-	"to" "meta-module" -> DestSingle{"Meta"}
-	"on" "connector" -> DestSingle{"Conn"}
-	"to" "meta-modules" -> DestMulti{"Meta"}
-	"on" "connectors" -> DestMulti{"Conn"}
+	%% "to" "meta-module" -> DestSingle{"Meta"}
+	%% "on" "connector" -> DestSingle{"Conn"}
+	%% "to" "meta-modules" -> DestMulti{"Meta"}
+	%% "on" "connectors" -> DestMulti{"Conn"}
+	%% "in" "region" -> DestMulti{"Region"}
 	
-	"send" PacketRef "(" AssignList ")"	DestSingle Exp Rate? ";"		-> Stmt{"Send"}
-	"unicast" PacketRef "(" AssignList ")" DestMulti  Exp  Rate? ";" -> Stmt{"Unicast"}
+	
+	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{"Unicast"}
 	"broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{"Broadcast"}
 	
 	
@@ -124,7 +125,7 @@ sorts	Group MetaClass
 	
 	"stop" "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
 	
-	"for" "(" Type ID ":" ID")" Block				-> Stmt{"For"}
+	%% "for" "(" Type ID ":" ID")" Block				-> Stmt{"For"}
 	
 	
 	
@@ -144,6 +145,9 @@ sorts	Group MetaClass
 	"orientation" "matches" {OrientRef ","}* -> Exp{"OrientMatch"}
 	
 	
+	 "@" ID "." ID									-> ModHolderRef{"ModHolderRef"}
+	"@" ID 											-> ModHolderRef{"ModHolderRef"}
+	
 	context-free priorities
 	{
 	Obj "." ID 			-> Ref{"FieldRef"}
@@ -151,19 +155,19 @@ sorts	Group MetaClass
 	ID "." ID 			-> Ref{"FieldRef"}
 	}
 	
+	%% context-free priorities
+	%% {
+	%% "@" ID										-> ModHolderRef{"ModHolderRef"}
+	%% } > {
+	%% ID "@" ID									-> ModHolderRef{"ModHolderRef"}
+	%% }
+	%% 
+	
 	context-free priorities
 	{
-	"@" ID										-> ModHolderRef{"ModHolderRef"}
+	"do" "{" Definition* Declaration* Stmt* "}" StopCondition  -> Instr{"Instr"}
 	} > {
-	ID "@" ID									-> ModHolderRef{"ModHolderRef"}
-	}
-	
-	
-	context-free priorities
-	{
-	"do" "{" Declaration* Stmt* "}" StopCondition  -> Instr{"Instr"}
-	} > {
-	"do" "{" Declaration* Stmt* "}" -> Instr{"Instr"}
+	"do" "{" Definition* Declaration* Stmt* "}" -> Instr{"Instr"}
 	}
 	
 	

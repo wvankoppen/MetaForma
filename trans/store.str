@@ -17,11 +17,41 @@ imports
   lib/nbl-library.generated
 	names
 	desugar
-
+	
+	signature constructors
+		EventHandler: X*X*X -> EventHandler
+		EventHandler: X*X -> EventHandler
+		PacketStore: X*X -> PacketStore
+		Timestamp: X -> Timestamp
 rules
 	
+	store-all = topdown(try(store))
 	
-	adjust-index-def-data(store-results|namespace, path):
-        deff -> <store-results> Type([namespace|path], type)
-        where
-          type := <type-of> deff
+	store: term@EvHdlr (s,Receive(packetRef,name),decls,stats) -> term
+	where
+		<index-add-global(|"EventHandlers")> term
+		
+	
+	store: term@Packet (n,payloaddec) -> term
+	where
+		<index-add-global(|"Packets")> term
+	
+	// adjust-index-def-data(store-results|namespace, path):
+ //        deff -> <store-results> EvHdlr([namespace|path],"123","345", "test456")
+        
+	 // adjust-index-def-data(store-results|namespace, path):
+  //        s@StateRef(x) -> <store-results> EventHandler([namespace|path],s)
+  //        where
+  //        	<debug>("TESTJE!!")
+         	        
+      // adjust-index-def-data(store-results|namespace, path):
+      //    Packet(n,payloads) -> <store-results> PacketStore(n,payloads)
+ 
+       
+    // adjust-index-def-data(store-results|namespace, path):
+    //     e -> <store-results> EventHandler([namespace|path],e)
+        // where
+        //   type := <type-of> deff
+        
+        // adjust-index-def-data(store-results|namespace, path):
+        // deff -> <store-results> EvHdlr([namespace|path], "test123")

@@ -65,7 +65,7 @@ rules
 	GroupNum(n) :
 	 	defines GroupNum n
 	 
-	State (n,_,_,_):
+	State (n,_,_,_,_):
 		defines State n	
 		scopes Packet,Var,Instruction
 		
@@ -131,8 +131,8 @@ rules
 		refers to MetaPart n
 		
 	FieldRef(c,n):
-		// refers to Field n in Class c
-		refers to Payload n in Packet p
+		refers to Field n in Class c
+		// refers to Payload n in Packet p
 		where c has type Type(p)
 		// refers to Class c
 	

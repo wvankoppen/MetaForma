@@ -25,7 +25,8 @@ lexical syntax
 	"wait"			-> ID {reject}
 	"until"			-> ID {reject}
 	"consensus"		-> ID {reject}
-	
+	"goto"			-> ID {reject}
+	"when"			-> ID {reject}
 	
 	 
 	 "red"			-> Color

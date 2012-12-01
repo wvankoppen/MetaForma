@@ -23,6 +23,13 @@ regular tree grammar
     ListPlusOfDeclaration0     -> <conc>(ListPlusOfDeclaration0,ListStarOfDeclaration0)
     ListPlusOfDeclaration0     -> <conc>(ListPlusOfDeclaration0,ListPlusOfDeclaration0)
     ListPlusOfDeclaration0     -> <cons>(Declaration,ListStarOfDeclaration0)
+    ListStarOfDefinition0      -> ListPlusOfDefinition0
+    ListStarOfDefinition0      -> <nil>()
+    ListStarOfDefinition0      -> <conc>(ListStarOfDefinition0,ListStarOfDefinition0)
+    ListPlusOfDefinition0      -> <conc>(ListStarOfDefinition0,ListPlusOfDefinition0)
+    ListPlusOfDefinition0      -> <conc>(ListPlusOfDefinition0,ListStarOfDefinition0)
+    ListPlusOfDefinition0      -> <conc>(ListPlusOfDefinition0,ListPlusOfDefinition0)
+    ListPlusOfDefinition0      -> <cons>(Definition,ListStarOfDefinition0)
     ListStarOfOrientRef0       -> ListPlusOfOrientRef0
     ListStarOfOrientRef0       -> <nil>()
     ListStarOfOrientRef0       -> <conc>(ListStarOfOrientRef0,ListStarOfOrientRef0)
@@ -60,6 +67,13 @@ regular tree grammar
     ListPlusOfFuncDecl0        -> <conc>(ListPlusOfFuncDecl0,ListStarOfFuncDecl0)
     ListPlusOfFuncDecl0        -> <conc>(ListPlusOfFuncDecl0,ListPlusOfFuncDecl0)
     ListPlusOfFuncDecl0        -> <cons>(FuncDecl,ListStarOfFuncDecl0)
+    ListStarOfEvHdlr0          -> ListPlusOfEvHdlr0
+    ListStarOfEvHdlr0          -> <nil>()
+    ListStarOfEvHdlr0          -> <conc>(ListStarOfEvHdlr0,ListStarOfEvHdlr0)
+    ListPlusOfEvHdlr0          -> <conc>(ListStarOfEvHdlr0,ListPlusOfEvHdlr0)
+    ListPlusOfEvHdlr0          -> <conc>(ListPlusOfEvHdlr0,ListStarOfEvHdlr0)
+    ListPlusOfEvHdlr0          -> <conc>(ListPlusOfEvHdlr0,ListPlusOfEvHdlr0)
+    ListPlusOfEvHdlr0          -> <cons>(EvHdlr,ListStarOfEvHdlr0)
     ListStarOfAssignElem0      -> ListPlusOfAssignElem0
     ListStarOfAssignElem0      -> <nil>()
     ListStarOfAssignElem0      -> <conc>(ListStarOfAssignElem0,ListStarOfAssignElem0)
@@ -116,13 +130,6 @@ regular tree grammar
     ListPlusOfVisGroup0        -> <conc>(ListPlusOfVisGroup0,ListStarOfVisGroup0)
     ListPlusOfVisGroup0        -> <conc>(ListPlusOfVisGroup0,ListPlusOfVisGroup0)
     ListPlusOfVisGroup0        -> <cons>(VisGroup,ListStarOfVisGroup0)
-    ListStarOfDefinition0      -> ListPlusOfDefinition0
-    ListStarOfDefinition0      -> <nil>()
-    ListStarOfDefinition0      -> <conc>(ListStarOfDefinition0,ListStarOfDefinition0)
-    ListPlusOfDefinition0      -> <conc>(ListStarOfDefinition0,ListPlusOfDefinition0)
-    ListPlusOfDefinition0      -> <conc>(ListPlusOfDefinition0,ListStarOfDefinition0)
-    ListPlusOfDefinition0      -> <conc>(ListPlusOfDefinition0,ListPlusOfDefinition0)
-    ListPlusOfDefinition0      -> <cons>(Definition,ListStarOfDefinition0)
     OptVisualize0              -> <some>(Visualize)
     OptVisualize0              -> <none>()
     ListStarOfStringChar0      -> <string>
@@ -138,10 +145,8 @@ regular tree grammar
     Stmt                       -> FuncCall(FuncRef,ListStarOfExp0)
     Exp                        -> FuncCall(FuncRef,ListStarOfExp0)
     Stmt                       -> FuncCall(MethodRef,ListStarOfExp0)
-    Instr                      -> Instr(ListStarOfDeclaration0,ListStarOfStmt0)
-    Instr                      -> Instr(ListStarOfDeclaration0,ListStarOfStmt0,StopCondition)
-    ModHolderRef               -> ModHolderRef(ID,ID)
-    ModHolderRef               -> ModHolderRef(ID)
+    Instr                      -> Instr(ListStarOfDefinition0,ListStarOfDeclaration0,ListStarOfStmt0)
+    Instr                      -> Instr(ListStarOfDefinition0,ListStarOfDeclaration0,ListStarOfStmt0,StopCondition)
     Ref                        -> FieldRef(ID,ID)
     Ref                        -> FieldRef(Obj,ID)
     EOF                        -> <string>
@@ -150,6 +155,8 @@ regular tree grammar
     StringChar                 -> <string>
     STRING                     -> <string>
     TIME                       -> <string>
+    ModHolderRef               -> ModHolderRef(ID)
+    ModHolderRef               -> ModHolderRef(ID,ID)
     Exp                        -> OrientMatch(ListStarOfOrientRef0)
     MethodRef                  -> MethodRef(Obj,ID)
     FuncRef                    -> FuncRef(ID)
@@ -157,7 +164,6 @@ regular tree grammar
     Stop                       -> Consensus()
     StopCondition              -> Until(Stop)
     StopCondition              -> Wait(Stop)
-    Stmt                       -> For(Type,ID,ID,Block)
     Stmt                       -> Stop(ModHolderRef)
     Stmt                       -> ConnectPart(ModHolderRef,Exp)
     Stmt                       -> DisconnectPart(ModHolderRef,Exp)
@@ -181,20 +187,14 @@ regular tree grammar
     Block                      -> Block(Stmt)
     Stmt                       -> Assign(Ref,Exp)
     Stmt                       -> Broadcast(PacketRef,AssignList,OptRate0)
-    Stmt                       -> Unicast(PacketRef,AssignList,DestMulti,Exp,OptRate0)
-    Stmt                       -> Send(PacketRef,AssignList,DestSingle,Exp,OptRate0)
-    DestMulti                  -> Conn()
-    DestMulti                  -> Meta()
-    DestSingle                 -> Conn()
-    DestSingle                 -> Meta()
+    Stmt                       -> Unicast(PacketRef,AssignList,Nbs,OptRate0)
     Rate                       -> Rate(Ref)
     Event                      -> Event(Exp)
     Event                      -> Receive(PacketRef,ID)
     PacketRef                  -> PacketRef(ID)
-    Stmt                       -> EvHdlr
     EvHdlr                     -> EvHdlr(Event,ListStarOfVarDecl0,ListStarOfStmt0)
     Definition                 -> EvHdlr
-    Declaration                -> State(ID,ListStarOfVarDecl0,ListStarOfFuncDecl0,ListStarOfInstr0)
+    Declaration                -> State(ID,ListStarOfEvHdlr0,ListStarOfVarDecl0,ListStarOfFuncDecl0,ListStarOfInstr0)
     AssignList                 -> AssignList(ListStarOfAssignElem0)
     AssignElem                 -> AssignElem(PayloadRef,ID)
     PayloadRef                 -> PayloadRef(ID)
@@ -205,7 +205,7 @@ regular tree grammar
     FieldDecl                  -> FieldDecl(Type,ID)
     VarDecl                    -> VarDecl(Type,ID)
     Declaration                -> FuncDecl
-    Declaration                -> Packet(ID,ListStarOfPayloadDecl0)
+    Definition                 -> Packet(ID,ListStarOfPayloadDecl0)
     Type                       -> ID
     ParamListElem              -> Param(Type,ID)
     FuncDecl                   -> FuncDecl(Type,ID,ListStarOfParamListElem0,ListStarOfDeclaration0,ListStarOfStmt0,Exp)
@@ -254,11 +254,8 @@ regular tree grammar
     NbsFilter                  -> inRegion(Exp)
     NbsFilter                  -> connected(Exp)
     NbsFilter                  -> metaPart(MetaPart)
-    ConnFilter                 -> ConnFilter(Exp,Exp)
-    ConnFilter                 -> ConnFilter(Exp)
-    NbsOp                      -> NbsOp(ConnFilter)
-    NbsOp                      -> NbsOp(ConnFilter,ListPlusOfNbsFilter0)
-    Exp                        -> Nbs(NbsOp)
+    NbsOp                      -> NbsOp(ListPlusOfNbsFilter0)
+    Nbs                        -> Nbs(NbsOp)
     Exp                        -> NbsCount(NbsOp)
     Exp                        -> Ref
     Obj                        -> Config()
