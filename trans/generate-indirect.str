@@ -1,0 +1,66 @@
+module generate-indirect
+
+imports
+	
+  libstratego-lib
+  libstratego-gpp
+  libstratego-aterm
+  include/MetaformaLang
+  trans/constructors
+  lib/editor-common.generated
+  lib/compilation-library.generated
+  libjava-front
+  lib/editor-common.generated
+  lib/index-library.generated
+  lib/analysis-library.generated
+  lib/analysis-library-internal.generated
+  lib/compilation-library.generated
+  lib/nbl-library.generated
+	names
+	desugar
+	generate
+ 
+ 
+strategies
+
+	get-packets = 
+	 index-get-all-globals(|"Packets") => packets;
+      <map(build-eventhandlers)>packets
+ 
+ build-eventhandlers: Packet(name,payloaddecls) -> PacketReceive(name,result)
+ where 
+ 	 index-get-all-globals(|["EventHandlers",name]) => eventhandlers;
+ 	 <map(simplify)>eventhandlers => result
+ 	 
+ 	 
+ simplify: EvHdlr (state,receive,vardecls, stats) -> EvHdlr (state,<conc>(vardecls,stats)) 	 
+ 	
+ 
+ to-java-indirect = 
+ 	<concat-strings><map(compile-receive)><get-packets>
+ 
+ 
+ compile-receive: PacketReceive(
+    packet,
+  	evhdlrs
+  ) -> $[
+  	protected void receivePacket([packet] p) {
+  		[code]
+  	}
+  ]
+  where
+  	code := <concat-strings><map(compile-event)>evhdlrs => code
+  	
+  	
+  	
+  compile-event: EvHdlr (state,stats) ->
+  	$[if (mfStateMngr.check(p,[<to-java>state])) {
+  		[<concat-strings><map(to-java)>stats]
+  	}]
+  	
+  	
+  to-java: State() -> $[true]
+  to-java: State(n) -> $[new State(Sequence.[n])]
+  to-java: State(n,i) -> $[new State(Sequence.[n],[i])]
+  
+  
