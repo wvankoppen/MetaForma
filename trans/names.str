@@ -211,28 +211,30 @@ rules
 rules
 
   nam-get-scope-types :
-    Receive(PacketRef(p), n) -> [Payload(), Field(), Var()]
+    Receive(VarDecl(PacketRef(p), n)) -> [Payload(), Field(), Var()]
 
   nam-get-definition-keys :
-    Receive(PacketRef(p), n) -> [n]
+    Receive(VarDecl(PacketRef(p), n)) -> [n]
 
   nam-get-definitions :
-    Receive(PacketRef(p), n) -> [(Var(), [n])]
+    Receive(VarDecl(PacketRef(p), n)) -> [(Var(), [n])]
 
   nam-get-uses-keys :
-    Receive(PacketRef(p), n) -> [p]
+    Receive(VarDecl(PacketRef(p), n)) -> [p]
 
   nam-get-uses :
-    Receive(PacketRef(p), n) -> [(Packet(), [p])]
+    Receive(VarDecl(PacketRef(p), n)) -> [(Packet(), [p])]
 
   nam-annotate-names(|paths__, path__):
-    Receive(PacketRef(p), n) -> <Receive(
-                                   PacketRef(nam-annotate-use(|paths__, Packet()))
-                                 , nam-annotate-def(|path__)
-                                 )>
+    Receive(VarDecl(PacketRef(p), n)) -> <Receive(
+                                            VarDecl(
+                                              PacketRef(nam-annotate-use(|paths__, Packet()))
+                                            , nam-annotate-def(|path__)
+                                            )
+                                          )>
 
   nam-unique :
-    Receive(PacketRef(p), n) -> <id>
+    Receive(VarDecl(PacketRef(p), n)) -> <id>
 
 
 rules

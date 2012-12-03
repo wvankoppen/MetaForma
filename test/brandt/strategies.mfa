@@ -1,7 +1,5 @@
 program Brandt
 
-
-
 visualize { 
  	north {
  		FlipOver: red 0;
@@ -23,7 +21,6 @@ packet AddNeighbor {
 	byte first;
 	byte second;
 }
-
 
 packet Gradient {
 	byte prim;
@@ -50,7 +47,7 @@ when (receive (AddNeighbor p)) {
 }
 
 
-when (receive (PacketGradient p)) {
+when (receive (Gradient p)) {
 	if (p.gradPri < gradPri || p.gradSec < gradSec) {
 		gradPri = MIN (p.gradPri,gradPri);
 		gradSec = MIN (p.gradSec,gradSec);

@@ -107,21 +107,21 @@ exports
     "connect_part"      -> Core     
 
   context-free syntax
-    "boolean"      -> Type {cons("Boolean")}
-    "byte"         -> Type {cons("Byte")}
-    "void"         -> Type {cons("Void")}
-    "byte" "[" "]" -> Type {cons("ByteArr")}
-    "meta"         -> Obj  {cons("Meta")}
-    "module"       -> Obj  {cons("Module")}
-    "region"       -> Obj  {cons("Region")}
-    "debug"        -> Obj  {cons("Debug")}
-    "config"       -> Obj  {cons("Config")}
-    "config"       -> Obj  {cons("Config")}
-    Const          -> ID   {reject}
-    ConstLan       -> ID   {reject}
-    Bool           -> ID   {reject}
-    Obj            -> ID   {reject}
-    Core           -> ID   {reject}
+    "boolean"      -> Type   {cons("Boolean")}
+    "byte"         -> Type   {cons("Byte")}
+    "void"         -> Type   {cons("Void")}
+    "byte" "[" "]" -> Type   {cons("ByteArr")}
+    "meta"         -> SysObj {cons("Meta")}
+    "module"       -> SysObj {cons("Module")}
+    "region"       -> SysObj {cons("Region")}
+    "debug"        -> SysObj {cons("Debug")}
+    "config"       -> SysObj {cons("Config")}
+    "config"       -> SysObj {cons("Config")}
+    Const          -> ID     {reject}
+    ConstLan       -> ID     {reject}
+    Bool           -> ID     {reject}
+    SysObj         -> ID     {reject}
+    Core           -> ID     {reject}
 
   )
 
@@ -134,44 +134,49 @@ imports lexical/MetaformaLang-Identifiers
 
 exports
   context-free syntax
-    Ref                     -> Exp       
-    "#(" NbsOp ")"          -> Exp       {cons("NbsCount")}
-    "$(" NbsOp ")"          -> Nbs       {cons("Nbs")}
-    {NbsFilter ","}+        -> NbsOp     {cons("NbsOp")}
-    "metaPart" ":" MetaPart -> NbsFilter {cons("metaPart")}
-    "connected" ":" Exp     -> NbsFilter {cons("connected")}
-    "inRegion" ":" Exp      -> NbsFilter {cons("inRegion")}
-    "metaID" ":" Exp        -> NbsFilter {cons("withMetaID")}
-    "connDest" ":" Exp      -> NbsFilter {cons("connDest")}
-    "connSource" ":" Exp    -> NbsFilter {cons("connSource")}
-    ModHolderRef            -> NbsFilter {cons("in")}
-    ID                      -> MetaPart  {cons("MetaPart")}
-    INT                     -> Exp       {cons("Int")}
-    Const                   -> Exp       {cons("Const")}
-    ConstLan                -> Exp       {cons("Const")}
-    Bool                    -> Exp       {cons("Bool")}
-    ModHolderRef            -> Exp       
-    "(" Exp ")"             -> Exp       {cons("Par")}
-    "[" {Exp ","}* "]"      -> Exp       {cons("ByteArr")}
-    STRING                  -> Exp       {cons("String")}
-    Exp "%" Exp             -> Exp       {left, cons("Mod")}
-    "!" Exp                 -> Exp       {right, cons("Not")}
-    "-" Exp                 -> Exp       {right, cons("Min")}
-    Exp "-" Exp             -> Exp       {right, cons("Min")}
-    Exp "*" Exp             -> Exp       {left, cons("Mul")}
-    Exp "/" Exp             -> Exp       {left, cons("Div")}
-    Exp "+" Exp             -> Exp       {left, cons("Plus")}
-    Exp "-" Exp             -> Exp       {left, cons("Min")}
-    Exp "<" Exp             -> Exp       {left, cons("Lt")}
-    Exp ">" Exp             -> Exp       {left, cons("Gt")}
-    Exp "<=" Exp            -> Exp       {left, cons("LtEq")}
-    Exp ">=" Exp            -> Exp       {left, cons("GtEq")}
-    Exp "==" Exp            -> Exp       {left, cons("Eq")}
-    Exp "!=" Exp            -> Exp       {left, cons("Neq")}
-    Exp "&&" Exp            -> Exp       {left, cons("And")}
-    Exp "||" Exp            -> Exp       {left, cons("Or")}
-    Exp "&" Exp             -> Exp       {left, cons("AndBit")}
-    Exp "|" Exp             -> Exp       {left, cons("OrBit")}
+    Ref                  -> Exp       
+    "#(" NbsOp ")"       -> Exp       {cons("NbsCount")}
+    "$(" NbsOp ")"       -> Nbs       {cons("Nbs")}
+    {NbsFilter ","}+     -> NbsOp     {cons("NbsOp")}
+    NbsFilterKey ":" Exp -> NbsFilter {cons("NbsFilter")}
+
+  lexical syntax
+    "metaPart"   -> NbsFilterKey  
+    "connected"  -> NbsFilterKey  
+    "inRegion"   -> NbsFilterKey  
+    "metaID"     -> NbsFilterKey  
+    "connDest"   -> NbsFilterKey  
+    "connSource" -> NbsFilterKey  
+    ModHolderRef -> NbsFilterElem 
+
+  context-free syntax
+    ID                 -> MetaPart {cons("MetaPart")}
+    INT                -> Exp      {cons("Int")}
+    Const              -> Exp      {cons("Const")}
+    ConstLan           -> Exp      {cons("Const")}
+    Bool               -> Exp      {cons("Bool")}
+    ModHolderRef       -> Exp      
+    "(" Exp ")"        -> Exp      {cons("Par")}
+    "[" {Exp ","}* "]" -> Exp      {cons("ByteArr")}
+    STRING             -> Exp      {cons("String")}
+    Exp "%" Exp        -> Exp      {left, cons("Mod")}
+    "!" Exp            -> Exp      {right, cons("Not")}
+    "-" Exp            -> Exp      {right, cons("Min")}
+    Exp "-" Exp        -> Exp      {right, cons("Min")}
+    Exp "*" Exp        -> Exp      {left, cons("Mul")}
+    Exp "/" Exp        -> Exp      {left, cons("Div")}
+    Exp "+" Exp        -> Exp      {left, cons("Plus")}
+    Exp "-" Exp        -> Exp      {left, cons("Min")}
+    Exp "<" Exp        -> Exp      {left, cons("Lt")}
+    Exp ">" Exp        -> Exp      {left, cons("Gt")}
+    Exp "<=" Exp       -> Exp      {left, cons("LtEq")}
+    Exp ">=" Exp       -> Exp      {left, cons("GtEq")}
+    Exp "==" Exp       -> Exp      {left, cons("Eq")}
+    Exp "!=" Exp       -> Exp      {left, cons("Neq")}
+    Exp "&&" Exp       -> Exp      {left, cons("And")}
+    Exp "||" Exp       -> Exp      {left, cons("Or")}
+    Exp "&" Exp        -> Exp      {left, cons("AndBit")}
+    Exp "|" Exp        -> Exp      {left, cons("OrBit")}
 
   context-free priorities
     { Exp "%" Exp -> Exp } >
@@ -237,6 +242,7 @@ exports
     Type ID ";"                                                                              -> VarDecl             {cons("VarDecl")}
     Type ID ";"                                                                              -> FieldDecl           {cons("FieldDecl")}
     Type ID ";"                                                                              -> PayloadDecl         {cons("PayloadDecl")}
+    PacketRef ID                                                                             -> PacketVarDecl       {cons("VarDecl")}
     FieldDecl                                                                                -> FieldOrPartDecl     
     "part" "[" {MetaPart ","}* "]" ";"                                                       -> FieldOrPartDecl     {cons("MetaPartDecl")}
     ID                                                                                       -> MetaPart            {cons("MetaPart")}
@@ -248,7 +254,7 @@ exports
     EvHdlr                                                                                   -> Definition          
     "when" "(" Event ")" "{" VarDecl* Stmt* "}"                                              -> EvHdlr              {cons("EvHdlr")}
     ID                                                                                       -> PacketRef           {cons("PacketRef")}
-    "receive" "(" PacketRef ID ")"                                                           -> Event               {cons("Receive")}
+    "receive" "(" PacketVarDecl ")"                                                          -> Event               {cons("Receive")}
     Exp                                                                                      -> Event               {cons("Event")}
     "rate" Ref                                                                               -> Rate                {cons("Rate")}
     "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";"                                -> Stmt                {cons("Unicast")}
@@ -284,10 +290,9 @@ exports
     "orientation" "matches" {OrientRef ","}*                                                 -> Exp                 {cons("OrientMatch")}
     "@" ID "." ID                                                                            -> ModHolderRef        {cons("ModHolderRef")}
     "@" ID                                                                                   -> ModHolderRef        {cons("ModHolderRef")}
-
-  context-free priorities
-    { Obj "." ID -> Ref {cons("FieldRef")} } >
-    { ID "." ID -> Ref {cons("FieldRef")} }
+    Obj "." ID                                                                               -> Ref                 {cons("FieldRef")}
+    ID                                                                                       -> Obj                 {cons("ObjRef")}
+    SysObj                                                                                   -> Obj                 
 
   context-free priorities
     { "do" "{" Definition* Declaration* Stmt* "}" StopCondition -> Instr
@@ -359,6 +364,7 @@ exports
     Type ID ";"                                                                              -> VarDecl             {cons("VarDecl")}
     Type ID ";"                                                                              -> FieldDecl           {cons("FieldDecl")}
     Type ID ";"                                                                              -> PayloadDecl         {cons("PayloadDecl")}
+    PacketRef ID                                                                             -> PacketVarDecl       {cons("VarDecl")}
     FieldDecl                                                                                -> FieldOrPartDecl     
     "part" "[" {MetaPart ","}* "]" ";"                                                       -> FieldOrPartDecl     {cons("MetaPartDecl")}
     ID                                                                                       -> MetaPart            {cons("MetaPart")}
@@ -370,7 +376,7 @@ exports
     EvHdlr                                                                                   -> Definition          
     "when" "(" Event ")" "{" VarDecl* Stmt* "}"                                              -> EvHdlr              {cons("EvHdlr")}
     ID                                                                                       -> PacketRef           {cons("PacketRef")}
-    "receive" "(" PacketRef ID ")"                                                           -> Event               {cons("Receive")}
+    "receive" "(" PacketVarDecl ")"                                                          -> Event               {cons("Receive")}
     Exp                                                                                      -> Event               {cons("Event")}
     "rate" Ref                                                                               -> Rate                {cons("Rate")}
     "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";"                                -> Stmt                {cons("Unicast")}
@@ -406,10 +412,9 @@ exports
     "orientation" "matches" {OrientRef ","}*                                                 -> Exp                 {cons("OrientMatch")}
     "@" ID "." ID                                                                            -> ModHolderRef        {cons("ModHolderRef")}
     "@" ID                                                                                   -> ModHolderRef        {cons("ModHolderRef")}
-
-  context-free priorities
-    { Obj "." ID -> Ref {cons("FieldRef")} } >
-    { ID "." ID -> Ref {cons("FieldRef")} }
+    Obj "." ID                                                                               -> Ref                 {cons("FieldRef")}
+    ID                                                                                       -> Obj                 {cons("ObjRef")}
+    SysObj                                                                                   -> Obj                 
 
   context-free priorities
     { "do" "{" Definition* Declaration* Stmt* "}" StopCondition -> Instr

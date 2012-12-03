@@ -26,6 +26,7 @@ imports
   project
   store
   generate
+  generate-indirect
   refactor
   libjava-front
 
@@ -150,13 +151,14 @@ rules // Debugging
       
    // Prints the entries in the index of the current file.
   index-global:
-    (selected, position, ast, path, project-path) -> (filename, result)
+    (selected, position, ast, path, project-path) -> (filename, packets)
     with
       index-setup(|<language>, [project-path], $[[project-path]/[path]]);
       index-clear;
       filename := <guarantee-extension(|"index.global.aterm")> path;
-      <store-all><desugar-all> ast;  
-      index-get-all-globals(|"EventHandlers") => result
+      <store-all><desugar-all> ast;
+      packets := <get-packets>
+     
       
       
   // Cleans all data from the index.
@@ -193,17 +195,31 @@ rules // Utility
 			<base-filename> path => javafile;
 			<to-java-all> selected => result  
       
+   generate-java-indirect:
+		(selected, position, ast, path, project-path) -> (filename, java)
+		where
+			<guarantee-extension(|"java")> path => filename ;
+			<base-filename> path => javafile;
+			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+			index-clear;
+			<store-all><desugar-all> ast;
+			
+			// <map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
+			<debug>"Generate indirect Java code";
+			java := <to-java-indirect>   
+      
    generate-java:
 		(selected, position, ast, path, project-path) -> (filename, controller)
 		where
 			<guarantee-extension(|"java")> path => filename ;
 			<base-filename> path => javafile;
-			// <to-java-all><desugar-all> selected => java-main;
+			<to-java-all><desugar-all> selected => java-main;
 			<project-name>ast => name;
+			<store-all><desugar-all> ast;
 			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
 			
-			<map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
-			controller := "d"
+			// <map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
+			controller := <to-java-indirect>
 			
 // 			java-indexentries := <concat-strings><map(try(to-java-mods))>index-entries; 
 // 			java-states	:= 

@@ -81,7 +81,7 @@ rules
 		scopes Payload,Field,Var,Program
 		
 
-	Receive (PacketRef(p),n):
+	Receive (VarDecl(PacketRef(p),n)):
 		refers to Packet p
 		defines Var n
 		scopes Payload,Field,Var

@@ -73,17 +73,17 @@ lexical syntax
 	"void"			-> Type{cons("Void")}
 	"byte" "[" "]"	-> Type{cons("ByteArr")}
 	
-	"meta"			-> Obj{cons("Meta")}
-	"module"		-> Obj{cons("Module")}
-	"region"		-> Obj{cons("Region")}
-	"debug"			-> Obj{cons("Debug")}
-	"config"		-> Obj{cons("Config")}
-	"config"		-> Obj{cons("Config")}
+	"meta"			-> SysObj{cons("Meta")}
+	"module"		-> SysObj{cons("Module")}
+	"region"		-> SysObj{cons("Region")}
+	"debug"			-> SysObj{cons("Debug")}
+	"config"		-> SysObj{cons("Config")}
+	"config"		-> SysObj{cons("Config")}
 	
 	 Const			-> ID {reject}
-	 ConstLan			-> ID {reject}
+	 ConstLan		-> ID {reject}
 	 Bool			-> ID {reject}
-	 Obj			-> ID {reject}
+	 SysObj			-> ID {reject}
 	 Core			-> ID {reject}
 
 module Exp
@@ -106,13 +106,16 @@ exports
 	%% Exp 					-> ConnFilter{"ConnFilter"}
 	%% Exp "->" Exp			-> ConnFilter{"ConnFilter"}
 	
-	"metaPart" ":" MetaPart		-> NbsFilter{cons("metaPart")}
-	"connected" ":" Exp				-> NbsFilter{cons("connected")}
-	"inRegion" ":" Exp				-> NbsFilter{cons("inRegion")}
-	"metaID" ":" Exp				-> NbsFilter{cons("withMetaID")}
-	"connDest" ":" Exp				-> NbsFilter{cons("connDest")}
-	"connSource" ":" Exp			-> NbsFilter{cons("connSource")}
-	ModHolderRef					-> NbsFilter{cons("in")}
+	NbsFilterKey ":" Exp -> NbsFilter{cons("NbsFilter")}
+	lexical syntax
+	"metaPart" 				-> NbsFilterKey
+	"connected" 			-> NbsFilterKey
+	"inRegion" 				-> NbsFilterKey
+	"metaID" 				-> NbsFilterKey
+	"connDest" 				-> NbsFilterKey
+	"connSource"			-> NbsFilterKey
+	ModHolderRef			-> NbsFilterElem
+	 context-free syntax
 	
 	ID 						-> MetaPart{cons("MetaPart")}
 	INT						-> Exp{cons("Int")}
@@ -226,6 +229,7 @@ sorts	Group MetaClass
 	Type ID ";" -> VarDecl{cons("VarDecl")}
 	Type ID ";" -> FieldDecl{cons("FieldDecl")}
 	Type ID ";" -> PayloadDecl{cons("PayloadDecl")}
+	PacketRef ID -> PacketVarDecl{cons("VarDecl")}
 	
 	FieldDecl -> FieldOrPartDecl
 	"part" "[" {MetaPart ","}* "]" ";" -> FieldOrPartDecl{cons("MetaPartDecl")}
@@ -235,7 +239,7 @@ sorts	Group MetaClass
 	ID 					-> PayloadRef{cons("PayloadRef")}
 	
 	PayloadRef "=" ID			-> AssignElem{cons("AssignElem")}
-	{AssignElem ","}*				-> AssignList{cons("AssignList")}
+	{AssignElem ","}*				-> AssignList{cons("AssignList")} 
 	
 	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("State")}
 	%% "state" ID "{" EvHdlr*EvHdlr ->  TryReg* "}" -> Definition{"State"}
@@ -248,7 +252,7 @@ sorts	Group MetaClass
 	
 	ID								-> PacketRef {cons("PacketRef")}
 	
-	"receive" "(" PacketRef ID ")" 	-> Event{cons("Receive")}
+	"receive" "(" PacketVarDecl ")" 	-> Event{cons("Receive")}
 	Exp 							-> Event{cons("Event")}
 	"rate" Ref						-> Rate{cons("Rate")}
 	
@@ -323,13 +327,11 @@ sorts	Group MetaClass
 	 "@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
 	
-	context-free priorities
-	{
 	Obj "." ID 			-> Ref{cons("FieldRef")}
-	} > {
-	ID "." ID 			-> Ref{cons("FieldRef")}
-	}
 	
+	ID -> Obj{cons("ObjRef")}
+	SysObj -> Obj	
+
 	%% context-free priorities
 	%% {
 	%% "@" ID										-> ModHolderRef{"ModHolderRef"}
@@ -457,6 +459,7 @@ sorts	Group MetaClass
 	Type ID ";" -> VarDecl{cons("VarDecl")}
 	Type ID ";" -> FieldDecl{cons("FieldDecl")}
 	Type ID ";" -> PayloadDecl{cons("PayloadDecl")}
+	PacketRef ID -> PacketVarDecl{cons("VarDecl")}
 	
 	FieldDecl -> FieldOrPartDecl
 	"part" "[" {MetaPart ","}* "]" ";" -> FieldOrPartDecl{cons("MetaPartDecl")}
@@ -466,7 +469,7 @@ sorts	Group MetaClass
 	ID 					-> PayloadRef{cons("PayloadRef")}
 	
 	PayloadRef "=" ID			-> AssignElem{cons("AssignElem")}
-	{AssignElem ","}*				-> AssignList{cons("AssignList")}
+	{AssignElem ","}*				-> AssignList{cons("AssignList")} 
 	
 	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("State")}
 	%% "state" ID "{" EvHdlr*EvHdlr ->  TryReg* "}" -> Definition{"State"}
@@ -479,7 +482,7 @@ sorts	Group MetaClass
 	
 	ID								-> PacketRef {cons("PacketRef")}
 	
-	"receive" "(" PacketRef ID ")" 	-> Event{cons("Receive")}
+	"receive" "(" PacketVarDecl ")" 	-> Event{cons("Receive")}
 	Exp 							-> Event{cons("Event")}
 	"rate" Ref						-> Rate{cons("Rate")}
 	
@@ -554,13 +557,11 @@ sorts	Group MetaClass
 	 "@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
 	
-	context-free priorities
-	{
 	Obj "." ID 			-> Ref{cons("FieldRef")}
-	} > {
-	ID "." ID 			-> Ref{cons("FieldRef")}
-	}
 	
+	ID -> Obj{cons("ObjRef")}
+	SysObj -> Obj	
+
 	%% context-free priorities
 	%% {
 	%% "@" ID										-> ModHolderRef{"ModHolderRef"}

@@ -18,6 +18,7 @@ imports
   lib/nbl-library.generated
 	names
 	desugar
+	generate-indirect
 
  
 strategies
@@ -65,6 +66,7 @@ to-java: FuncCall(n,args) -> $[[<to-java>n]([<concat-glue(|",")><map(to-java)>ar
 to-java: ModHolderRef(m,g) -> $[Mod.[g]_[m]]
 to-java: ModHolderRef(g) -> $[Group.[g]]  
 to-java: FuncRef(n) -> n
+to-java: ObjRef(n) -> n
 to-java: OrientRef(o) -> $[Orientation.[o]]
 to-java: MethodRef(obj,n) -> $[[<to-java>obj].[n]]
 
@@ -142,6 +144,7 @@ to-java: And() -> $[ && ]
 to-java: Or() -> $[ || ]
 to-java: Eq() -> $[ == ]
 to-java: Neq() -> $[ != ]
+to-java: Mod() -> $[ % ]
 to-java: Plus() -> $[ + ]
 to-java: Min() -> $[ - ]
 to-java: Lt() -> $[ < ]
@@ -152,6 +155,11 @@ to-java: GtEq() -> $[ >= ]
 to-java: Min(i) -> $[-[<to-java>i]]
 
 to-java: Block(stats) -> $[[<concat-strings><map(to-java)>stats]]
+
+to-java: If(c,stats) -> $[ if ([<to-java>c]) {
+		[<concat-strings><map(to-java)>stats]
+}
+]
 
 to-java: IfElse(c,stats1,stats2) -> $[ if ([<to-java>c]) {
 		[<concat-strings><map(to-java)>stats1]
@@ -169,7 +177,8 @@ to-java: Assign(v@VarRef(_), e) -> $[[<to-java>v] = [<to-java>e];
 
 to-java: VarRef(v) -> $[[v]]
 
-to-java: Assign(FieldRef(obj,field),val) -> $[[<to-java>obj].setVar("[field]",[val']);]
+to-java: Assign(FieldRef(obj,field),val) -> $[[<to-java>obj].setVar("[field]",[val']);
+]
 where
 	<to-java>val => val'
 
@@ -210,10 +219,14 @@ to-java: ByteArr(bytes) -> $[new byte [brackets]{[<concat-glue(|",")><map(to-jav
 where
 	brackets := "[]"
 
-to-java: Receive(p,var) -> $[
-	public boolean receivePacket ([p] p) {
-	
-]
+to-java: NbsOp(constraints) -> $[nbs()[<concat-strings><map(to-java)>constraints]]
+
+to-java: NbsFilter(name,val) -> $[.nbs[<to-upper-first>name]([<to-java>val])]
+
+to-upper-first: str -> <conc-strings>(<implode-string>[<to-upper>head],<implode-string>tail)
+where
+	<explode-string> str => [head|tail]
+	  
 
 to-java: PacketRef(p) -> $[Packet[p]]
 

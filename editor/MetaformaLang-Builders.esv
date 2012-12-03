@@ -37,6 +37,7 @@ builders
 	// builder		: "Rename (selection)" = rename-aterm (openeditor) (realtime) (meta) (source)
 	// builder		: "Store (selection)" = store-aterm (openeditor) (realtime) (meta) (source)
 	builder		: "Jtree (selection)" = generate-java-aterm  (openeditor)(meta) (source)                             
+  builder		: "Java indirect code (selection)" = generate-java-indirect  (openeditor)(meta) (source)
   builder		: "Java code (selection)" = generate-java  (openeditor)(meta) (source)                                                                                                                          
 
 refactorings

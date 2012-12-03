@@ -3,6 +3,8 @@ module MetaformaLang
 signature
   constructors
                    : String -> STRING
+                   : SysObj -> Obj
+    ObjRef         : ID -> Obj
     ModHolderRef   : ID -> ModHolderRef
     ModHolderRef   : ID * ID -> ModHolderRef
     MethodRef      : Obj * ID -> MethodRef
@@ -41,17 +43,17 @@ signature
     Unicast        : PacketRef * AssignList * Nbs * Option(Rate) -> Stmt
     Rate           : Ref -> Rate
     Event          : Exp -> Event
-    Receive        : PacketRef * ID -> Event
+    Receive        : PacketVarDecl -> Event
     PacketRef      : ID -> PacketRef
     EvHdlr         : Event * List(VarDecl) * List(Stmt) -> EvHdlr
     AssignList     : List(AssignElem) -> AssignList
     AssignElem     : PayloadRef * ID -> AssignElem
     PayloadRef     : ID -> PayloadRef
-    FieldRef       : ID * ID -> Ref
     FieldRef       : Obj * ID -> Ref
     VarRef         : ID -> Ref
     MetaPartDecl   : List(MetaPart) -> FieldOrPartDecl
                    : FieldDecl -> FieldOrPartDecl
+    VarDecl        : PacketRef * ID -> PacketVarDecl
     PayloadDecl    : Type * ID -> PayloadDecl
     FieldDecl      : Type * ID -> FieldDecl
     VarDecl        : Type * ID -> VarDecl
@@ -74,13 +76,7 @@ signature
     Visualize      : List(VisGroup) -> Visualize
     Program        : ID * Option(Visualize) * List(Definition) * List(Declaration) -> Start
     MetaPart       : ID -> MetaPart
-    'in            : ModHolderRef -> NbsFilter
-    connSource     : Exp -> NbsFilter
-    connDest       : Exp -> NbsFilter
-    withMetaID     : Exp -> NbsFilter
-    inRegion       : Exp -> NbsFilter
-    connected      : Exp -> NbsFilter
-    metaPart       : MetaPart -> NbsFilter
+    NbsFilter      : NbsFilterKey * Exp -> NbsFilter
     NbsOp          : List(NbsFilter) -> NbsOp
     Nbs            : NbsOp -> Nbs
     FuncCall       : MethodRef * List(Exp) -> Exp
@@ -113,16 +109,17 @@ signature
     Int            : INT -> Exp
     NbsCount       : NbsOp -> Exp
                    : Ref -> Exp
-    Config         : Obj
-    Debug          : Obj
-    Region         : Obj
-    Module         : Obj
-    Meta           : Obj
+    Config         : SysObj
+    Debug          : SysObj
+    Region         : SysObj
+    Module         : SysObj
+    Meta           : SysObj
                    : ID -> Type
     ByteArr        : Type
     Void           : Type
     Byte           : Type
     Boolean        : Type
+                   : String -> NbsFilterKey
                    : String -> Const
                    : String -> ConstLan
                    : String -> Bool

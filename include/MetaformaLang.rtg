@@ -130,8 +130,8 @@ regular tree grammar
     ListPlusOfVisGroup0        -> <conc>(ListPlusOfVisGroup0,ListStarOfVisGroup0)
     ListPlusOfVisGroup0        -> <conc>(ListPlusOfVisGroup0,ListPlusOfVisGroup0)
     ListPlusOfVisGroup0        -> <cons>(VisGroup,ListStarOfVisGroup0)
-    OptVisualize0              -> <some>(Visualize)
-    OptVisualize0              -> <none>()
+    OptVisualize1              -> <some>(Visualize)
+    OptVisualize1              -> <none>()
     ListStarOfStringChar0      -> <string>
     ListPlusOfStringChar0      -> <string>
     ListStarOfNbsFilter0       -> ListPlusOfNbsFilter0
@@ -147,14 +147,15 @@ regular tree grammar
     Stmt                       -> FuncCall(MethodRef,ListStarOfExp0)
     Instr                      -> Instr(ListStarOfDefinition0,ListStarOfDeclaration0,ListStarOfStmt0)
     Instr                      -> Instr(ListStarOfDefinition0,ListStarOfDeclaration0,ListStarOfStmt0,StopCondition)
-    Ref                        -> FieldRef(ID,ID)
-    Ref                        -> FieldRef(Obj,ID)
     EOF                        -> <string>
     CommentChar                -> <string>
     BackSlashChar              -> <string>
     StringChar                 -> <string>
     STRING                     -> <string>
     TIME                       -> <string>
+    Obj                        -> SysObj
+    Obj                        -> ObjRef(ID)
+    Ref                        -> FieldRef(Obj,ID)
     ModHolderRef               -> ModHolderRef(ID)
     ModHolderRef               -> ModHolderRef(ID,ID)
     Exp                        -> OrientMatch(ListStarOfOrientRef0)
@@ -190,7 +191,7 @@ regular tree grammar
     Stmt                       -> Unicast(PacketRef,AssignList,Nbs,OptRate0)
     Rate                       -> Rate(Ref)
     Event                      -> Event(Exp)
-    Event                      -> Receive(PacketRef,ID)
+    Event                      -> Receive(PacketVarDecl)
     PacketRef                  -> PacketRef(ID)
     EvHdlr                     -> EvHdlr(Event,ListStarOfVarDecl0,ListStarOfStmt0)
     Definition                 -> EvHdlr
@@ -201,6 +202,7 @@ regular tree grammar
     Ref                        -> VarRef(ID)
     FieldOrPartDecl            -> MetaPartDecl(ListStarOfMetaPart0)
     FieldOrPartDecl            -> FieldDecl
+    PacketVarDecl              -> VarDecl(PacketRef,ID)
     PayloadDecl                -> PayloadDecl(Type,ID)
     FieldDecl                  -> FieldDecl(Type,ID)
     VarDecl                    -> VarDecl(Type,ID)
@@ -220,7 +222,7 @@ regular tree grammar
     VisItem                    -> VisItem(ModHolderOrStateRef,Color,<int>)
     VisGroup                   -> VisGroup(ID,ListStarOfVisItem0)
     Visualize                  -> Visualize(ListStarOfVisGroup0)
-    Start                      -> Program(ID,OptVisualize0,ListStarOfDefinition0,ListStarOfDeclaration0)
+    Start                      -> Program(ID,OptVisualize1,ListStarOfDefinition0,ListStarOfDeclaration0)
     Exp                        -> OrBit(Exp,Exp)
     Exp                        -> AndBit(Exp,Exp)
     Exp                        -> Or(Exp,Exp)
@@ -247,26 +249,22 @@ regular tree grammar
     Exp                        -> Const(Const)
     Exp                        -> Int(INT)
     MetaPart                   -> MetaPart(ID)
-    NbsFilter                  -> in(ModHolderRef)
-    NbsFilter                  -> connSource(Exp)
-    NbsFilter                  -> connDest(Exp)
-    NbsFilter                  -> withMetaID(Exp)
-    NbsFilter                  -> inRegion(Exp)
-    NbsFilter                  -> connected(Exp)
-    NbsFilter                  -> metaPart(MetaPart)
+    NbsFilter                  -> NbsFilter(NbsFilterKey,Exp)
     NbsOp                      -> NbsOp(ListPlusOfNbsFilter0)
     Nbs                        -> Nbs(NbsOp)
     Exp                        -> NbsCount(NbsOp)
     Exp                        -> Ref
-    Obj                        -> Config()
-    Obj                        -> Debug()
-    Obj                        -> Region()
-    Obj                        -> Module()
-    Obj                        -> Meta()
+    SysObj                     -> Config()
+    SysObj                     -> Debug()
+    SysObj                     -> Region()
+    SysObj                     -> Module()
+    SysObj                     -> Meta()
     Type                       -> ByteArr()
     Type                       -> Void()
     Type                       -> Byte()
     Type                       -> Boolean()
+    NbsFilterElem              -> <string>
+    NbsFilterKey               -> <string>
     Core                       -> <string>
     Const                      -> <string>
     ConstLan                   -> <string>

@@ -27,14 +27,19 @@ rules
 	
 	store-all = topdown(try(store))
 	
-	store: term@EvHdlr (s,Receive(packetRef,name),decls,stats) -> term
+	store: term@EvHdlr(s,Receive(VarDecl(PacketRef(packet),name)),decls,stats) -> term
 	where
-		<index-add-global(|"EventHandlers")> term
+		<index-add-global(|["EventHandlers",packet])> term
 		
 	
 	store: term@Packet (n,payloaddec) -> term
 	where
 		<index-add-global(|"Packets")> term
+	
+	
+	store: term@State(n,evhdlrs,funcs,vars,instrs) -> term
+	where
+		<index-add-global(|"States")> term
 	
 	// adjust-index-def-data(store-results|namespace, path):
  //        deff -> <store-results> EvHdlr([namespace|path],"123","345", "test456")

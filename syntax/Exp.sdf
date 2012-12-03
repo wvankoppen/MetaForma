@@ -18,13 +18,16 @@ exports
 	%% Exp 					-> ConnFilter{"ConnFilter"}
 	%% Exp "->" Exp			-> ConnFilter{"ConnFilter"}
 	
-	"metaPart" ":" MetaPart		-> NbsFilter{"metaPart"}
-	"connected" ":" Exp				-> NbsFilter{"connected"}
-	"inRegion" ":" Exp				-> NbsFilter{"inRegion"}
-	"metaID" ":" Exp				-> NbsFilter{"withMetaID"}
-	"connDest" ":" Exp				-> NbsFilter{"connDest"}
-	"connSource" ":" Exp			-> NbsFilter{"connSource"}
-	ModHolderRef					-> NbsFilter{"in"}
+	NbsFilterKey ":" Exp -> NbsFilter{"NbsFilter"}
+	lexical syntax
+	"metaPart" 				-> NbsFilterKey
+	"connected" 			-> NbsFilterKey
+	"inRegion" 				-> NbsFilterKey
+	"metaID" 				-> NbsFilterKey
+	"connDest" 				-> NbsFilterKey
+	"connSource"			-> NbsFilterKey
+	ModHolderRef			-> NbsFilterElem
+	 context-free syntax
 	
 	ID 						-> MetaPart{"MetaPart"}
 	INT						-> Exp{"Int"}

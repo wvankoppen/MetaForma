@@ -51,6 +51,7 @@ sorts	Group MetaClass
 	Type ID ";" -> VarDecl{"VarDecl"}
 	Type ID ";" -> FieldDecl{"FieldDecl"}
 	Type ID ";" -> PayloadDecl{"PayloadDecl"}
+	PacketRef ID -> PacketVarDecl{"VarDecl"}
 	
 	FieldDecl -> FieldOrPartDecl
 	"part" "[" {MetaPart ","}* "]" ";" -> FieldOrPartDecl{"MetaPartDecl"}
@@ -60,7 +61,7 @@ sorts	Group MetaClass
 	ID 					-> PayloadRef{"PayloadRef"}
 	
 	PayloadRef "=" ID			-> AssignElem{"AssignElem"}
-	{AssignElem ","}*				-> AssignList{"AssignList"}
+	{AssignElem ","}*				-> AssignList{"AssignList"} 
 	
 	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{"State"}
 	%% "state" ID "{" EvHdlr*EvHdlr ->  TryReg* "}" -> Definition{"State"}
@@ -73,7 +74,7 @@ sorts	Group MetaClass
 	
 	ID								-> PacketRef {"PacketRef"}
 	
-	"receive" "(" PacketRef ID ")" 	-> Event{"Receive"}
+	"receive" "(" PacketVarDecl ")" 	-> Event{"Receive"}
 	Exp 							-> Event{"Event"}
 	"rate" Ref						-> Rate{"Rate"}
 	
@@ -148,13 +149,11 @@ sorts	Group MetaClass
 	 "@" ID "." ID									-> ModHolderRef{"ModHolderRef"}
 	"@" ID 											-> ModHolderRef{"ModHolderRef"}
 	
-	context-free priorities
-	{
 	Obj "." ID 			-> Ref{"FieldRef"}
-	} > {
-	ID "." ID 			-> Ref{"FieldRef"}
-	}
 	
+	ID -> Obj{"ObjRef"}
+	SysObj -> Obj	
+
 	%% context-free priorities
 	%% {
 	%% "@" ID										-> ModHolderRef{"ModHolderRef"}

@@ -29,6 +29,7 @@ signature
 	Or	: Exp
 	Eq	: Exp
 	Neq	: Exp
+	Mod	: Exp
 	Plus	: Exp
 	Min	: Exp
 	Gt	: Exp
@@ -47,5 +48,6 @@ signature
 	State : X -> State
 	State : State
 	EvHdlr : X * X * X * X -> EvHdlr
-	
+	EvHdlr : X * X -> EvHdlr
+	PacketReceive:  X * X -> PacketReceive
 	

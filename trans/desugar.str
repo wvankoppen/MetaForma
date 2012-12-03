@@ -91,7 +91,7 @@ desugar-functions: Disconnect(m1,m2) -> FuncCall(MethodRef(Actuation(),"disconne
 desugar-functions: Rotate(m1,deg) -> FuncCall(MethodRef(Actuation(),"rotate"),[m1,deg])
 desugar-functions: RotateCont(m1,v) -> FuncCall(MethodRef(Actuation(),"rotate_continuous"),[m1,v])
 
-desugar: If(c,stats) -> IfElse(c,stats,[])
+
 
 
 desugar: Block(stats) -> [stats]
@@ -102,8 +102,13 @@ desugar: Block(stats) -> stats
 where
 	<?[_|_]>stats
 	
+	
+desugar: Nbs(d@NbsOp(_)) -> d
+desugar: Nbs(d@NbsCount(_)) -> d  
+	
 desugar: Min(e1,e2) -> BinOp(Min(),e1,e2)
 desugar: Plus(e1,e2) -> BinOp(Plus(),e1,e2)
+desugar: Mod(e1,e2) -> BinOp(Mod(),e1,e2)
 desugar: And(e1,e2) -> BinOp(And(),e1,e2)
 desugar: Or(e1,e2) -> BinOp(Or(),e1,e2)
 desugar: Eq(e1,e2) -> BinOp(Eq(),e1,e2)
@@ -116,7 +121,7 @@ desugar: GtEq(e1,e2) -> BinOp(GtEq(),e1,e2)
 desugar: FuncCall(MethodRef(Module(), "fixSymmetry"), [v]) -> 
 Instr(
           [ EvHdlr(
-              Receive(PacketRef("PacketSymmetry"), "p")
+              Receive(VarDecl(PacketRef("PacketSymmetry"),  "p"))
             , []
             , [ FuncCall(
                   MethodRef(Module(), "fixSymmetry")

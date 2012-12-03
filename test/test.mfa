@@ -1,1 +1,11 @@
 program Testxyz
+
+
+
+
+when (receive (AddNeighbor p)) {
+
+	X=yz;
+}
+
+

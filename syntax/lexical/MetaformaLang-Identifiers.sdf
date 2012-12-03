@@ -72,16 +72,16 @@ lexical syntax
 	"void"			-> Type{"Void"}
 	"byte" "[" "]"	-> Type{"ByteArr"}
 	
-	"meta"			-> Obj{"Meta"}
-	"module"		-> Obj{"Module"}
-	"region"		-> Obj{"Region"}
-	"debug"			-> Obj{"Debug"}
-	"config"		-> Obj{"Config"}
-	"config"		-> Obj{"Config"}
+	"meta"			-> SysObj{"Meta"}
+	"module"		-> SysObj{"Module"}
+	"region"		-> SysObj{"Region"}
+	"debug"			-> SysObj{"Debug"}
+	"config"		-> SysObj{"Config"}
+	"config"		-> SysObj{"Config"}
 	
 	 Const			-> ID {reject}
-	 ConstLan			-> ID {reject}
+	 ConstLan		-> ID {reject}
 	 Bool			-> ID {reject}
-	 Obj			-> ID {reject}
+	 SysObj			-> ID {reject}
 	 Core			-> ID {reject}
 	

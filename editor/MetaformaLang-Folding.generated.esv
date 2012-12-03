@@ -21,7 +21,7 @@ folding Default folding definitions
   //   Definition._ (disabled)
   
   Start.Program
-  OptVisualize0
+  OptVisualize1
   Visualize.Visualize
   VisGroup.VisGroup
   GroupDef.Group
