@@ -18,3 +18,5 @@ strategies
        }
      ]|
     
+    
+    generate: x -> "cvdf"

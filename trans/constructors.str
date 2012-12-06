@@ -29,7 +29,8 @@ signature
 	Or	: Exp
 	Eq	: Exp
 	Neq	: Exp
-	Mod	: Exp
+	Modulo	: Exp
+	Mod: X * X -> Mod
 	Plus	: Exp
 	Min	: Exp
 	Gt	: Exp
@@ -50,4 +51,5 @@ signature
 	EvHdlr : X * X * X * X -> EvHdlr
 	EvHdlr : X * X -> EvHdlr
 	PacketReceive:  X * X -> PacketReceive
+	Class: X * X -> Class
 	

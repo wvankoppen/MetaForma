@@ -41,7 +41,7 @@ exports
 	
 	 
 	
-	Exp "%"	Exp					-> Exp{left,"Mod"}
+	Exp "%"	Exp					-> Exp{left,"Modulo"}
 	"!" Exp 					-> Exp{right,"Not"}
 	"-" Exp 					-> Exp{right,"Min"}
 	Exp "-" Exp 				-> Exp{right,"Min"}

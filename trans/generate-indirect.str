@@ -23,10 +23,9 @@ imports
  
 strategies
 
-	get-packets = 
-	 index-get-all-globals(|"Packets") => packets;
-      <map(build-eventhandlers)>packets
- 
+	map2str(rule) = map(rule);concat-strings 
+
+	 
  build-eventhandlers: Packet(name,payloaddecls) -> PacketReceive(name,result)
  where 
  	 index-get-all-globals(|["EventHandlers",name]) => eventhandlers;
@@ -36,11 +35,39 @@ strategies
  simplify: EvHdlr (state,receive,vardecls, stats) -> EvHdlr (state,<conc>(vardecls,stats)) 	 
  	
  
- to-java-indirect = 
- 	<concat-strings><map(compile-receive)><get-packets>
+
+// to-java-global(|what) = 
+//  	<concat-strings><map(compile-class)><debug(!"classes:")><get-classes>
+ 	
+ 	
+ // to-java-decls: Visualize (vis) -> $[[<concat-strings><map(to-java)>vis]]
+
+ compile:  Class(id',decls,funcs) -> $[class Bag[n] extends Core[n] implements I[n]Bag {
+	[decls']
+	[funcs']
+	}
+	]
+	where
+		n := <cons2name>id';
+		<debug>$[Compile class [n]];
+		<concat-strings><map(to-java)>decls => decls';
+		<concat-strings><map(to-java)>funcs => funcs'
+
+
+cons2name: Meta() -> $[Meta]
+cons2name: Module() -> $[Module]
+ 
+ compile: State(n,evhdlrs,vars,funcs,instrs) -> 
+$[if (mfStateMngr.at(StateOperation.[n])) {  [<concat-strings><map(to-java-instrs)>instrs]
+}
+]
  
  
- compile-receive: PacketReceive(
+ // to-java-packetreceive = 
+ // 	<concat-strings><map(compile)><get-packets>
+ 
+ 
+ compile: PacketReceive(
     packet,
   	evhdlrs
   ) -> $[
@@ -49,11 +76,11 @@ strategies
   	}
   ]
   where
-  	code := <concat-strings><map(compile-event)>evhdlrs => code
+  	code := <concat-strings><map(compile)>evhdlrs => code
   	
   	
   	
-  compile-event: EvHdlr (state,stats) ->
+  compile: EvHdlr (state,stats) ->
   	$[if (mfStateMngr.check(p,[<to-java>state])) {
   		[<concat-strings><map(to-java)>stats]
   	}]

@@ -1,6 +1,6 @@
 program Brandt
 
-visualize { 
+visualize {  
  	north {
  		FlipOver: red 0;
  		FlipThrough: blue 1;
@@ -8,10 +8,19 @@ visualize {
  	}
  	
  	south {
- 		@Walker.Left: green 3;
+ 		@OutsideLifter: green 3;
+ 		@InsideLifter: green 3;
+ 		@InsideLifter.Top: green 3;
+ 		@InsideLifter.Top123: green 3;
+ 		@ikbestaniet: green 3;
  	}
- 	
+ 	 
 } 
+  
+ 
+group InsideLifter [Top,Bottom]
+group OutsideLifter [Top,Bottom]
+group x
 
 packet MetaIdSet { 
 	byte newMetaID; 
@@ -26,33 +35,39 @@ packet Gradient {
 	byte prim;
 	byte sec;
 }
+// 
+// when (receive (AddNeighbor p)) {
+// 	if (p.metaID == Left) {
+// 		meta.TopLeft = p.first;
+// 		meta.BottomLeft = p.second;
+// 	}
+// 	if (p.metaID == Right) {
+// 		meta.TopRight = p.first;
+// 		meta.BottomRight = p.second;
+// 	}
+// 	if (p.metaID == Top) {
+// 		meta.TopLeft = p.first;
+// 		meta.TopRight = p.second;
+// 	}
+// 	if (p.metaID == Bottom) {
+// 		meta.BottomLeft = p.first;
+// 		meta.BottomRight = p.second;
+// 	}
+// }
 
-when (receive (AddNeighbor p)) {
-	if (p.metaID == Left) {
-		meta.TopLeft = p.first;
-		meta.BottomLeft = p.second;
-	}
-	if (p.metaID == Right) {
-		meta.TopRight = p.first;
-		meta.BottomRight = p.second;
-	}
-	if (p.metaID == Top) {
-		meta.TopLeft = p.first;
-		meta.TopRight = p.second;
-	}
-	if (p.metaID == Bottom) {
-		meta.BottomLeft = p.first;
-		meta.BottomRight = p.second;
-	}
-}
-
-
+ 
 when (receive (Gradient p)) {
-	if (p.gradPri < gradPri || p.gradSec < gradSec) {
-		gradPri = MIN (p.gradPri,gradPri);
-		gradSec = MIN (p.gradSec,gradSec);
-		module.gradientPropagate();
+	if (p.pri < gradPri || p.sec < gradSec) {
+		// gradPri = MIN (p.pri,gradPri);
+		// gradSec = MIN (p.sec,gradSec);
+		// module.gradientPropagate();
 	}	
+
+	
+ 	if (p.metaID == Left) {
+ 		// meta.TopLeft = p.first;
+ 		// meta.BottomLeft = p.second;
+ 	}
 }
 
 meta {
@@ -88,7 +103,7 @@ meta {
 		broadcastMetaNeighborsTo([Top, Bottom], Left, Right);
 		broadcastMetaNeighborsTo([Left, Right], Top, Bottom);
 	}
-// 		
+
 
 
  	void broadcastMetaNeighborsTo (byte[] dests, byte v1, byte v2) {
@@ -105,12 +120,12 @@ module  {
 	boolean isRef;
 	boolean sourcePri;
 	boolean sourceSec;
-// 	
-// 	// border left = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-// 	// border right = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-// 	// border top = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-// 	// border bottom = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-// 	
+	
+	// border left = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+	// border right = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+	// border top = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+	// border bottom = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+	
 	void gradientPropagate () {		 
 		if (sourcePri){
 			gradPri = 0;
@@ -121,8 +136,8 @@ module  {
 		}
 		 unicast Gradient(pri=gradPri, sec=gradSec) to $(inRegion: true);
 	}
-// 	
-// 
+ 	
+
 	void gradientInit() {
 		// sourcePri = orientation.primaryBorder();
 		// sourceSec = orientation.secondaryBorder();
@@ -134,9 +149,6 @@ module  {
 
 sequence Initialize {
  	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
-	when (receive (Packet p)) {
-		meta.neighborHook (p.connSource,p.connDest);
-	}
 	when (receive (Packet p)) {
 		meta.neighborHook (p.connSource,p.connDest);
 	}

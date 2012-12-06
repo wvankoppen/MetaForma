@@ -3,8 +3,8 @@ module MetaformaLang
 signature
   constructors
                    : String -> STRING
+                   : ID -> Obj
                    : SysObj -> Obj
-    ObjRef         : ID -> Obj
     ModHolderRef   : ID -> ModHolderRef
     ModHolderRef   : ID * ID -> ModHolderRef
     MethodRef      : Obj * ID -> MethodRef
@@ -17,13 +17,17 @@ signature
     Mod            : ID -> Mod
     GroupNum       : ID -> GroupDef
     Group          : ID * List(Mod) -> GroupDef
-    Instr          : List(Definition) * List(Declaration) * List(Stmt) -> Instr
-    Instr          : List(Definition) * List(Declaration) * List(Stmt) * StopCondition -> Instr
+    Instr          : List(EvHdlr) * List(VarDecl) * List(Stmt) -> Instr
+    Instr          : List(EvHdlr) * List(VarDecl) * List(Stmt) * StopCondition -> Instr
                    : Stmt -> Instr
     OrientRef      : ID -> OrientRef
     StateRef       : ID -> StateRef
     Block          : List(Stmt) -> Block
     Block          : Stmt -> Block
+    Rate           : Ref -> Rate
+                   : Exp -> EventExp
+    Receive        : PacketVarDecl -> Receive
+    PacketRef      : ID -> PacketRef
     FuncCall       : FuncRef * List(Exp) -> Stmt
     FuncCall       : MethodRef * List(Exp) -> Stmt
     Stop           : ModHolderRef -> Stmt
@@ -39,20 +43,15 @@ signature
     If             : Exp * Block -> Stmt
     IfElse         : Exp * Block * Block -> Stmt
     Assign         : Ref * Exp -> Stmt
-    Broadcast      : PacketRef * AssignList * Option(Rate) -> Stmt
     Unicast        : PacketRef * AssignList * Nbs * Option(Rate) -> Stmt
-    Rate           : Ref -> Rate
-    Event          : Exp -> Event
-    Receive        : PacketVarDecl -> Event
-    PacketRef      : ID -> PacketRef
-    EvHdlr         : Event * List(VarDecl) * List(Stmt) -> EvHdlr
+    If             : EventExp * List(VarDecl) * List(Stmt) -> Stmt
+    EvHdlr         : Receive * List(VarDecl) * List(Stmt) -> EvHdlr
     AssignList     : List(AssignElem) -> AssignList
     AssignElem     : PayloadRef * ID -> AssignElem
     PayloadRef     : ID -> PayloadRef
     FieldRef       : Obj * ID -> Ref
     VarRef         : ID -> Ref
-    MetaPartDecl   : List(MetaPart) -> FieldOrPartDecl
-                   : FieldDecl -> FieldOrPartDecl
+    MetaPartDecl   : List(MetaPart) -> PartDecl
     VarDecl        : PacketRef * ID -> PacketVarDecl
     PayloadDecl    : Type * ID -> PayloadDecl
     FieldDecl      : Type * ID -> FieldDecl
@@ -67,7 +66,7 @@ signature
                    : EvHdlr -> Definition
     Packet         : ID * List(PayloadDecl) -> Definition
     Class          : Module * List(FieldDecl) * List(FuncDecl) -> Definition
-    Class          : Meta * List(FieldOrPartDecl) * List(FuncDecl) -> Definition
+    Class          : Meta * Option(PartDecl) * List(FieldDecl) * List(FuncDecl) -> Definition
                    : GroupDef -> Definition
                    : StateRef -> ModHolderOrStateRef
                    : ModHolderRef -> ModHolderOrStateRef
@@ -98,7 +97,7 @@ signature
     Min            : Exp * Exp -> Exp
     Min            : Exp -> Exp
     Not            : Exp -> Exp
-    Mod            : Exp * Exp -> Exp
+    Modulo         : Exp * Exp -> Exp
     String         : STRING -> Exp
     ByteArr        : List(Exp) -> Exp
     Par            : Exp -> Exp

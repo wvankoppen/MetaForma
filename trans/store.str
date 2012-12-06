@@ -18,28 +18,75 @@ imports
 	names
 	desugar
 	
+	
 	signature constructors
-		EventHandler: X*X*X -> EventHandler
-		EventHandler: X*X -> EventHandler
-		PacketStore: X*X -> PacketStore
-		Timestamp: X -> Timestamp
+		Type: X * X -> Type
+	
 rules
 	
-	store-all = topdown(try(store))
+	store-all = id// topdown(try(store));topdown(try(remove-indirect-constructs))//;store-statics
 	
-	store: term@EvHdlr(s,Receive(VarDecl(PacketRef(packet),name)),decls,stats) -> term
+	
+	
+	
+	remove-indirect-constructs: Instr(i,evts,d,instr*,postcon) -> Instr(i,instr'*,postcon)
 	where
-		<index-add-global(|["EventHandlers",packet])> term
+		instr'* := <conc>(evts,instr*)
+		
+		
+	remove-indirect-constructs: Class(Meta(),parts,fields) -> Class(Meta(),fields)
+	
+	
+	adjust-index-def-data(store-results|namespace, path): 
+		term@EvHdlr(_{[EventHandler(), _, program]}, _, _, _, _) -> <store-results> DefData([EventHandler(), program], EventHandler(), term)
+		
+		
+	adjust-index-def-data(store-results|namespace, path):
+       decl -> <store-results> Type([namespace|path], type)
+        where
+          type := <type-of> decl	
+		
 		
 	
 	store: term@Packet (n,payloaddec) -> term
 	where
+		<debug>$[Store packet [n]];
 		<index-add-global(|"Packets")> term
 	
 	
 	store: term@State(n,evhdlrs,funcs,vars,instrs) -> term
 	where
+		<debug>$[Store state [n]: instrs];
+		<debug>instrs;
 		<index-add-global(|"States")> term
+		
+	
+	store: term@Class(n,_,_) -> term
+	where
+		<debug>$[Store class:];
+		<debug>n;
+		<index-add-global(|"Classes")> term
+		
+	store: term@Group(n,mods) -> <index-add-global(|"Groups")> term
+	where
+		<debug>$[Store group [n]:]
+	
+	store: term@GroupNum(n) -> <index-add-global(|"Groups")> term
+	where
+		<debug>$[Store num group [n]:]
+		
+	store: term@MetaPart(n) -> <index-add-global(|"MetaParts")> term
+	where
+		<debug>$[Store metaPart [n]:]	
+	
+	 // adjust-index-def-data(store-results|namespace, path):
+  //       decl@MetaPart(n) -> <store-results> decl
+  //       where
+  //       <debug>$[STORE MetaPart [n]]
+        
+		
+	// store: d@Wait(Consensus()) -> d
+	// where <debug>d
 	
 	// adjust-index-def-data(store-results|namespace, path):
  //        deff -> <store-results> EvHdlr([namespace|path],"123","345", "test456")
@@ -60,3 +107,14 @@ rules
         
         // adjust-index-def-data(store-results|namespace, path):
         // deff -> <store-results> EvHdlr([namespace|path], "test123")
+        
+        
+        
+        
+        
+        
+    
+    
+    
+        
+    

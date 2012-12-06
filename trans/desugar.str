@@ -28,13 +28,13 @@ desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(desuga
 
 desugar-events3(|state,c): EvHdlr(r,decls,stats) -> EvHdlr(State(state,c),r,decls,stats)
 desugar-events2(|state): EvHdlr(r,decls,stats) -> EvHdlr(State(state),r,decls,stats)
-desugar-events: EvHdlr(r,decls,stats) -> EvHdlr(State(),r,decls,stats)  
+desugar-events: EvHdlr(r,decls,stats) -> EvHdlr(<newname>, State(),r,decls,stats)  
 
-desugar-td: Group (n,elems) -> Group (n,items)
-where
-	<flatten-list><map(add-modgroup(|n))>elems => items
+// desugar-td: Group (n,elems) -> Group (n,items)
+// where
+// 	<flatten-list><map(add-modgroup(|n))>elems => items
 	
-add-modgroup(|g): Mod(n) -> Mod(g,n) 
+// add-modgroup(|g): Mod(n) -> Mod(g,n) 
 
 desugar-td: Visualize (groups) -> Visualize (items)
 where
@@ -60,11 +60,14 @@ where
 	<zip>(nrs,instrs') => instrs'';
 	<map(try(desugar-events2(|n)))>ehdlrs => ehdlrs';
 	<map(try(swap-counter(|n)))>instrs'' => instrs'''
-	// <map(try(add-ix))>instrs' => instrs''
 
 
-swap-counter(|state): (c,Instr(evts,d,instr*,postcon)) -> Instr(c,<map(try(desugar-events3(|state,c)))>evts,d,instr*,postcon)
-swap-counter(|state): (c,Instr(evts,d,instr*)) -> Instr(c,<map(try(desugar-events3(|state,c)))>evts,d,instr*,Wait(Consensus())) 
+// Desugar the vardecls out of an event
+desugar: If (e,vardecls,stats) -> If(e,<conc>(vardecls,stats))
+
+
+swap-counter(|state): (c,Instr(evts,vars,instr*,postcon)) -> Instr(c,<map(try(desugar-events3(|state,c)))>evts,<conc>(vars,instr*),postcon)
+swap-counter(|state): (c,Instr(evts,vars,instr*)) -> Instr(c,<map(try(desugar-events3(|state,c)))><filter(?event-real)>evts,<conc>(vars,instr*),Wait(Consensus())) 
 
 	
 add-instrblock: f -> Instr([],[],[f])
@@ -108,7 +111,7 @@ desugar: Nbs(d@NbsCount(_)) -> d
 	
 desugar: Min(e1,e2) -> BinOp(Min(),e1,e2)
 desugar: Plus(e1,e2) -> BinOp(Plus(),e1,e2)
-desugar: Mod(e1,e2) -> BinOp(Mod(),e1,e2)
+desugar: Modulo(e1,e2) -> BinOp(Modulo(),e1,e2)
 desugar: And(e1,e2) -> BinOp(And(),e1,e2)
 desugar: Or(e1,e2) -> BinOp(Or(),e1,e2)
 desugar: Eq(e1,e2) -> BinOp(Eq(),e1,e2)
@@ -120,24 +123,32 @@ desugar: GtEq(e1,e2) -> BinOp(GtEq(),e1,e2)
 
 desugar: FuncCall(MethodRef(Module(), "fixSymmetry"), [v]) -> 
 Instr(
-          [ EvHdlr(
-              Receive(VarDecl(PacketRef("PacketSymmetry"),  "p"))
-            , []
-            , [ FuncCall(
-                  MethodRef(Module(), "fixSymmetry")
-                , [FieldRef("p", "connSource"), FieldRef("p", "connDest")]
-                )
-              ]
-            )], 
-            [ Packet("PacketSymmetry", [])],
-            [],
-            [
-           If(
-              v
-            , Block([Broadcast(PacketRef("PacketSymmetry"), AssignList([]), None())])
-            )
-          ]
+  [ EvHdlr(
+      Receive(VarDecl(PacketRef("Symmetry"), "p"))
+    , []
+    , [ FuncCall(
+          MethodRef(Module(), "fixSymmetry")
+        , [FieldRef(VarRef("p"), "connSource"), FieldRef(VarRef("p"), "connDest")]
         )
+      ]
+    )
+  ]
+, []
+, [ If(
+      v
+    , [ Unicast(
+          PacketRef("Symmetry")
+        , AssignList([])
+        , NbsOp([NbsFilter("inRegion", Bool("true"))])
+        , None()
+        )
+      ]
+    )
+  ]
+, Until(Consensus())
+)
 
-desugar: EvHdlr (Event(e),vardecls,stats) -> If(e,<conc>(vardecls,stats))
+signature constructors
+	EvHdlr : X * X * X * X * X -> EvHdlr
+
 // desugar: Broadcast(p,assignlist,rate) -> Unicast(p,assignlist,Conn(),Int(255),rate)

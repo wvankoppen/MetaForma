@@ -21,6 +21,8 @@ imports
 	
 rules
 	project-name: Program(n,_,_,_) -> n
+	project-name: State(n,_,_,_,_) -> n
+	project-name: MetaPart(n) -> n
 
 	get-sequences: (p,index) -> Def([State(), n, p])
 	where

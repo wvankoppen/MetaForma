@@ -163,7 +163,7 @@ rules
             + fail)> t_0
 
   MetaformaLangParenthesize :
-    Mod(t_0, t_1) -> Mod(Parenthetical(t_0), t_1)
+    Modulo(t_0, t_1) -> Modulo(Parenthetical(t_0), t_1)
     where <(?OrBit(_, _)
             + ?AndBit(_, _)
             + ?Or(_, _)
@@ -182,7 +182,7 @@ rules
             + fail)> t_0
 
   MetaformaLangParenthesize :
-    Mod(t_0, t_1) -> Mod(t_0, Parenthetical(t_1))
+    Modulo(t_0, t_1) -> Modulo(t_0, Parenthetical(t_1))
     where <(?OrBit(_, _)
             + ?AndBit(_, _)
             + ?Or(_, _)
@@ -198,7 +198,7 @@ rules
             + ?Div(_, _)
             + ?Mul(_, _)
             + ?Not(_)
-            + ?Mod(_, _)
+            + ?Modulo(_, _)
             + fail)> t_1
 
   MetaformaLangParenthesize :

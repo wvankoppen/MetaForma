@@ -17,10 +17,9 @@ outliner Default outliner
   GroupDef.Group
   FuncDecl.FuncDecl
   Declaration.State
-  EvHdlr.EvHdlr
+  Stmt.If
   Exp.FuncCall
   Stmt.Unicast
-  Stmt.Broadcast
   Stmt.TryRegion
   Stmt.FuncCall
   Instr.Instr

@@ -15,6 +15,7 @@ imports
   lib/editor-common.generated
   lib/compilation-library.generated
   libjava-front
+  desugar
 
 
 signature
@@ -27,7 +28,6 @@ signature
   constructors
     Mod          : Namespace
     Group        : Namespace
-    GroupNum     : Namespace
     Packet       : Namespace
     Var          : Namespace
     Field        : Namespace
@@ -61,11 +61,25 @@ rules
 rules
 
   nam-get-scope-types :
+    EvHdlr(x, _, _, _, _) -> [Var()]
+
+  nam-get-definition-keys :
+    EvHdlr(x, _, _, _, _) -> [x]
+
+  nam-get-definitions :
+    EvHdlr(x, _, _, _, _) -> [(EventHandler(), [x])]
+
+  nam-annotate-names(|paths__, path__):
+    EvHdlr(x, _, _, _, _) -> <EvHdlr(nam-annotate-def(|path__), id, id, id, id)>
+
+
+rules
+
+  nam-get-scope-types :
     Program(n, _, _, _) -> [ Group()
                            , Packet()
                            , Class()
                            , State()
-                           , Function()
                            , MetaPart()
                            , EventHandler()
                            ]
@@ -101,16 +115,16 @@ rules
 rules
 
   nam-get-definition-keys :
-    Mod(g, n) -> [n]
+    Mod(n) -> [n]
 
   nam-get-definitions :
-    Mod(g, n) -> [(Mod(), [n])]
+    Mod(n) -> [(Mod(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Mod(g, n) -> <Mod(id, nam-annotate-def(|path__))>
+    Mod(n) -> <Mod(nam-annotate-def(|path__))>
 
   nam-unique :
-    Mod(g, n) -> <id>
+    Mod(n) -> <id>
 
 
 rules
@@ -119,7 +133,7 @@ rules
     GroupNum(n) -> [n]
 
   nam-get-definitions :
-    GroupNum(n) -> [(GroupNum(), [n])]
+    GroupNum(n) -> [(Group(), [n])]
 
   nam-annotate-names(|paths__, path__):
     GroupNum(n) -> <GroupNum(nam-annotate-def(|path__))>
@@ -179,11 +193,7 @@ rules
 rules
 
   nam-get-scope-types :
-    Packet(n, _) -> [ Payload()
-                    , Field()
-                    , Var()
-                    , Program()
-                    ]
+    Packet(n, _) -> [Payload(), Field(), Program()]
 
   nam-get-definition-keys :
     Packet(n, _) -> [n]
@@ -258,51 +268,91 @@ rules
 rules
 
   nam-get-uses-keys :
-    Broadcast(p, _, _) -> [p]
+    Unicast(p, _, _, _) -> [p]
 
   nam-get-uses :
-    Broadcast(p, _, _) -> [(Packet(), [p])]
+    Unicast(p, _, _, _) -> [(Packet(), [p])]
 
   nam-annotate-names(|paths__, path__):
-    Broadcast(p, _, _) -> <Broadcast(
-                             nam-annotate-use(|paths__, Packet())
-                           , id
-                           , id
-                           )>
+    Unicast(p, _, _, _) -> <Unicast(
+                              nam-annotate-use(|paths__, Packet())
+                            , id
+                            , id
+                            , id
+                            )>
 
 
 rules
 
   nam-get-uses-keys :
-    ModHolderRef(m, ug) -> [m]
-    where Def([Group()|g]) := <index-find-key ; index-lookup> ug
+    ModHolderRef(group) -> [group]
 
   nam-get-uses :
-    ModHolderRef(m, ug) -> [(Mod(), [m])]
-    where Def([Group()|g]) := <index-find-key ; index-lookup> ug
+    ModHolderRef(group) -> [(Group(), [group])]
 
   nam-annotate-names(|paths__, path__):
-    ModHolderRef(m, ug) -> <ModHolderRef(nam-annotate-use(|paths__, Mod()), id)>
+    ModHolderRef(group) -> <ModHolderRef(nam-annotate-use(|paths__, Group()))>
+
+
+rules
+
+  nam-get-uses-keys :
+    ModHolderRef(group, mod) -> [group, mod]
+
+  nam-get-uses :
+    ModHolderRef(group, mod) -> [ (Group(), [group])
+                                , (Mod(), [mod])
+                                ]
+
+  nam-annotate-names(|paths__, path__):
+    ModHolderRef(group, mod) -> <ModHolderRef(
+                                   nam-annotate-use(|paths__, Group())
+                                 , nam-annotate-use(|paths__, Mod())
+                                 )>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    ModHolderRef(m, ug) -> <index-lookup-children(|Mod(), prefix__)> g
-    where <target__> m
-    where Def([Group()|g]) := <index-find-key ; index-lookup> ug
+    ModHolderRef(group, mod) -> [ [Group()|path__]
+                                , [Mod()|path__]
+                                ]
+    where <target__> group
+
+
+rules
+
+  nam-get-uses-keys :
+    ModHolderRef("Floor") -> ["Floor"]
+
+  nam-get-uses :
+    ModHolderRef("Floor") -> [(Group(), ["Floor"])]
+
+  nam-annotate-names(|paths__, path__):
+    ModHolderRef("Floor") -> <ModHolderRef(nam-annotate-use(|paths__, Group()))>
+
+  adjust-index-lookup(target__|namespace__, path__, prefix__):
+    ModHolderRef("Floor") -> [Def([Group(), "Floor"])]
+    where <target__> "Floor"
 
 
 rules
 
   nam-get-definition-keys :
-    VarDecl(_, n) -> [n]
+    VarDecl(t, n) -> [n]
 
   nam-get-definitions :
-    VarDecl(_, n) -> [(Var(), [n])]
+    VarDecl(t, n) -> [(Var(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    VarDecl(_, n) -> <VarDecl(id, nam-annotate-def(|path__))>
+    VarDecl(t, n) -> <VarDecl(id, nam-annotate-def(|path__))>
 
-  nam-unique :
-    VarDecl(_, n) -> <id>
+  adjust-index-def-data(store__|namespace__, path__):
+    VarDecl(t, n) -> <store__> DefData(
+                                 [namespace__|path__]
+                               , Type()
+                               , t
+                               )
+
+  type-of :
+    VarDecl(t, n) -> t
 
 
 rules
@@ -316,6 +366,16 @@ rules
   nam-annotate-names(|paths__, path__):
     Param(t, x) -> <Param(id, nam-annotate-def(|path__))>
 
+  adjust-index-def-data(store__|namespace__, path__):
+    Param(t, x) -> <store__> DefData(
+                               [namespace__|path__]
+                             , Type()
+                             , t
+                             )
+
+  type-of :
+    Param(t, x) -> t
+
   nam-unique :
     Param(t, x) -> <id>
 
@@ -323,38 +383,49 @@ rules
 rules
 
   nam-get-uses-keys :
-    FuncCall(MethodRef(obj, n), args) -> [n]
-    where Type(c) := <type-of> obj
+    MethodRef(Actuation(), n) -> [n, "disconnect"]
 
   nam-get-uses :
-    FuncCall(MethodRef(obj, n), args) -> [(Function(), [n])]
-    where Type(c) := <type-of> obj
+    MethodRef(Actuation(), n) -> [ (Function(), [n])
+                                 , (Function(), ["disconnect"])
+                                 ]
 
   nam-annotate-names(|paths__, path__):
-    FuncCall(MethodRef(obj, n), args) -> <FuncCall(
-                                            MethodRef(id, nam-annotate-use(|paths__, Function()))
-                                          , id
-                                          )>
+    MethodRef(Actuation(), n) -> <MethodRef(
+                                    Actuation()
+                                  , nam-annotate-use(|paths__, Function())
+                                  )>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    FuncCall(MethodRef(obj, n), args) -> <index-lookup-children(|Function(), prefix__)> c
+    MethodRef(Actuation(), n) -> <concat> [ [[Function()|path__]]
+                                          , [Def([Function(), "disconnect"])]
+                                          ]
     where <target__> n
-    where Type(c) := <type-of> obj
 
 
 rules
 
   nam-get-definition-keys :
-    FieldDecl(_, n) -> [n]
+    FieldDecl(t, n) -> [n]
 
   nam-get-definitions :
-    FieldDecl(_, n) -> [(Field(), [n])]
+    FieldDecl(t, n) -> [(Field(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    FieldDecl(_, n) -> <FieldDecl(id, nam-annotate-def(|path__))>
+    FieldDecl(t, n) -> <FieldDecl(id, nam-annotate-def(|path__))>
+
+  adjust-index-def-data(store__|namespace__, path__):
+    FieldDecl(t, n) -> <store__> DefData(
+                                   [namespace__|path__]
+                                 , Type()
+                                 , t
+                                 )
+
+  type-of :
+    FieldDecl(t, n) -> t
 
   nam-unique :
-    FieldDecl(_, n) -> <id>
+    FieldDecl(t, n) -> <id>
 
 
 rules
@@ -373,9 +444,6 @@ rules
 
 
 rules
-
-  nam-get-scope-types :
-    PacketRef(p) -> [Payload(), Field(), Var()]
 
   nam-get-uses-keys :
     PacketRef(p) -> [p]
@@ -428,14 +496,18 @@ rules
     where Type(p) := <type-of> c
 
   nam-get-uses :
-    FieldRef(c, n) -> [(Field(), [n])]
+    FieldRef(c, n) -> [ (Field(), [n])
+                      , (Payload(), [n])
+                      ]
     where Type(p) := <type-of> c
 
   nam-annotate-names(|paths__, path__):
     FieldRef(c, n) -> <FieldRef(id, nam-annotate-use(|paths__, Field()))>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    FieldRef(c, n) -> <index-lookup-children(|Field(), prefix__)> c
+    FieldRef(c, n) -> <concat> [ <index-lookup-children(|Field(), prefix__)> p
+                               , <index-lookup-children(|Payload(), prefix__)> p
+                               ]
     where <target__> n
     where Type(p) := <type-of> c
 

@@ -1,11 +1,25 @@
 program Testxyz
 
-
-
-
-when (receive (AddNeighbor p)) {
-
-	X=yz;
+group Floor
+ 
+packet AddNeighbor2 {
+	byte connSource;
+}
+ 
+meta {
+	part [df,er];
+	byte z;
 }
 
-
+when (receive (AddNeighbor2 a)) {
+	byte xyz;	
+	xyz = a.connSource; 
+	id = df; 
+	
+} 
+ 
+ 
+ sequence doit {
+ 	disconnect(@Floor,@Floor);
+ 	
+ }

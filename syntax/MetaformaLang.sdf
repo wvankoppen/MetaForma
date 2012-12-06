@@ -31,7 +31,7 @@ sorts	Group MetaClass
     StateRef -> ModHolderOrStateRef
     
 	GroupDef 										-> Definition
-	Meta "{" FieldOrPartDecl* FuncDecl* "}" 	-> Definition{"Class"}
+	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> Definition{"Class"}
 	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{"Class"}
 	
 	"meta" 							-> Meta{"Meta"}
@@ -53,8 +53,8 @@ sorts	Group MetaClass
 	Type ID ";" -> PayloadDecl{"PayloadDecl"}
 	PacketRef ID -> PacketVarDecl{"VarDecl"}
 	
-	FieldDecl -> FieldOrPartDecl
-	"part" "[" {MetaPart ","}* "]" ";" -> FieldOrPartDecl{"MetaPartDecl"}
+
+	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{"MetaPartDecl"}
 	ID 		-> MetaPart{"MetaPart"}
 	
 	ID 					-> Ref{"VarRef"}
@@ -64,18 +64,18 @@ sorts	Group MetaClass
 	{AssignElem ","}*				-> AssignList{"AssignList"} 
 	
 	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{"State"}
-	%% "state" ID "{" EvHdlr*EvHdlr ->  TryReg* "}" -> Definition{"State"}
 	
 	
 	EvHdlr										 -> Definition
-	"when" "(" Event ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
+	"when" "(" Receive ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
+	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> Stmt{"If"}
 
 	
 	ID								-> PacketRef {"PacketRef"}
 	
-	"receive" "(" PacketVarDecl ")" 	-> Event{"Receive"}
-	Exp 							-> Event{"Event"}
+	"receive" "(" PacketVarDecl ")" 	-> Receive{"Receive"}
+	Exp 							-> EventExp
 	"rate" Ref						-> Rate{"Rate"}
 	
 	
@@ -87,7 +87,8 @@ sorts	Group MetaClass
 	
 	
 	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{"Unicast"}
-	"broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{"Broadcast"}
+	%% "broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{"Broadcast"}
+	%% why broadcast? we always want to sent inside the same region, even for gradients and symmetry?
 	
 	
 	Ref "=" Exp ";" -> Stmt{"Assign"}
@@ -126,9 +127,6 @@ sorts	Group MetaClass
 	
 	"stop" "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
 	
-	%% "for" "(" Type ID ":" ID")" Block				-> Stmt{"For"}
-	
-	
 	
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {"Wait"}
@@ -142,6 +140,8 @@ sorts	Group MetaClass
 	
 	Obj "." ID -> MethodRef{"MethodRef"}
 	
+	ID -> VarRef{"VarRef"}
+	
 	
 	"orientation" "matches" {OrientRef ","}* -> Exp{"OrientMatch"}
 	
@@ -151,8 +151,9 @@ sorts	Group MetaClass
 	
 	Obj "." ID 			-> Ref{"FieldRef"}
 	
-	ID -> Obj{"ObjRef"}
+
 	SysObj -> Obj	
+	ID -> Obj
 
 	%% context-free priorities
 	%% {
@@ -164,9 +165,9 @@ sorts	Group MetaClass
 	
 	context-free priorities
 	{
-	"do" "{" Definition* Declaration* Stmt* "}" StopCondition  -> Instr{"Instr"}
+	"do" "{" EvHdlr* VarDecl* Stmt* "}" StopCondition  -> Instr{"Instr"}
 	} > {
-	"do" "{" Definition* Declaration* Stmt* "}" -> Instr{"Instr"}
+	"do" "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{"Instr"}
 	}
 	
 	

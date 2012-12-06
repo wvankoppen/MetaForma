@@ -1,12 +1,7 @@
-// How to efficiently dispatch between packet calls in Java?
-	// How to number classes?
-
-// Filtering index content - straightforward approach?
-// Event handlers are sensitive to context - but index is only global? So maybe need manual store taking context into account? How to do that?
-//  
-
-
 module metaformalang
+
+
+
 
 imports
   libstratego-lib
@@ -29,6 +24,8 @@ imports
   generate-indirect
   refactor
   libjava-front
+  types
+  nblhacks
 
 rules // Analysis
   
@@ -131,7 +128,7 @@ rules // Debugging
     with
       index-setup(|<language>, [project-path], $[[project-path]/[path]]);
       filename := <guarantee-extension(|"aterm")> path;
-      result   := <analyze-defs(|[], <new-iset>, Anon(), Anon())> selected
+      result   := <analyze-defs(|[], <new-iset>, Anon(), Anon())> <desugar-all>selected
       
   // Prints the entries in the index of the current file.
   index-currentfile:
@@ -149,16 +146,51 @@ rules // Debugging
       filename := <guarantee-extension(|"index.allfiles.aterm")> path;
       result   := <map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files>
       
-   // Prints the entries in the index of the current file.
-  index-global:
-    (selected, position, ast, path, project-path) -> (filename, packets)
+  
+  
+  index-types:
+    (selected, position, ast, path, project-path) -> (filename, data)
     with
-      index-setup(|<language>, [project-path], $[[project-path]/[path]]);
-      index-clear;
+    	index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+    	filename := <guarantee-extension(|"index.types.aterm")> path;
+   		<project-name>ast => name;
+      	data := <index-get-all-values>Type([Packet(), "AddNeighbor2", "Testxyz"], ())
+  
+  
+  index-manual:
+    (selected, position, ast, path, project-path) -> (filename, data)
+    with
       filename := <guarantee-extension(|"index.global.aterm")> path;
-      <store-all><desugar-all> ast;
-      packets := <get-packets>
+      index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+      //index-clear-global(|"Packets");
+      //index-clear-global(|"States");
+      <project-name>ast => name;
+      data := <index-get-all-values> DefData([EventHandler(), <strip-annos> name], EventHandler(), ())
+      // index-reload;
+      // <editor-analyze>ast;
+      // <debug>"AST:";
+      // <debug>ast;
+      //  <desugar-all> ast => desugared;
+      //  <debug>"DESUGARED:";
+      // <debug>desugared;
+      //<map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
+      //<store-all> index-entries;      
+      //data := <index-get-all-everything>1
      
+     
+  index-everything:
+    (selected, position, ast, path, project-path) -> (filename, data)
+    with
+    	filename := <guarantee-extension(|"index.global.aterm")> path;
+      index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+    	<map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
+      <store-all> index-entries;
+    	data := (<index-get-all-everything>1,index-entries)
+      
+   
+   index-get-all-everything: x ->   
+     (<index-get-all-globals(|"Packets")>,<index-get-all-globals(|"States")>,<index-get-all-globals(|"Classes")>,<index-get-all-globals(|"Visualisations")>)
+  
       
       
   // Cleans all data from the index.
@@ -181,6 +213,8 @@ rules // Utility
       index-parallel-analyze-files(analyze)
       
       
+      to-java-all: x -> x where fail
+      
   desugar-aterm:
 		(selected, position, ast, path, project-path) -> (filename, result)
 		where
@@ -195,163 +229,261 @@ rules // Utility
 			<base-filename> path => javafile;
 			<to-java-all> selected => result  
       
-   generate-java-indirect:
-		(selected, position, ast, path, project-path) -> (filename, java)
-		where
-			<guarantee-extension(|"java")> path => filename ;
-			<base-filename> path => javafile;
-			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
-			index-clear;
-			<store-all><desugar-all> ast;
-			
-			// <map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
-			<debug>"Generate indirect Java code";
-			java := <to-java-indirect>   
+  //  generate-java-indirect:
+		// (selected, position, ast, path, project-path) -> (filename, java)
+		// where
+		// 	<guarantee-extension(|"java")> path => filename ;
+		// 	<base-filename> path => javafile;
+		// 	index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+		// 	index-clear;
+		// 	<store-all><desugar-all> ast;
+		// 	
+		// 	// <map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
+		// 	<debug>"Generate indirect Java code";
+		// 	java := <map2str(compile)><conc>(<index-get-all-globals(|"Packets")>,<index-get-all-globals(|"States")>,<index-get-all-globals(|"Classes")>)
+			   
+      
+      
+   // index-clear-globals =  index-clear-global(|"Packets");index-clear-global(|"States");index-clear-global(|"Classes");index-clear-global(|"Visualisations");index-clear-global(|"Groups")
+      
+      
+   
       
    generate-java:
 		(selected, position, ast, path, project-path) -> (filename, controller)
 		where
+			<debug>"Generate direct Java code";
 			<guarantee-extension(|"java")> path => filename ;
 			<base-filename> path => javafile;
-			<to-java-all><desugar-all> selected => java-main;
-			<project-name>ast => name;
-			<store-all><desugar-all> ast;
 			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+			// index-reload;
+			// <store-all><desugar-all> ast => desugared;
 			
-			// <map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
-			controller := <to-java-indirect>
+			  // index-clear-global(|"Packets");index-clear-global(|"States");index-clear-global(|"Classes");index-clear-global(|"Visualisations");index-clear-global(|"Groups");
+						
 			
-// 			java-indexentries := <concat-strings><map(try(to-java-mods))>index-entries; 
-// 			java-states	:= 
-// 			<get-sequences>(name,index-entries) => names-sequence;
-// 			controller := $<
-// package ussr.samples.atron.simulations.metaforma.gen;
-// 
-// import java.awt.Color;
-// import java.util.ArrayList;
-// import java.util.HashSet;
-// import java.util.Set;
-// 
-// import ussr.description.Robot;
-// import ussr.description.setup.ModulePosition;
-// import ussr.model.Controller;
-// import ussr.model.debugging.ControllerInformationProvider;
-// import ussr.samples.atron.ATRON;
-// import ussr.samples.atron.simulations.metaforma.lib.*;
-// import ussr.samples.atron.simulations.metaforma.lib.Packet.*;
-// 
-// class <name>Simulation extends MfSimulation {
-// 
-// 	public static void main(String[] args) {
-// 		MfSimulation.initSimulator();		
-// 		new <name>Simulation().main();
-// 	
-// 	}
-// 
-// 	protected Robot getRobot() {
-// 		ATRON a = new ATRON() {
-// 			public Controller createController() {
-// 				return new [name]Controller();
-// 			}
-// 		};
-// 		return a;
-// 	}
-// 
-// 	protected ArrayList$<$ModulePosition$>$ buildRobot() {
-// 		return new MfBuilder().buildGrid([name]Controller.Mod.Sc);
-// 	}
-// }
-// 				
-// public class <name>Controller extends MfController implements ControllerInformationProvider {
-// 	
-// 	public enum Sequence implements ISequence {
-// 		NONE <names-sequence>;
-// 		public byte ord() {return (byte) (ordinal() - 1 + SequenceGeneric.values().length);	}
-// 		public ISequence fromByte(byte b) {return values()[b+1 - SequenceGeneric.values().length];}
-// 	}
-// 
-// 	public enum Mod  implements IModule,IModEnum{
-// 		 <names-mod>
-// 		 private Mod (boolean isNumGroup) {
-// 		if (isNumGroup) {
-// 			count = 48;
-// 		}
-// 	}
-// 	
-// 		public IModule module () {
-// 			return new Module (this.getMod());
-// 		}
-// 		
-// 		public byte getCount() {
-// 			return count;
-// 		}
-// 		
-// 		public Set$<$IModule$>$ modules() {
-// 			Set$<$IModule$>$ m = new HashSet$<$IModule$>$();
-// 			m.add(this);
-// 			return m;
-// 		}
-// 
-// 		public boolean equals(IModule m) {
-// 			return this.ordinal() == m.getMod().ordinal();
-// 		}
-// 
-// 		@Override
-// 		public IModEnum getMod() {
-// 			return this;
-// 		}
-// 
-// 		@Override
-// 		public byte getNr() {
-// 			return 0;
-// 		}
-// 
-// 		@Override
-// 		public Coll getGroup () {
-// 			return Coll.valueOf(name().split("_")[0]);
-// 		}
-// 
-// 		@Override
-// 		public int ord() {
-// 			int ret = 0;
-// 			for (Mod m:values()) {
-// 				if (m.ordinal() != ordinal()) {
-// 					ret+=m.count;
-// 				}
-// 				else {
-// 					if (ret $>$ 255) {
-// 						throw new Error("Enum overflow: 255 bigger than " + ret + "  " + this);
-// 					}
-// 					return (byte)ret;
-// 				}
-// 			}
-// 			throw new Error ("Enum value not found!");
-// 		}
-// 		
-// 		@Override
-// 		public boolean contains(IModule m) {
-// 			return equals(m);
-// 		}
-// 
-// 		@Override
-// 		public IModEnum getNone() {
-// 			return NONE;
-// 		}
-// 		
-// 		@Override
-// 		public IModEnum valueFrom(String string) {
-// 			return valueOf(string);
-// 		}
-// 
-// 		@Override
-// 		public IModEnum getValues() {
-// 			return values();
-// 		}
-// 
-// 	}
-// 	public void handleStates() {
-// 		<java-states>	
-// 	}	
-// 	
-// 	<java-packet-classes>
-// >
+			// java-main := <to-java-all>desugared;
+			<project-name>ast => name;
+			
+	
+		
+			debug(!"STORE ALL");
+			<store-all><map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
+
+			debug(!"COMPILE PACKETRECEIVES");
+			java-packetreceives := <map2str(compile)><map(build-eventhandlers)><index-get-all-globals(|"Packets")>;
+			
+			<debug>"COMPILE STATES";
+			states := <index-get-all-globals(|"States")>;
+			java-states := <map2str(compile)>states;
+			
+			<debug>"COMPILE CLASSES";
+			java-classes := <map2str(compile)><index-get-all-globals(|"Classes")>;
+			
+			java-groups:= "";
+			
+			debug(!"COMPILE NAMES");
+			names-metapart := <concat-glue(|",")><map(project-name)><index-get-all-globals(|"MetaParts")>;
+			names-sequence := <concat-glue(|",")><map(project-name)>states;
+			names-mod :=  <map2str(to-java)><index-get-all-globals(|"Groups")>;
+			
+			controller := $<
+package ussr.samples.atron.simulations.metaforma.gen;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
+import ussr.description.Robot;
+import ussr.description.setup.ModulePosition;
+import ussr.model.Controller;
+import ussr.model.debugging.ControllerInformationProvider;
+import ussr.samples.atron.ATRON;
+import ussr.samples.atron.simulations.metaforma.lib.*;
+import ussr.samples.atron.simulations.metaforma.lib.Packet.*;
+
+class <name>Simulation extends MfSimulation {
+
+	public static void main(String[] args) {
+		MfSimulation.initSimulator();		
+		new <name>Simulation().main();
+	
+	}
+
+	protected Robot getRobot() {
+		ATRON a = new ATRON() {
+			public Controller createController() {
+				return new <name>Controller();
+			}
+		};
+		return a;
+	}
+
+	protected ArrayList$<$ModulePosition$>$ buildRobot() {
+		return new MfBuilder().buildGrid(<name>Controller.Mod.Sc);
+	}
+}
+				
+public class <name>Controller extends MfController implements ControllerInformationProvider {
+	
+	
+	public enum Mod  implements IModule,IModEnum{
+		 NONE,Sc,<names-mod>;
+		 
+		 byte count;
+		
+		private Mod () {
+			count = 1;
+		}
+		 
+		 private Mod (boolean isNumGroup) {
+		if (isNumGroup) {
+			count = 48;
+		}
+	}
+	
+		public IModule module () {
+			return new Module (this.getMod());
+		}
+		
+		public byte getCount() {
+			return count;
+		}
+		
+		public Set$<$IModule$>$ modules() {
+			Set$<$IModule$>$ m = new HashSet$<$IModule$>$();
+			m.add(this);
+			return m;
+		}
+
+		public boolean equals(IModule m) {
+			return this.ordinal() == m.getMod().ordinal();
+		}
+
+		@Override
+		public IModEnum getMod() {
+			return this;
+		}
+
+		@Override
+		public byte getNr() {
+			return 0;
+		}
+
+		@Override
+		public Coll getGroup () {
+			return Coll.valueOf(name().split("_")[0]);
+		}
+
+		@Override
+		public int ord() {
+			int ret = 0;
+			for (Mod m:values()) {
+				if (m.ordinal() != ordinal()) {
+					ret+=m.count;
+				}
+				else {
+					if (ret $>$ 255) {
+						throw new Error("Enum overflow: 255 bigger than " + ret + "  " + this);
+					}
+					return (byte)ret;
+				}
+			}
+			throw new Error ("Enum value not found!");
+		}
+		
+		@Override
+		public boolean contains(IModule m) {
+			return equals(m);
+		}
+
+		@Override
+		public IModEnum getNone() {
+			return NONE;
+		}
+		
+		@Override
+		public IModEnum valueFrom(String string) {
+			return valueOf(string);
+		}
+
+		@Override
+		public IModEnum[] getValues() {
+			return values();
+		}
+	}
+		
+		
+	
+	public enum Coll implements ICollectionEnum,IModuleRef{ALL, NONE, Sc, <java-groups>;
+		public boolean contains(IModule m) {
+			return equals(m.getGroup());
+		}
+
+		public Set$<$IModule$>$ modules() {
+			Set$<$IModule$>$ mods = new HashSet$<$IModule$>$();
+			for (IModule m: Mod.values()) {
+				if (m.toString().startsWith(toString() + "_")) {
+					mods.add(m);
+				}
+			}
+			return mods;
+		}
+
+		@Override
+		public ICollectionEnum valueFrom(String string) {
+			return valueOf(string);
+		}
+	}	
+	
+	public enum Sequence implements ISequence {
+		NONE, <names-sequence>;
+		public byte ord() {return (byte) (ordinal() - 1 + SequenceGeneric.values().length);	}
+		public ISequence fromByte(byte b) {return values()[b+1 - SequenceGeneric.values().length];}
+	}
+	
+	enum MetaPart implements IMetaPart {
+		NONE, <names-metapart>;
+		public IMetaPart fromByte(byte b) {
+			return values()[b];
+		}
+		public byte index() {return (byte) ordinal();}
+		public byte size() {
+			// None is no part
+			return (byte) (values().length - 1);
+		}
+	} 
+	
+	@Override
+	public IMetaPart getMetaPart() {
+		return MetaPart.NONE;
+	}
+
+	@Override
+	public ISequence getStateInst() {
+		return Sequence.NONE;
+	}
+
+	@Override
+	public BagModule module() {
+		return module;
+
+	}
+	
+	@Override
+	public BagMeta meta() {
+		return meta;
+	}
+
+	
+	public void handleStates() {
+		<java-states>	
+	}
+			
+	
+	<java-packetreceives>
+}
+
+<java-classes>
+>

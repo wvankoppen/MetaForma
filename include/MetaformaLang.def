@@ -129,7 +129,7 @@ exports
 	
 	 
 	
-	Exp "%"	Exp					-> Exp{left,cons("Mod")}
+	Exp "%"	Exp					-> Exp{left,cons("Modulo")}
 	"!" Exp 					-> Exp{right,cons("Not")}
 	"-" Exp 					-> Exp{right,cons("Min")}
 	Exp "-" Exp 				-> Exp{right,cons("Min")}
@@ -209,7 +209,7 @@ sorts	Group MetaClass
     StateRef -> ModHolderOrStateRef
     
 	GroupDef 										-> Definition
-	Meta "{" FieldOrPartDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
+	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
 	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{cons("Class")}
 	
 	"meta" 							-> Meta{cons("Meta")}
@@ -231,8 +231,8 @@ sorts	Group MetaClass
 	Type ID ";" -> PayloadDecl{cons("PayloadDecl")}
 	PacketRef ID -> PacketVarDecl{cons("VarDecl")}
 	
-	FieldDecl -> FieldOrPartDecl
-	"part" "[" {MetaPart ","}* "]" ";" -> FieldOrPartDecl{cons("MetaPartDecl")}
+
+	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
 	ID 		-> MetaPart{cons("MetaPart")}
 	
 	ID 					-> Ref{cons("VarRef")}
@@ -242,18 +242,18 @@ sorts	Group MetaClass
 	{AssignElem ","}*				-> AssignList{cons("AssignList")} 
 	
 	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("State")}
-	%% "state" ID "{" EvHdlr*EvHdlr ->  TryReg* "}" -> Definition{"State"}
 	
 	
 	EvHdlr										 -> Definition
-	"when" "(" Event ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
+	"when" "(" Receive ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
 	
+	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> Stmt{cons("If")}
 
 	
 	ID								-> PacketRef {cons("PacketRef")}
 	
-	"receive" "(" PacketVarDecl ")" 	-> Event{cons("Receive")}
-	Exp 							-> Event{cons("Event")}
+	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
+	Exp 							-> EventExp
 	"rate" Ref						-> Rate{cons("Rate")}
 	
 	
@@ -265,7 +265,8 @@ sorts	Group MetaClass
 	
 	
 	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{cons("Unicast")}
-	"broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{cons("Broadcast")}
+	%% "broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{"Broadcast"}
+	%% why broadcast? we always want to sent inside the same region, even for gradients and symmetry?
 	
 	
 	Ref "=" Exp ";" -> Stmt{cons("Assign")}
@@ -304,9 +305,6 @@ sorts	Group MetaClass
 	
 	"stop" "(" ModHolderRef ")" ";"			-> Stmt{cons("Stop")}
 	
-	%% "for" "(" Type ID ":" ID")" Block				-> Stmt{"For"}
-	
-	
 	
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
@@ -320,6 +318,8 @@ sorts	Group MetaClass
 	
 	Obj "." ID -> MethodRef{cons("MethodRef")}
 	
+	ID -> VarRef{cons("VarRef")}
+	
 	
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
@@ -329,8 +329,9 @@ sorts	Group MetaClass
 	
 	Obj "." ID 			-> Ref{cons("FieldRef")}
 	
-	ID -> Obj{cons("ObjRef")}
+
 	SysObj -> Obj	
+	ID -> Obj
 
 	%% context-free priorities
 	%% {
@@ -342,9 +343,9 @@ sorts	Group MetaClass
 	
 	context-free priorities
 	{
-	"do" "{" Definition* Declaration* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
+	"do" "{" EvHdlr* VarDecl* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
 	} > {
-	"do" "{" Definition* Declaration* Stmt* "}" -> Instr{cons("Instr")}
+	"do" "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
 	}
 	
 	
@@ -439,7 +440,7 @@ sorts	Group MetaClass
     StateRef -> ModHolderOrStateRef
     
 	GroupDef 										-> Definition
-	Meta "{" FieldOrPartDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
+	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
 	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{cons("Class")}
 	
 	"meta" 							-> Meta{cons("Meta")}
@@ -461,8 +462,8 @@ sorts	Group MetaClass
 	Type ID ";" -> PayloadDecl{cons("PayloadDecl")}
 	PacketRef ID -> PacketVarDecl{cons("VarDecl")}
 	
-	FieldDecl -> FieldOrPartDecl
-	"part" "[" {MetaPart ","}* "]" ";" -> FieldOrPartDecl{cons("MetaPartDecl")}
+
+	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
 	ID 		-> MetaPart{cons("MetaPart")}
 	
 	ID 					-> Ref{cons("VarRef")}
@@ -472,18 +473,18 @@ sorts	Group MetaClass
 	{AssignElem ","}*				-> AssignList{cons("AssignList")} 
 	
 	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("State")}
-	%% "state" ID "{" EvHdlr*EvHdlr ->  TryReg* "}" -> Definition{"State"}
 	
 	
 	EvHdlr										 -> Definition
-	"when" "(" Event ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
+	"when" "(" Receive ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
 	
+	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> Stmt{cons("If")}
 
 	
 	ID								-> PacketRef {cons("PacketRef")}
 	
-	"receive" "(" PacketVarDecl ")" 	-> Event{cons("Receive")}
-	Exp 							-> Event{cons("Event")}
+	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
+	Exp 							-> EventExp
 	"rate" Ref						-> Rate{cons("Rate")}
 	
 	
@@ -495,7 +496,8 @@ sorts	Group MetaClass
 	
 	
 	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{cons("Unicast")}
-	"broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{cons("Broadcast")}
+	%% "broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{"Broadcast"}
+	%% why broadcast? we always want to sent inside the same region, even for gradients and symmetry?
 	
 	
 	Ref "=" Exp ";" -> Stmt{cons("Assign")}
@@ -534,9 +536,6 @@ sorts	Group MetaClass
 	
 	"stop" "(" ModHolderRef ")" ";"			-> Stmt{cons("Stop")}
 	
-	%% "for" "(" Type ID ":" ID")" Block				-> Stmt{"For"}
-	
-	
 	
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
@@ -550,6 +549,8 @@ sorts	Group MetaClass
 	
 	Obj "." ID -> MethodRef{cons("MethodRef")}
 	
+	ID -> VarRef{cons("VarRef")}
+	
 	
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
@@ -559,8 +560,9 @@ sorts	Group MetaClass
 	
 	Obj "." ID 			-> Ref{cons("FieldRef")}
 	
-	ID -> Obj{cons("ObjRef")}
+
 	SysObj -> Obj	
+	ID -> Obj
 
 	%% context-free priorities
 	%% {
@@ -572,9 +574,9 @@ sorts	Group MetaClass
 	
 	context-free priorities
 	{
-	"do" "{" Definition* Declaration* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
+	"do" "{" EvHdlr* VarDecl* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
 	} > {
-	"do" "{" Definition* Declaration* Stmt* "}" -> Instr{cons("Instr")}
+	"do" "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
 	}
 	
 	

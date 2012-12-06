@@ -11,34 +11,34 @@ sequence FlipThrough {
 	module.gradientPropagate();
 	
 	do {		
-		if (gradPri==3 && gradSec==0) module.id = West@Clover;
-		if (gradPri==2 && gradSec==0) module.id = South@Clover;
-		if (gradPri==3 && gradSec==1) module.id = North@Clover;
-		if (gradPri==2 && gradSec==1) module.id = East@Clover;
+		if (gradPri==3 && gradSec==0) module.id = Clover.West;
+		if (gradPri==2 && gradSec==0) module.id = Clover.South;
+		if (gradPri==3 && gradSec==1) module.id = Clover.North;
+		if (gradPri==2 && gradSec==1) module.id = Clover.East;
 		isRef = (gradPri == 0 && gradSec == 3);
 	}
 	
 	do  {				
-		disconnect_part(Left@Uplifter, NORTH&MALE&EAST|SOUTH&MALE&WEST);
-		disconnect_part(Right@Uplifter, NORTH&MALE&EAST);
+		disconnect_part(@Uplifter.Left, NORTH&MALE&EAST|SOUTH&MALE&WEST);
+		disconnect_part(@Uplifter.Right, NORTH&MALE&EAST);
 	} 
 	
 	do  {				
-		rotate(Left@Uplifter, QUART);
-		rotate(Right@Uplifter, QUART);
+		rotate(@Uplifter.Left, QUART);
+		rotate(@Uplifter.Right, QUART);
 	} 
 	
-	disconnect_part(Top@Uplifter, NORTH);
-	rotate(Top@Uplifter, HALF);
+	disconnect_part(@Uplifter.Top, NORTH);
+	rotate(@Uplifter.Top, HALF);
 	
 	do  {				
-		rotate(Left@Uplifter, -QUART);
-		rotate(Right@Uplifter, -QUART);
+		rotate(@Uplifter.Left, -QUART);
+		rotate(@Uplifter.Right, -QUART);
 	} 
 	
 	do  {				
-		rotate(Right@Uplifter, -HALF);
-		rotate(Bottom@Uplifter, HALF);
+		rotate(@Uplifter.Right, -HALF);
+		rotate(@Uplifter.Bottom, HALF);
 	} 
 	
 	connect(@Floor, @Uplifter);	

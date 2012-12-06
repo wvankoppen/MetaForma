@@ -25,14 +25,15 @@ folding Default folding definitions
   Visualize.Visualize
   VisGroup.VisGroup
   GroupDef.Group
-  FieldOrPartDecl.MetaPartDecl
+  Definition.Class
+  OptPartDecl1
+  PartDecl.MetaPartDecl
   EvHdlr.EvHdlr
-  Event.Event
+  Exp
   Exp.OrientMatch
   Stmt.Unicast
   AssignList.AssignList
   Nbs.Nbs
-  Stmt.Broadcast
   Stmt.Assign
   Stmt.TryRegion
   ByteList.ByteArr
@@ -42,7 +43,10 @@ folding Default folding definitions
   Stmt.ConnectPart
   Stmt.FuncCall
   Stmt.FuncCall
+  Instr.Instr
   StopCondition.Wait
   Exp
   StopCondition.Until
+  Instr.Instr
+  Definition.Class
   Definition.Packet

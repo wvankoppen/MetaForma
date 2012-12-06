@@ -5,7 +5,8 @@ sequence FlipAlong  {
 	byte QUART; 
 	byte HALF;
 	
-	if (orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
+	// if (orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
+	if(true){
 		QUART = -90;
 		HALF = -180;
 	}
@@ -46,6 +47,16 @@ sequence FlipAlong  {
 	// rotate(North@Clover,QUART);
 	// connect(South@Clover,West@Clover);
 	
-	module.fixSymmetry(isRef);
+	module.fixSymmetry(isRef);// store only works on current file instead of others
+	
+	// do {
+	// 	when (receive (Symmetry p)) {
+	// 		module.fixSymmetry (p.connSource,p.connDest);
+	// 	}
+	// 	if (isRef) {
+	// 		unicast Symmetry() to $(inRegion:true);
+	// 	}
+	// }
+	
 	region.finish();
 }
