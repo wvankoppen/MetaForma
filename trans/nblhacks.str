@@ -1,0 +1,32 @@
+module nblhacks
+
+imports
+  lib/analysis-library.generated
+  lib/analysis-library-internal.generated
+  lib/index-library.generated
+
+
+imports
+  libstratego-lib
+  libstratego-gpp
+  libstratego-aterm
+  include/MetaformaLang
+  trans/constructors
+  lib/editor-common.generated
+  lib/compilation-library.generated
+  libjava-front
+  desugar
+  constructors
+  types
+  names
+  check
+  project
+  store
+  
+ strategies
+	adjust-index-lookup(target__|namespace__, path__, prefix__):
+        ModHolderRef(group, mod) -> <index-lookup-children(|Mod(), prefix__)> g
+        where 
+        	<target__> mod;
+        	Def(u@[_, name|_]) := <index-lookup> group;
+        	g := name{u}

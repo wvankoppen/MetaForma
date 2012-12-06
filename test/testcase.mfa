@@ -1,0 +1,12 @@
+program testcase
+
+group groep
+group meerderemods [mod1,mod2]
+ 
+sequence Choose {
+	disconnect(@meerderemods.mod1,@groep); 
+	
+}
+ 
+
+

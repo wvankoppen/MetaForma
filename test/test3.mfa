@@ -1,0 +1,13 @@
+program hierniet
+
+
+packet HiThere {}
+packet AddNeighbor {}
+
+
+when (receive (AddNeighbor p)) {
+
+	unicast MetaIdSet (newMetaID = newMetaID) to $(connSource: pow2((p.destCon + 4) % 8));
+}
+
+

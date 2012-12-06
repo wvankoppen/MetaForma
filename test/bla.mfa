@@ -1,0 +1,37 @@
+program Bla
+
+meta {
+	
+}
+module{
+	byte val;
+}
+
+sequence Choose {
+	when (receive (Packet p)) {
+		metaNeighborHook (p.metaID,p.destConn);
+	}
+	
+	meta.broadcastNeighbors();
+	
+	do {
+		when (receive (Packet op)) {
+			byte f;
+			byte fg;
+			f = fg;
+			module.val = 5;
+			x.x = 4;
+		}
+		byte tt;
+		when (true) {
+			x=x;
+		}
+		
+		tt = 4;
+	}
+	
+	
+}
+
+
+
