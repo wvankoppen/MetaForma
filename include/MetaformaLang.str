@@ -3,10 +3,11 @@ module MetaformaLang
 signature
   constructors
                    : String -> STRING
-                   : ID -> Obj
-                   : SysObj -> Obj
     ModHolderRef   : ID -> ModHolderRef
     ModHolderRef   : ID * ID -> ModHolderRef
+                   : VarRef -> Obj
+                   : SysObj -> Obj
+    VarRef         : ID -> VarRef
     MethodRef      : Obj * ID -> MethodRef
     FuncRef        : ID -> FuncRef
                    : Exp -> Stop

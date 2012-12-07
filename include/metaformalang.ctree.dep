@@ -2,9 +2,9 @@
 	/home/wouter/git/MetaformaLang/trans/nblhacks.str \
 	/home/wouter/git/MetaformaLang/trans/types.str \
 	 \
-	/home/wouter/git/MetaformaLang/trans/metaformalang.str \
 	/home/wouter/git/MetaformaLang/lib/refactor-common.generated.str \
 	/home/wouter/git/MetaformaLang/trans/refactor.str \
+	/home/wouter/git/MetaformaLang/trans/metaformalang.str \
 	/home/wouter/git/MetaformaLang/trans/generate-indirect.str \
 	/home/wouter/git/MetaformaLang/trans/generate.str \
 	/home/wouter/git/MetaformaLang/trans/store.str \

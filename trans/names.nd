@@ -51,11 +51,10 @@ rules
 	VisItem(n,g,ref,color, digit):
 		defines VisItem n
 		
-	// s@EvHdlr (e,s,decl,stats):
-	// 	defines EventHandler s
 	
-	EvHdlr(x, _, _, _, _):
-		defines non-unique EventHandler x
+	
+	EvHdlr(x, _, _, _):
+		defines EventHandler x
 		scopes Var
 	
 	Program(n,_,_,_):
@@ -74,7 +73,7 @@ rules
 	 
 	State (n,_,_,_,_):
 		defines State n	
-		scopes Packet,Var,Instruction
+		scopes Packet,Var,Instruction,EventHandler
 		
 	Instr(i,_,_,_):
 		defines Instruction i
@@ -163,9 +162,7 @@ rules
 		defines Class n of type Type(n)
 		scopes Payload,Field,Var,Function
 
-	Class (n,_,_):
-		defines Class n of type Type(n)
-		scopes Payload,Field,Var,Function
+	
 		
 	Instr(_,_,_,_):
 		scopes Packet

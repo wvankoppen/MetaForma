@@ -26,15 +26,17 @@ tail: [x|xs] -> xs
 desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(desugar-td));innermost(desugar)//;alltd(desugar-flatten)
 
 
-desugar-events3(|state,c): EvHdlr(r,decls,stats) -> EvHdlr(State(state,c),r,decls,stats)
-desugar-events2(|state): EvHdlr(r,decls,stats) -> EvHdlr(State(state),r,decls,stats)
-desugar-events: EvHdlr(r,decls,stats) -> EvHdlr(<newname>, State(),r,decls,stats)  
+// desugar-events3(|state,c): EvHdlr(r,decls,stats) -> EvHdlr(<newname>,State(state,c),r,decls,stats)
+// desugar-events2(|state): EvHdlr(r,decls,stats) -> EvHdlr(<newname>,State(state),r,decls,stats)
+// desugar-events: EvHdlr(r,decls,stats) -> EvHdlr(<newname>, State(),r,decls,stats)  
 
 // desugar-td: Group (n,elems) -> Group (n,items)
 // where
 // 	<flatten-list><map(add-modgroup(|n))>elems => items
 	
 // add-modgroup(|g): Mod(n) -> Mod(g,n) 
+
+desugar: EvHdlr(receive,vars,stats) -> EvHdlr (<newname>,receive,vars,stats)
 
 desugar-td: Visualize (groups) -> Visualize (items)
 where
@@ -49,16 +51,16 @@ where
 add-visgroup(|n): VisItem(r,c,nr) -> VisItem(<newname>,n,r,c,nr) 
 
 
-desugar-td: Program(n,vis,defs,decls) -> Program(n,vis,defs',decls)
-where
-	<topdown(try(desugar-events))>defs => defs'
+// desugar-td: Program(n,vis,defs,decls) -> Program(n,vis,defs',decls)
+// where
+// 	<topdown(try(desugar-events))>defs => defs'
 
-desugar-td: State(n,ehdlrs,x,e,instrs) -> State(n,ehdlrs',x,e,instrs''')  
+desugar-td: State(n,ehdlrs,x,e,instrs) -> State(n,ehdlrs,x,e,instrs''')  
 where 
 	<map(try(add-instrblock))>instrs => instrs';
 	<upto><dec><length>instrs' => nrs;
 	<zip>(nrs,instrs') => instrs'';
-	<map(try(desugar-events2(|n)))>ehdlrs => ehdlrs';
+	// <map(try(desugar-events2(|n)))>ehdlrs => ehdlrs';
 	<map(try(swap-counter(|n)))>instrs'' => instrs'''
 
 
@@ -66,8 +68,8 @@ where
 desugar: If (e,vardecls,stats) -> If(e,<conc>(vardecls,stats))
 
 
-swap-counter(|state): (c,Instr(evts,vars,instr*,postcon)) -> Instr(c,<map(try(desugar-events3(|state,c)))>evts,<conc>(vars,instr*),postcon)
-swap-counter(|state): (c,Instr(evts,vars,instr*)) -> Instr(c,<map(try(desugar-events3(|state,c)))><filter(?event-real)>evts,<conc>(vars,instr*),Wait(Consensus())) 
+swap-counter(|state): (c,Instr(evts,vars,instr*,postcon)) -> Instr(c,/*<map(try(desugar-events3(|state,c)))>*/evts,<conc>(vars,instr*),postcon)
+swap-counter(|state): (c,Instr(evts,vars,instr*)) -> Instr(c,/*<map(try(desugar-events3(|state,c)))><filter(?event-real)>*/evts,<conc>(vars,instr*),Wait(Consensus())) 
 
 	
 add-instrblock: f -> Instr([],[],[f])
@@ -96,6 +98,7 @@ desugar-functions: RotateCont(m1,v) -> FuncCall(MethodRef(Actuation(),"rotate_co
 
 
 
+desugar: Class(n,decls,funcs) -> Class(n,(),decls,funcs)
 
 desugar: Block(stats) -> [stats]
 where
@@ -114,6 +117,8 @@ desugar: Plus(e1,e2) -> BinOp(Plus(),e1,e2)
 desugar: Modulo(e1,e2) -> BinOp(Modulo(),e1,e2)
 desugar: And(e1,e2) -> BinOp(And(),e1,e2)
 desugar: Or(e1,e2) -> BinOp(Or(),e1,e2)
+desugar: AndBit(e1,e2) -> BinOp(AndBit(),e1,e2)
+desugar: OrBit(e1,e2) -> BinOp(OrBit(),e1,e2)
 desugar: Eq(e1,e2) -> BinOp(Eq(),e1,e2)
 desugar: Neq(e1,e2) -> BinOp(Neq(),e1,e2)
 desugar: Lt(e1,e2) -> BinOp(Lt(),e1,e2)

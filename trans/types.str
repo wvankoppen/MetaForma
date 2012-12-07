@@ -26,12 +26,12 @@ rules
 	type-of: FieldRef(o,f) -> <type-of><index-lookup>f
 	
 	
-	type-of: VarRef(n) -> <debug(!"c ")> <type-of> <debug(!"b ")> <index-lookup> n
-	where
-		 <debug(!"a ")> [n]
+	type-of: VarRef(n) ->  <type-of>  <index-lookup> n
+	
+		 
 	
 	
 	type-of: PayloadDecl (t,n) -> t
 	
 	type-of:
-    Def(uri) -> <debug(!"2 ")> <index-get-data(|Type())> <debug(!"1 ")> Def(uri)
+    Def(uri) -><index-get-data(|Type())> Def(uri)

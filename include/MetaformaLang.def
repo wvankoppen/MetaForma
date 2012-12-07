@@ -321,18 +321,22 @@ sorts	Group MetaClass
 	ID -> VarRef{cons("VarRef")}
 	
 	
-	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
 	
-	 "@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
-	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
+	
+	
 	
 	Obj "." ID 			-> Ref{cons("FieldRef")}
 	
 
-	SysObj -> Obj	
-	ID -> Obj
+	SysObj -> Obj
+	VarRef -> Obj
 
+	 "@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
+	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
+	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
+	
+	
 	%% context-free priorities
 	%% {
 	%% "@" ID										-> ModHolderRef{"ModHolderRef"}
@@ -552,18 +556,22 @@ sorts	Group MetaClass
 	ID -> VarRef{cons("VarRef")}
 	
 	
-	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
 	
-	 "@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
-	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
+	
+	
 	
 	Obj "." ID 			-> Ref{cons("FieldRef")}
 	
 
-	SysObj -> Obj	
-	ID -> Obj
+	SysObj -> Obj
+	VarRef -> Obj
 
+	 "@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
+	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
+	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
+	
+	
 	%% context-free priorities
 	%% {
 	%% "@" ID										-> ModHolderRef{"ModHolderRef"}

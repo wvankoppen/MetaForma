@@ -51,8 +51,8 @@ exports
                                                   -> ";"             {recover, cons("INSERTION")}
                                                   -> "until"         {recover, cons("INSERTION")}
                                                   -> ")"             {recover, cons("INSERTION")}
-                                                  -> ","             {recover, cons("INSERTION")}
                                                   -> "@"             {recover, cons("INSERTION")}
+                                                  -> ","             {recover, cons("INSERTION")}
 
   syntax
     %% Kernel syntax insertion recovery rules   
@@ -287,12 +287,12 @@ exports
     ID                                                                                       -> FuncRef             {cons("FuncRef")}
     Obj "." ID                                                                               -> MethodRef           {cons("MethodRef")}
     ID                                                                                       -> VarRef              {cons("VarRef")}
-    "orientation" "matches" {OrientRef ","}*                                                 -> Exp                 {cons("OrientMatch")}
-    "@" ID "." ID                                                                            -> ModHolderRef        {cons("ModHolderRef")}
-    "@" ID                                                                                   -> ModHolderRef        {cons("ModHolderRef")}
     Obj "." ID                                                                               -> Ref                 {cons("FieldRef")}
     SysObj                                                                                   -> Obj                 
-    ID                                                                                       -> Obj                 
+    VarRef                                                                                   -> Obj                 
+    "@" ID "." ID                                                                            -> ModHolderRef        {cons("ModHolderRef")}
+    "@" ID                                                                                   -> ModHolderRef        {cons("ModHolderRef")}
+    "orientation" "matches" {OrientRef ","}*                                                 -> Exp                 {cons("OrientMatch")}
 
   context-free priorities
     { "do" "{" EvHdlr* VarDecl* Stmt* "}" StopCondition -> Instr {cons("Instr")} } >
@@ -408,12 +408,12 @@ exports
     ID                                                                                       -> FuncRef             {cons("FuncRef")}
     Obj "." ID                                                                               -> MethodRef           {cons("MethodRef")}
     ID                                                                                       -> VarRef              {cons("VarRef")}
-    "orientation" "matches" {OrientRef ","}*                                                 -> Exp                 {cons("OrientMatch")}
-    "@" ID "." ID                                                                            -> ModHolderRef        {cons("ModHolderRef")}
-    "@" ID                                                                                   -> ModHolderRef        {cons("ModHolderRef")}
     Obj "." ID                                                                               -> Ref                 {cons("FieldRef")}
     SysObj                                                                                   -> Obj                 
-    ID                                                                                       -> Obj                 
+    VarRef                                                                                   -> Obj                 
+    "@" ID "." ID                                                                            -> ModHolderRef        {cons("ModHolderRef")}
+    "@" ID                                                                                   -> ModHolderRef        {cons("ModHolderRef")}
+    "orientation" "matches" {OrientRef ","}*                                                 -> Exp                 {cons("OrientMatch")}
 
   context-free priorities
     { "do" "{" EvHdlr* VarDecl* Stmt* "}" StopCondition -> Instr {cons("Instr")} } >

@@ -165,12 +165,14 @@ rules // Debugging
       //index-clear-global(|"Packets");
       //index-clear-global(|"States");
       <strip-annos><project-name>ast => name;
-      evhdlrs := <index-get>(EventHandler(), name);
-      vis := <index-get>(VisItem(), name);
-      groups := <index-get>(Group(), name);
-      classes := <index-get>(Class(), name);
-      sequences := <index-get>(State(), name);
-      data := (evhdlrs,vis,groups,classes,sequences)
+      evhdlrs := <index-get-evhdlrs>name;
+      vis := <index-getcons(|name)>VisItem();
+      groups := <index-getcons(|name)>Group();
+      classes := <index-getcons(|name)>Class();
+      sequences := <index-getcons(|name)>State();
+      packets := <index-get-packets>name;
+      metaparts := <index-getcons(|name)>MetaPart();
+      data := (evhdlrs,vis,groups,classes,sequences,packets,metaparts)
       // index-reload;
       // <editor-analyze>ast;
       // <debug>"AST:";
@@ -183,13 +185,7 @@ rules // Debugging
       
      
      
-       
-   
-   index-get: (type,name) -> values
-   where   
-     <index-get-all-values> DefData([type, <strip-annos> name], type, ()) => values
   
-      
       
   // Cleans all data from the index.
   index-cleanall:
@@ -227,63 +223,40 @@ rules // Utility
 			<base-filename> path => javafile;
 			<to-java-all> selected => result  
       
-  //  generate-java-indirect:
-		// (selected, position, ast, path, project-path) -> (filename, java)
-		// where
-		// 	<guarantee-extension(|"java")> path => filename ;
-		// 	<base-filename> path => javafile;
-		// 	index-setup(|<language>, [project-path], $[[project-path]/[path]]);
-		// 	index-clear;
-		// 	<store-all><desugar-all> ast;
-		// 	
-		// 	// <map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
-		// 	<debug>"Generate indirect Java code";
-		// 	java := <map2str(compile)><conc>(<index-get-all-globals(|"Packets")>,<index-get-all-globals(|"States")>,<index-get-all-globals(|"Classes")>)
-			   
-      
-      
-   // index-clear-globals =  index-clear-global(|"Packets");index-clear-global(|"States");index-clear-global(|"Classes");index-clear-global(|"Visualisations");index-clear-global(|"Groups")
-      
-      
-   
+
       
    generate-java:
 		(selected, position, ast, path, project-path) -> (filename, controller)
 		where
 			<debug>"Generate direct Java code";
-			<guarantee-extension(|"java")> path => filename ;
+			<strip-annos><project-name>ast => name;
+			<guarantee-extension(|"java")> $[[name]Controller] => filename ;
 			<base-filename> path => javafile;
 			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
-			// index-reload;
-			// <store-all><desugar-all> ast => desugared;
 			
-			  // index-clear-global(|"Packets");index-clear-global(|"States");index-clear-global(|"Classes");index-clear-global(|"Visualisations");index-clear-global(|"Groups");
-						
 			
-			// java-main := <to-java-all>desugared;
-			<project-name>ast => name;
 			
-	
-		
-			debug(!"STORE ALL");
-			<store-all><map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
-
-			debug(!"COMPILE PACKETRECEIVES");
-			java-packetreceives := <map2str(compile)><map(build-eventhandlers)><index-get-all-globals(|"Packets")>;
 			
-			<debug>"COMPILE STATES";
-			states := <index-get-all-globals(|"States")>;
+			
+			<debug>"##############################";
+			<debug>"COMPILE PACKETRECEIVES";
+			java-packetreceives := <map(compile(|name))><index-get-packets>name;
+			
+			<debug>"##############################";
+			<debug>"COMPILE SEQUENCES";
+			states := <index-getcons(|name)>State();
 			java-states := <map2str(compile)>states;
 			
+			<debug>"##############################";
 			<debug>"COMPILE CLASSES";
-			java-classes := <map2str(compile)><index-get-all-globals(|"Classes")>;
+			java-classes := <map2str(compile)><index-getcons(|name)>Class();
 			
 			java-groups:= "";
 			
 			debug(!"COMPILE NAMES");
-			names-metapart := <concat-glue(|",")><map(project-name)><index-get-all-globals(|"MetaParts")>;
+			names-metapart := <concat-glue(|",")><map(project-name)><index-getcons(|name)>MetaPart();
 			names-sequence := <concat-glue(|",")><map(project-name)>states;
-			names-mod :=  <map2str(to-java)><index-get-all-globals(|"Groups")>;
+			names-mod :=  <map2str(to-java)><index-getcons(|name)>Group();
 			
 			controller := $<
 package ussr.samples.atron.simulations.metaforma.gen;

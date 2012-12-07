@@ -128,9 +128,9 @@
    FuncRef                      -- _1,
    MethodRef                    -- _1 KW["."] _2,
    VarRef                       -- _1,
-   OrientMatch                  -- V  [H  [KW["orientation"] KW["matches"]] _1],
-   OrientMatch.1:iter-star-sep  -- _1 KW[","],
+   FieldRef                     -- _1 KW["."] _2,
    ModHolderRef                 -- KW["@"] _1 KW["."] _2,
    ModHolderRef                 -- KW["@"] _1,
-   FieldRef                     -- _1 KW["."] _2
+   OrientMatch                  -- V  [H  [KW["orientation"] KW["matches"]] _1],
+   OrientMatch.1:iter-star-sep  -- _1 KW[","]
 ]

@@ -63,9 +63,10 @@ to-java-instrs: Instr(i,evhdlrs,stat*,postcon) -> $[
 	[instr] 
 	] 
 where
-	<debug>$[Instruction [i]];
+	<debug>$[Instruction start [i]];
 	<concat-strings><map(to-java-stat)>stat* => block;
-	<to-java-stop(|i,block)>postcon => instr
+	<to-java-stop(|i,block)>postcon => instr;
+	<debug>$[Instruction end [i]]
 
 // to-java-all: Start(Module(m),defs,decls) -> $[public class [m]Controller extends MfController implements ControllerInformationProvider {
 // 	[<concat><map(to-java-def)>defs]
@@ -73,7 +74,7 @@ where
 
 to-java-stop(|c,s): Wait(w) -> 
 $[
-	if (stateMngr.doWait([c]))  {
+	if (mfStateMngr.doWait([c]))  {
 		[s]
 		[mngr]
 	}]
@@ -81,16 +82,16 @@ where
 	<to-java-stop>w => mngr
 
 to-java-stop(|c,s): Until(w) -> $[
-	if (stateMngr.doUntil([c]))  {
+	if (mfStateMngr.doUntil([c]))  {
 		[s]
 		[mngr]
 	}]
 where
 	<to-java-stop>w => mngr
 
-to-java-stop: Consensus() -> $[stateMngr.autoCommit();]
+to-java-stop: Consensus() -> $[mfStateMngr.autoCommit();]
 
-to-java-stop: e -> $[stateMngr.spend([e']);] 
+to-java-stop: e -> $[mfStateMngr.spend([e']);] 
 	where
 		not (<?Consensus()>e);
 		<to-java>e => e'
@@ -116,10 +117,13 @@ orientref: OrientRef(r) -> $[mfStateMngr.getState().getOrientation(Orientation.[
 to-java: Goto(s) -> $[mfStateMngr.nextOperation([<to-java>s]);]
 
 
-to-java: StateRef(n) -> $[StateOperation.[n]] 
+to-java: StateRef(n) -> $[Sequence.[n]] 
 
 
 to-java: BinOp (op,e1,e2) -> $[([<to-java>e1] [<to-java>op] [<to-java>e2])]
+
+to-java: AndBit() -> $[ & ]
+to-java: OrBit() -> $[ | ]
 
 to-java: And() -> $[ && ]
 to-java: Or() -> $[ || ]
@@ -176,9 +180,9 @@ to-java: FuncDecl (n,params,evts,stats) -> $[ void [n] ([<concat-glue(|",")><map
 to-java: Param(t,n) -> $[[<to-java>t] [n]]
 
 	
-// to-java: Config() -> $[config()]
+to-java: Config() -> $[config()]
 to-java: Module() -> $[module()]
-// to-java: Region() -> $[region()]
+to-java: Region() -> $[region()]
 to-java: Meta() -> $[meta()]
 to-java: Actuation() -> $[mfActuation]
 

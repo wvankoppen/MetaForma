@@ -20,9 +20,10 @@ imports
 	
 	
 rules
-	project-name: Program(n,_,_,_) -> n
-	project-name: State(n,_,_,_,_) -> n
-	project-name: MetaPart(n) -> n
+	project-name: Program(n,_,_,_) -> <strip-annos>n
+	project-name: State(n,_,_,_,_) -> <strip-annos>n
+	project-name: MetaPart(n) -> <strip-annos>n
+	project-name: Packet(n,_) -> <strip-annos>n
 
 	get-sequences: (p,index) -> Def([State(), n, p])
 	where

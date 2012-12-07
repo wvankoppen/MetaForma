@@ -19,22 +19,31 @@ imports
 	names
 	desugar
 	generate
- 
+ metaformalang
+ store
  
 strategies
 
 	map2str(rule) = map(rule);concat-strings 
 
 	 
- build-eventhandlers: Packet(name,payloaddecls) -> PacketReceive(name,result)
- where 
- 	 index-get-all-globals(|["EventHandlers",name]) => eventhandlers;
- 	 <map(simplify)>eventhandlers => result
+ compile(|n): Packet(packet,payloaddecls) -> $[
+  	protected void receivePacket([packet] p) {
+  		[code]
+  	}
+  ]
+  where
+ 	 <index-get-evhdlr(|n)> <strip-annos>packet => eventhandlers;
+ 	 <debug(!"EVH:")>eventhandlers;
+ 	 <map(simplify)>eventhandlers => result;
+ 	 <debug(!"nu hier")>result;
+  	code := <concat-strings><map(compile)>result => code
+  	
  	 
- 	 
- simplify: EvHdlr (state,receive,vardecls, stats) -> EvHdlr (state,<conc>(vardecls,stats)) 	 
- 	
- 
+ simplify: EvHdlr(_{[_,name,p]},receive,vardecls, stats) -> <debug(!"DEB1:")>EvHdlr (State(),<conc>(vardecls,stats)) 	 
+ simplify: EvHdlr(_{[_,name,seq,p]},receive,vardecls, stats) -> <debug(!"DEB2:")>EvHdlr (State(seq),<conc>(vardecls,stats)) 	 
+ simplify: EvHdlr(_{[_,name,instr, seq,p]},receive,vardecls, stats) -> <debug(!"DEB3:")>EvHdlr (State(seq, instr),<conc>(vardecls,stats))	
+ // simplify: x -> <debug(!"xxx")>x
 
 // to-java-global(|what) = 
 //  	<concat-strings><map(compile-class)><debug(!"classes:")><get-classes>
@@ -42,7 +51,7 @@ strategies
  	
  // to-java-decls: Visualize (vis) -> $[[<concat-strings><map(to-java)>vis]]
 
- compile:  Class(id',decls,funcs) -> $[class Bag[n] extends Core[n] implements I[n]Bag {
+ compile:  Class(id',_,decls,funcs) -> $[class Bag[n] extends Core[n] implements I[n]Bag {
 	[decls']
 	[funcs']
 	}
@@ -58,32 +67,25 @@ cons2name: Meta() -> $[Meta]
 cons2name: Module() -> $[Module]
  
  compile: State(n,evhdlrs,vars,funcs,instrs) -> 
-$[if (mfStateMngr.at(StateOperation.[n])) {  [<concat-strings><map(to-java-instrs)>instrs]
+$[if (mfStateMngr.at(StateOperation.[n])) {  [code]
 }
 ]
+where 
+	<debug>$[COMPILE sequence [n]];
+	<concat-strings><map(to-java-instrs)>instrs => code
  
  
  // to-java-packetreceive = 
  // 	<concat-strings><map(compile)><get-packets>
  
  
- compile: PacketReceive(
-    packet,
-  	evhdlrs
-  ) -> $[
-  	protected void receivePacket([packet] p) {
-  		[code]
-  	}
-  ]
-  where
-  	code := <concat-strings><map(compile)>evhdlrs => code
+ 
   	
-  	
-  	
-  compile: EvHdlr (state,stats) ->
+  compile: e@EvHdlr (state,stats) ->
   	$[if (mfStateMngr.check(p,[<to-java>state])) {
-  		[<concat-strings><map(to-java)>stats]
+  		[<concat-strings><map(to-java-stat)>stats]
   	}]
+  	where <debug>$[Compile EvHdlr];<debug>e
   	
   	
   to-java: State() -> $[true]

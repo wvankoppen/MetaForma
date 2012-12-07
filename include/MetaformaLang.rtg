@@ -148,12 +148,12 @@ regular tree grammar
     StringChar               -> <string>
     STRING                   -> <string>
     TIME                     -> <string>
-    Obj                      -> ID
-    Obj                      -> SysObj
-    Ref                      -> FieldRef(Obj,ID)
+    Exp                      -> OrientMatch(ListStarOfOrientRef0)
     ModHolderRef             -> ModHolderRef(ID)
     ModHolderRef             -> ModHolderRef(ID,ID)
-    Exp                      -> OrientMatch(ListStarOfOrientRef0)
+    Obj                      -> VarRef
+    Obj                      -> SysObj
+    Ref                      -> FieldRef(Obj,ID)
     VarRef                   -> VarRef(ID)
     MethodRef                -> MethodRef(Obj,ID)
     FuncRef                  -> FuncRef(ID)

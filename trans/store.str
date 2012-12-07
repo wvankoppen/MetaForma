@@ -17,7 +17,7 @@ imports
   lib/nbl-library.generated
 	names
 	desugar
-	
+	project
 	
 	signature constructors
 		Type: X * X -> Type
@@ -38,7 +38,16 @@ rules
 	
 	
 	adjust-index-def-data(store-results|namespace, path): 
-		term@EvHdlr(_{[EventHandler(), _, program]}, _, _, _, _) -> <store-results> DefData([EventHandler(), program], EventHandler(), term)
+		term@EvHdlr(_{[EventHandler(), _, program]}, Receive(VarDecl(p@PacketRef(_),_)), _, _) -> <store-results> DefData([EventHandler(), <strip-annos>p, program], EventHandler(), term)
+		
+	adjust-index-def-data(store-results|namespace, path): 
+		term@EvHdlr(_{[EventHandler(), _, _,  program]}, Receive(VarDecl(p@PacketRef(_),_)), _, _) -> <store-results> DefData([EventHandler(), <strip-annos>p, program], EventHandler(), term)
+		
+	adjust-index-def-data(store-results|namespace, path): 
+		term@EvHdlr(_{[EventHandler(), _, _, _,  program]},Receive(VarDecl(p@PacketRef(_),_)), _, _) -> <store-results> DefData([EventHandler(), <strip-annos>p, program], EventHandler(), term)	
+	
+	
+	
 		
 	adjust-index-def-data(store-results|namespace, path): 
 		term@VisItem(_{[VisItem(), _, program]}, _, _, _, _) -> <store-results> DefData([VisItem(), program], VisItem(), term)
@@ -68,6 +77,10 @@ rules
 		term@State(_{[State(), name, program]},_,_,_,_) -> <store-results> DefData([State(), program], State(), term)
 			
 		
+	adjust-index-def-data(store-results|namespace, path): 
+		term@MetaPart(_{[MetaPart(), name, program]}) -> <store-results> DefData([MetaPart(), program], MetaPart(), term)
+			
+	
 		
 	adjust-index-def-data(store-results|namespace, path):
        decl -> <store-results> Type([namespace|path], type)
@@ -139,7 +152,22 @@ rules
         
         
         
-        
+    index-get-packets: name-> [Packet("Packet",[])|<index-getcons(|name)>Packet()]
+   
+   index-getcons(|name): type -> values
+   where   
+     <index-get-all-values> DefData([type, <strip-annos> name], type, ()) => values
+  
+  index-get-evhdlrs: name -> values
+  where            
+  	<flatten-list><map(project-name;index-get-evhdlr(|name))><index-get-packets>name => values
+  
+  
+  
+  index-get-evhdlr(|name): packet -> values
+   where   
+     <index-get-all-values> DefData([EventHandler(), PacketRef(<strip-annos>packet), <strip-annos> name], EventHandler(), () ) => values
+      
         
     
     

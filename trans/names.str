@@ -76,16 +76,19 @@ rules
 rules
 
   nam-get-scope-types :
-    EvHdlr(x, _, _, _, _) -> [Var()]
+    EvHdlr(x, _, _, _) -> [Var()]
 
   nam-get-definition-keys :
-    EvHdlr(x, _, _, _, _) -> [x]
+    EvHdlr(x, _, _, _) -> [x]
 
   nam-get-definitions :
-    EvHdlr(x, _, _, _, _) -> [(EventHandler(), [x])]
+    EvHdlr(x, _, _, _) -> [(EventHandler(), [x])]
 
   nam-annotate-names(|paths__, path__):
-    EvHdlr(x, _, _, _, _) -> <EvHdlr(nam-annotate-def(|path__), id, id, id, id)>
+    EvHdlr(x, _, _, _) -> <EvHdlr(nam-annotate-def(|path__), id, id, id)>
+
+  nam-unique :
+    EvHdlr(x, _, _, _) -> <id>
 
 
 rules
@@ -161,7 +164,11 @@ rules
 rules
 
   nam-get-scope-types :
-    State(n, _, _, _, _) -> [Packet(), Var(), Instruction()]
+    State(n, _, _, _, _) -> [ Packet()
+                            , Var()
+                            , Instruction()
+                            , EventHandler()
+                            ]
 
   nam-get-definition-keys :
     State(n, _, _, _, _) -> [n]
@@ -558,38 +565,6 @@ rules
 
   nam-unique :
     Class(n, _, _, _) -> <id>
-
-
-rules
-
-  nam-get-scope-types :
-    Class(n, _, _) -> [ Payload()
-                      , Field()
-                      , Var()
-                      , Function()
-                      ]
-
-  nam-get-definition-keys :
-    Class(n, _, _) -> [n]
-
-  nam-get-definitions :
-    Class(n, _, _) -> [(Class(), [n])]
-
-  nam-annotate-names(|paths__, path__):
-    Class(n, _, _) -> <Class(nam-annotate-def(|path__), id, id)>
-
-  adjust-index-def-data(store__|namespace__, path__):
-    Class(n, _, _) -> <store__> DefData(
-                                  [namespace__|path__]
-                                , Type()
-                                , Type(n)
-                                )
-
-  type-of :
-    Class(n, _, _) -> Type(n)
-
-  nam-unique :
-    Class(n, _, _) -> <id>
 
 
 rules

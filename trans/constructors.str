@@ -27,6 +27,8 @@ signature
     BinOp		   : Op * Exp * Exp -> Exp 
 	And	: Exp
 	Or	: Exp
+	AndBit	: Exp
+	OrBit	: Exp
 	Eq	: Exp
 	Neq	: Exp
 	Modulo	: Exp
