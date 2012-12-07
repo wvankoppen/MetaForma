@@ -48,6 +48,9 @@ rules
 	VisGroup(n,g):
 		defines VisGroup n
 		
+	VisItem(n,g,ref,color, digit):
+		defines VisItem n
+		
 	// s@EvHdlr (e,s,decl,stats):
 	// 	defines EventHandler s
 	
@@ -57,7 +60,7 @@ rules
 	
 	Program(n,_,_,_):
 		defines non-unique Program n
-		scopes Group, Packet, Class, State,/*Function,*/MetaPart,EventHandler
+		scopes Group, Packet, Class, State,/*Function,*/MetaPart,EventHandler,VisItem
 
 	Group(n,_) :
 		defines Group n
@@ -66,7 +69,7 @@ rules
 	Mod (n):
 		defines Mod n
 		
-	GroupNum(n) :
+	Group(n) :
 	 	defines Group n
 	 
 	State (n,_,_,_,_):
@@ -156,6 +159,10 @@ rules
 	// 	defines Class n
 	
 		
+	Class (n,_,_,_):
+		defines Class n of type Type(n)
+		scopes Payload,Field,Var,Function
+
 	Class (n,_,_):
 		defines Class n of type Type(n)
 		scopes Payload,Field,Var,Function

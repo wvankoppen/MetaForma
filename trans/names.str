@@ -60,6 +60,21 @@ rules
 
 rules
 
+  nam-get-definition-keys :
+    VisItem(n, g, ref, color, digit) -> [n]
+
+  nam-get-definitions :
+    VisItem(n, g, ref, color, digit) -> [(VisItem(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    VisItem(n, g, ref, color, digit) -> <VisItem(nam-annotate-def(|path__), id, id, id, id)>
+
+  nam-unique :
+    VisItem(n, g, ref, color, digit) -> <id>
+
+
+rules
+
   nam-get-scope-types :
     EvHdlr(x, _, _, _, _) -> [Var()]
 
@@ -82,6 +97,7 @@ rules
                            , State()
                            , MetaPart()
                            , EventHandler()
+                           , VisItem()
                            ]
 
   nam-get-definition-keys :
@@ -130,16 +146,16 @@ rules
 rules
 
   nam-get-definition-keys :
-    GroupNum(n) -> [n]
+    Group(n) -> [n]
 
   nam-get-definitions :
-    GroupNum(n) -> [(Group(), [n])]
+    Group(n) -> [(Group(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    GroupNum(n) -> <GroupNum(nam-annotate-def(|path__))>
+    Group(n) -> <Group(nam-annotate-def(|path__))>
 
   nam-unique :
-    GroupNum(n) -> <id>
+    Group(n) -> <id>
 
 
 rules
@@ -510,6 +526,38 @@ rules
                                ]
     where <target__> n
     where Type(p) := <type-of> c
+
+
+rules
+
+  nam-get-scope-types :
+    Class(n, _, _, _) -> [ Payload()
+                         , Field()
+                         , Var()
+                         , Function()
+                         ]
+
+  nam-get-definition-keys :
+    Class(n, _, _, _) -> [n]
+
+  nam-get-definitions :
+    Class(n, _, _, _) -> [(Class(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    Class(n, _, _, _) -> <Class(nam-annotate-def(|path__), id, id, id)>
+
+  adjust-index-def-data(store__|namespace__, path__):
+    Class(n, _, _, _) -> <store__> DefData(
+                                     [namespace__|path__]
+                                   , Type()
+                                   , Type(n)
+                                   )
+
+  type-of :
+    Class(n, _, _, _) -> Type(n)
+
+  nam-unique :
+    Class(n, _, _, _) -> <id>
 
 
 rules

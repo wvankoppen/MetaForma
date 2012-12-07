@@ -46,7 +46,7 @@ where
 	<map(add-visgroup(|n))>g => g'
 
 
-add-visgroup(|n): VisItem(r,c,nr) -> VisItem(n,r,c,nr) 
+add-visgroup(|n): VisItem(r,c,nr) -> VisItem(<newname>,n,r,c,nr) 
 
 
 desugar-td: Program(n,vis,defs,decls) -> Program(n,vis,defs',decls)
@@ -150,5 +150,6 @@ Instr(
 
 signature constructors
 	EvHdlr : X * X * X * X * X -> EvHdlr
+	VisItem : X * X * X * X * X -> VisItem
 
 // desugar: Broadcast(p,assignlist,rate) -> Unicast(p,assignlist,Conn(),Int(255),rate)

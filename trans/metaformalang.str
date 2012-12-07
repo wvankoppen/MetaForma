@@ -164,8 +164,13 @@ rules // Debugging
       index-setup(|<language>, [project-path], $[[project-path]/[path]]);
       //index-clear-global(|"Packets");
       //index-clear-global(|"States");
-      <project-name>ast => name;
-      data := <index-get-all-values> DefData([EventHandler(), <strip-annos> name], EventHandler(), ())
+      <strip-annos><project-name>ast => name;
+      evhdlrs := <index-get>(EventHandler(), name);
+      vis := <index-get>(VisItem(), name);
+      groups := <index-get>(Group(), name);
+      classes := <index-get>(Class(), name);
+      sequences := <index-get>(State(), name);
+      data := (evhdlrs,vis,groups,classes,sequences)
       // index-reload;
       // <editor-analyze>ast;
       // <debug>"AST:";
@@ -175,21 +180,14 @@ rules // Debugging
       // <debug>desugared;
       //<map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
       //<store-all> index-entries;      
-      //data := <index-get-all-everything>1
-     
-     
-  index-everything:
-    (selected, position, ast, path, project-path) -> (filename, data)
-    with
-    	filename := <guarantee-extension(|"index.global.aterm")> path;
-      index-setup(|<language>, [project-path], $[[project-path]/[path]]);
-    	<map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
-      <store-all> index-entries;
-    	data := (<index-get-all-everything>1,index-entries)
       
+     
+     
+       
    
-   index-get-all-everything: x ->   
-     (<index-get-all-globals(|"Packets")>,<index-get-all-globals(|"States")>,<index-get-all-globals(|"Classes")>,<index-get-all-globals(|"Visualisations")>)
+   index-get: (type,name) -> values
+   where   
+     <index-get-all-values> DefData([type, <strip-annos> name], type, ()) => values
   
       
       

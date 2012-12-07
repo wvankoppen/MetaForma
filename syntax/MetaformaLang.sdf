@@ -110,7 +110,7 @@ sorts	Group MetaClass
 	"goto" ID "orientating" ID ";"			-> Stmt{"Goto"}
 	
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{"Group"}
-	"group" ID							-> GroupDef{"GroupNum"}
+	"group" ID							-> GroupDef{"Group"}
 	
 	ID 								-> Mod{"Mod"}
 	

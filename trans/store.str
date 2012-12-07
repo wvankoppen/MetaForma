@@ -40,6 +40,34 @@ rules
 	adjust-index-def-data(store-results|namespace, path): 
 		term@EvHdlr(_{[EventHandler(), _, program]}, _, _, _, _) -> <store-results> DefData([EventHandler(), program], EventHandler(), term)
 		
+	adjust-index-def-data(store-results|namespace, path): 
+		term@VisItem(_{[VisItem(), _, program]}, _, _, _, _) -> <store-results> DefData([VisItem(), program], VisItem(), term)
+		
+	
+	adjust-index-def-data(store-results|namespace, path): 
+		term@Group(_{[Group(), name, program]}, _) -> <store-results> DefData([Group(), program], Group(), term)
+	
+	adjust-index-def-data(store-results|namespace, path): 
+		term@Group(_{[Group(), name, program]}) -> <store-results> DefData([Group(), program], Group(), term)
+	
+	
+	adjust-index-def-data(store-results|namespace, path): 
+		term@Packet(_{[Packet(), name, program]},_) -> <store-results> DefData([Packet(), program], Packet(), term)
+		
+	
+	// For Meta class
+	adjust-index-def-data(store-results|namespace, path): 
+		term@Class(_{[Class(), name, program]},_,_,_) -> <store-results> DefData([Class(), program], Class(), term)
+		
+
+	// For Module class
+	adjust-index-def-data(store-results|namespace, path): 
+		term@Class(_{[Class(), name, program]},_,_) -> <store-results> DefData([Class(), program], Class(), term)
+		
+	adjust-index-def-data(store-results|namespace, path): 
+		term@State(_{[State(), name, program]},_,_,_,_) -> <store-results> DefData([State(), program], State(), term)
+			
+		
 		
 	adjust-index-def-data(store-results|namespace, path):
        decl -> <store-results> Type([namespace|path], type)
@@ -48,36 +76,36 @@ rules
 		
 		
 	
-	store: term@Packet (n,payloaddec) -> term
-	where
-		<debug>$[Store packet [n]];
-		<index-add-global(|"Packets")> term
-	
-	
-	store: term@State(n,evhdlrs,funcs,vars,instrs) -> term
-	where
-		<debug>$[Store state [n]: instrs];
-		<debug>instrs;
-		<index-add-global(|"States")> term
-		
-	
-	store: term@Class(n,_,_) -> term
-	where
-		<debug>$[Store class:];
-		<debug>n;
-		<index-add-global(|"Classes")> term
-		
-	store: term@Group(n,mods) -> <index-add-global(|"Groups")> term
-	where
-		<debug>$[Store group [n]:]
-	
-	store: term@GroupNum(n) -> <index-add-global(|"Groups")> term
-	where
-		<debug>$[Store num group [n]:]
-		
-	store: term@MetaPart(n) -> <index-add-global(|"MetaParts")> term
-	where
-		<debug>$[Store metaPart [n]:]	
+	// store: term@Packet (n,payloaddec) -> term
+	// where
+	// 	<debug>$[Store packet [n]];
+	// 	<index-add-global(|"Packets")> term
+	// 
+	// 
+	// store: term@State(n,evhdlrs,funcs,vars,instrs) -> term
+	// where
+	// 	<debug>$[Store state [n]: instrs];
+	// 	<debug>instrs;
+	// 	<index-add-global(|"States")> term
+	// 	
+	// 
+	// store: term@Class(n,_,_) -> term
+	// where
+	// 	<debug>$[Store class:];
+	// 	<debug>n;
+	// 	<index-add-global(|"Classes")> term
+	// 	
+	// store: term@Group(n,mods) -> <index-add-global(|"Groups")> term
+	// where
+	// 	<debug>$[Store group [n]:]
+	// 
+	// store: term@Group(n) -> <index-add-global(|"Groups")> term
+	// where
+	// 	<debug>$[Store num group [n]:]
+	// 	
+	// store: term@MetaPart(n) -> <index-add-global(|"MetaParts")> term
+	// where
+	// 	<debug>$[Store metaPart [n]:]	
 	
 	 // adjust-index-def-data(store-results|namespace, path):
   //       decl@MetaPart(n) -> <store-results> decl

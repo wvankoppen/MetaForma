@@ -110,7 +110,7 @@
    Goto                         -- KW["goto"] _1 KW["orientating"] _2 KW[";"],
    Group                        -- KW["group"] _1 KW["["] _2 KW["]"],
    Group.2:iter-star-sep        -- _1 KW[","],
-   GroupNum                     -- KW["group"] _1,
+   Group                        -- KW["group"] _1,
    Mod                          -- _1,
    TryRegion                    -- KW["try"] KW["region"] _1 KW["orientating"] _2 KW["from"] _3 KW["excluding"] _4 KW[";"],
    ByteArr                      -- _1,

@@ -28,7 +28,7 @@ strategies
  to-java: Group (g,mods) -> <map2str(to-java(|g))>mods
  
  to-java(|g): Mod(n) -> $[[g]_[n],]
- to-java: GroupNum(n) -> $[[n](true),]  
+ to-java: Group(n) -> $[[n](true),]  
  
  
  
@@ -99,7 +99,7 @@ to-java-stop: e -> $[stateMngr.spend([e']);]
 
 
 mod-enum: Mod(groupname,name) -> $[[groupname]_[name]]
-mod-enum: GroupNum(groupname) -> $[[groupname](true)]
+mod-enum: Group(groupname) -> $[[groupname](true)]
 
 
 

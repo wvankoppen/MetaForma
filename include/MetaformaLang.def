@@ -288,7 +288,7 @@ sorts	Group MetaClass
 	"goto" ID "orientating" ID ";"			-> Stmt{cons("Goto")}
 	
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{cons("Group")}
-	"group" ID							-> GroupDef{cons("GroupNum")}
+	"group" ID							-> GroupDef{cons("Group")}
 	
 	ID 								-> Mod{cons("Mod")}
 	
@@ -519,7 +519,7 @@ sorts	Group MetaClass
 	"goto" ID "orientating" ID ";"			-> Stmt{cons("Goto")}
 	
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{cons("Group")}
-	"group" ID							-> GroupDef{cons("GroupNum")}
+	"group" ID							-> GroupDef{cons("Group")}
 	
 	ID 								-> Mod{cons("Mod")}
 	

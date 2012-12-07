@@ -171,7 +171,7 @@ regular tree grammar
     ByteList                 -> ByteArr(ListStarOfExp0)
     Stmt                     -> TryRegion(StateRef,OrientRef,ByteList,ByteList)
     Mod                      -> Mod(ID)
-    GroupDef                 -> GroupNum(ID)
+    GroupDef                 -> Group(ID)
     GroupDef                 -> Group(ID,ListStarOfMod0)
     Stmt                     -> Goto(ID,ID)
     Stmt                     -> Goto(StateRef)

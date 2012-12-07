@@ -15,7 +15,7 @@ signature
     Wait           : Stop -> StopCondition
     ByteArr        : List(Exp) -> ByteList
     Mod            : ID -> Mod
-    GroupNum       : ID -> GroupDef
+    Group          : ID -> GroupDef
     Group          : ID * List(Mod) -> GroupDef
     Instr          : List(EvHdlr) * List(VarDecl) * List(Stmt) -> Instr
     Instr          : List(EvHdlr) * List(VarDecl) * List(Stmt) * StopCondition -> Instr
