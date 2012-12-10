@@ -406,6 +406,18 @@ rules
 rules
 
   nam-get-uses-keys :
+    FuncRef(n) -> [n]
+
+  nam-get-uses :
+    FuncRef(n) -> [(Function(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    FuncRef(n) -> <FuncRef(nam-annotate-use(|paths__, Function()))>
+
+
+rules
+
+  nam-get-uses-keys :
     MethodRef(Actuation(), n) -> [n, "disconnect"]
 
   nam-get-uses :
@@ -424,6 +436,25 @@ rules
                                           , [Def([Function(), "disconnect"])]
                                           ]
     where <target__> n
+
+
+rules
+
+  nam-get-uses-keys :
+    MethodRef(obj, n) -> [n]
+    where Type(c) := <type-of> obj
+
+  nam-get-uses :
+    MethodRef(obj, n) -> [(Function(), [n])]
+    where Type(c) := <type-of> obj
+
+  nam-annotate-names(|paths__, path__):
+    MethodRef(obj, n) -> <MethodRef(id, nam-annotate-use(|paths__, Function()))>
+
+  adjust-index-lookup(target__|namespace__, path__, prefix__):
+    MethodRef(obj, n) -> <index-lookup-children(|Function(), prefix__)> c
+    where <target__> n
+    where Type(c) := <type-of> obj
 
 
 rules
@@ -516,55 +547,87 @@ rules
 
   nam-get-uses-keys :
     FieldRef(c, n) -> [n]
-    where Type(p) := <type-of> c
+    where Type(cl) := <type-of> c
 
   nam-get-uses :
     FieldRef(c, n) -> [ (Field(), [n])
                       , (Payload(), [n])
                       ]
-    where Type(p) := <type-of> c
+    where Type(cl) := <type-of> c
 
   nam-annotate-names(|paths__, path__):
     FieldRef(c, n) -> <FieldRef(id, nam-annotate-use(|paths__, Field()))>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    FieldRef(c, n) -> <concat> [ <index-lookup-children(|Field(), prefix__)> p
-                               , <index-lookup-children(|Payload(), prefix__)> p
+    FieldRef(c, n) -> <concat> [ <index-lookup-children(|Field(), prefix__)> cl
+                               , <index-lookup-children(|Payload(), prefix__)> cl
                                ]
     where <target__> n
-    where Type(p) := <type-of> c
+    where Type(cl) := <type-of> c
 
 
 rules
 
   nam-get-scope-types :
-    Class(n, _, _, _) -> [ Payload()
-                         , Field()
-                         , Var()
-                         , Function()
-                         ]
+    Class(n, _, _) -> [ Payload()
+                      , Field()
+                      , Var()
+                      , Function()
+                      ]
 
   nam-get-definition-keys :
-    Class(n, _, _, _) -> [n]
+    Class(n, _, _) -> [n]
 
   nam-get-definitions :
-    Class(n, _, _, _) -> [(Class(), [n])]
+    Class(n, _, _) -> [(Class(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Class(n, _, _, _) -> <Class(nam-annotate-def(|path__), id, id, id)>
+    Class(n, _, _) -> <Class(nam-annotate-def(|path__), id, id)>
 
   adjust-index-def-data(store__|namespace__, path__):
-    Class(n, _, _, _) -> <store__> DefData(
-                                     [namespace__|path__]
-                                   , Type()
-                                   , Type(n)
-                                   )
+    Class(n, _, _) -> <store__> DefData(
+                                  [namespace__|path__]
+                                , Type()
+                                , Type(n)
+                                )
 
   type-of :
-    Class(n, _, _, _) -> Type(n)
+    Class(n, _, _) -> Type(n)
 
   nam-unique :
-    Class(n, _, _, _) -> <id>
+    Class(n, _, _) -> <id>
+
+
+rules
+
+  nam-get-scope-types :
+    Class(n, _) -> [ Payload()
+                   , Field()
+                   , Var()
+                   , Function()
+                   ]
+
+  nam-get-definition-keys :
+    Class(n, _) -> [n]
+
+  nam-get-definitions :
+    Class(n, _) -> [(Class(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    Class(n, _) -> <Class(nam-annotate-def(|path__), id)>
+
+  adjust-index-def-data(store__|namespace__, path__):
+    Class(n, _) -> <store__> DefData(
+                               [namespace__|path__]
+                             , Type()
+                             , Type(n)
+                             )
+
+  type-of :
+    Class(n, _) -> Type(n)
+
+  nam-unique :
+    Class(n, _) -> <id>
 
 
 rules

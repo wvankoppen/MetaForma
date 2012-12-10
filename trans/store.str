@@ -24,9 +24,6 @@ imports
 	
 rules
 	
-	store-all = id// topdown(try(store));topdown(try(remove-indirect-constructs))//;store-statics
-	
-	
 	
 	
 	remove-indirect-constructs: Instr(i,evts,d,instr*,postcon) -> Instr(i,instr'*,postcon)
@@ -64,14 +61,15 @@ rules
 		term@Packet(_{[Packet(), name, program]},_) -> <store-results> DefData([Packet(), program], Packet(), term)
 		
 	
-	// For Meta class
-	adjust-index-def-data(store-results|namespace, path): 
-		term@Class(_{[Class(), name, program]},_,_,_) -> <store-results> DefData([Class(), program], Class(), term)
-		
 
-	// For Module class
+	// For Module & Meta class
 	adjust-index-def-data(store-results|namespace, path): 
 		term@Class(_{[Class(), name, program]},_,_) -> <store-results> DefData([Class(), program], Class(), term)
+	
+	// For Region class
+	adjust-index-def-data(store-results|namespace, path): 
+		term@Class(_{[Class(), name, program]},_) -> <store-results> DefData([Class(), program], Class(), term)
+	
 		
 	adjust-index-def-data(store-results|namespace, path): 
 		term@State(_{[State(), name, program]},_,_,_,_) -> <store-results> DefData([State(), program], State(), term)
@@ -151,8 +149,16 @@ rules
         
         
         
+    packet-add-numbers: packets -> packets'
+    where
+       	<map(inc;inc;inc;inc;inc)><upto><dec><length>packets => nrs;
+       	<zip>(nrs,packets) => comb;
+       	 <map(try(swap-counter))>comb => packets'
+       	 
+       	 
+     swap-counter: (i,Packet(n,decls)) -> Packet(n,i,decls)
         
-    index-get-packets: name-> [Packet("Packet",[])|<index-getcons(|name)>Packet()]
+    index-get-packets: name-> <packet-add-numbers><index-getcons(|name)>Packet()
    
    index-getcons(|name): type -> values
    where   

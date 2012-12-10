@@ -21,28 +21,81 @@ imports
 	generate
  metaformalang
  store
+ project
  
 strategies
+	bracks = !"[]"
 
 	map2str(rule) = map(rule);concat-strings 
 
+	compile-packet: Packet(packet,i,payloaddecls) -> $[
+		class [packet] extends Packet {
+			
+			public static byte getTypeNr() {return [i];}
+			
+			public [packet](MfController c) {
+				super(c);
+				setType(getTypeNr());
+			}
+			
+			@Override
+			public String toStringPayload() {
+				return "[java-fields-debug]";
+			}
+			
+			@Override
+			public Packet deserializePayload(byte[<bracks>] payload) {
+				[java-fields-payloads]
+				return this;
+			}
+		
+			@Override
+			public byte[<bracks>] serializePayload() {
+				return new byte[<bracks>]{[<concat-glue(|",")>fieldnames]};
+			}
+			
+			[java-fields]
+		}
+	]
+	where
+		<debug>$[Compile packet [packet]];
+		java-fields := <map2str(to-java-stat)>payloaddecls;
+		fieldnames := <map(project-name)>payloaddecls;
+		java-fields-payloads := <compile-payload-assign>fieldnames; 
+		java-fields-debug := <concat-glue(|",")><map(field-debug)>fieldnames;
+		<debug>"Finish compile packet"
+	
+	
+	field-debug: fieldname -> code
+	where
+	code := $[[fieldname]= " + [fieldname] + "] 
+	
+	
+	compile-payload-assign: fieldnames -> code 
+	where
+		indices := <upto><dec><length>fieldnames;
+		fieldnames-nrs := <zip>(indices,fieldnames);
+		<map2str(swap-index)>fieldnames-nrs => code
+		
+		
+  swap-index: (index,fieldname) -> $[[fieldname] = payload$[$[index]$]$;]	
+	
 	 
- compile(|n): Packet(packet,payloaddecls) -> $[
+ compile-packetreceive(|n): Packet(packet,i,payloaddecls) -> $[
   	protected void receivePacket([packet] p) {
   		[code]
   	}
   ]
   where
+  	<debug>"Compile packetreceive";
  	 <index-get-evhdlr(|n)> <strip-annos>packet => eventhandlers;
- 	 <debug(!"EVH:")>eventhandlers;
  	 <map(simplify)>eventhandlers => result;
- 	 <debug(!"nu hier")>result;
   	code := <concat-strings><map(compile)>result => code
   	
  	 
- simplify: EvHdlr(_{[_,name,p]},receive,vardecls, stats) -> <debug(!"DEB1:")>EvHdlr (State(),<conc>(vardecls,stats)) 	 
- simplify: EvHdlr(_{[_,name,seq,p]},receive,vardecls, stats) -> <debug(!"DEB2:")>EvHdlr (State(seq),<conc>(vardecls,stats)) 	 
- simplify: EvHdlr(_{[_,name,instr, seq,p]},receive,vardecls, stats) -> <debug(!"DEB3:")>EvHdlr (State(seq, instr),<conc>(vardecls,stats))	
+ simplify: EvHdlr(_{[_,name,p]},receive,vardecls, stats) -> EvHdlr (State(),<conc>(vardecls,stats)) 	 
+ simplify: EvHdlr(_{[_,name,seq,p]},receive,vardecls, stats) -> EvHdlr (State(seq),<conc>(vardecls,stats)) 	 
+ simplify: EvHdlr(_{[_,name,instr, seq,p]},receive,vardecls, stats) -> EvHdlr (State(seq, instr),<conc>(vardecls,stats))	
  // simplify: x -> <debug(!"xxx")>x
 
 // to-java-global(|what) = 
@@ -51,23 +104,33 @@ strategies
  	
  // to-java-decls: Visualize (vis) -> $[[<concat-strings><map(to-java)>vis]]
 
- compile:  Class(id',_,decls,funcs) -> $[class Bag[n] extends Core[n] implements I[n]Bag {
-	[decls']
-	[funcs']
+compile: Class(d@Region(),BorderDecl(items)) -> $[
+	class BagRegion {
+		public boolean at(BorderLine d) {
+			boolean ret = false;
+			[<map2str(to-java)>items]
+			return ret;
+		}
+	}
+]
+where
+	<debug>$[Compile Region class]
+
+ compile:  Class(id',_,elements) -> $[class Bag[n] extends [n]Core implements I[n]Bag {
+	[elements']
 	}
 	]
 	where
 		n := <cons2name>id';
 		<debug>$[Compile class [n]];
-		<concat-strings><map(to-java)>decls => decls';
-		<concat-strings><map(to-java)>funcs => funcs'
+		<map2str(to-java)>elements => elements'
 
 
 cons2name: Meta() -> $[Meta]
 cons2name: Module() -> $[Module]
  
  compile: State(n,evhdlrs,vars,funcs,instrs) -> 
-$[if (mfStateMngr.at(StateOperation.[n])) {  [code]
+$[if (mfStateMngr.at(Sequence.[n])) {  [code]
 }
 ]
 where 

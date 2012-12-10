@@ -5,8 +5,7 @@ sequence FlipAlong  {
 	byte QUART; 
 	byte HALF;
 	
-	// if (orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
-	if(true){
+	if (orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
 		QUART = -90;
 		HALF = -180;
 	}

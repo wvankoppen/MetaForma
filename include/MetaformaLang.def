@@ -37,7 +37,7 @@ lexical syntax
 	 "cyan"		-> Color
 	
 	
-	
+	lexical syntax
 	"false"			-> Bool
 	"true"			-> Bool
 	
@@ -60,8 +60,8 @@ lexical syntax
 	"rotate"		-> Core
 	"stop"			-> Core
 	"rotate_continuous"	-> Core
-	"disconnect_part"	-> Core
-	"connect_part"	-> Core
+	%% "disconnect_part"	-> Core
+	%% "connect_part"	-> Core
 	
 	
 	
@@ -73,12 +73,13 @@ lexical syntax
 	"void"			-> Type{cons("Void")}
 	"byte" "[" "]"	-> Type{cons("ByteArr")}
 	
+	"robot"			-> SysObj{cons("Robot")}
 	"meta"			-> SysObj{cons("Meta")}
 	"module"		-> SysObj{cons("Module")}
 	"region"		-> SysObj{cons("Region")}
 	"debug"			-> SysObj{cons("Debug")}
 	"config"		-> SysObj{cons("Config")}
-	"config"		-> SysObj{cons("Config")}
+
 	
 	 Const			-> ID {reject}
 	 ConstLan		-> ID {reject}
@@ -100,13 +101,15 @@ exports
 	"#(" NbsOp ")"			-> Exp{cons("NbsCount")}
 	"$(" NbsOp ")"			-> Nbs{cons("Nbs")}
 %%	"!$(" NbsOp ")"			-> Exp{"NbsNone"}
-	{NbsFilter ","}+	-> NbsOp{cons("NbsOp")}
+	{NbsFilter ","}*	-> NbsOp{cons("NbsOp")}
 	%% ConnFilter						-> NbsOp{"NbsOp"}
 	%% {NbsFilter ","}+				-> NbsOp{"NbsOp"}
 	%% Exp 					-> ConnFilter{"ConnFilter"}
 	%% Exp "->" Exp			-> ConnFilter{"ConnFilter"}
 	
 	NbsFilterKey ":" Exp -> NbsFilter{cons("NbsFilter")}
+	ModHolderRef			-> NbsFilter
+	
 	lexical syntax
 	"metaPart" 				-> NbsFilterKey
 	"connected" 			-> NbsFilterKey
@@ -114,7 +117,7 @@ exports
 	"metaID" 				-> NbsFilterKey
 	"connDest" 				-> NbsFilterKey
 	"connSource"			-> NbsFilterKey
-	ModHolderRef			-> NbsFilterElem
+	
 	 context-free syntax
 	
 	ID 						-> MetaPart{cons("MetaPart")}
@@ -209,11 +212,24 @@ sorts	Group MetaClass
     StateRef -> ModHolderOrStateRef
     
 	GroupDef 										-> Definition
+	Robot "{" FuncDecl* "}" 			-> Definition{cons("Class")}
 	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
 	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{cons("Class")}
+	Region "{" BorderDecl "}" 			-> Definition{cons("Class")}
+	
+	"borders" "[" BorderItem* "]"			-> BorderDecl{cons("BorderDecl")}
+	
+	Direction ":" Exp ";" -> BorderItem{cons("BorderItem")}
+	
+	"left" -> Direction{cons("BorderLeft")}
+	"right" -> Direction{cons("BorderRight")}
+	"top" -> Direction{cons("BorderTop")} 
+	"bottom" -> Direction{cons("BorderBottom")}  
 	
 	"meta" 							-> Meta{cons("Meta")}
 	"module"						-> Module{cons("Module")}
+	"robot"						-> Robot{cons("Robot")}
+	"region"						-> Region{cons("Region")}
 	
 	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
 	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
@@ -292,20 +308,24 @@ sorts	Group MetaClass
 	
 	ID 								-> Mod{cons("Mod")}
 	
-	"try" "region" StateRef "orientating" OrientRef "from" ByteList "excluding" ByteList ";" -> Stmt{cons("TryRegion")}
+	"try" "region" StateRef "orientating" OrientRef "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{cons("TryRegion")}
 	
 	 {Exp ","}* 				-> ByteList {cons("ByteArr")}
+	 ID 		-> MetaFieldRef {cons("MetaFieldRef")}
+	 
+
 	
-	"disconnect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{cons("Disconnect")}
-	"connect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{cons("Connect")}
+	"disconnect" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("Disconnect")}
+	"connect" "(" ModHolderRef "," Exp")" ";"			-> Stmt{cons("Connect")}
 	"rotate" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("Rotate")}
 	"rotate_continuous" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("RotateCont")}
-	"disconnect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("DisconnectPart")}
-	"connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("ConnectPart")}
+	%% "disconnect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"DisconnectPart"}
+	%% "connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"ConnectPart"}
 	
 	"stop" "(" ModHolderRef ")" ";"			-> Stmt{cons("Stop")}
 	
-	
+	Exp 			-> ModHolderOrExp
+	ModHolderRef 	-> ModHolderOrExp
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
 	"until" "(" Stop ")" ";" -> StopCondition{cons("Until")}
@@ -326,10 +346,25 @@ sorts	Group MetaClass
 	
 	
 	
-	Obj "." ID 			-> Ref{cons("FieldRef")}
 	
-
-	SysObj -> Obj
+	
+	context-free priorities
+	{
+	 	%% "module" "." ModuleFieldID -> ModuleFieldRef{"ModuleFieldRef"}
+	 	%% ModuleFieldRef -> Ref
+	 	Obj "." ModuleFieldID 			-> Ref{cons("FieldRef")}
+	} > {
+		Obj "." ID 			-> Ref{cons("FieldRef")}
+	 }
+	
+	lexical syntax
+	"ID" -> ModuleFieldID
+	"metaID" -> ModuleFieldID
+	"metaPart" -> ModuleFieldID
+	
+	context-free syntax
+		ID -> ModuleFieldID{reject}
+	 SysObj -> Obj
 	VarRef -> Obj
 
 	 "@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
@@ -444,11 +479,24 @@ sorts	Group MetaClass
     StateRef -> ModHolderOrStateRef
     
 	GroupDef 										-> Definition
+	Robot "{" FuncDecl* "}" 			-> Definition{cons("Class")}
 	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
 	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{cons("Class")}
+	Region "{" BorderDecl "}" 			-> Definition{cons("Class")}
+	
+	"borders" "[" BorderItem* "]"			-> BorderDecl{cons("BorderDecl")}
+	
+	Direction ":" Exp ";" -> BorderItem{cons("BorderItem")}
+	
+	"left" -> Direction{cons("BorderLeft")}
+	"right" -> Direction{cons("BorderRight")}
+	"top" -> Direction{cons("BorderTop")} 
+	"bottom" -> Direction{cons("BorderBottom")}  
 	
 	"meta" 							-> Meta{cons("Meta")}
 	"module"						-> Module{cons("Module")}
+	"robot"						-> Robot{cons("Robot")}
+	"region"						-> Region{cons("Region")}
 	
 	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
 	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
@@ -527,20 +575,24 @@ sorts	Group MetaClass
 	
 	ID 								-> Mod{cons("Mod")}
 	
-	"try" "region" StateRef "orientating" OrientRef "from" ByteList "excluding" ByteList ";" -> Stmt{cons("TryRegion")}
+	"try" "region" StateRef "orientating" OrientRef "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{cons("TryRegion")}
 	
 	 {Exp ","}* 				-> ByteList {cons("ByteArr")}
+	 ID 		-> MetaFieldRef {cons("MetaFieldRef")}
+	 
+
 	
-	"disconnect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{cons("Disconnect")}
-	"connect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{cons("Connect")}
+	"disconnect" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("Disconnect")}
+	"connect" "(" ModHolderRef "," Exp")" ";"			-> Stmt{cons("Connect")}
 	"rotate" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("Rotate")}
 	"rotate_continuous" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("RotateCont")}
-	"disconnect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("DisconnectPart")}
-	"connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("ConnectPart")}
+	%% "disconnect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"DisconnectPart"}
+	%% "connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"ConnectPart"}
 	
 	"stop" "(" ModHolderRef ")" ";"			-> Stmt{cons("Stop")}
 	
-	
+	Exp 			-> ModHolderOrExp
+	ModHolderRef 	-> ModHolderOrExp
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
 	"until" "(" Stop ")" ";" -> StopCondition{cons("Until")}
@@ -561,10 +613,25 @@ sorts	Group MetaClass
 	
 	
 	
-	Obj "." ID 			-> Ref{cons("FieldRef")}
 	
-
-	SysObj -> Obj
+	
+	context-free priorities
+	{
+	 	%% "module" "." ModuleFieldID -> ModuleFieldRef{"ModuleFieldRef"}
+	 	%% ModuleFieldRef -> Ref
+	 	Obj "." ModuleFieldID 			-> Ref{cons("FieldRef")}
+	} > {
+		Obj "." ID 			-> Ref{cons("FieldRef")}
+	 }
+	
+	lexical syntax
+	"ID" -> ModuleFieldID
+	"metaID" -> ModuleFieldID
+	"metaPart" -> ModuleFieldID
+	
+	context-free syntax
+		ID -> ModuleFieldID{reject}
+	 SysObj -> Obj
 	VarRef -> Obj
 
 	 "@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}

@@ -37,6 +37,13 @@ regular tree grammar
     ListPlusOfOrientRef0     -> <conc>(ListPlusOfOrientRef0,ListStarOfOrientRef0)
     ListPlusOfOrientRef0     -> <conc>(ListPlusOfOrientRef0,ListPlusOfOrientRef0)
     ListPlusOfOrientRef0     -> <cons>(OrientRef,ListStarOfOrientRef0)
+    ListStarOfMetaFieldRef0  -> ListPlusOfMetaFieldRef0
+    ListStarOfMetaFieldRef0  -> <nil>()
+    ListStarOfMetaFieldRef0  -> <conc>(ListStarOfMetaFieldRef0,ListStarOfMetaFieldRef0)
+    ListPlusOfMetaFieldRef0  -> <conc>(ListStarOfMetaFieldRef0,ListPlusOfMetaFieldRef0)
+    ListPlusOfMetaFieldRef0  -> <conc>(ListPlusOfMetaFieldRef0,ListStarOfMetaFieldRef0)
+    ListPlusOfMetaFieldRef0  -> <conc>(ListPlusOfMetaFieldRef0,ListPlusOfMetaFieldRef0)
+    ListPlusOfMetaFieldRef0  -> <cons>(MetaFieldRef,ListStarOfMetaFieldRef0)
     ListStarOfMod0           -> ListPlusOfMod0
     ListStarOfMod0           -> <nil>()
     ListStarOfMod0           -> <conc>(ListStarOfMod0,ListStarOfMod0)
@@ -95,6 +102,13 @@ regular tree grammar
     ListPlusOfParamListElem0 -> <conc>(ListPlusOfParamListElem0,ListStarOfParamListElem0)
     ListPlusOfParamListElem0 -> <conc>(ListPlusOfParamListElem0,ListPlusOfParamListElem0)
     ListPlusOfParamListElem0 -> <cons>(ParamListElem,ListStarOfParamListElem0)
+    ListStarOfBorderItem0    -> ListPlusOfBorderItem0
+    ListStarOfBorderItem0    -> <nil>()
+    ListStarOfBorderItem0    -> <conc>(ListStarOfBorderItem0,ListStarOfBorderItem0)
+    ListPlusOfBorderItem0    -> <conc>(ListStarOfBorderItem0,ListPlusOfBorderItem0)
+    ListPlusOfBorderItem0    -> <conc>(ListPlusOfBorderItem0,ListStarOfBorderItem0)
+    ListPlusOfBorderItem0    -> <conc>(ListPlusOfBorderItem0,ListPlusOfBorderItem0)
+    ListPlusOfBorderItem0    -> <cons>(BorderItem,ListStarOfBorderItem0)
     ListStarOfFieldDecl0     -> ListPlusOfFieldDecl0
     ListStarOfFieldDecl0     -> <nil>()
     ListStarOfFieldDecl0     -> <conc>(ListStarOfFieldDecl0,ListStarOfFieldDecl0)
@@ -102,8 +116,8 @@ regular tree grammar
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListStarOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListPlusOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <cons>(FieldDecl,ListStarOfFieldDecl0)
-    OptPartDecl1             -> <some>(PartDecl)
-    OptPartDecl1             -> <none>()
+    OptPartDecl0             -> <some>(PartDecl)
+    OptPartDecl0             -> <none>()
     ListStarOfVisItem0       -> ListPlusOfVisItem0
     ListStarOfVisItem0       -> <nil>()
     ListStarOfVisItem0       -> <conc>(ListStarOfVisItem0,ListStarOfVisItem0)
@@ -125,8 +139,8 @@ regular tree grammar
     ListPlusOfDefinition0    -> <conc>(ListPlusOfDefinition0,ListStarOfDefinition0)
     ListPlusOfDefinition0    -> <conc>(ListPlusOfDefinition0,ListPlusOfDefinition0)
     ListPlusOfDefinition0    -> <cons>(Definition,ListStarOfDefinition0)
-    OptVisualize1            -> <some>(Visualize)
-    OptVisualize1            -> <none>()
+    OptVisualize0            -> <some>(Visualize)
+    OptVisualize0            -> <none>()
     ListStarOfStringChar0    -> <string>
     ListPlusOfStringChar0    -> <string>
     ListStarOfNbsFilter0     -> ListPlusOfNbsFilter0
@@ -142,6 +156,8 @@ regular tree grammar
     Stmt                     -> FuncCall(MethodRef,ListStarOfExp0)
     Instr                    -> Instr(ListStarOfEvHdlr0,ListStarOfVarDecl0,ListStarOfStmt0)
     Instr                    -> Instr(ListStarOfEvHdlr0,ListStarOfVarDecl0,ListStarOfStmt0,StopCondition)
+    Ref                      -> FieldRef(Obj,ID)
+    Ref                      -> FieldRef(Obj,ModuleFieldID)
     EOF                      -> <string>
     CommentChar              -> <string>
     BackSlashChar            -> <string>
@@ -153,7 +169,6 @@ regular tree grammar
     ModHolderRef             -> ModHolderRef(ID,ID)
     Obj                      -> VarRef
     Obj                      -> SysObj
-    Ref                      -> FieldRef(Obj,ID)
     VarRef                   -> VarRef(ID)
     MethodRef                -> MethodRef(Obj,ID)
     FuncRef                  -> FuncRef(ID)
@@ -161,15 +176,16 @@ regular tree grammar
     Stop                     -> Consensus()
     StopCondition            -> Until(Stop)
     StopCondition            -> Wait(Stop)
+    ModHolderOrExp           -> ModHolderRef
+    ModHolderOrExp           -> Exp
     Stmt                     -> Stop(ModHolderRef)
-    Stmt                     -> ConnectPart(ModHolderRef,Exp)
-    Stmt                     -> DisconnectPart(ModHolderRef,Exp)
     Stmt                     -> RotateCont(ModHolderRef,Exp)
     Stmt                     -> Rotate(ModHolderRef,Exp)
-    Stmt                     -> Connect(ModHolderRef,ModHolderRef)
-    Stmt                     -> Disconnect(ModHolderRef,ModHolderRef)
+    Stmt                     -> Connect(ModHolderRef,Exp)
+    Stmt                     -> Disconnect(ModHolderRef,Exp)
+    MetaFieldRef             -> MetaFieldRef(ID)
     ByteList                 -> ByteArr(ListStarOfExp0)
-    Stmt                     -> TryRegion(StateRef,OrientRef,ByteList,ByteList)
+    Stmt                     -> TryRegion(StateRef,OrientRef,ListStarOfMetaFieldRef0,ListStarOfMetaFieldRef0)
     Mod                      -> Mod(ID)
     GroupDef                 -> Group(ID)
     GroupDef                 -> Group(ID,ListStarOfMod0)
@@ -207,17 +223,28 @@ regular tree grammar
     ParamListElem            -> Param(Type,ID)
     FuncDecl                 -> FuncDecl(Type,ID,ListStarOfParamListElem0,ListStarOfDeclaration0,ListStarOfStmt0,Exp)
     FuncDecl                 -> FuncDecl(ID,ListStarOfParamListElem0,ListStarOfDeclaration0,ListStarOfStmt0)
+    Region                   -> Region()
+    Robot                    -> Robot()
     Module                   -> Module()
     Meta                     -> Meta()
+    Direction                -> BorderBottom()
+    Direction                -> BorderTop()
+    Direction                -> BorderRight()
+    Direction                -> BorderLeft()
+    BorderItem               -> BorderItem(Direction,Exp)
+    BorderDecl               -> BorderDecl(ListStarOfBorderItem0)
+    Definition               -> Class(Region,BorderDecl)
     Definition               -> Class(Module,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
-    Definition               -> Class(Meta,OptPartDecl1,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
+    Definition               -> Class(Meta,OptPartDecl0,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
+    Definition               -> Class(Robot,ListStarOfFuncDecl0)
     Definition               -> GroupDef
     ModHolderOrStateRef      -> StateRef
     ModHolderOrStateRef      -> ModHolderRef
     VisItem                  -> VisItem(ModHolderOrStateRef,Color,<int>)
     VisGroup                 -> VisGroup(ID,ListStarOfVisItem0)
     Visualize                -> Visualize(ListStarOfVisGroup0)
-    Start                    -> Program(ID,OptVisualize1,ListStarOfDefinition0,ListStarOfDeclaration0)
+    Start                    -> Program(ID,OptVisualize0,ListStarOfDefinition0,ListStarOfDeclaration0)
+    ModuleFieldID            -> <string>
     Exp                      -> OrBit(Exp,Exp)
     Exp                      -> AndBit(Exp,Exp)
     Exp                      -> Or(Exp,Exp)
@@ -244,8 +271,9 @@ regular tree grammar
     Exp                      -> Const(Const)
     Exp                      -> Int(INT)
     MetaPart                 -> MetaPart(ID)
+    NbsFilter                -> ModHolderRef
     NbsFilter                -> NbsFilter(NbsFilterKey,Exp)
-    NbsOp                    -> NbsOp(ListPlusOfNbsFilter0)
+    NbsOp                    -> NbsOp(ListStarOfNbsFilter0)
     Nbs                      -> Nbs(NbsOp)
     Exp                      -> NbsCount(NbsOp)
     Exp                      -> Ref
@@ -254,11 +282,11 @@ regular tree grammar
     SysObj                   -> Region()
     SysObj                   -> Module()
     SysObj                   -> Meta()
+    SysObj                   -> Robot()
     Type                     -> ByteArr()
     Type                     -> Void()
     Type                     -> Byte()
     Type                     -> Boolean()
-    NbsFilterElem            -> <string>
     NbsFilterKey             -> <string>
     Core                     -> <string>
     Const                    -> <string>

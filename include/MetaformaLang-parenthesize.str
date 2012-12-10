@@ -416,6 +416,14 @@ rules
     where <(?Instr(_, _, _) + fail)> t_3
 
   MetaformaLangParenthesize :
+    FieldRef(t_0, t_1) -> FieldRef(Parenthetical(t_0), t_1)
+    where <(?FieldRef(_, _) + fail)> t_0
+
+  MetaformaLangParenthesize :
+    FieldRef(t_0, t_1) -> FieldRef(t_0, Parenthetical(t_1))
+    where <(?FieldRef(_, _) + fail)> t_1
+
+  MetaformaLangParenthesize :
     AndBit(t_0, t_1) -> AndBit(Parenthetical(t_0), t_1)
     where <(?OrBit(_, _) + fail)> t_0
 

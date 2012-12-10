@@ -8,6 +8,8 @@ colorer
 	Type     : 127 0 85 bold
 	Obj     : 0 128 0      
 	ConstLan	: brown 
+	ModuleFieldID : darkgreen
+	SysObj : brown
 	
 	_.Connect : darkred
 	_.Disconnect : darkred

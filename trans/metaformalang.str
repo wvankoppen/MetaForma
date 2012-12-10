@@ -162,8 +162,7 @@ rules // Debugging
     with
       filename := <guarantee-extension(|"index.global.aterm")> path;
       index-setup(|<language>, [project-path], $[[project-path]/[path]]);
-      //index-clear-global(|"Packets");
-      //index-clear-global(|"States");
+      
       <strip-annos><project-name>ast => name;
       evhdlrs := <index-get-evhdlrs>name;
       vis := <index-getcons(|name)>VisItem();
@@ -173,15 +172,7 @@ rules // Debugging
       packets := <index-get-packets>name;
       metaparts := <index-getcons(|name)>MetaPart();
       data := (evhdlrs,vis,groups,classes,sequences,packets,metaparts)
-      // index-reload;
-      // <editor-analyze>ast;
-      // <debug>"AST:";
-      // <debug>ast;
-      //  <desugar-all> ast => desugared;
-      //  <debug>"DESUGARED:";
-      // <debug>desugared;
-      //<map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files> => index-entries;
-      //<store-all> index-entries;      
+            
       
      
      
@@ -235,12 +226,16 @@ rules // Utility
 			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
 			
 			
-			
-			
+			packets := <index-get-packets>name;
+			packets-all :=  [Packet("Packet",0,[])|<index-get-packets>name];
 			
 			<debug>"##############################";
 			<debug>"COMPILE PACKETRECEIVES";
-			java-packetreceives := <map(compile(|name))><index-get-packets>name;
+			java-packetreceives := <map2str(compile-packetreceive(|name))>packets-all;
+			
+			<debug>"##############################";
+			<debug>"COMPILE PACKETS";
+			java-packets := <map2str(compile-packet)><debug(!"Packets:")>packets;
 			
 			<debug>"##############################";
 			<debug>"COMPILE SEQUENCES";
@@ -249,14 +244,20 @@ rules // Utility
 			
 			<debug>"##############################";
 			<debug>"COMPILE CLASSES";
-			java-classes := <map2str(compile)><index-getcons(|name)>Class();
+			java-classes := <map2str(compile)><debug(!"Classes:")><index-getcons(|name)>Class();
 			
-			java-groups:= "";
+			<debug>"##############################";
+			debug(!"COMPILE VISUALS");
+			java-visuals := <map2str(to-java)><debug(!"Visuals:")><index-getcons(|name)>VisItem();
 			
+			
+			<debug>"##############################";
 			debug(!"COMPILE NAMES");
 			names-metapart := <concat-glue(|",")><map(project-name)><index-getcons(|name)>MetaPart();
 			names-sequence := <concat-glue(|",")><map(project-name)>states;
+			names-group := <concat-glue(|",")><map(project-name)><index-getcons(|name)>Group();
 			names-mod :=  <map2str(to-java)><index-getcons(|name)>Group();
+			
 			
 			controller := $<
 package ussr.samples.atron.simulations.metaforma.gen;
@@ -295,8 +296,11 @@ class <name>Simulation extends MfSimulation {
 		return new MfBuilder().buildGrid(<name>Controller.Mod.Sc);
 	}
 }
+		
+<java-packets>
 				
 public class <name>Controller extends MfController implements ControllerInformationProvider {
+	
 	
 	
 	public enum Mod  implements IModule,IModEnum{
@@ -343,8 +347,8 @@ public class <name>Controller extends MfController implements ControllerInformat
 		}
 
 		@Override
-		public Coll getGroup () {
-			return Coll.valueOf(name().split("_")[0]);
+		public Group getGroup () {
+			return Group.valueOf(name().split("_")[0]);
 		}
 
 		@Override
@@ -387,7 +391,9 @@ public class <name>Controller extends MfController implements ControllerInformat
 		
 		
 	
-	public enum Coll implements ICollectionEnum,IModuleRef{ALL, NONE, Sc, <java-groups>;
+	public enum Group implements ICollectionEnum,IModuleRef{
+		ALL, NONE, Sc,<names-group>;
+		
 		public boolean contains(IModule m) {
 			return equals(m.getGroup());
 		}
@@ -445,6 +451,32 @@ public class <name>Controller extends MfController implements ControllerInformat
 	@Override
 	public BagMeta meta() {
 		return meta;
+	}
+	
+	private BagModule module;
+	private BagMeta meta;
+	private MfController ctrl;
+	
+
+	public void init() {		
+		ctrl = this;
+		module = new BagModule();
+		meta = new BagMeta();
+		module.setController(this);
+		meta.setController(this);
+		
+		Module.Mod = Mod.NONE;
+		Module.Group = Group.NONE;
+		
+		module().part = MetaPart.NONE;
+		
+		
+		<java-visuals>
+		
+		
+	
+		
+		visual.setMessageFilter(255);//^ pow2(PacketDiscover.getTypeNr()));		
 	}
 
 	

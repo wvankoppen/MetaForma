@@ -5,10 +5,25 @@ group LeftWheel
 group RightWheel
 	
 
+robot {
+	void steer (byte degrees) {
+		rotate(@Axis.Front,degrees);
+		rotate(@Axis.Back,-degrees);
+	}
+	
+	void drive (byte dirLeft, byte dirRight) {
+		rotate_continuous(@LeftWheel,dirLeft);
+		rotate_continuous(@RightWheel,dirRight);
+	}
+	
+	void halt () {
+		stop(@LeftWheel);
+		stop(@RightWheel);
+	}
+}
+
 sequence Init {
 	do {
-		// $ format: SOURCE CONDITIONS -> DESTINATION CONDITIONS
-		// so: module must be connected through SOUTH&EAST&FMALE and connected by EAST by neighbors
 		when (#(connSource:SOUTH&EAST&FEMALE, connDest:EAST)) {
 			module.group = @LeftWheel;
 		}
@@ -18,15 +33,15 @@ sequence Init {
 		} 
 		
 		when (#(@RightWheel) || #(@LeftWheel) && !#(connSource: NORTH&EAST&FEMALE)) {
-			// module.id = Front@Axis;
+			module.id = @Axis.Front;
 		}
 		
 		when (#(@RightWheel) || #(@LeftWheel) && !#(connSource: NORTH&EAST&FEMALE)) {
-			// module.id = Back@Axis;
+			module.id = @Axis.Back;
 		}
 		
 		when (#(@Axis) == 2) {
-			// module.id = Driver@Axis;
+			module.id = @Axis.Driver;
 		}
 	} until (config.assignTime);
 	
@@ -35,7 +50,7 @@ sequence Init {
 
 
 sequence Drive {
-	when (module.group == @Axis && module.proximity() > config.proximity) {
+ 	when (module.group == @Axis && module.proximity() > config.proximity) {
 		if (#(@Axis) == 2) {
 			meta.size = 3;
 			goto TurnTwoWheeler;
@@ -45,52 +60,12 @@ sequence Drive {
 			meta.size = 7;
 			goto TurnFourWheeler;
 		}	
-		
 	}	
 	
-	drive(FORWARD,FORWARD);
-}
-
-
-sequence TurnTwoWheeler {
-	do {
-		drive (BACKWARD,BACKWARD);	
-	} wait(backwardTime);
-	
-	do {
-		drive (BACKWARD,FORWARD);	
-	} wait(turnaroundTime);
-	
-	halt();
-
-	goto Drive;
+	// FORWARD and BACKBWARD should be built in constants of 1 and -1, resp.
+	robot.drive(FORWARD,FORWARD);
 }
 
 
 
-sequence TurnFourWheeler {
-	void steer (byte degrees) {
-		rotate(@Axis.Front,degrees);
-		rotate(@Axis.Back,-degrees);
-	}
-	
-	steer(config.steerDegrees);
-		
-	do {
-		drive (BACKWARD,BACKWARD);	
-	} wait(config.backwardTime);
-	
-	steer(-config.steerDegrees);
-	
-	goto Drive;
-}
 
-void drive (byte dirLeft, byte dirRight) {
-	rotate_continuous(@LeftWheel,dirLeft);
-	rotate_continuous(@RightWheel,dirRight);
-}
-
-void halt () {
-	stop(@LeftWheel);
-	stop(@RightWheel);
-}

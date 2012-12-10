@@ -36,7 +36,7 @@ lexical syntax
 	 "cyan"		-> Color
 	
 	
-	
+	lexical syntax
 	"false"			-> Bool
 	"true"			-> Bool
 	
@@ -59,8 +59,8 @@ lexical syntax
 	"rotate"		-> Core
 	"stop"			-> Core
 	"rotate_continuous"	-> Core
-	"disconnect_part"	-> Core
-	"connect_part"	-> Core
+	%% "disconnect_part"	-> Core
+	%% "connect_part"	-> Core
 	
 	
 	
@@ -72,12 +72,13 @@ lexical syntax
 	"void"			-> Type{"Void"}
 	"byte" "[" "]"	-> Type{"ByteArr"}
 	
+	"robot"			-> SysObj{"Robot"}
 	"meta"			-> SysObj{"Meta"}
 	"module"		-> SysObj{"Module"}
 	"region"		-> SysObj{"Region"}
 	"debug"			-> SysObj{"Debug"}
 	"config"		-> SysObj{"Config"}
-	"config"		-> SysObj{"Config"}
+
 	
 	 Const			-> ID {reject}
 	 ConstLan		-> ID {reject}

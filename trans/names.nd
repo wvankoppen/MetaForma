@@ -119,13 +119,18 @@ rules
 	Param(t, x) :
     	defines Var x of type t	
 	
+	FuncRef(n):
+		refers to Function n
+		
+	
+		
 	MethodRef(Actuation(), n):
 		refers to Function n
 		refers to Function "disconnect"
 	
-	// FuncCall(MethodRef(obj,n),args):
-	// 	refers to Function n in Class c
-	// 	where obj has type Type(c)
+	MethodRef(obj,n):
+		refers to Function n in Class c
+		where obj has type Type(c)
 	
 	FieldDecl(t,n): 
 		defines Field n of type t
@@ -149,20 +154,22 @@ rules
 		
 		
 	FieldRef(c,n):
-		refers to Field n in Class p
-		refers to Payload n in Packet p
-		where c has type Type(p)
+		refers to Field n in Class cl
+		refers to Payload n in Packet cl
+		where c has type Type(cl)
 		// refers to Class c
 	
 	// Class (n,_,_):
 	// 	defines Class n
 	
 		
-	Class (n,_,_,_):
+	Class (n,_,_): // Module and Meta
 		defines Class n of type Type(n)
 		scopes Payload,Field,Var,Function
 
-	
+	Class (n,_): // Region
+		defines Class n of type Type(n)
+		scopes Payload,Field,Var,Function
 		
 	Instr(_,_,_,_):
 		scopes Packet
@@ -171,5 +178,6 @@ rules
 	MetaPart (n):
 		defines MetaPart n
 		
+	
 		
 			

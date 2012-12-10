@@ -12,13 +12,15 @@ exports
 	"#(" NbsOp ")"			-> Exp{"NbsCount"}
 	"$(" NbsOp ")"			-> Nbs{"Nbs"}
 %%	"!$(" NbsOp ")"			-> Exp{"NbsNone"}
-	{NbsFilter ","}+	-> NbsOp{"NbsOp"}
+	{NbsFilter ","}*	-> NbsOp{"NbsOp"}
 	%% ConnFilter						-> NbsOp{"NbsOp"}
 	%% {NbsFilter ","}+				-> NbsOp{"NbsOp"}
 	%% Exp 					-> ConnFilter{"ConnFilter"}
 	%% Exp "->" Exp			-> ConnFilter{"ConnFilter"}
 	
 	NbsFilterKey ":" Exp -> NbsFilter{"NbsFilter"}
+	ModHolderRef			-> NbsFilter
+	
 	lexical syntax
 	"metaPart" 				-> NbsFilterKey
 	"connected" 			-> NbsFilterKey
@@ -26,7 +28,7 @@ exports
 	"metaID" 				-> NbsFilterKey
 	"connDest" 				-> NbsFilterKey
 	"connSource"			-> NbsFilterKey
-	ModHolderRef			-> NbsFilterElem
+	
 	 context-free syntax
 	
 	ID 						-> MetaPart{"MetaPart"}

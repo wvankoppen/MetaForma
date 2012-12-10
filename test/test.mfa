@@ -14,8 +14,6 @@ meta {
 when (receive (AddNeighbor2 a)) {
 	byte xyz;	
 	xyz = a.connSource; 
-	id = df; 
-	
 } 
  
  

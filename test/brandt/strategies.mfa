@@ -20,7 +20,6 @@ visualize {
  
 group InsideLifter [Top,Bottom]
 group OutsideLifter [Top,Bottom]
-group x
 
 packet MetaIdSet { 
 	byte newMetaID; 
@@ -70,8 +69,19 @@ when (receive (Gradient p)) {
  	}
 }
 
+region {
+	
+	borders [
+		left: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0; 
+		right: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0;
+		top: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0;
+		bottom: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0;
+	]
+	
+}
+
 meta {
- 	part [Left, Top, Bottom, Right];	
+ 	part [NE, NW, SE, SW];	
 	
 	byte Top;
 	byte Bottom;
@@ -107,7 +117,7 @@ meta {
 
 
  	void broadcastMetaNeighborsTo (byte[] dests, byte v1, byte v2) {
-		 unicast AddNeighbor(first = v1, second = v2) to $(metaID: dests);
+		 unicast AddNeighbor(first = v1, second = v2) to $(metaID: dests, inRegion:false);
  	}
  	
  }
@@ -121,10 +131,7 @@ module  {
 	boolean sourcePri;
 	boolean sourceSec;
 	
-	// border left = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-	// border right = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-	// border top = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
-	// border bottom = $(EAST&MALE, inRegion:true) && !$(WEST&NORTH&MALE);
+
 	
 	void gradientPropagate () {		 
 		if (sourcePri){
@@ -134,7 +141,7 @@ module  {
 		if (sourceSec) {
 			gradSec = 0;
 		}
-		 unicast Gradient(pri=gradPri, sec=gradSec) to $(inRegion: true);
+		 unicast Gradient(pri=gradPri, sec=gradSec) to $();
 	}
  	
 
@@ -147,70 +154,7 @@ module  {
 	}
  }
 
-sequence Initialize {
- 	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
-	when (receive (Packet p)) {
-		meta.neighborHook (p.connSource,p.connDest);
-	}
-	
-	do {	
-		
-		when ( #(connSource: EAST&MALE, metaPart:None) == 2 && !#(connSource: WEST, metaPart:None)) {
-			module.metaPart = Left;
-			meta.id = module.id;
-			unicast MetaIdSet (newMetaID = module.id) to $(connSource: EAST&MALE&NORTH);
-		}
-		when (receive (MetaIdSet p)) {
-			if (module.metaID == 0) {
-				module.metaID = p.newMetaID;
-				
-				if (isMALE(p.destCon) && module.metaPart == null) {
-					module.metaPart = Right;
-				}
-				else if (isWEST(p.destCon) && module.metaPart == null) {
-					module.metaPart = Top;
-				}
-				else if (isEAST(p.destCon) && module.metaPart == null) {
-					module.metaPart = Bottom;
-				}
-			}
-			
-			if (module.metaPart == Left) {
-				continue();
-			}
-			
-			unicast MetaIdSet (newMetaID = newMetaID) to $(connSource: pow2((p.destCon + 4) % 8)) rate config.rate;
-		}	
-	} 
-
-	 meta.enable();
-	 
-	goto Choose;	
-}
-
-
-sequence Choose {
-	when (receive (Packet p)) {
-		// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
-		meta.metaNeighborHook (p.metaID,p.destConn);
-	}
-	
-	meta.broadcastNeighbors();
-	
-	do {
-		// UP
-		try region FlipThrough orientating BOTTOM_RIGHT from Top excluding TopLeft,Left,Bottom;
-		try region FlipAlong orientating BOTTOM_RIGHT from Right,TopRight excluding Top;
-		try region FlipThrough orientating LEFT_BOTTOM from Right excluding Top, TopRight;
-		
-		// DIAGONAL DOWN
-		try region FlipThrough orientating TOP_RIGHT from Bottom excluding Left, Top;
-		try region FlipOver orientating TOP_RIGHT from Bottom,Left excluding Top;
-		try region FlipThrough orientating RIGHT_TOP from Left excluding Top,Bottom;
-	}
-	
-	
-}
+                                                                                                                             
 
 
 

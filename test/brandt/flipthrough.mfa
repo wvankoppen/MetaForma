@@ -11,16 +11,16 @@ sequence FlipThrough {
 	module.gradientPropagate();
 	
 	do {		
-		if (gradPri==3 && gradSec==0) module.id = Clover.West;
-		if (gradPri==2 && gradSec==0) module.id = Clover.South;
-		if (gradPri==3 && gradSec==1) module.id = Clover.North;
-		if (gradPri==2 && gradSec==1) module.id = Clover.East;
+		if (gradPri==3 && gradSec==0) module.id = @Clover.West;
+		if (gradPri==2 && gradSec==0) module.id = @Clover.South;
+		if (gradPri==3 && gradSec==1) module.id = @Clover.North;
+		if (gradPri==2 && gradSec==1) module.id = @Clover.East;
 		isRef = (gradPri == 0 && gradSec == 3);
 	}
 	
 	do  {				
-		disconnect_part(@Uplifter.Left, NORTH&MALE&EAST|SOUTH&MALE&WEST);
-		disconnect_part(@Uplifter.Right, NORTH&MALE&EAST);
+		disconnect(@Uplifter.Left, NORTH&MALE&EAST|SOUTH&MALE&WEST);
+		disconnect(@Uplifter.Right, NORTH&MALE&EAST);
 	} 
 	
 	do  {				
@@ -28,7 +28,7 @@ sequence FlipThrough {
 		rotate(@Uplifter.Right, QUART);
 	} 
 	
-	disconnect_part(@Uplifter.Top, NORTH);
+	disconnect(@Uplifter.Top, NORTH);
 	rotate(@Uplifter.Top, HALF);
 	
 	do  {				

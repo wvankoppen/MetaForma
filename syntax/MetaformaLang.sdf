@@ -31,11 +31,24 @@ sorts	Group MetaClass
     StateRef -> ModHolderOrStateRef
     
 	GroupDef 										-> Definition
+	Robot "{" FuncDecl* "}" 			-> Definition{"Class"}
 	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> Definition{"Class"}
 	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{"Class"}
+	Region "{" BorderDecl "}" 			-> Definition{"Class"}
+	
+	"borders" "[" BorderItem* "]"			-> BorderDecl{"BorderDecl"}
+	
+	Direction ":" Exp ";" -> BorderItem{"BorderItem"}
+	
+	"left" -> Direction{"BorderLeft"}
+	"right" -> Direction{"BorderRight"}
+	"top" -> Direction{"BorderTop"} 
+	"bottom" -> Direction{"BorderBottom"}  
 	
 	"meta" 							-> Meta{"Meta"}
 	"module"						-> Module{"Module"}
+	"robot"						-> Robot{"Robot"}
+	"region"						-> Region{"Region"}
 	
 	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{"FuncDecl"}
 	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{"FuncDecl"}
@@ -114,20 +127,24 @@ sorts	Group MetaClass
 	
 	ID 								-> Mod{"Mod"}
 	
-	"try" "region" StateRef "orientating" OrientRef "from" ByteList "excluding" ByteList ";" -> Stmt{"TryRegion"}
+	"try" "region" StateRef "orientating" OrientRef "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{"TryRegion"}
 	
 	 {Exp ","}* 				-> ByteList {"ByteArr"}
+	 ID 		-> MetaFieldRef {"MetaFieldRef"}
+	 
+
 	
-	"disconnect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{"Disconnect"}
-	"connect" "(" ModHolderRef "," ModHolderRef ")" ";"			-> Stmt{"Connect"}
+	"disconnect" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Disconnect"}
+	"connect" "(" ModHolderRef "," Exp")" ";"			-> Stmt{"Connect"}
 	"rotate" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Rotate"}
 	"rotate_continuous" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"RotateCont"}
-	"disconnect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"DisconnectPart"}
-	"connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"ConnectPart"}
+	%% "disconnect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"DisconnectPart"}
+	%% "connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"ConnectPart"}
 	
 	"stop" "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
 	
-	
+	Exp 			-> ModHolderOrExp
+	ModHolderRef 	-> ModHolderOrExp
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {"Wait"}
 	"until" "(" Stop ")" ";" -> StopCondition{"Until"}
@@ -148,10 +165,25 @@ sorts	Group MetaClass
 	
 	
 	
-	Obj "." ID 			-> Ref{"FieldRef"}
 	
-
-	SysObj -> Obj
+	
+	context-free priorities
+	{
+	 	%% "module" "." ModuleFieldID -> ModuleFieldRef{"ModuleFieldRef"}
+	 	%% ModuleFieldRef -> Ref
+	 	Obj "." ModuleFieldID 			-> Ref{"FieldRef"}
+	} > {
+		Obj "." ID 			-> Ref{"FieldRef"}
+	 }
+	
+	lexical syntax
+	"ID" -> ModuleFieldID
+	"metaID" -> ModuleFieldID
+	"metaPart" -> ModuleFieldID
+	
+	context-free syntax
+		ID -> ModuleFieldID{reject}
+	 SysObj -> Obj
 	VarRef -> Obj
 
 	 "@" ID "." ID									-> ModHolderRef{"ModHolderRef"}

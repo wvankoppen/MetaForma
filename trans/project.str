@@ -24,6 +24,10 @@ rules
 	project-name: State(n,_,_,_,_) -> <strip-annos>n
 	project-name: MetaPart(n) -> <strip-annos>n
 	project-name: Packet(n,_) -> <strip-annos>n
+	project-name: Packet(n,_,_) -> <strip-annos>n
+	project-name: PayloadDecl(t,n) -><strip-annos> n
+	project-name: Group(n,_) -><strip-annos> n
+	project-name: Group(n) -><strip-annos> n
 
 	get-sequences: (p,index) -> Def([State(), n, p])
 	where

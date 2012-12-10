@@ -89,8 +89,8 @@ where
 
 desugar-functions: Instr(d,evts,instrs) -> Instr(d,evts,instrs,Wait(Consensus()))  	 
  
-desugar-functions: ConnectPart(m1,m2) -> FuncCall(MethodRef(Actuation(),"connect_part"),[m1,m2])
-desugar-functions: DisconnectPart(m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect_part"),[m1,m2])
+// desugar-functions: ConnectPart(m1,m2) -> FuncCall(MethodRef(Actuation(),"connect_part"),[m1,m2])
+// desugar-functions: DisconnectPart(m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect_part"),[m1,m2])
 desugar-functions: Connect(m1,m2) -> FuncCall(MethodRef(Actuation(),"connect"),[m1,m2])
 desugar-functions: Disconnect(m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect"),[m1,m2])
 desugar-functions: Rotate(m1,deg) -> FuncCall(MethodRef(Actuation(),"rotate"),[m1,deg])
@@ -98,7 +98,8 @@ desugar-functions: RotateCont(m1,v) -> FuncCall(MethodRef(Actuation(),"rotate_co
 
 
 
-desugar: Class(n,decls,funcs) -> Class(n,(),decls,funcs)
+desugar: Class(d@Meta(),metaparts,decls,funcs) -> Class(d,metaparts,<conc>(decls,funcs))
+desugar: Class(d@Module(),decls,funcs) -> Class(d,(),<conc>(decls,funcs))
 
 desugar: Block(stats) -> [stats]
 where
@@ -107,8 +108,9 @@ where
 desugar: Block(stats) -> stats
 where
 	<?[_|_]>stats
-	
-	
+
+desugar: MetaFieldRef(n) -> FieldRef(Meta(),n)	
+	 
 desugar: Nbs(d@NbsOp(_)) -> d
 desugar: Nbs(d@NbsCount(_)) -> d  
 	
@@ -125,6 +127,12 @@ desugar: Lt(e1,e2) -> BinOp(Lt(),e1,e2)
 desugar: LtEq(e1,e2) -> BinOp(LtEq(),e1,e2)
 desugar: Gt(e1,e2) -> BinOp(Gt(),e1,e2)
 desugar: GtEq(e1,e2) -> BinOp(GtEq(),e1,e2)
+
+
+desugar: NbsOp (filters) -> NbsOp(filters')
+where
+	<eq>(<length><filter(?NbsFilter("inRegion",_))>filters,0);
+	filters' := [NbsFilter("inRegion",Bool("true"))|filters]
 
 desugar: FuncCall(MethodRef(Module(), "fixSymmetry"), [v]) -> 
 Instr(
