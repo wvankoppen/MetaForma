@@ -116,8 +116,8 @@ regular tree grammar
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListStarOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListPlusOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <cons>(FieldDecl,ListStarOfFieldDecl0)
-    OptPartDecl0             -> <some>(PartDecl)
-    OptPartDecl0             -> <none>()
+    OptPartDecl1             -> <some>(PartDecl)
+    OptPartDecl1             -> <none>()
     ListStarOfVisItem0       -> ListPlusOfVisItem0
     ListStarOfVisItem0       -> <nil>()
     ListStarOfVisItem0       -> <conc>(ListStarOfVisItem0,ListStarOfVisItem0)
@@ -139,8 +139,8 @@ regular tree grammar
     ListPlusOfDefinition0    -> <conc>(ListPlusOfDefinition0,ListStarOfDefinition0)
     ListPlusOfDefinition0    -> <conc>(ListPlusOfDefinition0,ListPlusOfDefinition0)
     ListPlusOfDefinition0    -> <cons>(Definition,ListStarOfDefinition0)
-    OptVisualize0            -> <some>(Visualize)
-    OptVisualize0            -> <none>()
+    OptVisualize1            -> <some>(Visualize)
+    OptVisualize1            -> <none>()
     ListStarOfStringChar0    -> <string>
     ListPlusOfStringChar0    -> <string>
     ListStarOfNbsFilter0     -> ListPlusOfNbsFilter0
@@ -169,6 +169,8 @@ regular tree grammar
     ModHolderRef             -> ModHolderRef(ID,ID)
     Obj                      -> VarRef
     Obj                      -> SysObj
+    StateRef                 -> StateRef(ID)
+    StateRef                 -> StateGenericRef(StateGenericRef)
     VarRef                   -> VarRef(ID)
     MethodRef                -> MethodRef(Obj,ID)
     FuncRef                  -> FuncRef(ID)
@@ -176,8 +178,6 @@ regular tree grammar
     Stop                     -> Consensus()
     StopCondition            -> Until(Stop)
     StopCondition            -> Wait(Stop)
-    ModHolderOrExp           -> ModHolderRef
-    ModHolderOrExp           -> Exp
     Stmt                     -> Stop(ModHolderRef)
     Stmt                     -> RotateCont(ModHolderRef,Exp)
     Stmt                     -> Rotate(ModHolderRef,Exp)
@@ -193,7 +193,6 @@ regular tree grammar
     Stmt                     -> Goto(StateRef)
     Instr                    -> Stmt
     OrientRef                -> OrientRef(ID)
-    StateRef                 -> StateRef(ID)
     Stmt                     -> If(Exp,Block)
     Stmt                     -> IfElse(Exp,Block,Block)
     Block                    -> Block(ListStarOfStmt0)
@@ -209,7 +208,7 @@ regular tree grammar
     Definition               -> EvHdlr
     Declaration              -> State(ID,ListStarOfEvHdlr0,ListStarOfVarDecl0,ListStarOfFuncDecl0,ListStarOfInstr0)
     AssignList               -> AssignList(ListStarOfAssignElem0)
-    AssignElem               -> AssignElem(PayloadRef,ID)
+    AssignElem               -> AssignElem(PayloadRef,Exp)
     PayloadRef               -> PayloadRef(ID)
     Ref                      -> VarRef(ID)
     PartDecl                 -> MetaPartDecl(ListStarOfMetaPart0)
@@ -235,15 +234,16 @@ regular tree grammar
     BorderDecl               -> BorderDecl(ListStarOfBorderItem0)
     Definition               -> Class(Region,BorderDecl)
     Definition               -> Class(Module,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
-    Definition               -> Class(Meta,OptPartDecl0,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
+    Definition               -> Class(Meta,OptPartDecl1,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
     Definition               -> Class(Robot,ListStarOfFuncDecl0)
     Definition               -> GroupDef
     ModHolderOrStateRef      -> StateRef
     ModHolderOrStateRef      -> ModHolderRef
-    VisItem                  -> VisItem(ModHolderOrStateRef,Color,<int>)
+    VisItem                  -> VisItem(ModHolderOrStateRef,Color)
     VisGroup                 -> VisGroup(ID,ListStarOfVisItem0)
     Visualize                -> Visualize(ListStarOfVisGroup0)
-    Start                    -> Program(ID,OptVisualize0,ListStarOfDefinition0,ListStarOfDeclaration0)
+    Start                    -> Program(ID,OptVisualize1,ListStarOfDefinition0,ListStarOfDeclaration0)
+    StateGenericRef          -> <string>
     ModuleFieldID            -> <string>
     Exp                      -> OrBit(Exp,Exp)
     Exp                      -> AndBit(Exp,Exp)

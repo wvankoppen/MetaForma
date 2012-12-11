@@ -21,7 +21,7 @@ folding Default folding definitions
   //   Definition._ (disabled)
   
   Start.Program
-  OptVisualize0
+  OptVisualize1
   Visualize.Visualize
   VisGroup.VisGroup
   GroupDef.Group
@@ -31,6 +31,7 @@ folding Default folding definitions
   Exp.OrientMatch
   Stmt.Unicast
   AssignList.AssignList
+  AssignElem.AssignElem
   Nbs.Nbs
   Stmt.Assign
   Stmt.TryRegion
@@ -46,7 +47,7 @@ folding Default folding definitions
   StopCondition.Until
   Instr.Instr
   Definition.Class
-  OptPartDecl0
+  OptPartDecl1
   PartDecl.MetaPartDecl
   Definition.Class
   Definition.Class

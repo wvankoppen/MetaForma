@@ -89,6 +89,12 @@ exports
     "green"     -> Color 
     "yellow"    -> Color 
     "cyan"      -> Color 
+    "white"     -> Color 
+    "black"     -> Color 
+    "purple"    -> Color 
+    "orange"    -> Color 
+    "magenta"   -> Color 
+    "brown"     -> Color 
 
   lexical syntax
     "false"             -> Bool     
@@ -226,7 +232,7 @@ exports
     "program" ID Visualize? Definition* Declaration*                                                               -> Start               {cons("Program")}
     "visualize" "{" VisGroup* "}"                                                                                  -> Visualize           {cons("Visualize")}
     ID "{" VisItem* "}"                                                                                            -> VisGroup            {cons("VisGroup")}
-    ModHolderOrStateRef ":" Color [0-9] ";"                                                                        -> VisItem             {cons("VisItem")}
+    ModHolderOrStateRef ":" Color ";"                                                                              -> VisItem             {cons("VisItem")}
     ModHolderRef                                                                                                   -> ModHolderOrStateRef 
     StateRef                                                                                                       -> ModHolderOrStateRef 
     GroupDef                                                                                                       -> Definition          
@@ -258,7 +264,7 @@ exports
     ID                                                                                                             -> MetaPart            {cons("MetaPart")}
     ID                                                                                                             -> Ref                 {cons("VarRef")}
     ID                                                                                                             -> PayloadRef          {cons("PayloadRef")}
-    PayloadRef "=" ID                                                                                              -> AssignElem          {cons("AssignElem")}
+    PayloadRef "=" Exp                                                                                             -> AssignElem          {cons("AssignElem")}
     {AssignElem ","}*                                                                                              -> AssignList          {cons("AssignList")}
     "sequence" ID "{" EvHdlr* VarDecl* FuncDecl* Instr* "}"                                                        -> Declaration         {cons("State")}
     EvHdlr                                                                                                         -> Definition          
@@ -274,7 +280,6 @@ exports
     "{" Stmt* "}"                                                                                                  -> Block               {cons("Block")}
     "if" "(" Exp ")" Block "else" Block                                                                            -> Stmt                {cons("IfElse")}
     "if" "(" Exp ")" Block                                                                                         -> Stmt                {cons("If")}
-    ID                                                                                                             -> StateRef            {cons("StateRef")}
     ID                                                                                                             -> OrientRef           {cons("OrientRef")}
     Stmt                                                                                                           -> Instr               
     "goto" StateRef ";"                                                                                            -> Stmt                {cons("Goto")}
@@ -290,8 +295,6 @@ exports
     "rotate" "(" ModHolderRef "," Exp ")" ";"                                                                      -> Stmt                {cons("Rotate")}
     "rotate_continuous" "(" ModHolderRef "," Exp ")" ";"                                                           -> Stmt                {cons("RotateCont")}
     "stop" "(" ModHolderRef ")" ";"                                                                                -> Stmt                {cons("Stop")}
-    Exp                                                                                                            -> ModHolderOrExp      
-    ModHolderRef                                                                                                   -> ModHolderOrExp      
     "wait" "(" Stop ")" ";"                                                                                        -> StopCondition       {cons("Wait")}
     "until" "(" Stop ")" ";"                                                                                       -> StopCondition       {cons("Until")}
     "consensus" "(" ")"                                                                                            -> Stop                {cons("Consensus")}
@@ -299,15 +302,19 @@ exports
     ID                                                                                                             -> FuncRef             {cons("FuncRef")}
     Obj "." ID                                                                                                     -> MethodRef           {cons("MethodRef")}
     ID                                                                                                             -> VarRef              {cons("VarRef")}
+    StateGenericRef                                                                                                -> StateRef            {cons("StateGenericRef"), prefer}
+    ID                                                                                                             -> StateRef            {cons("StateRef")}
 
   context-free priorities
     { Obj "." ModuleFieldID -> Ref {cons("FieldRef")} } >
     { Obj "." ID -> Ref {cons("FieldRef")} }
 
   lexical syntax
-    "ID"       -> ModuleFieldID 
-    "metaID"   -> ModuleFieldID 
-    "metaPart" -> ModuleFieldID 
+    "ID"       -> ModuleFieldID   
+    "metaID"   -> ModuleFieldID   
+    "metaPart" -> ModuleFieldID   
+    "Init"     -> StateGenericRef 
+    "Choose"   -> StateGenericRef 
 
   context-free syntax
     ID                                       -> ModuleFieldID {reject}
@@ -369,7 +376,7 @@ exports
     "program" ID Visualize? Definition* Declaration*                                                               -> Start               {cons("Program")}
     "visualize" "{" VisGroup* "}"                                                                                  -> Visualize           {cons("Visualize")}
     ID "{" VisItem* "}"                                                                                            -> VisGroup            {cons("VisGroup")}
-    ModHolderOrStateRef ":" Color [0-9] ";"                                                                        -> VisItem             {cons("VisItem")}
+    ModHolderOrStateRef ":" Color ";"                                                                              -> VisItem             {cons("VisItem")}
     ModHolderRef                                                                                                   -> ModHolderOrStateRef 
     StateRef                                                                                                       -> ModHolderOrStateRef 
     GroupDef                                                                                                       -> Definition          
@@ -401,7 +408,7 @@ exports
     ID                                                                                                             -> MetaPart            {cons("MetaPart")}
     ID                                                                                                             -> Ref                 {cons("VarRef")}
     ID                                                                                                             -> PayloadRef          {cons("PayloadRef")}
-    PayloadRef "=" ID                                                                                              -> AssignElem          {cons("AssignElem")}
+    PayloadRef "=" Exp                                                                                             -> AssignElem          {cons("AssignElem")}
     {AssignElem ","}*                                                                                              -> AssignList          {cons("AssignList")}
     "sequence" ID "{" EvHdlr* VarDecl* FuncDecl* Instr* "}"                                                        -> Declaration         {cons("State")}
     EvHdlr                                                                                                         -> Definition          
@@ -417,7 +424,6 @@ exports
     "{" Stmt* "}"                                                                                                  -> Block               {cons("Block")}
     "if" "(" Exp ")" Block "else" Block                                                                            -> Stmt                {cons("IfElse")}
     "if" "(" Exp ")" Block                                                                                         -> Stmt                {cons("If")}
-    ID                                                                                                             -> StateRef            {cons("StateRef")}
     ID                                                                                                             -> OrientRef           {cons("OrientRef")}
     Stmt                                                                                                           -> Instr               
     "goto" StateRef ";"                                                                                            -> Stmt                {cons("Goto")}
@@ -433,8 +439,6 @@ exports
     "rotate" "(" ModHolderRef "," Exp ")" ";"                                                                      -> Stmt                {cons("Rotate")}
     "rotate_continuous" "(" ModHolderRef "," Exp ")" ";"                                                           -> Stmt                {cons("RotateCont")}
     "stop" "(" ModHolderRef ")" ";"                                                                                -> Stmt                {cons("Stop")}
-    Exp                                                                                                            -> ModHolderOrExp      
-    ModHolderRef                                                                                                   -> ModHolderOrExp      
     "wait" "(" Stop ")" ";"                                                                                        -> StopCondition       {cons("Wait")}
     "until" "(" Stop ")" ";"                                                                                       -> StopCondition       {cons("Until")}
     "consensus" "(" ")"                                                                                            -> Stop                {cons("Consensus")}
@@ -442,15 +446,19 @@ exports
     ID                                                                                                             -> FuncRef             {cons("FuncRef")}
     Obj "." ID                                                                                                     -> MethodRef           {cons("MethodRef")}
     ID                                                                                                             -> VarRef              {cons("VarRef")}
+    StateGenericRef                                                                                                -> StateRef            {cons("StateGenericRef"), prefer}
+    ID                                                                                                             -> StateRef            {cons("StateRef")}
 
   context-free priorities
     { Obj "." ModuleFieldID -> Ref {cons("FieldRef")} } >
     { Obj "." ID -> Ref {cons("FieldRef")} }
 
   lexical syntax
-    "ID"       -> ModuleFieldID 
-    "metaID"   -> ModuleFieldID 
-    "metaPart" -> ModuleFieldID 
+    "ID"       -> ModuleFieldID   
+    "metaID"   -> ModuleFieldID   
+    "metaPart" -> ModuleFieldID   
+    "Init"     -> StateGenericRef 
+    "Choose"   -> StateGenericRef 
 
   context-free syntax
     ID                                       -> ModuleFieldID {reject}

@@ -258,9 +258,9 @@ rules // Utility
 			names-group := <concat-glue(|",")><map(project-name)><index-getcons(|name)>Group();
 			names-mod :=  <map2str(to-java)><index-getcons(|name)>Group();
 			
-			
+			name-l := <lower-case>name;
 			controller := $<
-package ussr.samples.atron.simulations.metaforma.gen;
+package ussr.samples.atron.simulations.metaforma.gen.<name-l>;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -293,7 +293,7 @@ class <name>Simulation extends MfSimulation {
 	}
 
 	protected ArrayList$<$ModulePosition$>$ buildRobot() {
-		return new MfBuilder().buildGrid(<name>Controller.Mod.Sc);
+		return new MfBuilder().buildGrid(<name>Controller.Mod.Main);
 	}
 }
 		
@@ -304,7 +304,7 @@ public class <name>Controller extends MfController implements ControllerInformat
 	
 	
 	public enum Mod  implements IModule,IModEnum{
-		 NONE,Sc,<names-mod>;
+		 NONE,Main,<names-mod>;
 		 
 		 byte count;
 		
@@ -392,7 +392,7 @@ public class <name>Controller extends MfController implements ControllerInformat
 		
 	
 	public enum Group implements ICollectionEnum,IModuleRef{
-		ALL, NONE, Sc,<names-group>;
+		ALL, NONE, Main,<names-group>;
 		
 		public boolean contains(IModule m) {
 			return equals(m.getGroup());
@@ -453,9 +453,16 @@ public class <name>Controller extends MfController implements ControllerInformat
 		return meta;
 	}
 	
+	@Override
+	public BagRegion region() {
+		return region;
+	}
+	
 	private BagModule module;
 	private BagMeta meta;
-	private MfController ctrl;
+	private BagRegion region;
+	
+	private <name>Controller ctrl;
 	
 
 	public void init() {		
@@ -489,4 +496,23 @@ public class <name>Controller extends MfController implements ControllerInformat
 }
 
 <java-classes>
->
+>;
+destination-path := $[/home/wouter/git/ussr/src/ussr/samples/atron/simulations/metaforma/gen/[name-l]/];
+<makedir>destination-path;
+				destination-file := $[[destination-path][filename]];
+				//<debug>$[Opening file..];
+				handle := <fopen> (destination-file, "w");
+				//<debug>$[Filling file..];
+				<fputs> (controller, handle);
+				fclose;
+				//<debug>$[Refreshing file: [filename]];
+				<refresh-workspace-file> destination-file
+
+
+
+
+makedir: path -> 1
+	where not(<isdir>path);<mkdir>(path)
+
+makedir: path -> 1
+	where <isdir>path

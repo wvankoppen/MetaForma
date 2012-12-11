@@ -1,7 +1,7 @@
 program Brandt
  
-// group InsideLifter [Top,Bottom]
-// group OutsideLifter [Top,Bottom]
+group InsideLifter [Top,Bottom]
+group OutsideLifter [Top,Bottom]
 group Inside
 group Outside
 
@@ -16,22 +16,22 @@ sequence FlipOver {
 
 	do  {
 		if (gradPri == 0 && gradSec < 3 || gradSec==0 && gradPri<3) { 
-			group = @Outside;
+			module.group = @Outside;
 		}
 		if (gradPri > 0 && gradSec > 0) { 
-			group = @Inside;
+			module.group = @Inside;
 		}
 		if (gradPri==3 && gradSec==1) { 
-			id = @InsideLifter.Top;
+			module.id = @InsideLifter.Top;
 		}
 		if (gradPri==1 && gradSec==3) { 
-			id = @InsideLifter.Bottom;
+			module.id = @InsideLifter.Bottom;
 		}
 		if (gradPri==2 && gradSec==0) { 
-			id = @OutsideLifter.Top;
+			module.id = @OutsideLifter.Top;
 		}
 		if (gradPri==0 && gradSec==2) { 
-			id = @OutsideLifter.Bottom;
+			module.id = @OutsideLifter.Bottom;
 		}
 		isRef = (gradPri == 0 && gradSec == 3);
 	}
@@ -55,5 +55,4 @@ sequence FlipOver {
 		
 	
 	region.finish();
-	module.doThat();
 }

@@ -23,30 +23,30 @@ sequence FlipAlong  {
 		if (gradPri==3 && gradSec==0) module.id = @Clover.West;
 		if (gradPri==2 && gradSec==0) module.id = @Clover.South;
 		if (gradPri==3 && gradSec==1) module.id = @Clover.North;
-		if (gradPri==2 && gradSec==1) module.id = @Clover.East;
+		if (gradPri==2 && gr2adSec==1) module.id = @Clover.East;
 		module.isRef = (gradPri == 0 && gradSec == 3);
 	}
 			 
 	
 	disconnect(@Clover.West,@Clover.South);
 	rotate(@Clover.East,QUART);
-	// rotate(North@Clover,HALF);
-	// rotate(East@Clover,QUART);
-	// connect(North@Clover,@Floor);
-	// connect(West@Clover,@Floor);
-	// 
-	// do {
-	// 	disconnect(East@Clover,@Floor);
-	// 	disconnect(South@Clover,@Floor);
-	// }
-	// 
-	// rotate(East@Clover,-QUART);
-	// rotate(North@Clover,QUART);
-	// rotate(East@Clover,-QUART);
-	// rotate(North@Clover,QUART);
-	// connect(South@Clover,West@Clover);
+	rotate(@Clover.North,HALF);
+	rotate(@Clover.East,QUART);
+	connect(@Clover.North,@Main);
+	connect(@Clover.West,@Main);
 	
-	module.fixSymmetry(isRef);// store only works on current file instead of others
+	do {
+		disconnect(@Clover.East,@Main);
+		disconnect(@Clover.South,@Main);
+	}
+	
+	rotate(@Clover.East,-QUART);
+	rotate(@Clover.North,QUART);
+	rotate(@Clover.East,-QUART);
+	rotate(@Clover.North,QUART);
+	connect(@Clover.South,@Clover.West);
+	
+	module.fixSymmetry(isRef);
 	
 	// do {
 	// 	when (receive (Symmetry p)) {

@@ -47,7 +47,7 @@ rules
 	
 		
 	adjust-index-def-data(store-results|namespace, path): 
-		term@VisItem(_{[VisItem(), _, program]}, _, _, _, _) -> <store-results> DefData([VisItem(), program], VisItem(), term)
+		term@VisItem(_{[VisItem(), _, program]}, _, _, _) -> <store-results> DefData([VisItem(), program], VisItem(), term)
 		
 	
 	adjust-index-def-data(store-results|namespace, path): 

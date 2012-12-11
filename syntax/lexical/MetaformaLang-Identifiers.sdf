@@ -33,7 +33,13 @@ lexical syntax
 	 "blue"			-> Color
 	 "green"		-> Color
 	 "yellow"		-> Color
-	 "cyan"		-> Color
+	 "cyan"			-> Color
+	 "white"		-> Color
+	 "black"		-> Color
+	 "purple"		-> Color
+	 "orange"		-> Color
+	 "magenta"		-> Color
+	 "brown"		-> Color
 	
 	
 	lexical syntax

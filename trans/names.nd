@@ -48,7 +48,7 @@ rules
 	VisGroup(n,g):
 		defines VisGroup n
 		
-	VisItem(n,g,ref,color, digit):
+	VisItem(n,g,ref,color):
 		defines VisItem n
 		
 	

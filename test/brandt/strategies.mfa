@@ -1,25 +1,36 @@
 program Brandt
 
 visualize {  
+ 	
  	north {
- 		FlipOver: red 0;
- 		FlipThrough: blue 1;
- 		FlipAlong: green 2; 
+ 		@Clover.North: white;
+ 		@Clover.South: black;
+ 		@Clover.West: yellow;
+ 		@Clover.East: green;
+ 		
+ 		@OutsideLifter: cyan;
+ 		@InsideLifter: magenta;
+ 		
+ 		@UpLifter.Top: yellow;
+ 		@UpLifter.Bottom: magenta;
+ 		@UpLifter.Left: green; 
+ 		@UpLifter.Right: yellow;
+ 		
+ 		@Dummy.Left: white;
+ 		@Dummy.Right: black;
+ 		// @InsideLifter.Top123: green;
+ 		// @ikbestaniet: green;
  	}
  	
- 	south {
- 		@OutsideLifter: green 3;
- 		@InsideLifter: green 3;
- 		@InsideLifter.Top: green 3;
- 		@InsideLifter.Top123: green 3;
- 		@ikbestaniet: green 3;
- 	}
- 	 
+ 	south { 
+ 		Init: white; 
+ 		FlipOver: yellow;
+ 		FlipThrough: cyan;
+ 		FlipAlong: magenta;
+ 		 
+ 	} 
 } 
   
- 
-group InsideLifter [Top,Bottom]
-group OutsideLifter [Top,Bottom]
 
 packet MetaIdSet { 
 	byte newMetaID; 
@@ -36,19 +47,19 @@ packet Gradient {
 }
 
 when (receive (AddNeighbor p)) {
-	if (p.metaID == Left) {
+	if (p.metaID == meta.Left) {
 		meta.TopLeft = p.first;
 		meta.BottomLeft = p.second;
 	}
-	if (p.metaID == Right) {
+	if (p.metaID == meta.Right) {
 		meta.TopRight = p.first;
 		meta.BottomRight = p.second;
 	}
-	if (p.metaID == Top) {
+	if (p.metaID == meta.Top) {
 		meta.TopLeft = p.first;
 		meta.TopRight = p.second;
 	}
-	if (p.metaID == Bottom) {
+	if (p.metaID == meta.Bottom) {
 		meta.BottomLeft = p.first;
 		meta.BottomRight = p.second;
 	}
@@ -70,14 +81,12 @@ when (receive (Gradient p)) {
 }
 
 region {
-	
 	borders [
 		left: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0; 
 		right: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0;
 		top: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0;
 		bottom: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0;
 	]
-	
 }
 
 meta {
@@ -146,8 +155,8 @@ module  {
  	
 
 	void gradientInit() {
-		// sourcePri = orientation.primaryBorder();
-		// sourceSec = orientation.secondaryBorder();
+		sourcePri = region.atPrimaryBorder();
+		sourceSec = region.atSecondaryBorder();
 		
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;			

@@ -22,9 +22,15 @@ head: [x|xs] -> x
 tail: [x|xs] -> xs
 
  
-
 desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(desugar-td));innermost(desugar)//;alltd(desugar-flatten)
 
+
+desugar-td: Unicast(PacketRef(p),AssignList(assignlist),nbsop,rate) -> Unicast(PacketRef(p),AssignList(assignlist'),nbsop,rate)
+where
+	assignlist' := <map(desugar-payload(|<strip-annos>p))>assignlist
+	
+
+desugar-payload(|packet): AssignElem(PayloadRef(f),exp) -> AssignElem(PayloadRef(packet,f),exp)
 
 // desugar-events3(|state,c): EvHdlr(r,decls,stats) -> EvHdlr(<newname>,State(state,c),r,decls,stats)
 // desugar-events2(|state): EvHdlr(r,decls,stats) -> EvHdlr(<newname>,State(state),r,decls,stats)
@@ -48,7 +54,7 @@ where
 	<map(add-visgroup(|n))>g => g'
 
 
-add-visgroup(|n): VisItem(r,c,nr) -> VisItem(<newname>,n,r,c,nr) 
+add-visgroup(|n): VisItem(r,c) -> VisItem(<newname>,n,r,c) 
 
 
 // desugar-td: Program(n,vis,defs,decls) -> Program(n,vis,defs',decls)
@@ -163,6 +169,6 @@ Instr(
 
 signature constructors
 	EvHdlr : X * X * X * X * X -> EvHdlr
-	VisItem : X * X * X * X * X -> VisItem
+	VisItem : X * X * X * X -> VisItem
 
 // desugar: Broadcast(p,assignlist,rate) -> Unicast(p,assignlist,Conn(),Int(255),rate)

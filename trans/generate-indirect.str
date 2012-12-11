@@ -29,11 +29,11 @@ strategies
 	map2str(rule) = map(rule);concat-strings 
 
 	compile-packet: Packet(packet,i,payloaddecls) -> $[
-		class [packet] extends Packet {
+		class [packet'] extends Packet {
 			
 			public static byte getTypeNr() {return [i];}
 			
-			public [packet](MfController c) {
+			public [packet'](MfController c) {
 				super(c);
 				setType(getTypeNr());
 			}
@@ -59,6 +59,7 @@ strategies
 	]
 	where
 		<debug>$[Compile packet [packet]];
+		packet' := $[Packet[packet]];
 		java-fields := <map2str(to-java-stat)>payloaddecls;
 		fieldnames := <map(project-name)>payloaddecls;
 		java-fields-payloads := <compile-payload-assign>fieldnames; 
@@ -82,7 +83,7 @@ strategies
 	
 	 
  compile-packetreceive(|n): Packet(packet,i,payloaddecls) -> $[
-  	protected void receivePacket([packet] p) {
+  	public void receivePacket(Packet[packet] p) {
   		[code]
   	}
   ]
@@ -90,7 +91,7 @@ strategies
   	<debug>"Compile packetreceive";
  	 <index-get-evhdlr(|n)> <strip-annos>packet => eventhandlers;
  	 <map(simplify)>eventhandlers => result;
-  	code := <concat-strings><map(compile)>result => code
+  	code := <map2str(compile)>result => code
   	
  	 
  simplify: EvHdlr(_{[_,name,p]},receive,vardecls, stats) -> EvHdlr (State(),<conc>(vardecls,stats)) 	 
@@ -105,7 +106,9 @@ strategies
  // to-java-decls: Visualize (vis) -> $[[<concat-strings><map(to-java)>vis]]
 
 compile: Class(d@Region(),BorderDecl(items)) -> $[
-	class BagRegion {
+	class BagRegion extends RegionCore {
+		public BrandtController ctrl;
+		
 		public boolean at(BorderLine d) {
 			boolean ret = false;
 			[<map2str(to-java)>items]
@@ -146,7 +149,7 @@ where
   	
   compile: e@EvHdlr (state,stats) ->
   	$[if (mfStateMngr.check(p,[<to-java>state])) {
-  		[<concat-strings><map(to-java-stat)>stats]
+  		[<map2str(to-java-stat)>stats]
   	}]
   	where <debug>$[Compile EvHdlr];<debug>e
   	

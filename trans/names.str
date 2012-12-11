@@ -61,16 +61,16 @@ rules
 rules
 
   nam-get-definition-keys :
-    VisItem(n, g, ref, color, digit) -> [n]
+    VisItem(n, g, ref, color) -> [n]
 
   nam-get-definitions :
-    VisItem(n, g, ref, color, digit) -> [(VisItem(), [n])]
+    VisItem(n, g, ref, color) -> [(VisItem(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    VisItem(n, g, ref, color, digit) -> <VisItem(nam-annotate-def(|path__), id, id, id, id)>
+    VisItem(n, g, ref, color) -> <VisItem(nam-annotate-def(|path__), id, id, id)>
 
   nam-unique :
-    VisItem(n, g, ref, color, digit) -> <id>
+    VisItem(n, g, ref, color) -> <id>
 
 
 rules

@@ -24,6 +24,7 @@ rules
  	type-of: Packet(n,_) -> Packet()
 
 	type-of: FieldRef(o,f) -> <type-of><index-lookup>f
+	type-of: PayloadRef(o,f) -> <type-of><index-lookup>f
 	
 	
 	type-of: VarRef(n) ->  <type-of>  <index-lookup> n
@@ -36,5 +37,4 @@ rules
 	
 	type-of: PayloadDecl (t,n) -> t
 	
-	type-of:
-    Def(uri) -><index-get-data(|Type())> Def(uri)
+	type-of: Def(uri) -><index-get-data(|Type())> Def(uri)

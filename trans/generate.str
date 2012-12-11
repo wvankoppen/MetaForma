@@ -112,13 +112,14 @@ where brackets := "[]"
 to-java: OrientMatch(orients) -> $[[<concat-glue(|" || ")><map(orientref)>orients]
 ] 
 
-orientref: OrientRef(r) -> $[mfStateMngr.getState().getOrientation(Orientation.[r]))]
+orientref: OrientRef(r) -> $[mfStateMngr.getState().getOrientation().equals(Orientation.[r]))]
 
 
 to-java: Goto(s) -> $[mfStateMngr.nextOperation([<to-java>s]);]
 
 
-to-java: StateRef(n) -> $[Sequence.[n]] 
+to-java: StateRef(n) -> $[Sequence.[n]]
+to-java: StateGenericRef(n) -> $[SequenceGeneric.[n]]  
 
 
 to-java: BinOp (op,e1,e2) -> $[([<to-java>e1] [<to-java>op] [<to-java>e2])]
@@ -156,7 +157,8 @@ else {
 }
 ]
 
-to-java: FieldRef(obj,f) -> $[[<to-java>obj].getVar("[f]")]
+// to-java: FieldRef(obj,f) -> $[[<to-java>obj].getVar("[f]")]
+to-java: FieldRef(obj,f) -> $[[<to-java>obj].[f]]
 
 to-java: Assign(v@VarRef(_), e) -> $[[<to-java>v] = [<to-java>e];
 ]
@@ -190,10 +192,10 @@ to-java: Robot() -> $[ctrl.robot()]
 to-java: Actuation() -> $[mfActuation]
 
 to-java: VarRef(n) -> n
-to-java: PayloadRef(n) -> n
+to-java: PayloadRef(p,n) -> n
 to-java: Par(e) -> $[ ([<to-java>e]) ]
 
-to-java: Const(n) -> n
+to-java: Const(n) -> $[MfController.[n]]
 to-java: Int(i) -> i
 to-java: Bool(b) -> b
 
@@ -206,9 +208,9 @@ to-java: ByteArr() -> $[byte[brackets]] where
 to-java: ByteArr(bytes) -> $[new byte [<bracks>]{[<concat-glue(|",")><map(to-java)>bytes]}]
 
 
-to-java: NbsCount(exp) -> <to-java>exp
+to-java: NbsCount(exp) -> $[[<to-java>exp].size()]
 
-to-java: NbsOp(constraints) -> $[nbs()[<concat-strings><map(to-java)>constraints]]
+to-java: NbsOp(constraints) -> $[ctrl.nbs()[<concat-strings><map(to-java)>constraints]]
 
 to-java: NbsFilter(name,val) -> $[.nbsFilter[<to-upper-first>name]([<to-java>val])]
 
@@ -222,24 +224,24 @@ to-java: PacketRef(p) -> $[Packet[p]]
 
 to-java: Unicast(p@PacketRef(packet),AssignList(assigns),dests,rate) -> $[
 	if (ctrl.freqLimit("[packet]",[<compile-rate>rate])) {
-		unicast(([p'])new [p'](this)[assigns'],[<to-java>dests]);
+		ctrl.unicast(([p'])new [p'](ctrl)[assigns'],[<to-java>dests]);
 	}
 	]
 where
 	p' := <to-java>p;
-	assigns' := <concat-strings><map(to-java)>assigns
+	assigns' := <map2str(to-java)>assigns
 
 
 compile-rate: Some(Rate(exp)) -> <to-java>exp
 compile-rate: None() -> $[true]
 
-to-java: AssignElem(var,val) -> $[.setVar("[<to-java>var]",[val])]
+to-java: AssignElem(var,val) -> $[.setVar("[<to-java>var]",[<to-java>val])]
 
 
 
 
 
-to-java: VisItem (_,hemisphere,ref,c,_) -> $[visual.setColor("[<strip-annos>hemisphere]",[<to-java>ref],Color.[c]);
+to-java: VisItem (_,hemisphere,ref,c) -> $[visual.setColor("[<strip-annos>hemisphere]",[<to-java>ref],Color.[c]);
 ]
 
 

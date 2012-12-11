@@ -25,7 +25,7 @@ sorts	Group MetaClass
     "visualize" "{" VisGroup*"}" -> Visualize {"Visualize"}
     ID "{" VisItem* "}" 		 -> VisGroup{"VisGroup"}
 	
-	ModHolderOrStateRef ":" Color [0-9] ";" -> VisItem{"VisItem"}
+	ModHolderOrStateRef ":" Color ";" -> VisItem{"VisItem"}
     
     ModHolderRef -> ModHolderOrStateRef
     StateRef -> ModHolderOrStateRef
@@ -73,7 +73,7 @@ sorts	Group MetaClass
 	ID 					-> Ref{"VarRef"}
 	ID 					-> PayloadRef{"PayloadRef"}
 	
-	PayloadRef "=" ID			-> AssignElem{"AssignElem"}
+	PayloadRef "=" Exp			-> AssignElem{"AssignElem"}
 	{AssignElem ","}*				-> AssignList{"AssignList"} 
 	
 	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{"State"}
@@ -104,7 +104,7 @@ sorts	Group MetaClass
 	%% why broadcast? we always want to sent inside the same region, even for gradients and symmetry?
 	
 	
-	Ref "=" Exp ";" -> Stmt{"Assign"}
+	Ref "=" Exp ";" 				-> Stmt{"Assign"}
 	
 	
 
@@ -115,7 +115,14 @@ sorts	Group MetaClass
 	
 	"if" "(" Exp ")" Block 					-> Stmt{"If"}
 		
-	ID 										-> StateRef{"StateRef"}
+	
+			
+	
+	
+	
+	
+	
+		
 	ID 										-> OrientRef{"OrientRef"}	
 		
 	Stmt -> Instr
@@ -143,8 +150,8 @@ sorts	Group MetaClass
 	
 	"stop" "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
 	
-	Exp 			-> ModHolderOrExp
-	ModHolderRef 	-> ModHolderOrExp
+	%% Exp 			-> ModHolderOrExp
+	%% ModHolderRef 	-> ModHolderOrExp
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {"Wait"}
 	"until" "(" Stop ")" ";" -> StopCondition{"Until"}
@@ -162,8 +169,8 @@ sorts	Group MetaClass
 	
 	
 	
-	
-	
+	StateGenericRef						-> StateRef{"StateGenericRef",prefer}
+	ID		 							-> StateRef{"StateRef"}
 	
 	
 	
@@ -180,6 +187,8 @@ sorts	Group MetaClass
 	"ID" -> ModuleFieldID
 	"metaID" -> ModuleFieldID
 	"metaPart" -> ModuleFieldID
+	"Init" 									-> StateGenericRef
+	"Choose" 								-> StateGenericRef
 	
 	context-free syntax
 		ID -> ModuleFieldID{reject}

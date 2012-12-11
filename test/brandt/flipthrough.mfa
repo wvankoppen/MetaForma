@@ -1,6 +1,6 @@
 program Brandt
 
-group Uplifter [Top,Bottom,Left,Right]
+group UpLifter [Top,Bottom,Left,Right]
 group Dummy [Left,Right]
 
 sequence FlipThrough {
@@ -19,29 +19,29 @@ sequence FlipThrough {
 	}
 	
 	do  {				
-		disconnect(@Uplifter.Left, NORTH&MALE&EAST|SOUTH&MALE&WEST);
-		disconnect(@Uplifter.Right, NORTH&MALE&EAST);
+		disconnect(@UpLifter.Left, NORTH&MALE&EAST|SOUTH&MALE&WEST);
+		disconnect(@UpLifter.Right, NORTH&MALE&EAST);
 	} 
 	
 	do  {				
-		rotate(@Uplifter.Left, QUART);
-		rotate(@Uplifter.Right, QUART);
+		rotate(@UpLifter.Left, QUART);
+		rotate(@UpLifter.Right, QUART);
 	} 
 	
-	disconnect(@Uplifter.Top, NORTH);
-	rotate(@Uplifter.Top, HALF);
+	disconnect(@UpLifter.Top, NORTH);
+	rotate(@UpLifter.Top, HALF);
 	
 	do  {				
-		rotate(@Uplifter.Left, -QUART);
-		rotate(@Uplifter.Right, -QUART);
+		rotate(@UpLifter.Left, -QUART);
+		rotate(@UpLifter.Right, -QUART);
 	} 
 	
 	do  {				
-		rotate(@Uplifter.Right, -HALF);
-		rotate(@Uplifter.Bottom, HALF);
+		rotate(@UpLifter.Right, -HALF);
+		rotate(@UpLifter.Bottom, HALF);
 	} 
 	
-	connect(@Floor, @Uplifter);	
+	connect(@Main, @UpLifter);	
 	
 	region.finish();	
 }

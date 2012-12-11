@@ -34,7 +34,13 @@ lexical syntax
 	 "blue"			-> Color
 	 "green"		-> Color
 	 "yellow"		-> Color
-	 "cyan"		-> Color
+	 "cyan"			-> Color
+	 "white"		-> Color
+	 "black"		-> Color
+	 "purple"		-> Color
+	 "orange"		-> Color
+	 "magenta"		-> Color
+	 "brown"		-> Color
 	
 	
 	lexical syntax
@@ -206,7 +212,7 @@ sorts	Group MetaClass
     "visualize" "{" VisGroup*"}" -> Visualize {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
 	
-	ModHolderOrStateRef ":" Color [0-9] ";" -> VisItem{cons("VisItem")}
+	ModHolderOrStateRef ":" Color ";" -> VisItem{cons("VisItem")}
     
     ModHolderRef -> ModHolderOrStateRef
     StateRef -> ModHolderOrStateRef
@@ -254,7 +260,7 @@ sorts	Group MetaClass
 	ID 					-> Ref{cons("VarRef")}
 	ID 					-> PayloadRef{cons("PayloadRef")}
 	
-	PayloadRef "=" ID			-> AssignElem{cons("AssignElem")}
+	PayloadRef "=" Exp			-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*				-> AssignList{cons("AssignList")} 
 	
 	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("State")}
@@ -285,7 +291,7 @@ sorts	Group MetaClass
 	%% why broadcast? we always want to sent inside the same region, even for gradients and symmetry?
 	
 	
-	Ref "=" Exp ";" -> Stmt{cons("Assign")}
+	Ref "=" Exp ";" 				-> Stmt{cons("Assign")}
 	
 	
 
@@ -296,7 +302,14 @@ sorts	Group MetaClass
 	
 	"if" "(" Exp ")" Block 					-> Stmt{cons("If")}
 		
-	ID 										-> StateRef{cons("StateRef")}
+	
+			
+	
+	
+	
+	
+	
+		
 	ID 										-> OrientRef{cons("OrientRef")}	
 		
 	Stmt -> Instr
@@ -324,8 +337,8 @@ sorts	Group MetaClass
 	
 	"stop" "(" ModHolderRef ")" ";"			-> Stmt{cons("Stop")}
 	
-	Exp 			-> ModHolderOrExp
-	ModHolderRef 	-> ModHolderOrExp
+	%% Exp 			-> ModHolderOrExp
+	%% ModHolderRef 	-> ModHolderOrExp
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
 	"until" "(" Stop ")" ";" -> StopCondition{cons("Until")}
@@ -343,8 +356,8 @@ sorts	Group MetaClass
 	
 	
 	
-	
-	
+	StateGenericRef						-> StateRef{cons("StateGenericRef"),prefer}
+	ID		 							-> StateRef{cons("StateRef")}
 	
 	
 	
@@ -361,6 +374,8 @@ sorts	Group MetaClass
 	"ID" -> ModuleFieldID
 	"metaID" -> ModuleFieldID
 	"metaPart" -> ModuleFieldID
+	"Init" 									-> StateGenericRef
+	"Choose" 								-> StateGenericRef
 	
 	context-free syntax
 		ID -> ModuleFieldID{reject}
@@ -473,7 +488,7 @@ sorts	Group MetaClass
     "visualize" "{" VisGroup*"}" -> Visualize {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
 	
-	ModHolderOrStateRef ":" Color [0-9] ";" -> VisItem{cons("VisItem")}
+	ModHolderOrStateRef ":" Color ";" -> VisItem{cons("VisItem")}
     
     ModHolderRef -> ModHolderOrStateRef
     StateRef -> ModHolderOrStateRef
@@ -521,7 +536,7 @@ sorts	Group MetaClass
 	ID 					-> Ref{cons("VarRef")}
 	ID 					-> PayloadRef{cons("PayloadRef")}
 	
-	PayloadRef "=" ID			-> AssignElem{cons("AssignElem")}
+	PayloadRef "=" Exp			-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*				-> AssignList{cons("AssignList")} 
 	
 	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("State")}
@@ -552,7 +567,7 @@ sorts	Group MetaClass
 	%% why broadcast? we always want to sent inside the same region, even for gradients and symmetry?
 	
 	
-	Ref "=" Exp ";" -> Stmt{cons("Assign")}
+	Ref "=" Exp ";" 				-> Stmt{cons("Assign")}
 	
 	
 
@@ -563,7 +578,14 @@ sorts	Group MetaClass
 	
 	"if" "(" Exp ")" Block 					-> Stmt{cons("If")}
 		
-	ID 										-> StateRef{cons("StateRef")}
+	
+			
+	
+	
+	
+	
+	
+		
 	ID 										-> OrientRef{cons("OrientRef")}	
 		
 	Stmt -> Instr
@@ -591,8 +613,8 @@ sorts	Group MetaClass
 	
 	"stop" "(" ModHolderRef ")" ";"			-> Stmt{cons("Stop")}
 	
-	Exp 			-> ModHolderOrExp
-	ModHolderRef 	-> ModHolderOrExp
+	%% Exp 			-> ModHolderOrExp
+	%% ModHolderRef 	-> ModHolderOrExp
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
 	"until" "(" Stop ")" ";" -> StopCondition{cons("Until")}
@@ -610,8 +632,8 @@ sorts	Group MetaClass
 	
 	
 	
-	
-	
+	StateGenericRef						-> StateRef{cons("StateGenericRef"),prefer}
+	ID		 							-> StateRef{cons("StateRef")}
 	
 	
 	
@@ -628,6 +650,8 @@ sorts	Group MetaClass
 	"ID" -> ModuleFieldID
 	"metaID" -> ModuleFieldID
 	"metaPart" -> ModuleFieldID
+	"Init" 									-> StateGenericRef
+	"Choose" 								-> StateGenericRef
 	
 	context-free syntax
 		ID -> ModuleFieldID{reject}
