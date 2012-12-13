@@ -21,11 +21,13 @@ folding Default folding definitions
   //   Definition._ (disabled)
   
   Start.Program
-  OptVisualize1
+  OptVisualize2
   Visualize.Visualize
   VisGroup.VisGroup
   GroupDef.Group
   Definition.Class
+  OptPartDecl2
+  PartDecl.MetaPartDecl
   EvHdlr.EvHdlr
   Exp
   Exp.OrientMatch
@@ -39,18 +41,18 @@ folding Default folding definitions
   Stmt.Connect
   Stmt.Rotate
   Stmt.RotateCont
+  Stmt.Stop
+  Exp
   Stmt.FuncCall
   Stmt.FuncCall
   Instr.Instr
   StopCondition.Wait
-  Exp
   StopCondition.Until
   Instr.Instr
   Definition.Class
-  OptPartDecl1
-  PartDecl.MetaPartDecl
   Definition.Class
-  Definition.Class
+  OptBorderDecl2
   BorderDecl.BorderDecl
   BorderItem.BorderItem
+  Definition.ConstDecl
   Definition.Packet

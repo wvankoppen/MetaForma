@@ -23,7 +23,7 @@ imports
 
 signature
   constructors
-    Instr          : Nr * X * Dec *Stmt * PostCon -> Instr
+    Instr          : Nr * X * X * Dec *Stmt * PostCon -> Instr
     BinOp		   : Op * Exp * Exp -> Exp 
 	And	: Exp
 	Or	: Exp

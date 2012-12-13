@@ -48,7 +48,7 @@ packet Gradient {
 
 when (receive (AddNeighbor p)) {
 	if (p.metaID == meta.Left) {
-		meta.TopLeft = p.first;
+		meta.TopLeft = p.first; 
 		meta.BottomLeft = p.second;
 	}
 	if (p.metaID == meta.Right) {

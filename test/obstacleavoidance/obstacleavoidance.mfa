@@ -1,14 +1,29 @@
 program obstacleavoidance
 
+
+
 group Axis [Driver,Front,Back]
 group LeftWheel
 group RightWheel
-	
 
-robot {
-	void steer (byte degrees) {
-		rotate(@Axis.Front,degrees);
-		rotate(@Axis.Back,-degrees);
+float PROXIMITY = 0.15
+byte STEER_DEGREES = 15
+float BACKWARD_TIME = 10
+float TURNAROUND_TIME = 2
+
+byte FORWARD = 1
+byte BACKWARD = -1	
+
+module {
+	
+} 
+
+meta {
+	byte size;
+	
+	void steer (int degrees) {
+		rotate(@Axis.Front,STEER_DEGREES);
+		rotate(@Axis.Back,-STEER_DEGREES);
 	}
 	
 	void drive (byte dirLeft, byte dirRight) {
@@ -17,26 +32,30 @@ robot {
 	}
 	
 	void halt () {
-		stop(@LeftWheel);
-		stop(@RightWheel);
+		// stop(@LeftWheel);
+		// stop(@RightWheel);
 	}
 }
 
-sequence Init {
+region {
+	
+}
+
+sequence Main {
 	do {
-		when (#(connSource:SOUTH&EAST&FEMALE, connDest:EAST)) {
+		when (#(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0) {
 			module.group = @LeftWheel;
 		}
 		
-		when (#(connSource:SOUTH&EAST&FEMALE, connDest:WEST)) {
+		when (#(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0) {
 			module.group = @RightWheel;
 		} 
 		
-		when (#(@RightWheel) || #(@LeftWheel) && !#(connSource: NORTH&EAST&FEMALE)) {
+		when (#(@RightWheel)>0 || #(@LeftWheel)>0 && #(connSource: NORTH&EAST&FEMALE)==0) {
 			module.id = @Axis.Front;
 		}
 		
-		when (#(@RightWheel) || #(@LeftWheel) && !#(connSource: NORTH&EAST&FEMALE)) {
+		when (#(@RightWheel)>0 || #(@LeftWheel)>0 && #(connSource: NORTH&EAST&FEMALE)==0) {
 			module.id = @Axis.Back;
 		}
 		
@@ -50,7 +69,7 @@ sequence Init {
 
 
 sequence Drive {
- 	when (module.group == @Axis && module.proximity() > config.proximity) {
+ 	when (module.group == @Axis && module.proximity() > PROXIMITY) {
 		if (#(@Axis) == 2) {
 			meta.size = 3;
 			goto TurnTwoWheeler;
@@ -63,7 +82,7 @@ sequence Drive {
 	}	
 	
 	// FORWARD and BACKBWARD should be built in constants of 1 and -1, resp.
-	robot.drive(FORWARD,FORWARD);
+	meta.drive(FORWARD,FORWARD);
 }
 
 

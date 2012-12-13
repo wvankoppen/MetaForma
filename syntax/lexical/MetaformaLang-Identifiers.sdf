@@ -7,11 +7,11 @@ exports
 lexical syntax
 	[a-zA-Z][a-zA-Z0-9\_]* -> ID
     [0-9]+          -> INT
+    [0-9]+?[\.][0-9]+          -> FLOAT
 	~[\"]*	-> String
 	
 lexical restrictions
 	ID -/- [a-zA-Z0-9\_]
-	"var" -/- [a-zA-Z0-9\_]
 	String -/- ~[\"]
 	
 	
@@ -75,6 +75,8 @@ lexical syntax
 	context-free syntax
 	"boolean"		-> Type{"Boolean"}
 	"byte"			-> Type{"Byte"}
+	"int"			-> Type{"Int"}
+	"float"			-> Type{"Float"}
 	"void"			-> Type{"Void"}
 	"byte" "[" "]"	-> Type{"ByteArr"}
 	

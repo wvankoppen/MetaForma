@@ -3,18 +3,25 @@ module MetaformaLang-Colorer
 imports 
 	MetaformaLang-Colorer.generated
 
+colorer system colors
+darkyellow = 127 127 0
+
+
 colorer
-                                                                      
+       SysObj : darkblue                                                 
 	Type     : 127 0 85 bold
 	Obj     : 0 128 0      
 	ConstLan	: brown 
 	ModuleFieldID : darkgreen
-	SysObj : brown
+	SysObj : darkblue
+	ModHolderRef: darkyellow
 	
-	_.Connect : darkred
-	_.Disconnect : darkred
-	_.Rotate : darkred
-	_.ConnectPart : darkred
-	_.DisconnectPart : darkred
+	 
+	Connect : blue
+	Disconnect : blue
+	Rotate : blue
+	Stop : blue
+	RotateContinuous : blue
+	
 	
 	_.ModHolder : 33 33 33

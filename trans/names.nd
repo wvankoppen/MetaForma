@@ -42,6 +42,7 @@ namespaces
 	VisItem
 	VisGroup
 	EventHandler
+	Const
 	
 rules
 	
@@ -51,7 +52,8 @@ rules
 	VisItem(n,g,ref,color):
 		defines VisItem n
 		
-	
+	ConstDecl(t,n,v):
+		defines Const n
 	
 	EvHdlr(x, _, _, _):
 		defines EventHandler x
@@ -59,7 +61,7 @@ rules
 	
 	Program(n,_,_,_):
 		defines non-unique Program n
-		scopes Group, Packet, Class, State,/*Function,*/MetaPart,EventHandler,VisItem
+		scopes Group, Packet, Class, State,/*Function,*/MetaPart,EventHandler,VisItem,Const
 
 	Group(n,_) :
 		defines Group n
@@ -71,13 +73,17 @@ rules
 	Group(n) :
 	 	defines Group n
 	 
-	State (n,_,_,_,_):
+	State (n,_,_,_,_,_):
 		defines State n	
 		scopes Packet,Var,Instruction,EventHandler
 		
-	Instr(i,_,_,_):
+	Instr(i,_,_,_,_):
 		defines Instruction i
-		scopes EventHandler
+		scopes EventHandler,Packet
+		
+		
+
+
 		
 	StateRef(n):
 		refers to State n
@@ -114,7 +120,7 @@ rules
 	
 			
 	VarDecl(t,n): 
-		defines non-unique Var n of type t 
+		defines  Var n of type t
 		
 	Param(t, x) :
     	defines Var x of type t	
@@ -149,13 +155,14 @@ rules
 		refers to Var n			
 		refers to Field n
 		refers to MetaPart n
+		refers to Const n
 		
 		
 		
 		
 	FieldRef(c,n):
 		refers to Field n in Class cl
-		refers to Payload n in Packet cl
+		// refers to Payload n in Packet cl
 		where c has type Type(cl)
 		// refers to Class c
 	
@@ -170,10 +177,7 @@ rules
 	Class (n,_): // Region
 		defines Class n of type Type(n)
 		scopes Payload,Field,Var,Function
-		
-	Instr(_,_,_,_):
-		scopes Packet
-
+	
 	
 	MetaPart (n):
 		defines MetaPart n

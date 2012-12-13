@@ -8,12 +8,10 @@ signature
                     : VarRef -> Obj
                     : SysObj -> Obj
     StateRef        : ID -> StateRef
-    StateGenericRef : StateGenericRef -> StateRef
+    StateGenericRef : StateGeneric -> StateRef
     VarRef          : ID -> VarRef
     MethodRef       : Obj * ID -> MethodRef
     FuncRef         : ID -> FuncRef
-                    : Exp -> Stop
-    Consensus       : Stop
     Until           : Stop -> StopCondition
     Wait            : Stop -> StopCondition
     MetaFieldRef    : ID -> MetaFieldRef
@@ -21,22 +19,18 @@ signature
     Group           : ID -> GroupDef
     Group           : ID * List(Mod) -> GroupDef
     Instr           : List(EvHdlr) * List(VarDecl) * List(Stmt) -> Instr
-    Instr           : List(EvHdlr) * List(VarDecl) * List(Stmt) * StopCondition -> Instr
+    Instr           : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) * StopCondition -> Instr
                     : Stmt -> Instr
     OrientRef       : ID -> OrientRef
     Block           : List(Stmt) -> Block
     Block           : Stmt -> Block
-    Rate            : Ref -> Rate
-                    : Exp -> EventExp
-    Receive         : PacketVarDecl -> Receive
-    PacketRef       : ID -> PacketRef
     FuncCall        : FuncRef * List(Exp) -> Stmt
     FuncCall        : MethodRef * List(Exp) -> Stmt
-    Stop            : ModHolderRef -> Stmt
-    RotateCont      : ModHolderRef * Exp -> Stmt
-    Rotate          : ModHolderRef * Exp -> Stmt
-    Connect         : ModHolderRef * Exp -> Stmt
-    Disconnect      : ModHolderRef * Exp -> Stmt
+    Stop            : Stop * ModHolderRef -> Stmt
+    RotateCont      : RotateContinuous * ModHolderRef * Exp -> Stmt
+    Rotate          : Rotate * ModHolderRef * Exp -> Stmt
+    Connect         : Connect * ModHolderRef * Exp -> Stmt
+    Disconnect      : Disconnect * ModHolderRef * Exp -> Stmt
     TryRegion       : StateRef * OrientRef * List(MetaFieldRef) * List(MetaFieldRef) -> Stmt
     Goto            : ID * ID -> Stmt
     Goto            : StateRef -> Stmt
@@ -44,7 +38,11 @@ signature
     IfElse          : Exp * Block * Block -> Stmt
     Assign          : Ref * Exp -> Stmt
     Unicast         : PacketRef * AssignList * Nbs * Option(Rate) -> Stmt
-    If              : EventExp * List(VarDecl) * List(Stmt) -> Stmt
+    Rate            : Ref -> Rate
+                    : Exp -> EventExp
+    Receive         : PacketVarDecl -> Receive
+    PacketRef       : ID -> PacketRef
+    If              : EventExp * List(VarDecl) * List(Stmt) -> EvHdlrSemi
     EvHdlr          : Receive * List(VarDecl) * List(Stmt) -> EvHdlr
     AssignList      : List(AssignElem) -> AssignList
     AssignElem      : PayloadRef * Exp -> AssignElem
@@ -57,13 +55,12 @@ signature
     PayloadDecl     : Type * ID -> PayloadDecl
     FieldDecl       : Type * ID -> FieldDecl
     VarDecl         : Type * ID -> VarDecl
-    State           : ID * List(EvHdlr) * List(VarDecl) * List(FuncDecl) * List(Instr) -> Declaration
+    State           : StateRef * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(FuncDecl) * List(Instr) -> Declaration
                     : FuncDecl -> Declaration
     Param           : Type * ID -> ParamListElem
     FuncDecl        : Type * ID * List(ParamListElem) * List(Declaration) * List(Stmt) * Exp -> FuncDecl
     FuncDecl        : ID * List(ParamListElem) * List(Declaration) * List(Stmt) -> FuncDecl
     Region          : Region
-    Robot           : Robot
     Module          : Module
     Meta            : Meta
     BorderBottom    : Direction
@@ -74,10 +71,10 @@ signature
     BorderDecl      : List(BorderItem) -> BorderDecl
                     : EvHdlr -> Definition
     Packet          : ID * List(PayloadDecl) -> Definition
-    Class           : Region * BorderDecl -> Definition
+    ConstDecl       : Type * ID * Exp -> Definition
+    Class           : Region * Option(BorderDecl) * List(FuncDecl) -> Definition
     Class           : Module * List(FieldDecl) * List(FuncDecl) -> Definition
     Class           : Meta * Option(PartDecl) * List(FieldDecl) * List(FuncDecl) -> Definition
-    Class           : Robot * List(FuncDecl) -> Definition
                     : GroupDef -> Definition
                     : StateRef -> ModHolderOrStateRef
                     : ModHolderRef -> ModHolderOrStateRef
@@ -85,10 +82,17 @@ signature
     VisGroup        : ID * List(VisItem) -> VisGroup
     Visualize       : List(VisGroup) -> Visualize
     Program         : ID * Option(Visualize) * List(Definition) * List(Declaration) -> Start
-                    : String -> StateGenericRef
+                    : String -> StateGeneric
                     : String -> ModuleFieldID
+                    : String -> Connect
+                    : String -> Disconnect
+                    : String -> Rotate
+                    : String -> RotateContinuous
+                    : Exp -> Stop
+    Consensus       : Stop
+                    : String -> Stop
     MetaPart        : ID -> MetaPart
-                    : ModHolderRef -> NbsFilter
+    NbsFilter       : ModHolderRef -> NbsFilter
     NbsFilter       : NbsFilterKey * Exp -> NbsFilter
     NbsOp           : List(NbsFilter) -> NbsOp
     Nbs             : NbsOp -> Nbs
@@ -119,6 +123,7 @@ signature
     Bool            : Bool -> Exp
     Const           : ConstLan -> Exp
     Const           : Const -> Exp
+    Float           : FLOAT -> Exp
     Int             : INT -> Exp
     NbsCount        : NbsOp -> Exp
                     : Ref -> Exp
@@ -131,6 +136,8 @@ signature
                     : ID -> Type
     ByteArr         : Type
     Void            : Type
+    Float           : Type
+    Int             : Type
     Byte            : Type
     Boolean         : Type
                     : String -> NbsFilterKey
@@ -138,6 +145,7 @@ signature
                     : String -> ConstLan
                     : String -> Bool
                     : String -> Color
+                    : String -> FLOAT
                     : String -> INT
                     : String -> ID
 

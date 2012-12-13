@@ -4,10 +4,6 @@ imports MetaformaLang
 exports
 
   lexical syntax
-  
-  	[0-9]+ "ms"			-> TIME
-  
-    
     
     "\"" StringChar* "\"" -> STRING
     ~[\"\n]               -> StringChar

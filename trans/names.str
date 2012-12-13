@@ -41,6 +41,7 @@ signature
     VisItem      : Namespace
     VisGroup     : Namespace
     EventHandler : Namespace
+    Const        : Namespace
 
 
 rules
@@ -75,6 +76,21 @@ rules
 
 rules
 
+  nam-get-definition-keys :
+    ConstDecl(t, n, v) -> [n]
+
+  nam-get-definitions :
+    ConstDecl(t, n, v) -> [(Const(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    ConstDecl(t, n, v) -> <ConstDecl(id, nam-annotate-def(|path__), id)>
+
+  nam-unique :
+    ConstDecl(t, n, v) -> <id>
+
+
+rules
+
   nam-get-scope-types :
     EvHdlr(x, _, _, _) -> [Var()]
 
@@ -101,6 +117,7 @@ rules
                            , MetaPart()
                            , EventHandler()
                            , VisItem()
+                           , Const()
                            ]
 
   nam-get-definition-keys :
@@ -164,41 +181,41 @@ rules
 rules
 
   nam-get-scope-types :
-    State(n, _, _, _, _) -> [ Packet()
-                            , Var()
-                            , Instruction()
-                            , EventHandler()
-                            ]
+    State(n, _, _, _, _, _) -> [ Packet()
+                               , Var()
+                               , Instruction()
+                               , EventHandler()
+                               ]
 
   nam-get-definition-keys :
-    State(n, _, _, _, _) -> [n]
+    State(n, _, _, _, _, _) -> [n]
 
   nam-get-definitions :
-    State(n, _, _, _, _) -> [(State(), [n])]
+    State(n, _, _, _, _, _) -> [(State(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    State(n, _, _, _, _) -> <State(nam-annotate-def(|path__), id, id, id, id)>
+    State(n, _, _, _, _, _) -> <State(nam-annotate-def(|path__), id, id, id, id, id)>
 
   nam-unique :
-    State(n, _, _, _, _) -> <id>
+    State(n, _, _, _, _, _) -> <id>
 
 
 rules
 
   nam-get-scope-types :
-    Instr(i, _, _, _) -> [EventHandler()]
+    Instr(i, _, _, _, _) -> [EventHandler(), Packet()]
 
   nam-get-definition-keys :
-    Instr(i, _, _, _) -> [i]
+    Instr(i, _, _, _, _) -> [i]
 
   nam-get-definitions :
-    Instr(i, _, _, _) -> [(Instruction(), [i])]
+    Instr(i, _, _, _, _) -> [(Instruction(), [i])]
 
   nam-annotate-names(|paths__, path__):
-    Instr(i, _, _, _) -> <Instr(nam-annotate-def(|path__), id, id, id)>
+    Instr(i, _, _, _, _) -> <Instr(nam-annotate-def(|path__), id, id, id, id)>
 
   nam-unique :
-    Instr(i, _, _, _) -> <id>
+    Instr(i, _, _, _, _) -> <id>
 
 
 rules
@@ -377,6 +394,9 @@ rules
   type-of :
     VarDecl(t, n) -> t
 
+  nam-unique :
+    VarDecl(t, n) -> <id>
+
 
 rules
 
@@ -530,6 +550,7 @@ rules
     VarRef(n) -> [ (Var(), [n])
                  , (Field(), [n])
                  , (MetaPart(), [n])
+                 , (Const(), [n])
                  ]
 
   nam-annotate-names(|paths__, path__):
@@ -539,6 +560,7 @@ rules
     VarRef(n) -> [ [Var()|path__]
                  , [Field()|path__]
                  , [MetaPart()|path__]
+                 , [Const()|path__]
                  ]
     where <target__> n
 
@@ -550,18 +572,14 @@ rules
     where Type(cl) := <type-of> c
 
   nam-get-uses :
-    FieldRef(c, n) -> [ (Field(), [n])
-                      , (Payload(), [n])
-                      ]
+    FieldRef(c, n) -> [(Field(), [n])]
     where Type(cl) := <type-of> c
 
   nam-annotate-names(|paths__, path__):
     FieldRef(c, n) -> <FieldRef(id, nam-annotate-use(|paths__, Field()))>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    FieldRef(c, n) -> <concat> [ <index-lookup-children(|Field(), prefix__)> cl
-                               , <index-lookup-children(|Payload(), prefix__)> cl
-                               ]
+    FieldRef(c, n) -> <index-lookup-children(|Field(), prefix__)> cl
     where <target__> n
     where Type(cl) := <type-of> c
 
@@ -628,12 +646,6 @@ rules
 
   nam-unique :
     Class(n, _) -> <id>
-
-
-rules
-
-  nam-get-scope-types :
-    Instr(_, _, _, _) -> [Packet()]
 
 
 rules

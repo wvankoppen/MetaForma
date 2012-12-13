@@ -154,7 +154,7 @@ rules // Debugging
     	index-setup(|<language>, [project-path], $[[project-path]/[path]]);
     	filename := <guarantee-extension(|"index.types.aterm")> path;
    		<project-name>ast => name;
-      	data := <index-get-all-values>Type([Packet(), "AddNeighbor2", "Testxyz"], ())
+      	data := <index-get-all-values>Type((), ())
   
   
   index-manual:
@@ -165,13 +165,12 @@ rules // Debugging
       
       <strip-annos><project-name>ast => name;
       evhdlrs := <index-get-evhdlrs>name;
-      vis := <index-getcons(|name)>VisItem();
-      groups := <index-getcons(|name)>Group();
-      classes := <index-getcons(|name)>Class();
-      sequences := <index-getcons(|name)>State();
-      packets := <index-get-packets>name;
-      metaparts := <index-getcons(|name)>MetaPart();
-      data := (evhdlrs,vis,groups,classes,sequences,packets,metaparts)
+      
+      cons := [VisItem(),Group(),Class(),State(),MetaPart(),Const()];
+      
+      data := [<index-get-packets>name|<map(index-getcons(|name))>cons]
+      
+      
             
       
      
@@ -220,7 +219,7 @@ rules // Utility
 		(selected, position, ast, path, project-path) -> (filename, controller)
 		where
 			<debug>"Generate direct Java code";
-			<strip-annos><project-name>ast => name;
+			<project-name>ast => name;
 			<guarantee-extension(|"java")> $[[name]Controller] => filename ;
 			<base-filename> path => javafile;
 			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
@@ -252,6 +251,10 @@ rules // Utility
 			
 			
 			<debug>"##############################";
+			debug(!"COMPILE CONSTS");
+			java-consts := <map2str(to-java)><debug(!"Consts:")><index-getcons(|name)>Const();
+			
+			<debug>"##############################";
 			debug(!"COMPILE NAMES");
 			names-metapart := <concat-glue(|",")><map(project-name)><index-getcons(|name)>MetaPart();
 			names-sequence := <concat-glue(|",")><map(project-name)>states;
@@ -265,15 +268,19 @@ package ussr.samples.atron.simulations.metaforma.gen.<name-l>;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.Set; 
 
 import ussr.description.Robot;
 import ussr.description.setup.ModulePosition;
+import ussr.description.setup.WorldDescription;
+import ussr.samples.ObstacleGenerator;
 import ussr.model.Controller;
 import ussr.model.debugging.ControllerInformationProvider;
 import ussr.samples.atron.ATRON;
 import ussr.samples.atron.simulations.metaforma.lib.*;
 import ussr.samples.atron.simulations.metaforma.lib.Packet.*;
+
+
 
 class <name>Simulation extends MfSimulation {
 
@@ -293,17 +300,93 @@ class <name>Simulation extends MfSimulation {
 	}
 
 	protected ArrayList$<$ModulePosition$>$ buildRobot() {
-		return new MfBuilder().buildGrid(<name>Controller.Mod.Main);
+		return new MfBuilder().buildCar(2,Mod.Main);
 	}
+	
+	protected void changeWorldHook(WorldDescription world) {
+        ObstacleGenerator generator = new ObstacleGenerator();
+        generator.obstacalize(ObstacleGenerator.ObstacleType.LINE, world);
+        world.setPlaneTexture(WorldDescription.GREY_GRID_TEXTURE);
+    }
 }
 		
 <java-packets>
 				
 public class <name>Controller extends MfController implements ControllerInformationProvider {
 	
+	<java-consts>
 	
 	
-	public enum Mod  implements IModule,IModEnum{
+	
+	@Override
+	public IMetaPart getMetaPart() {
+		return MetaPart.NONE;
+	}
+
+	@Override
+	public ISequence getStateInst() {
+		return Sequence.NONE;
+	}
+
+	@Override
+	public BagModule module() {
+		return module;
+
+	}
+	
+	@Override
+	public BagMeta meta() {
+		return meta;
+	}
+	
+	@Override
+	public BagRegion region() {
+		return region;
+	}
+	
+	private BagModule module;
+	private BagMeta meta; 
+	private BagRegion region;
+	
+	private <name>Controller ctrl;
+	
+
+	public void init() {		
+		ctrl = this;
+		module = new BagModule();
+		meta = new BagMeta();
+		region = new BagRegion();
+		
+		module.setController(this);
+		meta.setController(this);
+		region.setController(this);
+		
+		Module.Mod = Mod.NONE;
+		Module.Group = Group.NONE;
+		
+		module().part = MetaPart.NONE;
+		
+		
+		<java-visuals>
+		
+		
+	
+		
+		visual.setMessageFilter(255);//^ pow2(PacketDiscover.getTypeNr()));		
+	}
+
+	
+	public void handleStates() {
+		<java-states>	
+	}
+			
+	
+	<java-packetreceives>
+	
+	<java-classes>
+}
+
+enum Mod  implements IModule,IModEnum{
 		 NONE,Main,<names-mod>;
 		 
 		 byte count;
@@ -391,7 +474,7 @@ public class <name>Controller extends MfController implements ControllerInformat
 		
 		
 	
-	public enum Group implements ICollectionEnum,IModuleRef{
+	enum Group implements ICollectionEnum,IModuleRef{
 		ALL, NONE, Main,<names-group>;
 		
 		public boolean contains(IModule m) {
@@ -414,7 +497,7 @@ public class <name>Controller extends MfController implements ControllerInformat
 		}
 	}	
 	
-	public enum Sequence implements ISequence {
+	enum Sequence implements ISequence {
 		NONE, <names-sequence>;
 		public byte ord() {return (byte) (ordinal() - 1 + SequenceGeneric.values().length);	}
 		public ISequence fromByte(byte b) {return values()[b+1 - SequenceGeneric.values().length];}
@@ -431,71 +514,8 @@ public class <name>Controller extends MfController implements ControllerInformat
 			return (byte) (values().length - 1);
 		}
 	} 
-	
-	@Override
-	public IMetaPart getMetaPart() {
-		return MetaPart.NONE;
-	}
 
-	@Override
-	public ISequence getStateInst() {
-		return Sequence.NONE;
-	}
 
-	@Override
-	public BagModule module() {
-		return module;
-
-	}
-	
-	@Override
-	public BagMeta meta() {
-		return meta;
-	}
-	
-	@Override
-	public BagRegion region() {
-		return region;
-	}
-	
-	private BagModule module;
-	private BagMeta meta;
-	private BagRegion region;
-	
-	private <name>Controller ctrl;
-	
-
-	public void init() {		
-		ctrl = this;
-		module = new BagModule();
-		meta = new BagMeta();
-		module.setController(this);
-		meta.setController(this);
-		
-		Module.Mod = Mod.NONE;
-		Module.Group = Group.NONE;
-		
-		module().part = MetaPart.NONE;
-		
-		
-		<java-visuals>
-		
-		
-	
-		
-		visual.setMessageFilter(255);//^ pow2(PacketDiscover.getTypeNr()));		
-	}
-
-	
-	public void handleStates() {
-		<java-states>	
-	}
-			
-	
-	<java-packetreceives>
-}
-
-<java-classes>
 >;
 destination-path := $[/home/wouter/git/ussr/src/ussr/samples/atron/simulations/metaforma/gen/[name-l]/];
 <makedir>destination-path;

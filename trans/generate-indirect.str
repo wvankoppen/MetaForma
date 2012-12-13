@@ -59,7 +59,7 @@ strategies
 	]
 	where
 		<debug>$[Compile packet [packet]];
-		packet' := $[Packet[packet]];
+		packet' := $[[packet]Base];
 		java-fields := <map2str(to-java-stat)>payloaddecls;
 		fieldnames := <map(project-name)>payloaddecls;
 		java-fields-payloads := <compile-payload-assign>fieldnames; 
@@ -83,7 +83,7 @@ strategies
 	
 	 
  compile-packetreceive(|n): Packet(packet,i,payloaddecls) -> $[
-  	public void receivePacket(Packet[packet] p) {
+  	public void receivePacket([packet]Base p) {
   		[code]
   	}
   ]
@@ -105,40 +105,50 @@ strategies
  	
  // to-java-decls: Visualize (vis) -> $[[<concat-strings><map(to-java)>vis]]
 
-compile: Class(d@Region(),BorderDecl(items)) -> $[
+compile: Class(d@Region(),borderitems,funcs) -> $[
 	class BagRegion extends RegionCore {
-		public BrandtController ctrl;
-		
+				
 		public boolean at(BorderLine d) {
 			boolean ret = false;
-			[<map2str(to-java)>items]
+			[<to-java>borderitems]
 			return ret;
 		}
+		
+		[<map2str(to-java)>funcs]
 	}
 ]
 where
 	<debug>$[Compile Region class]
+
+
+to-java: BorderDecl(items) -> <map2str(to-java)>items
+to-java: None() -> $[]
 
  compile:  Class(id',_,elements) -> $[class Bag[n] extends [n]Core implements I[n]Bag {
 	[elements']
 	}
 	]
 	where
-		n := <cons2name>id';
+		n := <construct2name>id';
 		<debug>$[Compile class [n]];
 		<map2str(to-java)>elements => elements'
 
 
-cons2name: Meta() -> $[Meta]
-cons2name: Module() -> $[Module]
+construct2name: Meta() -> $[Meta]
+construct2name: Module() -> $[Module]
+construct2name: Region() -> $[Region]
  
- compile: State(n,evhdlrs,vars,funcs,instrs) -> 
-$[if (mfStateMngr.at(Sequence.[n])) {  [code]
+ compile: State(state,evhdlrs,evts,vars,funcs,instrs) -> 
+$[if (mfStateMngr.at([n])) {
+	[java-evts]  
+	[java-instrs]
 }
 ]
-where 
+where
+	n := <to-java>state; 
 	<debug>$[COMPILE sequence [n]];
-	<concat-strings><map(to-java-instrs)>instrs => code
+	<map2str(to-java)>evts => java-evts;
+	<map2str(to-java-instr)>instrs => java-instrs
  
  
  // to-java-packetreceive = 

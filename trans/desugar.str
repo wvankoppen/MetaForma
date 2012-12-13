@@ -61,7 +61,7 @@ add-visgroup(|n): VisItem(r,c) -> VisItem(<newname>,n,r,c)
 // where
 // 	<topdown(try(desugar-events))>defs => defs'
 
-desugar-td: State(n,ehdlrs,x,e,instrs) -> State(n,ehdlrs,x,e,instrs''')  
+desugar-td: State(n,ehdlrs,ifs,x,e,instrs) -> State(n,ehdlrs,ifs,x,e,instrs''')  
 where 
 	<map(try(add-instrblock))>instrs => instrs';
 	<upto><dec><length>instrs' => nrs;
@@ -74,15 +74,16 @@ where
 desugar: If (e,vardecls,stats) -> If(e,<conc>(vardecls,stats))
 
 
-swap-counter(|state): (c,Instr(evts,vars,instr*,postcon)) -> Instr(c,/*<map(try(desugar-events3(|state,c)))>*/evts,<conc>(vars,instr*),postcon)
-swap-counter(|state): (c,Instr(evts,vars,instr*)) -> Instr(c,/*<map(try(desugar-events3(|state,c)))><filter(?event-real)>*/evts,<conc>(vars,instr*),Wait(Consensus())) 
+swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*,postcon)) -> Instr(c,/*<map(try(desugar-events3(|state,c)))>*/evts,evsemi,<conc>(vars,instr*),postcon)
+swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*)) -> Instr(c,/*<map(try(desugar-events3(|state,c)))><filter(?event-real)>*/evts,evsemi,<conc>(vars,instr*),Wait(Consensus())) 
 
 	
 add-instrblock: f -> Instr([],[],[f])
 where
+	not (<?Instr(_,_,_,_,_,_)>f);
 	not (<?Instr(_,_,_,_,_)>f);
-	not (<?Instr(_,_,_)>f);
 	not (<?Instr(_,_,_,_)>f)
+	
 
 
 // desugar: VarDecl(t,n*) -> decls
@@ -93,14 +94,15 @@ where
 // fixvar(|t): n -> VarDecl(t,n)
 
 
-desugar-functions: Instr(d,evts,instrs) -> Instr(d,evts,instrs,Wait(Consensus()))  	 
+desugar-functions: Instr(d,evts,evsemi,instrs) -> Instr(d,evts,evsemi,instrs,Wait(Consensus()))  	 
  
 // desugar-functions: ConnectPart(m1,m2) -> FuncCall(MethodRef(Actuation(),"connect_part"),[m1,m2])
 // desugar-functions: DisconnectPart(m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect_part"),[m1,m2])
-desugar-functions: Connect(m1,m2) -> FuncCall(MethodRef(Actuation(),"connect"),[m1,m2])
-desugar-functions: Disconnect(m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect"),[m1,m2])
-desugar-functions: Rotate(m1,deg) -> FuncCall(MethodRef(Actuation(),"rotate"),[m1,deg])
-desugar-functions: RotateCont(m1,v) -> FuncCall(MethodRef(Actuation(),"rotate_continuous"),[m1,v])
+desugar-functions: Connect(_,m1,m2) -> FuncCall(MethodRef(Actuation(),"connect"),[m1,m2])
+desugar-functions: Disconnect(_,m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect"),[m1,m2])
+desugar-functions: Rotate(_,m1,deg) -> FuncCall(MethodRef(Actuation(),"rotate"),[m1,deg])
+desugar-functions: RotateCont(_,m1,v) -> FuncCall(MethodRef(Actuation(),"rotate_continuous"),[m1,v])
+desugar-functions: Stop(_,m1) -> FuncCall(MethodRef(Actuation(),"stop"),[m1])
 
 
 
@@ -140,6 +142,9 @@ where
 	<eq>(<length><filter(?NbsFilter("inRegion",_))>filters,0);
 	filters' := [NbsFilter("inRegion",Bool("true"))|filters]
 
+desugar: NbsFilter(d@ModHolderRef(m)) -> NbsFilter("in",d)
+
+
 desugar: FuncCall(MethodRef(Module(), "fixSymmetry"), [v]) -> 
 Instr(
   [ EvHdlr(
@@ -152,6 +157,7 @@ Instr(
       ]
     )
   ]
+, []
 , []
 , [ If(
       v
@@ -172,3 +178,4 @@ signature constructors
 	VisItem : X * X * X * X -> VisItem
 
 // desugar: Broadcast(p,assignlist,rate) -> Unicast(p,assignlist,Conn(),Int(255),rate)
+

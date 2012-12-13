@@ -22,7 +22,6 @@ builders
   builder  : "Show deffed syntax" = generate-deffed (openeditor) (meta) (source)
   builder  : "Show analyzed syntax" = generate-analyzed (openeditor) (realtime) (meta) (source)
   builder  : "Show only manual store" = index-manual (openeditor) (meta)
-  builder  : "Show all store" = index-everything (openeditor) (meta)
   builder  : "Show index entries for current file" = index-currentfile (openeditor) (meta)
   builder  : "Show types" = index-types (openeditor) (meta) 
   builder  : "Show index entries for all files" = index-allfiles (openeditor) (meta) 
@@ -34,12 +33,8 @@ builders
  //  builder  : "Clear index for current file"        = debug-index-clear-current (meta) (source)                              
  //  builder  : "Clear index"                         = debug-index-clear (meta) (source)                                      
  //  builder  : "Reload index"                        = debug-index-reload (meta) (source)                
- //  builder 	: "Show abstract syntax" = generate-aterm (openeditor) (realtime) (meta) (source)  
- //  builder		: "Desugar (selection)" = desugar-aterm (openeditor) (realtime) (meta) (source)
-	// builder		: "Rename (selection)" = rename-aterm (openeditor) (realtime) (meta) (source)
-	// builder		: "Store (selection)" = store-aterm (openeditor) (realtime) (meta) (source)
+
   builder		: "Jtree (selection)" = generate-java-aterm  (openeditor)(meta) (source)                             
-  builder		: "Java indirect code (selection)" = generate-java-indirect  (openeditor)(meta) (source)
   builder		: "Java code (selection)" = generate-java  (meta) (source)                                                                                                                          
 
 refactorings

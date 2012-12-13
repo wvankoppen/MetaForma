@@ -7,11 +7,15 @@ imports
 
 exports
 
-sorts	Group MetaClass
+sorts	Group MetaClass RotateContinuous
 
   context-free start-symbols
   
     Start
+ 
+ 
+
+ 
  
   context-free syntax
   %% Definition:  INDIRECT code generation
@@ -31,10 +35,12 @@ sorts	Group MetaClass
     StateRef -> ModHolderOrStateRef
     
 	GroupDef 										-> Definition
-	Robot "{" FuncDecl* "}" 			-> Definition{"Class"}
+	%% Robot "{" FuncDecl* "}" 			-> Definition{"Class"} use region for this!
 	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> Definition{"Class"}
 	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{"Class"}
-	Region "{" BorderDecl "}" 			-> Definition{"Class"}
+	Region "{" BorderDecl? FuncDecl* "}" 			-> Definition{"Class"}
+	
+	Type ID "=" Exp									-> Definition{"ConstDecl"}
 	
 	"borders" "[" BorderItem* "]"			-> BorderDecl{"BorderDecl"}
 	
@@ -47,7 +53,7 @@ sorts	Group MetaClass
 	
 	"meta" 							-> Meta{"Meta"}
 	"module"						-> Module{"Module"}
-	"robot"						-> Robot{"Robot"}
+	%% "robot"						-> Robot{"Robot"}
 	"region"						-> Region{"Region"}
 	
 	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{"FuncDecl"}
@@ -76,14 +82,14 @@ sorts	Group MetaClass
 	PayloadRef "=" Exp			-> AssignElem{"AssignElem"}
 	{AssignElem ","}*				-> AssignList{"AssignList"} 
 	
-	"sequence" ID "{" EvHdlr* VarDecl* FuncDecl*  Instr* "}" -> Declaration{"State"}
+	"sequence" StateRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{"State"}
 	
 	
 	EvHdlr										 -> Definition
 	"when" "(" Receive ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
-	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> Stmt{"If"}
-
+	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{"If"}
+ 	%%"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
 	ID								-> PacketRef {"PacketRef"}
 	
@@ -91,13 +97,7 @@ sorts	Group MetaClass
 	Exp 							-> EventExp
 	"rate" Ref						-> Rate{"Rate"}
 	
-	
-	%% "to" "meta-module" -> DestSingle{"Meta"}
-	%% "on" "connector" -> DestSingle{"Conn"}
-	%% "to" "meta-modules" -> DestMulti{"Meta"}
-	%% "on" "connectors" -> DestMulti{"Conn"}
-	%% "in" "region" -> DestMulti{"Region"}
-	
+
 	
 	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{"Unicast"}
 	%% "broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{"Broadcast"}
@@ -118,10 +118,6 @@ sorts	Group MetaClass
 	
 			
 	
-	
-	
-	
-	
 		
 	ID 										-> OrientRef{"OrientRef"}	
 		
@@ -141,14 +137,26 @@ sorts	Group MetaClass
 	 
 
 	
-	"disconnect" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Disconnect"}
-	"connect" "(" ModHolderRef "," Exp")" ";"			-> Stmt{"Connect"}
-	"rotate" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Rotate"}
-	"rotate_continuous" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"RotateCont"}
+	Disconnect "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Disconnect"}
+	Connect "(" ModHolderRef "," Exp")" ";"			-> Stmt{"Connect"}
+	Rotate "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Rotate"}
+	RotateContinuous "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"RotateCont"}
 	%% "disconnect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"DisconnectPart"}
 	%% "connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"ConnectPart"}
 	
-	"stop" "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
+	Stop "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
+	
+	lexical syntax
+	"stop" -> Stop
+	"rotate_continuous" -> RotateContinuous	
+	"rotate" -> Rotate
+	"disconnect" -> Disconnect
+	"connect" -> Connect
+
+
+	context-free syntax
+		
+		
 	
 	%% Exp 			-> ModHolderOrExp
 	%% ModHolderRef 	-> ModHolderOrExp
@@ -168,9 +176,11 @@ sorts	Group MetaClass
 	
 	
 	
-	
-	StateGenericRef						-> StateRef{"StateGenericRef",prefer}
+	StateGeneric						-> StateRef{"StateGenericRef",prefer}
 	ID		 							-> StateRef{"StateRef"}
+
+	%% StateGeneric						-> StateRef{"StateGenericRef",prefer}
+	%% ID		 							-> StateRef{"StateRef"}
 	
 	
 	
@@ -187,8 +197,13 @@ sorts	Group MetaClass
 	"ID" -> ModuleFieldID
 	"metaID" -> ModuleFieldID
 	"metaPart" -> ModuleFieldID
-	"Init" 									-> StateGenericRef
-	"Choose" 								-> StateGenericRef
+	
+	%% StateGeneric 							-> State
+	%% ID										-> State
+	
+	
+	"Main" 									-> StateGeneric
+	"Choose" 								-> StateGeneric
 	
 	context-free syntax
 		ID -> ModuleFieldID{reject}
@@ -200,17 +215,9 @@ sorts	Group MetaClass
 	"orientation" "matches" {OrientRef ","}* -> Exp{"OrientMatch"}
 	
 	
-	%% context-free priorities
-	%% {
-	%% "@" ID										-> ModHolderRef{"ModHolderRef"}
-	%% } > {
-	%% ID "@" ID									-> ModHolderRef{"ModHolderRef"}
-	%% }
-	%% 
-	
 	context-free priorities
 	{
-	"do" "{" EvHdlr* VarDecl* Stmt* "}" StopCondition  -> Instr{"Instr"}
+	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition  -> Instr{"Instr"}
 	} > {
 	"do" "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{"Instr"}
 	}

@@ -19,7 +19,7 @@ exports
 	%% Exp "->" Exp			-> ConnFilter{"ConnFilter"}
 	
 	NbsFilterKey ":" Exp -> NbsFilter{"NbsFilter"}
-	ModHolderRef			-> NbsFilter
+	ModHolderRef			-> NbsFilter{"NbsFilter"}
 	
 	lexical syntax
 	"metaPart" 				-> NbsFilterKey
@@ -33,6 +33,7 @@ exports
 	
 	ID 						-> MetaPart{"MetaPart"}
 	INT						-> Exp{"Int"}
+	FLOAT					-> Exp{"Float"}
 	Const					-> Exp{"Const"}
 	ConstLan					-> Exp{"Const"}
 	Bool					-> Exp{"Bool"}

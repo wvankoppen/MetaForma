@@ -30,3 +30,9 @@ imports
         	<target__> mod;
         	Def(u@[_, name|_]) := <index-lookup> group;
         	g := name{u}
+        	
+        	
+    
+   to-upper-first: str -> <conc-strings>(<implode-string>[<to-upper>head],<implode-string>tail)
+where
+	<explode-string> str => [head|tail]

@@ -72,11 +72,19 @@ rules
 	
 		
 	adjust-index-def-data(store-results|namespace, path): 
-		term@State(_{[State(), name, program]},_,_,_,_) -> <store-results> DefData([State(), program], State(), term)
+		term@State(_{[State(), name, program]},_,_,_,_,_) -> <store-results> DefData([State(), program], State(), term)
 			
 		
 	adjust-index-def-data(store-results|namespace, path): 
 		term@MetaPart(_{[MetaPart(), name, program]}) -> <store-results> DefData([MetaPart(), program], MetaPart(), term)
+		
+		
+	adjust-index-def-data(store-results|namespace, path): 
+		term@ConstDecl(_,_{[Const(), name, program]},_) -> <store-results> DefData([Const(), program], Const(), term)
+			
+			
+			
+			
 			
 	
 		
@@ -87,67 +95,7 @@ rules
 		
 		
 	
-	// store: term@Packet (n,payloaddec) -> term
-	// where
-	// 	<debug>$[Store packet [n]];
-	// 	<index-add-global(|"Packets")> term
-	// 
-	// 
-	// store: term@State(n,evhdlrs,funcs,vars,instrs) -> term
-	// where
-	// 	<debug>$[Store state [n]: instrs];
-	// 	<debug>instrs;
-	// 	<index-add-global(|"States")> term
-	// 	
-	// 
-	// store: term@Class(n,_,_) -> term
-	// where
-	// 	<debug>$[Store class:];
-	// 	<debug>n;
-	// 	<index-add-global(|"Classes")> term
-	// 	
-	// store: term@Group(n,mods) -> <index-add-global(|"Groups")> term
-	// where
-	// 	<debug>$[Store group [n]:]
-	// 
-	// store: term@Group(n) -> <index-add-global(|"Groups")> term
-	// where
-	// 	<debug>$[Store num group [n]:]
-	// 	
-	// store: term@MetaPart(n) -> <index-add-global(|"MetaParts")> term
-	// where
-	// 	<debug>$[Store metaPart [n]:]	
 	
-	 // adjust-index-def-data(store-results|namespace, path):
-  //       decl@MetaPart(n) -> <store-results> decl
-  //       where
-  //       <debug>$[STORE MetaPart [n]]
-        
-		
-	// store: d@Wait(Consensus()) -> d
-	// where <debug>d
-	
-	// adjust-index-def-data(store-results|namespace, path):
- //        deff -> <store-results> EvHdlr([namespace|path],"123","345", "test456")
-        
-	 // adjust-index-def-data(store-results|namespace, path):
-  //        s@StateRef(x) -> <store-results> EventHandler([namespace|path],s)
-  //        where
-  //        	<debug>("TESTJE!!")
-         	        
-      // adjust-index-def-data(store-results|namespace, path):
-      //    Packet(n,payloads) -> <store-results> PacketStore(n,payloads)
- 
-       
-    // adjust-index-def-data(store-results|namespace, path):
-    //     e -> <store-results> EventHandler([namespace|path],e)
-        // where
-        //   type := <type-of> deff
-        
-        // adjust-index-def-data(store-results|namespace, path):
-        // deff -> <store-results> EvHdlr([namespace|path], "test123")
-        
-        
         
     packet-add-numbers: packets -> packets'
     where
