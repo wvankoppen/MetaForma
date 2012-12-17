@@ -36,7 +36,7 @@ lexical syntax
 	 "cyan"			-> Color
 	 "white"		-> Color
 	 "black"		-> Color
-	 "purple"		-> Color
+	 "gray"			-> Color
 	 "orange"		-> Color
 	 "magenta"		-> Color
 	 "brown"		-> Color
@@ -53,7 +53,7 @@ lexical syntax
 	"NORTH"			-> ConstLan
 	"SOUTH"			-> ConstLan
 	"MAX_BYTE"		-> Const
-	"null"			-> Const
+	
 
 	
 	
@@ -73,6 +73,7 @@ lexical syntax
 	
 	
 	context-free syntax
+	"null"			-> Exp{"Null"}
 	"boolean"		-> Type{"Boolean"}
 	"byte"			-> Type{"Byte"}
 	"int"			-> Type{"Int"}
@@ -87,7 +88,7 @@ lexical syntax
 	"debug"			-> SysObj{"Debug"}
 	"config"		-> SysObj{"Config"}
 
-	
+	"null"			-> ID {reject}
 	 Const			-> ID {reject}
 	 ConstLan		-> ID {reject}
 	 Bool			-> ID {reject}

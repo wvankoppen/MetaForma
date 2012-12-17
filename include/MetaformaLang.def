@@ -37,7 +37,7 @@ lexical syntax
 	 "cyan"			-> Color
 	 "white"		-> Color
 	 "black"		-> Color
-	 "purple"		-> Color
+	 "gray"			-> Color
 	 "orange"		-> Color
 	 "magenta"		-> Color
 	 "brown"		-> Color
@@ -54,7 +54,7 @@ lexical syntax
 	"NORTH"			-> ConstLan
 	"SOUTH"			-> ConstLan
 	"MAX_BYTE"		-> Const
-	"null"			-> Const
+	
 
 	
 	
@@ -74,6 +74,7 @@ lexical syntax
 	
 	
 	context-free syntax
+	"null"			-> Exp{cons("Null")}
 	"boolean"		-> Type{cons("Boolean")}
 	"byte"			-> Type{cons("Byte")}
 	"int"			-> Type{cons("Int")}
@@ -88,7 +89,7 @@ lexical syntax
 	"debug"			-> SysObj{cons("Debug")}
 	"config"		-> SysObj{cons("Config")}
 
-	
+	"null"			-> ID {reject}
 	 Const			-> ID {reject}
 	 ConstLan		-> ID {reject}
 	 Bool			-> ID {reject}
@@ -108,14 +109,8 @@ exports
 	Ref		 				-> Exp
 	"#(" NbsOp ")"			-> Exp{cons("NbsCount")}
 	"$(" NbsOp ")"			-> Nbs{cons("Nbs")}
-%%	"!$(" NbsOp ")"			-> Exp{"NbsNone"}
 	{NbsFilter ","}*	-> NbsOp{cons("NbsOp")}
-	%% ConnFilter						-> NbsOp{"NbsOp"}
-	%% {NbsFilter ","}+				-> NbsOp{"NbsOp"}
-	%% Exp 					-> ConnFilter{"ConnFilter"}
-	%% Exp "->" Exp			-> ConnFilter{"ConnFilter"}
-	
-	NbsFilterKey ":" Exp -> NbsFilter{cons("NbsFilter")}
+	NbsFilterKey ":" Exp 	-> NbsFilter{cons("NbsFilter")}
 	ModHolderRef			-> NbsFilter{cons("NbsFilter")}
 	
 	lexical syntax
@@ -212,17 +207,16 @@ sorts	Group MetaClass RotateContinuous
   %% Declaration: DIRECT code generation
   
    "program" ID Visualize? Definition* Declaration*						-> Start {cons("Program")}
-   %%ModuleDef GroupDef* Definition 						-> Start {"Start", scope(Include)}
-    
-    %% Declaration -> Definition
     
     "visualize" "{" VisGroup*"}" -> Visualize {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
 	
-	ModHolderOrStateRef ":" Color ";" -> VisItem{cons("VisItem")}
+	ModHolderOrSeqRef ":" ColorRef ";" -> VisItem{cons("VisItem")}
     
-    ModHolderRef -> ModHolderOrStateRef
-    StateRef -> ModHolderOrStateRef
+    Color -> ColorRef{cons("Color")}
+    
+    ModHolderRef -> ModHolderOrSeqRef
+    SequenceRef -> ModHolderOrSeqRef
     
 	GroupDef 										-> Definition
 	%% Robot "{" FuncDecl* "}" 			-> Definition{"Class"} use region for this!
@@ -253,26 +247,26 @@ sorts	Group MetaClass RotateContinuous
 	ID					-> Type{avoid}
 	
 	"packet" ID "{" PayloadDecl* "}" 					-> Definition{cons("Packet")}
-	FuncDecl -> Declaration
+	FuncDecl 											-> Declaration
 
 	
 	%%Type {ID ","}+ ";" -> VarDecl{"VarDecl"}
-	Type ID ";" -> VarDecl{cons("VarDecl")}
-	Type ID ";" -> FieldDecl{cons("FieldDecl")}
-	Type ID ";" -> PayloadDecl{cons("PayloadDecl")}
-	PacketRef ID -> PacketVarDecl{cons("VarDecl")}
+	Type ID ";" 				-> VarDecl{cons("VarDecl")}
+	Type ID ";" 				-> FieldDecl{cons("FieldDecl")}
+	Type ID ";" 				-> PayloadDecl{cons("PayloadDecl")}
+	PacketRef ID 				-> PacketVarDecl{cons("VarDecl")}
 	
 
 	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
-	ID 		-> MetaPart{cons("MetaPart")}
+	ID 									-> MetaPart{cons("MetaPart")}
 	
-	ID 					-> Ref{cons("VarRef")}
-	ID 					-> PayloadRef{cons("PayloadRef")}
+	ID 									-> Ref{cons("VarRef")}
+	ID 									-> PayloadRef{cons("PayloadRef")}
 	
-	PayloadRef "=" Exp			-> AssignElem{cons("AssignElem")}
-	{AssignElem ","}*				-> AssignList{cons("AssignList")} 
+	PayloadRef "=" Exp					-> AssignElem{cons("AssignElem")}
+	{AssignElem ","}*					-> AssignList{cons("AssignList")} 
 	
-	"sequence" StateRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("State")}
+	"sequence" SequenceRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("Sequence")}
 	
 	
 	EvHdlr										 -> Definition
@@ -281,11 +275,11 @@ sorts	Group MetaClass RotateContinuous
 	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{cons("If")}
  	%%"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
-	ID								-> PacketRef {cons("PacketRef")}
+	ID									-> PacketRef {cons("PacketRef")}
 	
 	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
-	Exp 							-> EventExp
-	"rate" Ref						-> Rate{cons("Rate")}
+	Exp 								-> EventExp
+	"rate" Ref							-> Rate{cons("Rate")}
 	
 
 	
@@ -312,7 +306,7 @@ sorts	Group MetaClass RotateContinuous
 	ID 										-> OrientRef{cons("OrientRef")}	
 		
 	Stmt -> Instr
-	"goto" StateRef ";"							-> Stmt{cons("Goto")}
+	"goto" SequenceRef ";"							-> Stmt{cons("Goto")}
 	"goto" ID "orientating" ID ";"			-> Stmt{cons("Goto")}
 	
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{cons("Group")}
@@ -320,7 +314,7 @@ sorts	Group MetaClass RotateContinuous
 	
 	ID 								-> Mod{cons("Mod")}
 	
-	"try" "region" StateRef "orientating" OrientRef "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{cons("TryRegion")}
+	"try" "region" SequenceRef "orientating" OrientRef "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{cons("TryRegion")}
 	
 	 {Exp ","}* 				-> ByteList {cons("ByteArr")}
 	 ID 		-> MetaFieldRef {cons("MetaFieldRef")}
@@ -335,6 +329,8 @@ sorts	Group MetaClass RotateContinuous
 	%% "connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"ConnectPart"}
 	
 	Stop "(" ModHolderRef ")" ";"			-> Stmt{cons("Stop")}
+	
+	"break" ";"	-> Stmt{cons("Break")}
 	
 	lexical syntax
 	"stop" -> Stop
@@ -366,11 +362,9 @@ sorts	Group MetaClass RotateContinuous
 	
 	
 	
-	StateGeneric						-> StateRef{cons("StateGenericRef"),prefer}
-	ID		 							-> StateRef{cons("StateRef")}
+	SequenceGeneric						-> SequenceRef{cons("SequenceGenericRef"),prefer}
+	ID		 							-> SequenceRef{cons("SequenceRef")}
 
-	%% StateGeneric						-> StateRef{"StateGenericRef",prefer}
-	%% ID		 							-> StateRef{"StateRef"}
 	
 	
 	
@@ -388,12 +382,10 @@ sorts	Group MetaClass RotateContinuous
 	"metaID" -> ModuleFieldID
 	"metaPart" -> ModuleFieldID
 	
-	%% StateGeneric 							-> State
-	%% ID										-> State
 	
 	
-	"Main" 									-> StateGeneric
-	"Choose" 								-> StateGeneric
+	"Main" 									-> SequenceGeneric
+	"Choose" 								-> SequenceGeneric
 	
 	context-free syntax
 		ID -> ModuleFieldID{reject}
@@ -409,7 +401,7 @@ sorts	Group MetaClass RotateContinuous
 	{
 	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
 	} > {
-	"do" "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
+	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
 	}
 	
 	
@@ -491,17 +483,16 @@ sorts	Group MetaClass RotateContinuous
   %% Declaration: DIRECT code generation
   
    "program" ID Visualize? Definition* Declaration*						-> Start {cons("Program")}
-   %%ModuleDef GroupDef* Definition 						-> Start {"Start", scope(Include)}
-    
-    %% Declaration -> Definition
     
     "visualize" "{" VisGroup*"}" -> Visualize {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
 	
-	ModHolderOrStateRef ":" Color ";" -> VisItem{cons("VisItem")}
+	ModHolderOrSeqRef ":" ColorRef ";" -> VisItem{cons("VisItem")}
     
-    ModHolderRef -> ModHolderOrStateRef
-    StateRef -> ModHolderOrStateRef
+    Color -> ColorRef{cons("Color")}
+    
+    ModHolderRef -> ModHolderOrSeqRef
+    SequenceRef -> ModHolderOrSeqRef
     
 	GroupDef 										-> Definition
 	%% Robot "{" FuncDecl* "}" 			-> Definition{"Class"} use region for this!
@@ -532,26 +523,26 @@ sorts	Group MetaClass RotateContinuous
 	ID					-> Type{avoid}
 	
 	"packet" ID "{" PayloadDecl* "}" 					-> Definition{cons("Packet")}
-	FuncDecl -> Declaration
+	FuncDecl 											-> Declaration
 
 	
 	%%Type {ID ","}+ ";" -> VarDecl{"VarDecl"}
-	Type ID ";" -> VarDecl{cons("VarDecl")}
-	Type ID ";" -> FieldDecl{cons("FieldDecl")}
-	Type ID ";" -> PayloadDecl{cons("PayloadDecl")}
-	PacketRef ID -> PacketVarDecl{cons("VarDecl")}
+	Type ID ";" 				-> VarDecl{cons("VarDecl")}
+	Type ID ";" 				-> FieldDecl{cons("FieldDecl")}
+	Type ID ";" 				-> PayloadDecl{cons("PayloadDecl")}
+	PacketRef ID 				-> PacketVarDecl{cons("VarDecl")}
 	
 
 	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
-	ID 		-> MetaPart{cons("MetaPart")}
+	ID 									-> MetaPart{cons("MetaPart")}
 	
-	ID 					-> Ref{cons("VarRef")}
-	ID 					-> PayloadRef{cons("PayloadRef")}
+	ID 									-> Ref{cons("VarRef")}
+	ID 									-> PayloadRef{cons("PayloadRef")}
 	
-	PayloadRef "=" Exp			-> AssignElem{cons("AssignElem")}
-	{AssignElem ","}*				-> AssignList{cons("AssignList")} 
+	PayloadRef "=" Exp					-> AssignElem{cons("AssignElem")}
+	{AssignElem ","}*					-> AssignList{cons("AssignList")} 
 	
-	"sequence" StateRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("State")}
+	"sequence" SequenceRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("Sequence")}
 	
 	
 	EvHdlr										 -> Definition
@@ -560,11 +551,11 @@ sorts	Group MetaClass RotateContinuous
 	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{cons("If")}
  	%%"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
-	ID								-> PacketRef {cons("PacketRef")}
+	ID									-> PacketRef {cons("PacketRef")}
 	
 	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
-	Exp 							-> EventExp
-	"rate" Ref						-> Rate{cons("Rate")}
+	Exp 								-> EventExp
+	"rate" Ref							-> Rate{cons("Rate")}
 	
 
 	
@@ -591,7 +582,7 @@ sorts	Group MetaClass RotateContinuous
 	ID 										-> OrientRef{cons("OrientRef")}	
 		
 	Stmt -> Instr
-	"goto" StateRef ";"							-> Stmt{cons("Goto")}
+	"goto" SequenceRef ";"							-> Stmt{cons("Goto")}
 	"goto" ID "orientating" ID ";"			-> Stmt{cons("Goto")}
 	
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{cons("Group")}
@@ -599,7 +590,7 @@ sorts	Group MetaClass RotateContinuous
 	
 	ID 								-> Mod{cons("Mod")}
 	
-	"try" "region" StateRef "orientating" OrientRef "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{cons("TryRegion")}
+	"try" "region" SequenceRef "orientating" OrientRef "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{cons("TryRegion")}
 	
 	 {Exp ","}* 				-> ByteList {cons("ByteArr")}
 	 ID 		-> MetaFieldRef {cons("MetaFieldRef")}
@@ -614,6 +605,8 @@ sorts	Group MetaClass RotateContinuous
 	%% "connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"ConnectPart"}
 	
 	Stop "(" ModHolderRef ")" ";"			-> Stmt{cons("Stop")}
+	
+	"break" ";"	-> Stmt{cons("Break")}
 	
 	lexical syntax
 	"stop" -> Stop
@@ -645,11 +638,9 @@ sorts	Group MetaClass RotateContinuous
 	
 	
 	
-	StateGeneric						-> StateRef{cons("StateGenericRef"),prefer}
-	ID		 							-> StateRef{cons("StateRef")}
+	SequenceGeneric						-> SequenceRef{cons("SequenceGenericRef"),prefer}
+	ID		 							-> SequenceRef{cons("SequenceRef")}
 
-	%% StateGeneric						-> StateRef{"StateGenericRef",prefer}
-	%% ID		 							-> StateRef{"StateRef"}
 	
 	
 	
@@ -667,12 +658,10 @@ sorts	Group MetaClass RotateContinuous
 	"metaID" -> ModuleFieldID
 	"metaPart" -> ModuleFieldID
 	
-	%% StateGeneric 							-> State
-	%% ID										-> State
 	
 	
-	"Main" 									-> StateGeneric
-	"Choose" 								-> StateGeneric
+	"Main" 									-> SequenceGeneric
+	"Choose" 								-> SequenceGeneric
 	
 	context-free syntax
 		ID -> ModuleFieldID{reject}
@@ -688,7 +677,7 @@ sorts	Group MetaClass RotateContinuous
 	{
 	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
 	} > {
-	"do" "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
+	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
 	}
 	
 	

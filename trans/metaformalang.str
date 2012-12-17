@@ -166,7 +166,7 @@ rules // Debugging
       <strip-annos><project-name>ast => name;
       evhdlrs := <index-get-evhdlrs>name;
       
-      cons := [VisItem(),Group(),Class(),State(),MetaPart(),Const()];
+      cons := [VisItem(),Group(),Class(),Sequence(),MetaPart(),Const()];
       
       data := [<index-get-packets>name|<map(index-getcons(|name))>cons]
       
@@ -235,11 +235,12 @@ rules // Utility
 			<debug>"##############################";
 			<debug>"COMPILE PACKETS";
 			java-packets := <map2str(compile-packet)><debug(!"Packets:")>packets;
+			java-packetbuilds := <map2str(compile-packetbuild)>packets;
 			
 			<debug>"##############################";
 			<debug>"COMPILE SEQUENCES";
-			states := <index-getcons(|name)>State();
-			java-states := <map2str(compile)>states;
+			seqs := <index-getcons(|name)>Sequence();
+			java-seqs := <map2str(compile)>seqs;
 			
 			<debug>"##############################";
 			<debug>"COMPILE CLASSES";
@@ -257,13 +258,18 @@ rules // Utility
 			<debug>"##############################";
 			debug(!"COMPILE NAMES");
 			names-metapart := <concat-glue(|",")><map(project-name)><index-getcons(|name)>MetaPart();
-			names-sequence := <concat-glue(|",")><map(project-name)>states;
+			names-sequence := <concat-glue(|",")><map(project-name)>seqs;
 			names-group := <concat-glue(|",")><map(project-name)><index-getcons(|name)>Group();
 			names-mod :=  <map2str(to-java)><index-getcons(|name)>Group();
 			
 			name-l := <lower-case>name;
+			
+			dt := "<What date function to use?>";
+			
 			controller := $<
 package ussr.samples.atron.simulations.metaforma.gen.<name-l>;
+
+/* File compiled at <dt> */
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -279,7 +285,8 @@ import ussr.model.debugging.ControllerInformationProvider;
 import ussr.samples.atron.ATRON;
 import ussr.samples.atron.simulations.metaforma.lib.*;
 import ussr.samples.atron.simulations.metaforma.lib.Packet.*;
-
+import ussr.samples.atron.simulations.metaforma.lib.constant.*;
+import ussr.samples.atron.simulations.metaforma.lib.iface.*;
 
 
 class <name>Simulation extends MfSimulation {
@@ -296,11 +303,13 @@ class <name>Simulation extends MfSimulation {
 				return new <name>Controller();
 			}
 		};
+		a.setRubberRing();
+        a.setGentle();
 		return a;
 	}
 
 	protected ArrayList$<$ModulePosition$>$ buildRobot() {
-		return new MfBuilder().buildCar(2,Mod.Main);
+		return new MfBuilder().buildCar(4,Mod.X);
 	}
 	
 	protected void changeWorldHook(WorldDescription world) {
@@ -366,19 +375,28 @@ public class <name>Controller extends MfController implements ControllerInformat
 		
 		module().part = MetaPart.NONE;
 		
+		mfVisual.print("File compiled at <dt>");
 		
 		<java-visuals>
 		
 		
 	
 		
-		visual.setMessageFilter(255);//^ pow2(PacketDiscover.getTypeNr()));		
+		mfVisual.setMessageFilter(255);//^ pow2(PacketDiscover.getTypeNr()));		
 	}
 
 	
 	public void handleStates() {
-		<java-states>	
+		<java-seqs>	
 	}
+	
+	public void makePacket(byte[] msg, byte connector) {
+		byte typeNr = PacketBase.getType(msg);
+		<java-packetbuilds>
+		{
+			super.makePacket(msg, connector);
+		}	
+	}	
 			
 	
 	<java-packetreceives>
@@ -386,8 +404,8 @@ public class <name>Controller extends MfController implements ControllerInformat
 	<java-classes>
 }
 
-enum Mod  implements IModule,IModEnum{
-		 NONE,Main,<names-mod>;
+	enum Mod  implements IModule,IModEnum{
+		 NONE,X(true),<names-mod>;
 		 
 		 byte count;
 		
@@ -474,8 +492,8 @@ enum Mod  implements IModule,IModEnum{
 		
 		
 	
-	enum Group implements ICollectionEnum,IModuleRef{
-		ALL, NONE, Main,<names-group>;
+	enum Group implements IGroupEnum,IModuleRef{
+		ALL, NONE, X,<names-group>;
 		
 		public boolean contains(IModule m) {
 			return equals(m.getGroup());
@@ -492,7 +510,7 @@ enum Mod  implements IModule,IModEnum{
 		}
 
 		@Override
-		public ICollectionEnum valueFrom(String string) {
+		public IGroupEnum valueFrom(String string) {
 			return valueOf(string);
 		}
 	}	

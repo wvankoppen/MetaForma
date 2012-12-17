@@ -23,7 +23,7 @@ visualize {
  	}
  	
  	south { 
- 		Init: white; 
+ 		Main: white; 
  		FlipOver: yellow;
  		FlipThrough: cyan;
  		FlipAlong: magenta;
@@ -32,7 +32,7 @@ visualize {
 } 
   
 
-packet MetaIdSet { 
+packet AssignMetaID { 
 	byte newMetaID; 
 }	
 
@@ -42,13 +42,13 @@ packet AddNeighbor {
 }
 
 packet Gradient {
-	byte prim;
+	byte pri;
 	byte sec;
 }
 
 when (receive (AddNeighbor p)) {
 	if (p.metaID == meta.Left) {
-		meta.TopLeft = p.first; 
+		meta.TopLeft = p.first;  
 		meta.BottomLeft = p.second;
 	}
 	if (p.metaID == meta.Right) {
@@ -67,9 +67,9 @@ when (receive (AddNeighbor p)) {
 
  
 when (receive (Gradient p)) {
-	if (p.pri < gradPri || p.sec < gradSec) {
-		gradPri = MIN (p.pri,gradPri);
-		gradSec = MIN (p.sec,gradSec);
+	if (p.pri < module.gradPri || p.sec < module.gradSec) {
+		module.gradPri = min (p.pri,module.gradPri);
+		module.gradSec = min (p.sec,module.gradSec);
 		module.gradientPropagate();
 	}	
 
@@ -101,7 +101,7 @@ meta {
 	byte BottomLeft; 
 	byte BottomRight;
 
-	void metaNeighborHook (byte metaID, byte destConn) {
+	void neighborHook (byte metaID, byte destConn) {
 		if (metaID != module.metaID && module.metaID != 0) {
 			if (destConn == 5 || destConn == 6) {
 				Right = metaID;
@@ -163,7 +163,72 @@ module  {
 	}
  }
 
-                                                                                                                             
+  
+sequence Main {
+ 	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
+	when (receive (Packet p)) {
+		meta.neighborHook (p.connSource,p.connDest);
+	}
+	
+	do {	
+		when (receive (AssignMetaID p)) {
+			if (module.metaID == 0) {
+				module.metaID = p.newMetaID;
+				
+				if (isMALE(p.connDest) && module.metaPart == null) {
+					module.metaPart = Right;
+				}
+				else if (isWEST(p.connDest) && module.metaPart == null) {
+					module.metaPart = Top;
+				}
+				else if (isEAST(p.connDest) && module.metaPart == null) {
+					module.metaPart = Bottom;
+				}
+			}
+			
+			if (module.metaPart == Left) {
+				break;
+			}
+			
+			unicast AssignMetaID (newMetaID = newMetaID) to $(connSource: pow2((p.connDest + 4) % 8)) rate config.rate;
+		}
+		when ( #(connSource: EAST&MALE, metaPart:None) == 2 && !#(connSource: WEST, metaPart:None)) {
+			module.metaPart = Left;
+			meta.id = module.id;
+			unicast AssignMetaID (newMetaID = module.id) to $(connSource: EAST&MALE&NORTH);
+		}	
+	} 
+
+	 meta.enable();
+	 
+	goto Choose;	
+}
+
+
+sequence Choose {
+	when (receive (Packet p)) {
+		// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
+		meta.neighborHook (p.metaID,p.connDest);
+	}
+	
+	meta.broadcastMetaNeighbors();
+	
+	do {
+		// UP
+		try region FlipThrough orientating BOTTOM_RIGHT from Top excluding TopLeft,Left,Bottom;
+		try region FlipAlong orientating BOTTOM_RIGHT from Right,TopRight excluding Top;
+		try region FlipThrough orientating LEFT_BOTTOM from Right excluding Top, TopRight;
+		
+		// DIAGONAL DOWN
+		try region FlipThrough orientating TOP_RIGHT from Bottom excluding Left, Top;
+		try region FlipOver orientating TOP_RIGHT from Bottom,Left excluding Top;
+		try region FlipThrough orientating RIGHT_TOP from Left excluding Top,Bottom;
+	}	
+}
+
+
+
+                                                                                        
 
 
 

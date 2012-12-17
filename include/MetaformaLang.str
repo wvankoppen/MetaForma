@@ -2,152 +2,155 @@ module MetaformaLang
 
 signature
   constructors
-                    : String -> STRING
-    ModHolderRef    : ID -> ModHolderRef
-    ModHolderRef    : ID * ID -> ModHolderRef
-                    : VarRef -> Obj
-                    : SysObj -> Obj
-    StateRef        : ID -> StateRef
-    StateGenericRef : StateGeneric -> StateRef
-    VarRef          : ID -> VarRef
-    MethodRef       : Obj * ID -> MethodRef
-    FuncRef         : ID -> FuncRef
-    Until           : Stop -> StopCondition
-    Wait            : Stop -> StopCondition
-    MetaFieldRef    : ID -> MetaFieldRef
-    Mod             : ID -> Mod
-    Group           : ID -> GroupDef
-    Group           : ID * List(Mod) -> GroupDef
-    Instr           : List(EvHdlr) * List(VarDecl) * List(Stmt) -> Instr
-    Instr           : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) * StopCondition -> Instr
-                    : Stmt -> Instr
-    OrientRef       : ID -> OrientRef
-    Block           : List(Stmt) -> Block
-    Block           : Stmt -> Block
-    FuncCall        : FuncRef * List(Exp) -> Stmt
-    FuncCall        : MethodRef * List(Exp) -> Stmt
-    Stop            : Stop * ModHolderRef -> Stmt
-    RotateCont      : RotateContinuous * ModHolderRef * Exp -> Stmt
-    Rotate          : Rotate * ModHolderRef * Exp -> Stmt
-    Connect         : Connect * ModHolderRef * Exp -> Stmt
-    Disconnect      : Disconnect * ModHolderRef * Exp -> Stmt
-    TryRegion       : StateRef * OrientRef * List(MetaFieldRef) * List(MetaFieldRef) -> Stmt
-    Goto            : ID * ID -> Stmt
-    Goto            : StateRef -> Stmt
-    If              : Exp * Block -> Stmt
-    IfElse          : Exp * Block * Block -> Stmt
-    Assign          : Ref * Exp -> Stmt
-    Unicast         : PacketRef * AssignList * Nbs * Option(Rate) -> Stmt
-    Rate            : Ref -> Rate
-                    : Exp -> EventExp
-    Receive         : PacketVarDecl -> Receive
-    PacketRef       : ID -> PacketRef
-    If              : EventExp * List(VarDecl) * List(Stmt) -> EvHdlrSemi
-    EvHdlr          : Receive * List(VarDecl) * List(Stmt) -> EvHdlr
-    AssignList      : List(AssignElem) -> AssignList
-    AssignElem      : PayloadRef * Exp -> AssignElem
-    PayloadRef      : ID -> PayloadRef
-    FieldRef        : Obj * ID -> Ref
-    FieldRef        : Obj * ModuleFieldID -> Ref
-    VarRef          : ID -> Ref
-    MetaPartDecl    : List(MetaPart) -> PartDecl
-    VarDecl         : PacketRef * ID -> PacketVarDecl
-    PayloadDecl     : Type * ID -> PayloadDecl
-    FieldDecl       : Type * ID -> FieldDecl
-    VarDecl         : Type * ID -> VarDecl
-    State           : StateRef * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(FuncDecl) * List(Instr) -> Declaration
-                    : FuncDecl -> Declaration
-    Param           : Type * ID -> ParamListElem
-    FuncDecl        : Type * ID * List(ParamListElem) * List(Declaration) * List(Stmt) * Exp -> FuncDecl
-    FuncDecl        : ID * List(ParamListElem) * List(Declaration) * List(Stmt) -> FuncDecl
-    Region          : Region
-    Module          : Module
-    Meta            : Meta
-    BorderBottom    : Direction
-    BorderTop       : Direction
-    BorderRight     : Direction
-    BorderLeft      : Direction
-    BorderItem      : Direction * Exp -> BorderItem
-    BorderDecl      : List(BorderItem) -> BorderDecl
-                    : EvHdlr -> Definition
-    Packet          : ID * List(PayloadDecl) -> Definition
-    ConstDecl       : Type * ID * Exp -> Definition
-    Class           : Region * Option(BorderDecl) * List(FuncDecl) -> Definition
-    Class           : Module * List(FieldDecl) * List(FuncDecl) -> Definition
-    Class           : Meta * Option(PartDecl) * List(FieldDecl) * List(FuncDecl) -> Definition
-                    : GroupDef -> Definition
-                    : StateRef -> ModHolderOrStateRef
-                    : ModHolderRef -> ModHolderOrStateRef
-    VisItem         : ModHolderOrStateRef * Color -> VisItem
-    VisGroup        : ID * List(VisItem) -> VisGroup
-    Visualize       : List(VisGroup) -> Visualize
-    Program         : ID * Option(Visualize) * List(Definition) * List(Declaration) -> Start
-                    : String -> StateGeneric
-                    : String -> ModuleFieldID
-                    : String -> Connect
-                    : String -> Disconnect
-                    : String -> Rotate
-                    : String -> RotateContinuous
-                    : Exp -> Stop
-    Consensus       : Stop
-                    : String -> Stop
-    MetaPart        : ID -> MetaPart
-    NbsFilter       : ModHolderRef -> NbsFilter
-    NbsFilter       : NbsFilterKey * Exp -> NbsFilter
-    NbsOp           : List(NbsFilter) -> NbsOp
-    Nbs             : NbsOp -> Nbs
-    FuncCall        : MethodRef * List(Exp) -> Exp
-    FuncCall        : FuncRef * List(Exp) -> Exp
-    OrientMatch     : List(OrientRef) -> Exp
-    OrBit           : Exp * Exp -> Exp
-    AndBit          : Exp * Exp -> Exp
-    Or              : Exp * Exp -> Exp
-    And             : Exp * Exp -> Exp
-    Neq             : Exp * Exp -> Exp
-    Eq              : Exp * Exp -> Exp
-    GtEq            : Exp * Exp -> Exp
-    LtEq            : Exp * Exp -> Exp
-    Gt              : Exp * Exp -> Exp
-    Lt              : Exp * Exp -> Exp
-    Plus            : Exp * Exp -> Exp
-    Div             : Exp * Exp -> Exp
-    Mul             : Exp * Exp -> Exp
-    Min             : Exp * Exp -> Exp
-    Min             : Exp -> Exp
-    Not             : Exp -> Exp
-    Modulo          : Exp * Exp -> Exp
-    String          : STRING -> Exp
-    ByteArr         : List(Exp) -> Exp
-    Par             : Exp -> Exp
-                    : ModHolderRef -> Exp
-    Bool            : Bool -> Exp
-    Const           : ConstLan -> Exp
-    Const           : Const -> Exp
-    Float           : FLOAT -> Exp
-    Int             : INT -> Exp
-    NbsCount        : NbsOp -> Exp
-                    : Ref -> Exp
-    Config          : SysObj
-    Debug           : SysObj
-    Region          : SysObj
-    Module          : SysObj
-    Meta            : SysObj
-    Robot           : SysObj
-                    : ID -> Type
-    ByteArr         : Type
-    Void            : Type
-    Float           : Type
-    Int             : Type
-    Byte            : Type
-    Boolean         : Type
-                    : String -> NbsFilterKey
-                    : String -> Const
-                    : String -> ConstLan
-                    : String -> Bool
-                    : String -> Color
-                    : String -> FLOAT
-                    : String -> INT
-                    : String -> ID
+                       : String -> STRING
+    ModHolderRef       : ID -> ModHolderRef
+    ModHolderRef       : ID * ID -> ModHolderRef
+                       : VarRef -> Obj
+                       : SysObj -> Obj
+    SequenceRef        : ID -> SequenceRef
+    SequenceGenericRef : SequenceGeneric -> SequenceRef
+    VarRef             : ID -> VarRef
+    MethodRef          : Obj * ID -> MethodRef
+    FuncRef            : ID -> FuncRef
+    Until              : Stop -> StopCondition
+    Wait               : Stop -> StopCondition
+    MetaFieldRef       : ID -> MetaFieldRef
+    Mod                : ID -> Mod
+    Group              : ID -> GroupDef
+    Group              : ID * List(Mod) -> GroupDef
+    Instr              : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) -> Instr
+    Instr              : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) * StopCondition -> Instr
+                       : Stmt -> Instr
+    OrientRef          : ID -> OrientRef
+    Block              : List(Stmt) -> Block
+    Block              : Stmt -> Block
+    FuncCall           : FuncRef * List(Exp) -> Stmt
+    FuncCall           : MethodRef * List(Exp) -> Stmt
+    Break              : Stmt
+    Stop               : Stop * ModHolderRef -> Stmt
+    RotateCont         : RotateContinuous * ModHolderRef * Exp -> Stmt
+    Rotate             : Rotate * ModHolderRef * Exp -> Stmt
+    Connect            : Connect * ModHolderRef * Exp -> Stmt
+    Disconnect         : Disconnect * ModHolderRef * Exp -> Stmt
+    TryRegion          : SequenceRef * OrientRef * List(MetaFieldRef) * List(MetaFieldRef) -> Stmt
+    Goto               : ID * ID -> Stmt
+    Goto               : SequenceRef -> Stmt
+    If                 : Exp * Block -> Stmt
+    IfElse             : Exp * Block * Block -> Stmt
+    Assign             : Ref * Exp -> Stmt
+    Unicast            : PacketRef * AssignList * Nbs * Option(Rate) -> Stmt
+    Rate               : Ref -> Rate
+                       : Exp -> EventExp
+    Receive            : PacketVarDecl -> Receive
+    PacketRef          : ID -> PacketRef
+    If                 : EventExp * List(VarDecl) * List(Stmt) -> EvHdlrSemi
+    EvHdlr             : Receive * List(VarDecl) * List(Stmt) -> EvHdlr
+    AssignList         : List(AssignElem) -> AssignList
+    AssignElem         : PayloadRef * Exp -> AssignElem
+    PayloadRef         : ID -> PayloadRef
+    FieldRef           : Obj * ID -> Ref
+    FieldRef           : Obj * ModuleFieldID -> Ref
+    VarRef             : ID -> Ref
+    MetaPartDecl       : List(MetaPart) -> PartDecl
+    VarDecl            : PacketRef * ID -> PacketVarDecl
+    PayloadDecl        : Type * ID -> PayloadDecl
+    FieldDecl          : Type * ID -> FieldDecl
+    VarDecl            : Type * ID -> VarDecl
+    Sequence           : SequenceRef * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(FuncDecl) * List(Instr) -> Declaration
+                       : FuncDecl -> Declaration
+    Param              : Type * ID -> ParamListElem
+    FuncDecl           : Type * ID * List(ParamListElem) * List(Declaration) * List(Stmt) * Exp -> FuncDecl
+    FuncDecl           : ID * List(ParamListElem) * List(Declaration) * List(Stmt) -> FuncDecl
+    Region             : Region
+    Module             : Module
+    Meta               : Meta
+    BorderBottom       : Direction
+    BorderTop          : Direction
+    BorderRight        : Direction
+    BorderLeft         : Direction
+    BorderItem         : Direction * Exp -> BorderItem
+    BorderDecl         : List(BorderItem) -> BorderDecl
+                       : EvHdlr -> Definition
+    Packet             : ID * List(PayloadDecl) -> Definition
+    ConstDecl          : Type * ID * Exp -> Definition
+    Class              : Region * Option(BorderDecl) * List(FuncDecl) -> Definition
+    Class              : Module * List(FieldDecl) * List(FuncDecl) -> Definition
+    Class              : Meta * Option(PartDecl) * List(FieldDecl) * List(FuncDecl) -> Definition
+                       : GroupDef -> Definition
+                       : SequenceRef -> ModHolderOrSeqRef
+                       : ModHolderRef -> ModHolderOrSeqRef
+    Color              : Color -> ColorRef
+    VisItem            : ModHolderOrSeqRef * ColorRef -> VisItem
+    VisGroup           : ID * List(VisItem) -> VisGroup
+    Visualize          : List(VisGroup) -> Visualize
+    Program            : ID * Option(Visualize) * List(Definition) * List(Declaration) -> Start
+                       : String -> SequenceGeneric
+                       : String -> ModuleFieldID
+                       : String -> Connect
+                       : String -> Disconnect
+                       : String -> Rotate
+                       : String -> RotateContinuous
+                       : Exp -> Stop
+    Consensus          : Stop
+                       : String -> Stop
+    MetaPart           : ID -> MetaPart
+    NbsFilter          : ModHolderRef -> NbsFilter
+    NbsFilter          : NbsFilterKey * Exp -> NbsFilter
+    NbsOp              : List(NbsFilter) -> NbsOp
+    Nbs                : NbsOp -> Nbs
+    Config             : SysObj
+    Debug              : SysObj
+    Region             : SysObj
+    Module             : SysObj
+    Meta               : SysObj
+    Robot              : SysObj
+                       : ID -> Type
+    ByteArr            : Type
+    Void               : Type
+    Float              : Type
+    Int                : Type
+    Byte               : Type
+    Boolean            : Type
+    FuncCall           : MethodRef * List(Exp) -> Exp
+    FuncCall           : FuncRef * List(Exp) -> Exp
+    OrientMatch        : List(OrientRef) -> Exp
+    OrBit              : Exp * Exp -> Exp
+    AndBit             : Exp * Exp -> Exp
+    Or                 : Exp * Exp -> Exp
+    And                : Exp * Exp -> Exp
+    Neq                : Exp * Exp -> Exp
+    Eq                 : Exp * Exp -> Exp
+    GtEq               : Exp * Exp -> Exp
+    LtEq               : Exp * Exp -> Exp
+    Gt                 : Exp * Exp -> Exp
+    Lt                 : Exp * Exp -> Exp
+    Plus               : Exp * Exp -> Exp
+    Div                : Exp * Exp -> Exp
+    Mul                : Exp * Exp -> Exp
+    Min                : Exp * Exp -> Exp
+    Min                : Exp -> Exp
+    Not                : Exp -> Exp
+    Modulo             : Exp * Exp -> Exp
+    String             : STRING -> Exp
+    ByteArr            : List(Exp) -> Exp
+    Par                : Exp -> Exp
+                       : ModHolderRef -> Exp
+    Bool               : Bool -> Exp
+    Const              : ConstLan -> Exp
+    Const              : Const -> Exp
+    Float              : FLOAT -> Exp
+    Int                : INT -> Exp
+    NbsCount           : NbsOp -> Exp
+                       : Ref -> Exp
+    Null               : Exp
+                       : String -> NbsFilterKey
+                       : String -> Const
+                       : String -> ConstLan
+                       : String -> Bool
+                       : String -> Color
+                       : String -> FLOAT
+                       : String -> INT
+                       : String -> ID
 
 
 signature

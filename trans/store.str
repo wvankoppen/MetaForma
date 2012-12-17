@@ -25,13 +25,13 @@ imports
 rules
 	
 	
-	
-	remove-indirect-constructs: Instr(i,evts,d,instr*,postcon) -> Instr(i,instr'*,postcon)
-	where
-		instr'* := <conc>(evts,instr*)
-		
-		
-	remove-indirect-constructs: Class(Meta(),parts,fields) -> Class(Meta(),fields)
+	// 
+	// remove-indirect-constructs: Instr(i,evts,evsemi,d,instr*,postcon) -> Instr(i,evsemi,instr'*,postcon)
+	// where
+	// 	instr'* := <conc>(evts,instr*)
+	// 	
+	// 	
+	// remove-indirect-constructs: Class(Meta(),parts,fields) -> Class(Meta(),fields)
 	
 	
 	adjust-index-def-data(store-results|namespace, path): 
@@ -72,7 +72,10 @@ rules
 	
 		
 	adjust-index-def-data(store-results|namespace, path): 
-		term@State(_{[State(), name, program]},_,_,_,_,_) -> <store-results> DefData([State(), program], State(), term)
+		term@Sequence(SequenceGenericRef(_{[Sequence(), name, program]}),_,_,_,_,_) -> <store-results> DefData([Sequence(), program], Sequence(), term)
+	
+	adjust-index-def-data(store-results|namespace, path): 
+		term@Sequence(SequenceRef(_{[Sequence(), name, program]}),_,_,_,_,_) -> <store-results> DefData([Sequence(), program], Sequence(), term)
 			
 		
 	adjust-index-def-data(store-results|namespace, path): 

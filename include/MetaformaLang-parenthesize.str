@@ -400,20 +400,54 @@ rules
     where <(?FuncCall(_, _) + fail)> t_1
 
   MetaformaLangParenthesize :
-    Instr(t_0, t_1, t_2, t_3) -> Instr(Parenthetical(t_0), t_1, t_2, t_3)
-    where <(?Instr(_, _, _) + fail)> t_0
+    Instr(t_0, t_1, t_2, t_3, t_4) -> Instr(
+                                        Parenthetical(t_0)
+                                      , t_1
+                                      , t_2
+                                      , t_3
+                                      , t_4
+                                      )
+    where <(?Instr(_, _, _, _) + fail)> t_0
 
   MetaformaLangParenthesize :
-    Instr(t_0, t_1, t_2, t_3) -> Instr(t_0, Parenthetical(t_1), t_2, t_3)
-    where <(?Instr(_, _, _) + fail)> t_1
+    Instr(t_0, t_1, t_2, t_3, t_4) -> Instr(
+                                        t_0
+                                      , Parenthetical(t_1)
+                                      , t_2
+                                      , t_3
+                                      , t_4
+                                      )
+    where <(?Instr(_, _, _, _) + fail)> t_1
 
   MetaformaLangParenthesize :
-    Instr(t_0, t_1, t_2, t_3) -> Instr(t_0, t_1, Parenthetical(t_2), t_3)
-    where <(?Instr(_, _, _) + fail)> t_2
+    Instr(t_0, t_1, t_2, t_3, t_4) -> Instr(
+                                        t_0
+                                      , t_1
+                                      , Parenthetical(t_2)
+                                      , t_3
+                                      , t_4
+                                      )
+    where <(?Instr(_, _, _, _) + fail)> t_2
 
   MetaformaLangParenthesize :
-    Instr(t_0, t_1, t_2, t_3) -> Instr(t_0, t_1, t_2, Parenthetical(t_3))
-    where <(?Instr(_, _, _) + fail)> t_3
+    Instr(t_0, t_1, t_2, t_3, t_4) -> Instr(
+                                        t_0
+                                      , t_1
+                                      , t_2
+                                      , Parenthetical(t_3)
+                                      , t_4
+                                      )
+    where <(?Instr(_, _, _, _) + fail)> t_3
+
+  MetaformaLangParenthesize :
+    Instr(t_0, t_1, t_2, t_3, t_4) -> Instr(
+                                        t_0
+                                      , t_1
+                                      , t_2
+                                      , t_3
+                                      , Parenthetical(t_4)
+                                      )
+    where <(?Instr(_, _, _, _) + fail)> t_4
 
   MetaformaLangParenthesize :
     FieldRef(t_0, t_1) -> FieldRef(Parenthetical(t_0), t_1)

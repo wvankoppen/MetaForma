@@ -1,0 +1,17 @@
+program obstacleavoidance
+
+float TURNAROUND_TIME = 2
+
+sequence TurnTwoWheeler {
+	do {
+		meta.drive (BACKWARD,BACKWARD);	
+	} wait(BACKWARD_TIME);
+	
+	do {
+		meta.drive (BACKWARD,FORWARD);	
+	} wait(TURNAROUND_TIME);
+	
+	meta.halt();
+
+	goto Drive;
+}

@@ -21,9 +21,9 @@ imports
 	
 rules
 	project-name: Program(n,_,_,_) -> <strip-annos>n
-	project-name: State(state,_,_,_,_,_) -> <project-name>state
-	project-name: StateRef(n) -> <strip-annos>n
-	project-name: StateGenericRef(n) -> <strip-annos>n
+	project-name: Sequence(state,_,_,_,_,_) -> <project-name>state
+	project-name: SequenceRef(n) -> <strip-annos>n
+	project-name: SequenceGenericRef(n) -> <strip-annos>n
 	project-name: MetaPart(n) -> <strip-annos>n
 	project-name: Packet(n,_) -> <strip-annos>n
 	project-name: Packet(n,_,_) -> <strip-annos>n

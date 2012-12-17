@@ -16,7 +16,7 @@ rules // Incremental code generation of project using compilation library.
   
   
  
-rules // Transformation to java strings.
+rules 
 
 head: [x|xs] -> x
 tail: [x|xs] -> xs
@@ -31,16 +31,6 @@ where
 	
 
 desugar-payload(|packet): AssignElem(PayloadRef(f),exp) -> AssignElem(PayloadRef(packet,f),exp)
-
-// desugar-events3(|state,c): EvHdlr(r,decls,stats) -> EvHdlr(<newname>,State(state,c),r,decls,stats)
-// desugar-events2(|state): EvHdlr(r,decls,stats) -> EvHdlr(<newname>,State(state),r,decls,stats)
-// desugar-events: EvHdlr(r,decls,stats) -> EvHdlr(<newname>, State(),r,decls,stats)  
-
-// desugar-td: Group (n,elems) -> Group (n,items)
-// where
-// 	<flatten-list><map(add-modgroup(|n))>elems => items
-	
-// add-modgroup(|g): Mod(n) -> Mod(g,n) 
 
 desugar: EvHdlr(receive,vars,stats) -> EvHdlr (<newname>,receive,vars,stats)
 
@@ -57,11 +47,7 @@ where
 add-visgroup(|n): VisItem(r,c) -> VisItem(<newname>,n,r,c) 
 
 
-// desugar-td: Program(n,vis,defs,decls) -> Program(n,vis,defs',decls)
-// where
-// 	<topdown(try(desugar-events))>defs => defs'
-
-desugar-td: State(n,ehdlrs,ifs,x,e,instrs) -> State(n,ehdlrs,ifs,x,e,instrs''')  
+desugar-td: Sequence(n,ehdlrs,ifs,x,e,instrs) -> Sequence(n,ehdlrs,ifs,x,e,instrs''')  
 where 
 	<map(try(add-instrblock))>instrs => instrs';
 	<upto><dec><length>instrs' => nrs;
@@ -74,11 +60,11 @@ where
 desugar: If (e,vardecls,stats) -> If(e,<conc>(vardecls,stats))
 
 
-swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*,postcon)) -> Instr(c,/*<map(try(desugar-events3(|state,c)))>*/evts,evsemi,<conc>(vars,instr*),postcon)
-swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*)) -> Instr(c,/*<map(try(desugar-events3(|state,c)))><filter(?event-real)>*/evts,evsemi,<conc>(vars,instr*),Wait(Consensus())) 
+swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*,postcon)) -> Instr(c,evts,evsemi,<conc>(vars,instr*),postcon)
+swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*)) -> Instr(c,evts,evsemi,<conc>(vars,instr*),Wait(Consensus())) 
 
 	
-add-instrblock: f -> Instr([],[],[f])
+add-instrblock: f -> Instr([],[],[],[f])
 where
 	not (<?Instr(_,_,_,_,_,_)>f);
 	not (<?Instr(_,_,_,_,_)>f);
@@ -86,18 +72,8 @@ where
 	
 
 
-// desugar: VarDecl(t,n*) -> decls
-// 	where
-// 		<?[_|_]>n*;
-// 		decls := <flatten-list><map(fixvar(|t))>n*
-// 
-// fixvar(|t): n -> VarDecl(t,n)
-
 
 desugar-functions: Instr(d,evts,evsemi,instrs) -> Instr(d,evts,evsemi,instrs,Wait(Consensus()))  	 
- 
-// desugar-functions: ConnectPart(m1,m2) -> FuncCall(MethodRef(Actuation(),"connect_part"),[m1,m2])
-// desugar-functions: DisconnectPart(m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect_part"),[m1,m2])
 desugar-functions: Connect(_,m1,m2) -> FuncCall(MethodRef(Actuation(),"connect"),[m1,m2])
 desugar-functions: Disconnect(_,m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect"),[m1,m2])
 desugar-functions: Rotate(_,m1,deg) -> FuncCall(MethodRef(Actuation(),"rotate"),[m1,deg])

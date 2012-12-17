@@ -11,14 +11,8 @@ exports
 	Ref		 				-> Exp
 	"#(" NbsOp ")"			-> Exp{"NbsCount"}
 	"$(" NbsOp ")"			-> Nbs{"Nbs"}
-%%	"!$(" NbsOp ")"			-> Exp{"NbsNone"}
 	{NbsFilter ","}*	-> NbsOp{"NbsOp"}
-	%% ConnFilter						-> NbsOp{"NbsOp"}
-	%% {NbsFilter ","}+				-> NbsOp{"NbsOp"}
-	%% Exp 					-> ConnFilter{"ConnFilter"}
-	%% Exp "->" Exp			-> ConnFilter{"ConnFilter"}
-	
-	NbsFilterKey ":" Exp -> NbsFilter{"NbsFilter"}
+	NbsFilterKey ":" Exp 	-> NbsFilter{"NbsFilter"}
 	ModHolderRef			-> NbsFilter{"NbsFilter"}
 	
 	lexical syntax

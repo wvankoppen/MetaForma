@@ -1,15 +1,24 @@
 program obstacleavoidance
 
-
+visualize {
+	north {
+		@LeftWheel: green;
+		@RightWheel: yellow;
+		@Axis: magenta;
+	}
+	south {
+		Main: black;
+		TurnFourWheeler: white;
+		TurnTwoWheeler: gray;
+		Drive: red;
+	}
+}
 
 group Axis [Driver,Front,Back]
 group LeftWheel
 group RightWheel
 
 float PROXIMITY = 0.15
-byte STEER_DEGREES = 15
-float BACKWARD_TIME = 10
-float TURNAROUND_TIME = 2
 
 byte FORWARD = 1
 byte BACKWARD = -1	
@@ -18,22 +27,21 @@ module {
 	
 } 
 
-meta {
-	byte size;
-	
+
+meta {	
 	void steer (int degrees) {
-		rotate(@Axis.Front,STEER_DEGREES);
-		rotate(@Axis.Back,-STEER_DEGREES);
+		rotate(@Axis.Front,degrees);
+		rotate(@Axis.Back,-degrees);
 	}
 	
 	void drive (byte dirLeft, byte dirRight) {
-		rotate_continuous(@LeftWheel,dirLeft);
+		rotate_continuous(@LeftWheel,-dirLeft);
 		rotate_continuous(@RightWheel,dirRight);
 	}
 	
 	void halt () {
-		// stop(@LeftWheel);
-		// stop(@RightWheel);
+		stop(@LeftWheel);
+		stop(@RightWheel);
 	}
 }
 
@@ -51,37 +59,40 @@ sequence Main {
 			module.group = @RightWheel;
 		} 
 		
-		when (#(@RightWheel)>0 || #(@LeftWheel)>0 && #(connSource: NORTH&EAST&FEMALE)==0) {
+		when ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==0) {
 			module.id = @Axis.Front;
 		}
 		
-		when (#(@RightWheel)>0 || #(@LeftWheel)>0 && #(connSource: NORTH&EAST&FEMALE)==0) {
+		when ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==1) {
 			module.id = @Axis.Back;
 		}
-		
+		 
 		when (#(@Axis) == 2) {
 			module.id = @Axis.Driver;
 		}
+		meta.enable();
+		
 	} until (config.assignTime);
 	
+	
+	 
 	goto Drive;
 }	
 
 
 sequence Drive {
  	when (module.group == @Axis && module.proximity() > PROXIMITY) {
-		if (#(@Axis) == 2) {
+		if (module.group == @Axis && #() == 2) {
 			meta.size = 3;
 			goto TurnTwoWheeler;
 		}
 		
-		if (#(@Axis) == 3) {
+		if (module.group == @Axis && #() == 3) {
 			meta.size = 7;
 			goto TurnFourWheeler;
 		}	
 	}	
 	
-	// FORWARD and BACKBWARD should be built in constants of 1 and -1, resp.
 	meta.drive(FORWARD,FORWARD);
 }
 

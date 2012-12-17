@@ -19,7 +19,7 @@ imports
  // Front@Axis; is not recognized
  // send AddNeighbor(first=v1, second=v2) to dests;       first must refer to a var defined in AddNeighbor
  
- // how to store Receive event handlers in global or instruction states
+ // how to store Receive event handlers in global or instruction Sequences
  
  // How to store scattered declarations from multiple files in a single namespace, and retrieve them from it
 
@@ -33,7 +33,7 @@ namespaces
 	Var
 	Field
 	Class
-	State
+	Sequence
 	Instruction
 	Function
 	MetaPart
@@ -61,7 +61,7 @@ rules
 	
 	Program(n,_,_,_):
 		defines non-unique Program n
-		scopes Group, Packet, Class, State,/*Function,*/MetaPart,EventHandler,VisItem,Const
+		scopes Group, Packet, Class, Sequence,/*Function,*/MetaPart,EventHandler,VisItem,Const
 
 	Group(n,_) :
 		defines Group n
@@ -73,8 +73,12 @@ rules
 	Group(n) :
 	 	defines Group n
 	 
-	State (n,_,_,_,_,_):
-		defines State n	
+	Sequence (SequenceGenericRef(n),_,_,_,_,_):
+		defines Sequence n	
+		scopes Packet,Var,Instruction,EventHandler
+		
+	Sequence (SequenceRef(n),_,_,_,_,_):
+		defines Sequence n	
 		scopes Packet,Var,Instruction,EventHandler
 		
 	Instr(i,_,_,_,_):
@@ -85,8 +89,11 @@ rules
 
 
 		
-	StateRef(n):
-		refers to State n
+	SequenceRef(n):
+		refers to Sequence n
+		
+	SequenceGenericRef(n):
+		refers to Sequence n
 		
 	Packet (n,_):
 		defines Packet n of type Type(n)
@@ -158,11 +165,18 @@ rules
 		refers to Const n
 		
 		
+	MethodRef(Region(), "atPrimaryBorder"):
+		refers to Function "atPrimaryBorder"
 		
+	FieldRef(Module(),"id"):
+		refers to Field "id"
+	
+	FieldRef(Module(),"metaID"):
+		refers to Field "metaID"	
 		
 	FieldRef(c,n):
 		refers to Field n in Class cl
-		// refers to Payload n in Packet cl
+		refers to Payload n in Packet cl
 		where c has type Type(cl)
 		// refers to Class c
 	

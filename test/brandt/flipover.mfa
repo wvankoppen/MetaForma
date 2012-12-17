@@ -15,25 +15,25 @@ sequence FlipOver {
 	module.gradientPropagate();
 
 	do  {
-		if (gradPri == 0 && gradSec < 3 || gradSec==0 && gradPri<3) { 
+		if (module.gradPri == 0 && module.gradSec < 3 || module.gradSec==0 && module.gradPri<3) { 
 			module.group = @Outside;
 		}
-		if (gradPri > 0 && gradSec > 0) { 
+		if (module.gradPri > 0 && module.gradSec > 0) { 
 			module.group = @Inside;
 		}
-		if (gradPri==3 && gradSec==1) { 
+		if (module.gradPri==3 && module.gradSec==1) { 
 			module.id = @InsideLifter.Top;
 		}
-		if (gradPri==1 && gradSec==3) { 
+		if (module.gradPri==1 && module.gradSec==3) { 
 			module.id = @InsideLifter.Bottom;
 		}
-		if (gradPri==2 && gradSec==0) { 
+		if (module.gradPri==2 && module.gradSec==0) { 
 			module.id = @OutsideLifter.Top;
 		}
-		if (gradPri==0 && gradSec==2) { 
+		if (module.gradPri==0 && module.gradSec==2) { 
 			module.id = @OutsideLifter.Bottom;
 		}
-		isRef = (gradPri == 0 && gradSec == 3);
+		module.isRef = (module.gradPri == 0 && module.gradSec == 3);
 	}
 					
 	

@@ -32,7 +32,7 @@ signature
     Var          : Namespace
     Field        : Namespace
     Class        : Namespace
-    State        : Namespace
+    Sequence     : Namespace
     Instruction  : Namespace
     Function     : Namespace
     MetaPart     : Namespace
@@ -113,7 +113,7 @@ rules
     Program(n, _, _, _) -> [ Group()
                            , Packet()
                            , Class()
-                           , State()
+                           , Sequence()
                            , MetaPart()
                            , EventHandler()
                            , VisItem()
@@ -181,23 +181,59 @@ rules
 rules
 
   nam-get-scope-types :
-    State(n, _, _, _, _, _) -> [ Packet()
-                               , Var()
-                               , Instruction()
-                               , EventHandler()
-                               ]
+    Sequence(SequenceGenericRef(n), _, _, _, _, _) -> [ Packet()
+                                                      , Var()
+                                                      , Instruction()
+                                                      , EventHandler()
+                                                      ]
 
   nam-get-definition-keys :
-    State(n, _, _, _, _, _) -> [n]
+    Sequence(SequenceGenericRef(n), _, _, _, _, _) -> [n]
 
   nam-get-definitions :
-    State(n, _, _, _, _, _) -> [(State(), [n])]
+    Sequence(SequenceGenericRef(n), _, _, _, _, _) -> [(Sequence(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    State(n, _, _, _, _, _) -> <State(nam-annotate-def(|path__), id, id, id, id, id)>
+    Sequence(SequenceGenericRef(n), _, _, _, _, _) -> <Sequence(
+                                                         SequenceGenericRef(nam-annotate-def(|path__))
+                                                       , id
+                                                       , id
+                                                       , id
+                                                       , id
+                                                       , id
+                                                       )>
 
   nam-unique :
-    State(n, _, _, _, _, _) -> <id>
+    Sequence(SequenceGenericRef(n), _, _, _, _, _) -> <id>
+
+
+rules
+
+  nam-get-scope-types :
+    Sequence(SequenceRef(n), _, _, _, _, _) -> [ Packet()
+                                               , Var()
+                                               , Instruction()
+                                               , EventHandler()
+                                               ]
+
+  nam-get-definition-keys :
+    Sequence(SequenceRef(n), _, _, _, _, _) -> [n]
+
+  nam-get-definitions :
+    Sequence(SequenceRef(n), _, _, _, _, _) -> [(Sequence(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    Sequence(SequenceRef(n), _, _, _, _, _) -> <Sequence(
+                                                  SequenceRef(nam-annotate-def(|path__))
+                                                , id
+                                                , id
+                                                , id
+                                                , id
+                                                , id
+                                                )>
+
+  nam-unique :
+    Sequence(SequenceRef(n), _, _, _, _, _) -> <id>
 
 
 rules
@@ -221,13 +257,25 @@ rules
 rules
 
   nam-get-uses-keys :
-    StateRef(n) -> [n]
+    SequenceRef(n) -> [n]
 
   nam-get-uses :
-    StateRef(n) -> [(State(), [n])]
+    SequenceRef(n) -> [(Sequence(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    StateRef(n) -> <StateRef(nam-annotate-use(|paths__, State()))>
+    SequenceRef(n) -> <SequenceRef(nam-annotate-use(|paths__, Sequence()))>
+
+
+rules
+
+  nam-get-uses-keys :
+    SequenceGenericRef(n) -> [n]
+
+  nam-get-uses :
+    SequenceGenericRef(n) -> [(Sequence(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    SequenceGenericRef(n) -> <SequenceGenericRef(nam-annotate-use(|paths__, Sequence()))>
 
 
 rules
@@ -568,18 +616,79 @@ rules
 rules
 
   nam-get-uses-keys :
+    MethodRef(Region(), "atPrimaryBorder") -> ["atPrimaryBorder"]
+
+  nam-get-uses :
+    MethodRef(Region(), "atPrimaryBorder") -> [(Function(), ["atPrimaryBorder"])]
+
+  nam-annotate-names(|paths__, path__):
+    MethodRef(Region(), "atPrimaryBorder") -> <MethodRef(
+                                                 Region()
+                                               , nam-annotate-use(|paths__, Function())
+                                               )>
+
+  adjust-index-lookup(target__|namespace__, path__, prefix__):
+    MethodRef(Region(), "atPrimaryBorder") -> [Def([Function(), "atPrimaryBorder"])]
+    where <target__> "atPrimaryBorder"
+
+
+rules
+
+  nam-get-uses-keys :
+    FieldRef(Module(), "id") -> ["id"]
+
+  nam-get-uses :
+    FieldRef(Module(), "id") -> [(Field(), ["id"])]
+
+  nam-annotate-names(|paths__, path__):
+    FieldRef(Module(), "id") -> <FieldRef(
+                                   Module()
+                                 , nam-annotate-use(|paths__, Field())
+                                 )>
+
+  adjust-index-lookup(target__|namespace__, path__, prefix__):
+    FieldRef(Module(), "id") -> [Def([Field(), "id"])]
+    where <target__> "id"
+
+
+rules
+
+  nam-get-uses-keys :
+    FieldRef(Module(), "metaID") -> ["metaID"]
+
+  nam-get-uses :
+    FieldRef(Module(), "metaID") -> [(Field(), ["metaID"])]
+
+  nam-annotate-names(|paths__, path__):
+    FieldRef(Module(), "metaID") -> <FieldRef(
+                                       Module()
+                                     , nam-annotate-use(|paths__, Field())
+                                     )>
+
+  adjust-index-lookup(target__|namespace__, path__, prefix__):
+    FieldRef(Module(), "metaID") -> [Def([Field(), "metaID"])]
+    where <target__> "metaID"
+
+
+rules
+
+  nam-get-uses-keys :
     FieldRef(c, n) -> [n]
     where Type(cl) := <type-of> c
 
   nam-get-uses :
-    FieldRef(c, n) -> [(Field(), [n])]
+    FieldRef(c, n) -> [ (Field(), [n])
+                      , (Payload(), [n])
+                      ]
     where Type(cl) := <type-of> c
 
   nam-annotate-names(|paths__, path__):
     FieldRef(c, n) -> <FieldRef(id, nam-annotate-use(|paths__, Field()))>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    FieldRef(c, n) -> <index-lookup-children(|Field(), prefix__)> cl
+    FieldRef(c, n) -> <concat> [ <index-lookup-children(|Field(), prefix__)> cl
+                               , <index-lookup-children(|Payload(), prefix__)> cl
+                               ]
     where <target__> n
     where Type(cl) := <type-of> c
 

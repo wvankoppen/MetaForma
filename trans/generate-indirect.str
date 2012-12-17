@@ -29,7 +29,7 @@ strategies
 	map2str(rule) = map(rule);concat-strings 
 
 	compile-packet: Packet(packet,i,payloaddecls) -> $[
-		class [packet'] extends Packet {
+		class [packet'] extends PacketBase {
 			
 			public static byte getTypeNr() {return [i];}
 			
@@ -44,7 +44,7 @@ strategies
 			}
 			
 			@Override
-			public Packet deserializePayload(byte[<bracks>] payload) {
+			public [packet'] deserializePayload(byte[<bracks>] payload) {
 				[java-fields-payloads]
 				return this;
 			}
@@ -59,7 +59,7 @@ strategies
 	]
 	where
 		<debug>$[Compile packet [packet]];
-		packet' := $[[packet]Base];
+		packet' := <packet-name>packet;
 		java-fields := <map2str(to-java-stat)>payloaddecls;
 		fieldnames := <map(project-name)>payloaddecls;
 		java-fields-payloads := <compile-payload-assign>fieldnames; 
@@ -81,9 +81,13 @@ strategies
 		
   swap-index: (index,fieldname) -> $[[fieldname] = payload$[$[index]$]$;]	
 	
+	
+  packet-name: "Packet" -> "PacketBase"
+  packet-name: packet -> $[Packet[packet]] where not (<eq>(packet,"Packet"))
+  
 	 
  compile-packetreceive(|n): Packet(packet,i,payloaddecls) -> $[
-  	public void receivePacket([packet]Base p) {
+  	public void receivePacket([<packet-name>packet] p) {
   		[code]
   	}
   ]
@@ -95,8 +99,8 @@ strategies
   	
  	 
  simplify: EvHdlr(_{[_,name,p]},receive,vardecls, stats) -> EvHdlr (State(),<conc>(vardecls,stats)) 	 
- simplify: EvHdlr(_{[_,name,seq,p]},receive,vardecls, stats) -> EvHdlr (State(seq),<conc>(vardecls,stats)) 	 
- simplify: EvHdlr(_{[_,name,instr, seq,p]},receive,vardecls, stats) -> EvHdlr (State(seq, instr),<conc>(vardecls,stats))	
+ simplify: EvHdlr(_{[_,name,seq,p]},receive,vardecls, stats) -> EvHdlr (State(SequenceRef(seq)),<conc>(vardecls,stats)) 	 
+ simplify: EvHdlr(_{[_,name,instr, seq,p]},receive,vardecls, stats) -> EvHdlr (State(SequenceRef(seq), instr),<conc>(vardecls,stats))	
  // simplify: x -> <debug(!"xxx")>x
 
 // to-java-global(|what) = 
@@ -121,6 +125,16 @@ where
 	<debug>$[Compile Region class]
 
 
+compile-packetbuild: p@Packet(n,nr,payloads) -> $[		 if (typeNr == [name].getTypeNr()) {
+			[name] p = ([name])new [name](this).deserialize(msg,connector);
+			preprocessPacket(p);
+			receivePacket(p); 
+		}
+		else ]
+where
+	name := $[Packet[n]]
+
+
 to-java: BorderDecl(items) -> <map2str(to-java)>items
 to-java: None() -> $[]
 
@@ -138,7 +152,7 @@ construct2name: Meta() -> $[Meta]
 construct2name: Module() -> $[Module]
 construct2name: Region() -> $[Region]
  
- compile: State(state,evhdlrs,evts,vars,funcs,instrs) -> 
+ compile: Sequence(state,evhdlrs,evts,vars,funcs,instrs) -> 
 $[if (mfStateMngr.at([n])) {
 	[java-evts]  
 	[java-instrs]
@@ -146,15 +160,12 @@ $[if (mfStateMngr.at([n])) {
 ]
 where
 	n := <to-java>state; 
-	<debug>$[COMPILE sequence [n]];
+	<debug>$[## START COMPILE sequence [n]];
 	<map2str(to-java)>evts => java-evts;
-	<map2str(to-java-instr)>instrs => java-instrs
+	<map2str(to-java-instr)>instrs => java-instrs;
+	<debug>$[## END COMPILE sequence [n]]
  
- 
- // to-java-packetreceive = 
- // 	<concat-strings><map(compile)><get-packets>
- 
- 
+
  
   	
   compile: e@EvHdlr (state,stats) ->
@@ -165,7 +176,7 @@ where
   	
   	
   to-java: State() -> $[true]
-  to-java: State(n) -> $[new State(Sequence.[n])]
-  to-java: State(n,i) -> $[new State(Sequence.[n],[i])]
+  to-java: State(seq) -> $[new State([<to-java>seq])]
+  to-java: State(seq,i) -> $[new State([<to-java>seq],[i])]
   
   

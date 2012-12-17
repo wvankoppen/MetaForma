@@ -22,17 +22,16 @@ sorts	Group MetaClass RotateContinuous
   %% Declaration: DIRECT code generation
   
    "program" ID Visualize? Definition* Declaration*						-> Start {"Program"}
-   %%ModuleDef GroupDef* Definition 						-> Start {"Start", scope(Include)}
-    
-    %% Declaration -> Definition
     
     "visualize" "{" VisGroup*"}" -> Visualize {"Visualize"}
     ID "{" VisItem* "}" 		 -> VisGroup{"VisGroup"}
 	
-	ModHolderOrStateRef ":" Color ";" -> VisItem{"VisItem"}
+	ModHolderOrSeqRef ":" ColorRef ";" -> VisItem{"VisItem"}
     
-    ModHolderRef -> ModHolderOrStateRef
-    StateRef -> ModHolderOrStateRef
+    Color -> ColorRef{"Color"}
+    
+    ModHolderRef -> ModHolderOrSeqRef
+    SequenceRef -> ModHolderOrSeqRef
     
 	GroupDef 										-> Definition
 	%% Robot "{" FuncDecl* "}" 			-> Definition{"Class"} use region for this!
@@ -63,26 +62,26 @@ sorts	Group MetaClass RotateContinuous
 	ID					-> Type{avoid}
 	
 	"packet" ID "{" PayloadDecl* "}" 					-> Definition{"Packet"}
-	FuncDecl -> Declaration
+	FuncDecl 											-> Declaration
 
 	
 	%%Type {ID ","}+ ";" -> VarDecl{"VarDecl"}
-	Type ID ";" -> VarDecl{"VarDecl"}
-	Type ID ";" -> FieldDecl{"FieldDecl"}
-	Type ID ";" -> PayloadDecl{"PayloadDecl"}
-	PacketRef ID -> PacketVarDecl{"VarDecl"}
+	Type ID ";" 				-> VarDecl{"VarDecl"}
+	Type ID ";" 				-> FieldDecl{"FieldDecl"}
+	Type ID ";" 				-> PayloadDecl{"PayloadDecl"}
+	PacketRef ID 				-> PacketVarDecl{"VarDecl"}
 	
 
 	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{"MetaPartDecl"}
-	ID 		-> MetaPart{"MetaPart"}
+	ID 									-> MetaPart{"MetaPart"}
 	
-	ID 					-> Ref{"VarRef"}
-	ID 					-> PayloadRef{"PayloadRef"}
+	ID 									-> Ref{"VarRef"}
+	ID 									-> PayloadRef{"PayloadRef"}
 	
-	PayloadRef "=" Exp			-> AssignElem{"AssignElem"}
-	{AssignElem ","}*				-> AssignList{"AssignList"} 
+	PayloadRef "=" Exp					-> AssignElem{"AssignElem"}
+	{AssignElem ","}*					-> AssignList{"AssignList"} 
 	
-	"sequence" StateRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{"State"}
+	"sequence" SequenceRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{"Sequence"}
 	
 	
 	EvHdlr										 -> Definition
@@ -91,11 +90,11 @@ sorts	Group MetaClass RotateContinuous
 	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{"If"}
  	%%"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
-	ID								-> PacketRef {"PacketRef"}
+	ID									-> PacketRef {"PacketRef"}
 	
 	"receive" "(" PacketVarDecl ")" 	-> Receive{"Receive"}
-	Exp 							-> EventExp
-	"rate" Ref						-> Rate{"Rate"}
+	Exp 								-> EventExp
+	"rate" Ref							-> Rate{"Rate"}
 	
 
 	
@@ -122,7 +121,7 @@ sorts	Group MetaClass RotateContinuous
 	ID 										-> OrientRef{"OrientRef"}	
 		
 	Stmt -> Instr
-	"goto" StateRef ";"							-> Stmt{"Goto"}
+	"goto" SequenceRef ";"							-> Stmt{"Goto"}
 	"goto" ID "orientating" ID ";"			-> Stmt{"Goto"}
 	
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{"Group"}
@@ -130,7 +129,7 @@ sorts	Group MetaClass RotateContinuous
 	
 	ID 								-> Mod{"Mod"}
 	
-	"try" "region" StateRef "orientating" OrientRef "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{"TryRegion"}
+	"try" "region" SequenceRef "orientating" OrientRef "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{"TryRegion"}
 	
 	 {Exp ","}* 				-> ByteList {"ByteArr"}
 	 ID 		-> MetaFieldRef {"MetaFieldRef"}
@@ -145,6 +144,8 @@ sorts	Group MetaClass RotateContinuous
 	%% "connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"ConnectPart"}
 	
 	Stop "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
+	
+	"break" ";"	-> Stmt{"Break"}
 	
 	lexical syntax
 	"stop" -> Stop
@@ -176,11 +177,9 @@ sorts	Group MetaClass RotateContinuous
 	
 	
 	
-	StateGeneric						-> StateRef{"StateGenericRef",prefer}
-	ID		 							-> StateRef{"StateRef"}
+	SequenceGeneric						-> SequenceRef{"SequenceGenericRef",prefer}
+	ID		 							-> SequenceRef{"SequenceRef"}
 
-	%% StateGeneric						-> StateRef{"StateGenericRef",prefer}
-	%% ID		 							-> StateRef{"StateRef"}
 	
 	
 	
@@ -198,12 +197,10 @@ sorts	Group MetaClass RotateContinuous
 	"metaID" -> ModuleFieldID
 	"metaPart" -> ModuleFieldID
 	
-	%% StateGeneric 							-> State
-	%% ID										-> State
 	
 	
-	"Main" 									-> StateGeneric
-	"Choose" 								-> StateGeneric
+	"Main" 									-> SequenceGeneric
+	"Choose" 								-> SequenceGeneric
 	
 	context-free syntax
 		ID -> ModuleFieldID{reject}
@@ -219,7 +216,7 @@ sorts	Group MetaClass RotateContinuous
 	{
 	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition  -> Instr{"Instr"}
 	} > {
-	"do" "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{"Instr"}
+	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{"Instr"}
 	}
 	
 	
