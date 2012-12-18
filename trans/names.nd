@@ -99,11 +99,27 @@ rules
 		defines Packet n of type Type(n)
 		scopes Payload,Field,Program
 		
+		
+		
+// EvHdlr(
+//   "EvHdlr379"
+// , Receive(VarDecl(PacketRef("Gradient"), "p"))
+// , []
+// , [
+		
 
 	Receive (VarDecl(PacketRef(p),n)):
 		refers to Packet p
 		defines Var n
+		
+	EvHdlr(n,Receive (VarDecl(PacketRef(p),n)),_,_):
+		refers to Packet p
+		defines Var n
 		scopes Payload,Field,Var
+	
+	
+	
+	
 	
 	FuncDecl (n,_,_,_): 
 		defines Function n

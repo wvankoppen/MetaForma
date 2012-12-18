@@ -72,12 +72,6 @@ when (receive (Gradient p)) {
 		module.gradSec = min (p.sec,module.gradSec);
 		module.gradientPropagate();
 	}	
-
-	
- 	if (p.metaID == Left) {
- 		meta.TopLeft = p.first;
- 		meta.BottomLeft = p.second;
- 	}
 }
 
 region {

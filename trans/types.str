@@ -21,7 +21,7 @@ imports
 rules
 	
 	
- 	type-of: Packet(n,_) -> Packet()
+ 	type-of: Packet(n,_,_) -> Packet()
 
 	type-of: FieldRef(o,f) -> <type-of><index-lookup>f
 	type-of: PayloadRef(o,f) -> <type-of><index-lookup>f

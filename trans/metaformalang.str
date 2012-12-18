@@ -149,12 +149,13 @@ rules // Debugging
   
   
   index-types:
-    (selected, position, ast, path, project-path) -> (filename, data)
+    (selected, position, ast, path, project-path) -> (filename, result)
     with
     	index-setup(|<language>, [project-path], $[[project-path]/[path]]);
-    	filename := <guarantee-extension(|"index.types.aterm")> path;
-   		<project-name>ast => name;
-      	data := <index-get-all-values>Type((), ())
+   		// <project-name>ast => name;
+    	filename := <guarantee-extension(|"index.allfiles.aterm")> path;
+        data   := <map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files>;
+  		<filter(?Type(_,_))>data => result
   
   
   index-manual:

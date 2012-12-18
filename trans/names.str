@@ -308,9 +308,6 @@ rules
 
 rules
 
-  nam-get-scope-types :
-    Receive(VarDecl(PacketRef(p), n)) -> [Payload(), Field(), Var()]
-
   nam-get-definition-keys :
     Receive(VarDecl(PacketRef(p), n)) -> [n]
 
@@ -333,6 +330,75 @@ rules
 
   nam-unique :
     Receive(VarDecl(PacketRef(p), n)) -> <id>
+
+
+rules
+
+  nam-get-scope-types :
+    EvHdlr(
+      n
+    , Receive(VarDecl(PacketRef(p), n))
+    , _
+    , _
+    ) -> [Payload(), Field(), Var()]
+
+  nam-get-definition-keys :
+    EvHdlr(
+      n
+    , Receive(VarDecl(PacketRef(p), n))
+    , _
+    , _
+    ) -> [n]
+
+  nam-get-definitions :
+    EvHdlr(
+      n
+    , Receive(VarDecl(PacketRef(p), n))
+    , _
+    , _
+    ) -> [(Var(), [n])]
+
+  nam-get-uses-keys :
+    EvHdlr(
+      n
+    , Receive(VarDecl(PacketRef(p), n))
+    , _
+    , _
+    ) -> [p]
+
+  nam-get-uses :
+    EvHdlr(
+      n
+    , Receive(VarDecl(PacketRef(p), n))
+    , _
+    , _
+    ) -> [(Packet(), [p])]
+
+  nam-annotate-names(|paths__, path__):
+    EvHdlr(
+      n
+    , Receive(VarDecl(PacketRef(p), n))
+    , _
+    , _
+    ) -> <EvHdlr(
+            nam-annotate-def(|path__)
+          , Receive(
+              VarDecl(
+                PacketRef(nam-annotate-use(|paths__, Packet()))
+              , nam-annotate-def(|path__)
+              )
+            )
+          , id
+          , id
+          )>
+
+  nam-unique :
+    EvHdlr(
+      n
+    , Receive(VarDecl(PacketRef(p), n))
+    , _
+    , _
+    ) -> <id>
 
 
 rules
