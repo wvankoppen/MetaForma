@@ -174,8 +174,8 @@ else {
 to-java: d@FieldRef(obj,f) -> $[[<to-java>obj].[f]]
 where 
 	f' := <strip-annos>f;
-	not (<eq>(f',"id"));
-	not (<eq>(f',"group"))
+	 not (<eq>(f',"id"));
+	 not (<eq>(f',"group"))
 
 to-java: FieldRef(obj, f) -> $[[<to-java>obj].getID()]
 where 
@@ -186,14 +186,12 @@ where
 	<eq>(<strip-annos>f,"group")
 
 
-to-java: ConstDecl(t,n,v) -> $[public final [<to-java>t] [n] = [<to-java>v];
-]
+to-java: ConstDecl(t,n,v) -> $[public final [<to-java>t] [n] = [<to-java>v]]
 
 to-java: VarDecl(t,n) -> $[[<to-java>t] [n]]
-to-java: VarRef(v) -> $[[v]]
 
-to-java: Assign(v@VarRef(_), e) -> $[[<to-java>v] = [<to-java>e]
-]
+
+to-java: Assign(v@VarRef(_), e) -> $[[<to-java>v] = [<to-java>e]]
 
 
 to-java: Assign(FieldRef(obj,"id"),val) -> $[[<to-java>obj].setID([<to-java>val])]
@@ -222,10 +220,13 @@ to-java: Config() -> $[ctrl.config()]
 to-java: Module() -> $[ctrl.module()]
 to-java: Region() -> $[ctrl.region()]
 to-java: Meta() -> $[ctrl.meta()]
-// to-java: Robot() -> $[ctrl.robot()]
+
 to-java: Actuation() -> $[ctrl.getActuation()]
 
-to-java: VarRef(n) -> n
+
+to-java: VarRef(n{[Var()|_]}) -> <strip-annos>n
+to-java: VarRef(n{[MetaPart()|_]}) -> $[MetaPart.[<strip-annos>n]]
+
 to-java: PayloadRef(p,n) -> n
 to-java: Par(e) -> $[ ([<to-java>e]) ]
 
@@ -253,7 +254,7 @@ to-java: NbsOp(constraints) -> $[ctrl.nbs()[<concat-strings><map(to-java)>constr
 to-java: NbsFilter(name,val) -> $[.nbsFilter[<to-upper-first>name]([<to-java>val])]
 
 	  
-
+to-java: PacketPrimRef(p) -> $[Packet[p]]
 to-java: PacketRef(p) -> $[Packet[p]]
 
 

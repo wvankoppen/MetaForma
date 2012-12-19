@@ -127,22 +127,22 @@ desugar: NbsFilter(d@ModHolderRef(m)) -> NbsFilter("in",d)
 
 
 
-desugar-all-nbl = id//desugar-all;topdown(try(desugar-nbl))
-// 
-// desugar-nbl: FieldRef(v,"connSource") -> PrimRefPacket(v,"connSource")
-// desugar-nbl: FieldRef(v,"connDest") -> PrimRefPacket(v,"connDest")
-// desugar-nbl: FieldRef(v,"metaID") -> PrimRefPacket(v,"metaID")
+desugar-all-nbl = topdown(try(desugar-nbl))
+ 
+ desugar-nbl: FieldPrimRef(o,f) -> FieldRef(o,f)
+ desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f)
+ desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f)
 
 
 
 
 
-
+ 
 
 desugar: FuncCall(MethodRef(Module(), "fixSymmetry"), [v]) -> 
 Instr(
   [ EvHdlr(
-      Receive(VarDecl(PacketRef("Symmetry"), "p"))
+      Receive(PacketVarDecl(PacketRef("Symmetry"), "p"))
     , []
     , [ FuncCall(
           MethodRef(Module(), "fixSymmetry")

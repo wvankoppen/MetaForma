@@ -64,11 +64,11 @@ rules
 		scopes Group, Packet, Class, Sequence,/*Function,*/MetaPart,EventHandler,VisItem,Const
 
 	Group(n,_) :
-		defines Group n
+		defines Group n of type Group()
 		scopes Mod
 
 	Mod (n):
-		defines Mod n
+		defines Mod n of type Mod()
 		
 	Group(n) :
 	 	defines Group n
@@ -158,17 +158,17 @@ rules
 		
 	MethodRef(Actuation(), n):
 		refers to Function n
-		refers to Function "disconnect"
+		
 	
 	MethodRef(obj,n):
-		refers to Function n in Class c
-		where obj has type Type(c)
+		refers to Function n in Class obj
+		// where obj has type Type(c)
 	
 	FieldDecl(t,n): 
 		defines Field n of type t
 		
-	PayloadDecl(_,n): 
-		defines Payload n 
+	PayloadDecl(t,n): 
+		defines Payload n of type  t
 	
 	PacketRef(p):
 		refers to Packet p
@@ -191,11 +191,10 @@ rules
 	PrimRefPacket(v,p):
 		refers to Payload "connSource"
 		
-
+	Type(c): refers to Class c
 		
 	FieldRef(c,n):
 		refers to Field n in Class cl
-		refers to Payload n in Packet cl
 		where c has type Type(cl)
 		// refers to Class c
 	

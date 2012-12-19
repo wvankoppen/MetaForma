@@ -3,9 +3,36 @@ program testcase
 group groep
 group meerderemods [mod1,mod2]
  
+packet Stuurmij {
+	byte f;
+}
+meta {
+	part [NORTH_EAST,SOUTH_EAST, SOUTH_WEST];	
+} 
+
+module{}
+
+region{} 
+ 
 sequence Choose {
-	disconnect(@meerderemods.mod1,@groep); 
+	byte voo;
+	float xoo;
+	float x11;
 	
+	xoo = x11;
+	voo = xoo;
+	disconnect(@meerderemods.mod1,@groep);
+	module.id = @groep;
+	
+	module.id = @meerderemods.mod1;
+	do {
+		when (receive(Stuurmij p)) {
+			module.metaPart = NORTH_EAST;
+			voo = p.connDest;
+			voo = p.f;
+		}	
+	}
+	 	
 }
  
 

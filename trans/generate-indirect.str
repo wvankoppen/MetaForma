@@ -152,16 +152,19 @@ construct2name: Meta() -> $[Meta]
 construct2name: Module() -> $[Module]
 construct2name: Region() -> $[Region]
  
- compile: Sequence(state,evhdlrs,evts,vars,funcs,instrs) -> 
+ compile: Sequence(namedec,evhdlrs,evts,vars,funcs,instrs) -> 
 $[if (mfStateMngr.at([n])) {
-	[java-evts]  
+	[java-vars]
+	[java-evts]
+	  
 	[java-instrs]
 }
 ]
-where
-	n := <to-java>state; 
+with
+	n := <to-java>namedec; 
 	<debug>$[## START COMPILE sequence [n]];
 	<map2str(to-java)>evts => java-evts;
+	<map2str(to-java-stat)>vars => java-vars;
 	<map2str(to-java-instr)>instrs => java-instrs;
 	<debug>$[## END COMPILE sequence [n]]
  

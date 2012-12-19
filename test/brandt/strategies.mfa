@@ -172,7 +172,7 @@ sequence Main {
 				
 				
 				if (isMALE(p.connDest) && module.metaPart == null) {
-					module.metaPart = NORTH_EAST;
+					module.metaPart = NORTH_EAST; 
 				}
 				else if (isWEST(p.connDest) && module.metaPart == null) {
 					module.metaPart = NORTH_WEST;

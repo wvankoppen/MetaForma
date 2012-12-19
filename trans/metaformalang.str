@@ -34,7 +34,7 @@ rules // Analysis
   analyze:
     (ast, path, project-path) -> (ast'', errors, warnings, notes, filesToAnalyze')
     with
-      ast'                    := <desugar-all-nbl> ast; // Optional AST desugaring
+      ast'                    := <desugar-all> ast; // Optional AST desugaring
       (ast'', filesToAnalyze) := <analyze-top(|<language>)> (ast', path, project-path);
       index-transaction(
 	      errors                := <collect-all(constraint-error, conc)> ast'';
@@ -154,7 +154,8 @@ rules // Debugging
     	index-setup(|<language>, [project-path], $[[project-path]/[path]]);
    		// <project-name>ast => name;
     	filename := <guarantee-extension(|"index.types.aterm")> path;
-        data   := <flatten-list><map(\filename -> <index-get-all-in-file> filename\)> <index-get-all-files>;
+        // data   := <flatten-list><map(\filename -> <index-get-all-in-file> filename\)> <index-get-all-files>;
+        data   := <index-get-all-in-file> path;
   		result := <filter(?Type(_,_))>data
   
   
@@ -166,10 +167,11 @@ rules // Debugging
       
       <strip-annos><project-name>ast => name;
       evhdlrs := <index-get-evhdlrs>name;
+      packets := <index-get-packets>name;
       
       cons := [VisItem(),Group(),Class(),Sequence(),MetaPart(),Const()];
       
-      data := [<index-get-packets>name|<map(index-getcons(|name))>cons]
+      data := <flatten-list>[packets|[evhdlrs|<map(index-getcons(|name))>cons]]
       
       
             
@@ -218,7 +220,7 @@ rules // Utility
       
    generate-java:
 		(selected, position, ast, path, project-path) -> (filename, controller)
-		where
+		with
 			<debug>"Generate direct Java code";
 			<project-name>ast => name;
 			<guarantee-extension(|"java")> $[[name]Controller] => filename ;

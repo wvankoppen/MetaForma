@@ -8,14 +8,16 @@ imports
   lib/analysis-library.generated
   lib/analysis-library-internal.generated
   lib/nbl-library.generated
-
+types
 rules // Other
   
-  constraint-warning:
-    Entity(x, _) -> (x, $[Entity names must start with a capital])
-    where
-      not(<string-starts-with-capital> x)
   
-  constraint-note:
-    Module(x @ "example", _) -> (x, $[This is just an example program in the "entities" language
-                                      (this note is defined in trans/check.str) ])
+constraint-note = fail
+
+
+ constraint-warning:
+ 	Assign(v,d@v2) -> (d,$[Type [<print-type>t1] expected, but type [<print-type>t2] given])
+ 	where
+ 		t1 := <type-of>v;
+ 		t2 := <type-of>v2;
+ 		not (<eq>(t1,t2))

@@ -23,6 +23,18 @@ rules
 	
  	type-of: Packet(n,_,_) -> Class(n)
 
+	type-of: FieldPrimRef(Module(), "metaPart") -> MetaPart()
+	type-of: FieldPrimRef(Module(), "id") -> Mod()
+	type-of: FieldPrimRef(Module(), "group") -> Group()
+	type-of: FieldPrimRef(Module(), "metaID") -> Byte()
+	type-of: FieldPrimRef(Meta(), "regionID") -> Byte()
+	
+	type-of: PayloadPrimRef(_, _) -> Byte()
+	
+	type-of: ModHolderRef(_) -> Group()
+	type-of: ModHolderRef(_,_) -> Mod()
+
+
 	type-of: FieldRef(o,f) -> <type-of><index-lookup>f
 	type-of: PayloadRef(f) -> <type-of><index-lookup>f
 	
@@ -38,3 +50,15 @@ rules
 	type-of: PayloadDecl (t,n) -> t
 	
 	type-of: Def(uri) -><index-get-data(|Type())> Def(uri)
+	
+	print-type = 
+    switch id
+      case ?Void() : !"void"
+      case ?Int() : !"int"
+      case ?Float() : !"float"
+      case ?MetaPart() : !"meta-part"
+      case ?Byte() : !"byte"
+      case ?Class(c) : !$[Class [c]]
+      case ?name#(_) : !$[[name]]
+      otherwise : id
+    end

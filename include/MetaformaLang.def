@@ -402,10 +402,12 @@ sorts	Group MetaClass RotateContinuous
 	RegionMethodRef -> ID{reject}
 	PayloadID 		-> ID{reject}
 	
+	
 	lexical syntax
 	"id" -> ModuleFieldID 
 	"id" -> MetaFieldID
 	"metaID" -> ModuleFieldID
+	"group" -> ModuleFieldID
 	"metaPart" -> ModuleFieldID
 	
 	"regionID" -> MetaFieldID
@@ -416,11 +418,12 @@ sorts	Group MetaClass RotateContinuous
 	"connSource" -> PayloadID
 	"connDest" -> PayloadID
 	
-	
 	"enable"	-> MetaMethodRef
 	"atPrimaryBorder" -> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
 	
+	
+	lexical syntax
 	"Main" 									-> SequencePrim
 	"Choose" 								-> SequencePrim
 	
@@ -705,10 +708,12 @@ sorts	Group MetaClass RotateContinuous
 	RegionMethodRef -> ID{reject}
 	PayloadID 		-> ID{reject}
 	
+	
 	lexical syntax
 	"id" -> ModuleFieldID 
 	"id" -> MetaFieldID
 	"metaID" -> ModuleFieldID
+	"group" -> ModuleFieldID
 	"metaPart" -> ModuleFieldID
 	
 	"regionID" -> MetaFieldID
@@ -719,11 +724,12 @@ sorts	Group MetaClass RotateContinuous
 	"connSource" -> PayloadID
 	"connDest" -> PayloadID
 	
-	
 	"enable"	-> MetaMethodRef
 	"atPrimaryBorder" -> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
 	
+	
+	lexical syntax
 	"Main" 									-> SequencePrim
 	"Choose" 								-> SequencePrim
 	

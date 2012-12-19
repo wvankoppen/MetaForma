@@ -351,6 +351,7 @@ exports
     "id"                -> ModuleFieldID   
     "id"                -> MetaFieldID     
     "metaID"            -> ModuleFieldID   
+    "group"             -> ModuleFieldID   
     "metaPart"          -> ModuleFieldID   
     "regionID"          -> MetaFieldID     
     "moduleID"          -> PayloadID       
@@ -361,8 +362,10 @@ exports
     "enable"            -> MetaMethodRef   
     "atPrimaryBorder"   -> RegionMethodRef 
     "atSecondaryBorder" -> RegionMethodRef 
-    "Main"              -> SequencePrim    
-    "Choose"            -> SequencePrim    
+
+  lexical syntax
+    "Main"   -> SequencePrim 
+    "Choose" -> SequencePrim 
 
   context-free syntax
     "@" ID "." ID                                                 -> ModHolderRef {cons("ModHolderRef")}
@@ -523,6 +526,7 @@ exports
     "id"                -> ModuleFieldID   
     "id"                -> MetaFieldID     
     "metaID"            -> ModuleFieldID   
+    "group"             -> ModuleFieldID   
     "metaPart"          -> ModuleFieldID   
     "regionID"          -> MetaFieldID     
     "moduleID"          -> PayloadID       
@@ -533,8 +537,10 @@ exports
     "enable"            -> MetaMethodRef   
     "atPrimaryBorder"   -> RegionMethodRef 
     "atSecondaryBorder" -> RegionMethodRef 
-    "Main"              -> SequencePrim    
-    "Choose"            -> SequencePrim    
+
+  lexical syntax
+    "Main"   -> SequencePrim 
+    "Choose" -> SequencePrim 
 
   context-free syntax
     "@" ID "." ID                                                 -> ModHolderRef {cons("ModHolderRef")}

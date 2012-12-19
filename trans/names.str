@@ -144,6 +144,16 @@ rules
   nam-annotate-names(|paths__, path__):
     Group(n, _) -> <Group(nam-annotate-def(|path__), id)>
 
+  adjust-index-def-data(store__|namespace__, path__):
+    Group(n, _) -> <store__> DefData(
+                               [namespace__|path__]
+                             , Type()
+                             , Group()
+                             )
+
+  type-of :
+    Group(n, _) -> Group()
+
   nam-unique :
     Group(n, _) -> <id>
 
@@ -158,6 +168,16 @@ rules
 
   nam-annotate-names(|paths__, path__):
     Mod(n) -> <Mod(nam-annotate-def(|path__))>
+
+  adjust-index-def-data(store__|namespace__, path__):
+    Mod(n) -> <store__> DefData(
+                          [namespace__|path__]
+                        , Type()
+                        , Mod()
+                        )
+
+  type-of :
+    Mod(n) -> Mod()
 
   nam-unique :
     Mod(n) -> <id>
@@ -577,12 +597,10 @@ rules
 rules
 
   nam-get-uses-keys :
-    MethodRef(Actuation(), n) -> [n, "disconnect"]
+    MethodRef(Actuation(), n) -> [n]
 
   nam-get-uses :
-    MethodRef(Actuation(), n) -> [ (Function(), [n])
-                                 , (Function(), ["disconnect"])
-                                 ]
+    MethodRef(Actuation(), n) -> [(Function(), [n])]
 
   nam-annotate-names(|paths__, path__):
     MethodRef(Actuation(), n) -> <MethodRef(
@@ -590,30 +608,21 @@ rules
                                   , nam-annotate-use(|paths__, Function())
                                   )>
 
-  adjust-index-lookup(target__|namespace__, path__, prefix__):
-    MethodRef(Actuation(), n) -> <concat> [ [[Function()|path__]]
-                                          , [Def([Function(), "disconnect"])]
-                                          ]
-    where <target__> n
-
 
 rules
 
   nam-get-uses-keys :
     MethodRef(obj, n) -> [n]
-    where Type(c) := <type-of> obj
 
   nam-get-uses :
     MethodRef(obj, n) -> [(Function(), [n])]
-    where Type(c) := <type-of> obj
 
   nam-annotate-names(|paths__, path__):
     MethodRef(obj, n) -> <MethodRef(id, nam-annotate-use(|paths__, Function()))>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    MethodRef(obj, n) -> <index-lookup-children(|Function(), prefix__)> c
+    MethodRef(obj, n) -> <index-lookup-children(|Function(), prefix__)> obj
     where <target__> n
-    where Type(c) := <type-of> obj
 
 
 rules
@@ -644,16 +653,26 @@ rules
 rules
 
   nam-get-definition-keys :
-    PayloadDecl(_, n) -> [n]
+    PayloadDecl(t, n) -> [n]
 
   nam-get-definitions :
-    PayloadDecl(_, n) -> [(Payload(), [n])]
+    PayloadDecl(t, n) -> [(Payload(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    PayloadDecl(_, n) -> <PayloadDecl(id, nam-annotate-def(|path__))>
+    PayloadDecl(t, n) -> <PayloadDecl(id, nam-annotate-def(|path__))>
+
+  adjust-index-def-data(store__|namespace__, path__):
+    PayloadDecl(t, n) -> <store__> DefData(
+                                     [namespace__|path__]
+                                   , Type()
+                                   , t
+                                   )
+
+  type-of :
+    PayloadDecl(t, n) -> t
 
   nam-unique :
-    PayloadDecl(_, n) -> <id>
+    PayloadDecl(t, n) -> <id>
 
 
 rules
@@ -742,22 +761,30 @@ rules
 rules
 
   nam-get-uses-keys :
+    Type(c) -> [c]
+
+  nam-get-uses :
+    Type(c) -> [(Class(), [c])]
+
+  nam-annotate-names(|paths__, path__):
+    Type(c) -> <Type(nam-annotate-use(|paths__, Class()))>
+
+
+rules
+
+  nam-get-uses-keys :
     FieldRef(c, n) -> [n]
     where Type(cl) := <type-of> c
 
   nam-get-uses :
-    FieldRef(c, n) -> [ (Field(), [n])
-                      , (Payload(), [n])
-                      ]
+    FieldRef(c, n) -> [(Field(), [n])]
     where Type(cl) := <type-of> c
 
   nam-annotate-names(|paths__, path__):
     FieldRef(c, n) -> <FieldRef(id, nam-annotate-use(|paths__, Field()))>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    FieldRef(c, n) -> <concat> [ <index-lookup-children(|Field(), prefix__)> cl
-                               , <index-lookup-children(|Payload(), prefix__)> cl
-                               ]
+    FieldRef(c, n) -> <index-lookup-children(|Field(), prefix__)> cl
     where <target__> n
     where Type(cl) := <type-of> c
 
