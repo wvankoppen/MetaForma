@@ -21,18 +21,18 @@ imports
 rules
 	
 	
- 	type-of: Packet(n,_,_) -> Packet()
+ 	type-of: Packet(n,_,_) -> Class(n)
 
 	type-of: FieldRef(o,f) -> <type-of><index-lookup>f
-	type-of: PayloadRef(o,f) -> <type-of><index-lookup>f
+	type-of: PayloadRef(f) -> <type-of><index-lookup>f
 	
 	
 	type-of: VarRef(n) ->  <type-of>  <index-lookup> n
 	
 		 
-	type-of: Meta() -> Meta()
-	type-of: Module() -> Module()
-	type-of: Region() -> Region()
+	type-of: Meta() -> Class(Meta())
+	type-of: Module() -> Class(Module())
+	type-of: Region() -> Class(Region())
 	
 	
 	type-of: PayloadDecl (t,n) -> t

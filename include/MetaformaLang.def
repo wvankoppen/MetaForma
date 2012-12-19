@@ -55,9 +55,17 @@ lexical syntax
 	"SOUTH"			-> ConstLan
 	"MAX_BYTE"		-> Const
 	
+	"isMALE"		-> FuncPrimRef
+	"isFEMALE"		-> FuncPrimRef
+	"isWEST"		-> FuncPrimRef
+	"isEAST"		-> FuncPrimRef
+	"isNORTH"		-> FuncPrimRef
+	"isSOUTH"		-> FuncPrimRef
+	"min"			-> FuncPrimRef
+	"pow2"			-> FuncPrimRef
+	
+	%% FuncPrimRef -> ID{reject}
 
-	
-	
 	
 	
 	
@@ -66,8 +74,7 @@ lexical syntax
 	"rotate"		-> Core
 	"stop"			-> Core
 	"rotate_continuous"	-> Core
-	%% "disconnect_part"	-> Core
-	%% "connect_part"	-> Core
+
 	
 	
 	
@@ -208,9 +215,11 @@ sorts	Group MetaClass RotateContinuous
   
    "program" ID Visualize? Definition* Declaration*						-> Start {cons("Program")}
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Visualisation
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     "visualize" "{" VisGroup*"}" -> Visualize {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
-	
 	ModHolderOrSeqRef ":" ColorRef ";" -> VisItem{cons("VisItem")}
     
     Color -> ColorRef{cons("Color")}
@@ -218,8 +227,12 @@ sorts	Group MetaClass RotateContinuous
     ModHolderRef -> ModHolderOrSeqRef
     SequenceRef -> ModHolderOrSeqRef
     
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Header
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	GroupDef 										-> Definition
-	%% Robot "{" FuncDecl* "}" 			-> Definition{"Class"} use region for this!
+
 	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
 	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{cons("Class")}
 	Region "{" BorderDecl? FuncDecl* "}" 			-> Definition{cons("Class")}
@@ -237,24 +250,22 @@ sorts	Group MetaClass RotateContinuous
 	
 	"meta" 							-> Meta{cons("Meta")}
 	"module"						-> Module{cons("Module")}
-	%% "robot"						-> Robot{"Robot"}
 	"region"						-> Region{cons("Region")}
 	
 	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
 	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
 	
 	Type ID 			-> ParamListElem{cons("Param")}
-	ID					-> Type{avoid}
+	%% ID					-> Type{avoid}
 	
 	"packet" ID "{" PayloadDecl* "}" 					-> Definition{cons("Packet")}
 	FuncDecl 											-> Declaration
 
 	
-	%%Type {ID ","}+ ";" -> VarDecl{"VarDecl"}
 	Type ID ";" 				-> VarDecl{cons("VarDecl")}
 	Type ID ";" 				-> FieldDecl{cons("FieldDecl")}
 	Type ID ";" 				-> PayloadDecl{cons("PayloadDecl")}
-	PacketRef ID 				-> PacketVarDecl{cons("VarDecl")}
+	PacketRef ID 				-> PacketVarDecl{cons("PacketVarDecl")}
 	
 
 	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
@@ -265,6 +276,8 @@ sorts	Group MetaClass RotateContinuous
 	
 	PayloadRef "=" Exp					-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*					-> AssignList{cons("AssignList")} 
+	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{cons("Unicast")}
+	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
 	
 	"sequence" SequenceRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("Sequence")}
 	
@@ -276,16 +289,20 @@ sorts	Group MetaClass RotateContinuous
  	%%"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
 	ID									-> PacketRef {cons("PacketRef")}
+	PacketPrim							-> PacketRef {cons("PacketPrimRef")}
 	
-	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
+	PacketPrim	-> ID{reject}
+	
+	
+	
+	
 	Exp 								-> EventExp
 	"rate" Ref							-> Rate{cons("Rate")}
 	
 
 	
-	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{cons("Unicast")}
-	%% "broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{"Broadcast"}
-	%% why broadcast? we always want to sent inside the same region, even for gradients and symmetry?
+	
+	
 	
 	
 	Ref "=" Exp ";" 				-> Stmt{cons("Assign")}
@@ -325,8 +342,7 @@ sorts	Group MetaClass RotateContinuous
 	Connect "(" ModHolderRef "," Exp")" ";"			-> Stmt{cons("Connect")}
 	Rotate "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("Rotate")}
 	RotateContinuous "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("RotateCont")}
-	%% "disconnect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"DisconnectPart"}
-	%% "connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"ConnectPart"}
+
 	
 	Stop "(" ModHolderRef ")" ";"			-> Stmt{cons("Stop")}
 	
@@ -338,14 +354,15 @@ sorts	Group MetaClass RotateContinuous
 	"rotate" -> Rotate
 	"disconnect" -> Disconnect
 	"connect" -> Connect
-
+	
+	"Packet" -> PacketPrim
 
 	context-free syntax
 		
 		
 	
-	%% Exp 			-> ModHolderOrExp
-	%% ModHolderRef 	-> ModHolderOrExp
+	Exp 			-> ModHolderOrExp
+	ModHolderRef 	-> ModHolderOrExp
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
 	"until" "(" Stop ")" ";" -> StopCondition{cons("Until")}
@@ -356,63 +373,80 @@ sorts	Group MetaClass RotateContinuous
 	
 	ID -> FuncRef{cons("FuncRef")}
 	
-	Obj "." ID -> MethodRef{cons("MethodRef")}
+	SysObj "." ID 					-> MethodRef{cons("MethodRef")}
+	Meta "." MetaMethodRef 		-> MethodRef{cons("MethodPrimRef")}
+	Region "." RegionMethodRef 		-> MethodRef{cons("MethodPrimRef")}
 	
 	ID -> VarRef{cons("VarRef")}
 	
 	
 	
-	SequenceGeneric						-> SequenceRef{cons("SequenceGenericRef"),prefer}
+	SequencePrim						-> SequenceRef{cons("SequencePrimRef"),prefer}
 	ID		 							-> SequenceRef{cons("SequenceRef")}
 
 	
 	
 	
-	context-free priorities
-	{
-	 	%% "module" "." ModuleFieldID -> ModuleFieldRef{"ModuleFieldRef"}
-	 	%% ModuleFieldRef -> Ref
-	 	Obj "." ModuleFieldID 			-> Ref{cons("FieldRef")}
-	} > {
-		Obj "." ID 			-> Ref{cons("FieldRef")}
-	 }
+	Meta "." MetaFieldID 			-> Ref{cons("FieldPrimRef")}
+	Module "." ModuleFieldID 		-> Ref{cons("FieldPrimRef")}
+	SysObj "." ID					-> Ref{cons("FieldRef")}
+	
+	PacketVarRef "." PayloadID 						-> Ref{cons("PayloadPrimRef")}
+	PacketVarRef "." ID 						-> Ref{cons("PayloadRef")}
+	VarRef 						-> PacketVarRef
+
+	 
+	ModuleFieldID 	-> ID{reject}
+	MetaFieldID  	-> ID{reject}
+	MetaMethodRef  	-> ID{reject}
+	RegionMethodRef -> ID{reject}
+	PayloadID 		-> ID{reject}
 	
 	lexical syntax
-	"ID" -> ModuleFieldID
+	"id" -> ModuleFieldID 
+	"id" -> MetaFieldID
 	"metaID" -> ModuleFieldID
 	"metaPart" -> ModuleFieldID
 	
+	"regionID" -> MetaFieldID
+	
+	"moduleID" -> PayloadID
+	"metaID" -> PayloadID
+	"regionID" -> PayloadID
+	"connSource" -> PayloadID
+	"connDest" -> PayloadID
 	
 	
-	"Main" 									-> SequenceGeneric
-	"Choose" 								-> SequenceGeneric
+	"enable"	-> MetaMethodRef
+	"atPrimaryBorder" -> RegionMethodRef
+	"atSecondaryBorder" -> RegionMethodRef
+	
+	"Main" 									-> SequencePrim
+	"Choose" 								-> SequencePrim
 	
 	context-free syntax
-		ID -> ModuleFieldID{reject}
-	 SysObj -> Obj
-	VarRef -> Obj
 
-	 "@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
+
+	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
 	
-	context-free priorities
-	{
-	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
-	} > {
-	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
-	}
-	
-	
-	context-free priorities
-	{
 	MethodRef	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
 	MethodRef 	"(" {Exp "," }* ")" 	 -> Exp{cons("FuncCall")}
-	} > {
-	FuncRef  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
-	FuncRef  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
-	}
+	
+		FuncRef  "(" {Exp "," }* ")" ";"	-> Stmt{cons("FuncCall")}
+		FuncRef  "(" {Exp "," }* ")"   		-> Exp{cons("FuncCall")}
+	FuncPrimRef "(" {Exp "," }* ")" ";"		-> Stmt{cons("FuncPrimCall")}
+	FuncPrimRef "(" {Exp "," }* ")" 		-> Exp{cons("FuncPrimCall")}
+	
+	
+	
+	FuncPrimRef -> FuncRef{reject}
+
+	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition  -> Instr{cons("Instr"),prefer}
+
+	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
 
 module Common
 imports MetaformaLang
@@ -484,9 +518,11 @@ sorts	Group MetaClass RotateContinuous
   
    "program" ID Visualize? Definition* Declaration*						-> Start {cons("Program")}
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Visualisation
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     "visualize" "{" VisGroup*"}" -> Visualize {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
-	
 	ModHolderOrSeqRef ":" ColorRef ";" -> VisItem{cons("VisItem")}
     
     Color -> ColorRef{cons("Color")}
@@ -494,8 +530,12 @@ sorts	Group MetaClass RotateContinuous
     ModHolderRef -> ModHolderOrSeqRef
     SequenceRef -> ModHolderOrSeqRef
     
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Header
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	GroupDef 										-> Definition
-	%% Robot "{" FuncDecl* "}" 			-> Definition{"Class"} use region for this!
+
 	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
 	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{cons("Class")}
 	Region "{" BorderDecl? FuncDecl* "}" 			-> Definition{cons("Class")}
@@ -513,24 +553,22 @@ sorts	Group MetaClass RotateContinuous
 	
 	"meta" 							-> Meta{cons("Meta")}
 	"module"						-> Module{cons("Module")}
-	%% "robot"						-> Robot{"Robot"}
 	"region"						-> Region{cons("Region")}
 	
 	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
 	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
 	
 	Type ID 			-> ParamListElem{cons("Param")}
-	ID					-> Type{avoid}
+	%% ID					-> Type{avoid}
 	
 	"packet" ID "{" PayloadDecl* "}" 					-> Definition{cons("Packet")}
 	FuncDecl 											-> Declaration
 
 	
-	%%Type {ID ","}+ ";" -> VarDecl{"VarDecl"}
 	Type ID ";" 				-> VarDecl{cons("VarDecl")}
 	Type ID ";" 				-> FieldDecl{cons("FieldDecl")}
 	Type ID ";" 				-> PayloadDecl{cons("PayloadDecl")}
-	PacketRef ID 				-> PacketVarDecl{cons("VarDecl")}
+	PacketRef ID 				-> PacketVarDecl{cons("PacketVarDecl")}
 	
 
 	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
@@ -541,6 +579,8 @@ sorts	Group MetaClass RotateContinuous
 	
 	PayloadRef "=" Exp					-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*					-> AssignList{cons("AssignList")} 
+	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{cons("Unicast")}
+	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
 	
 	"sequence" SequenceRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("Sequence")}
 	
@@ -552,16 +592,20 @@ sorts	Group MetaClass RotateContinuous
  	%%"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
 	ID									-> PacketRef {cons("PacketRef")}
+	PacketPrim							-> PacketRef {cons("PacketPrimRef")}
 	
-	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
+	PacketPrim	-> ID{reject}
+	
+	
+	
+	
 	Exp 								-> EventExp
 	"rate" Ref							-> Rate{cons("Rate")}
 	
 
 	
-	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{cons("Unicast")}
-	%% "broadcast" PacketRef "(" AssignList ")" Rate? ";" -> Stmt{"Broadcast"}
-	%% why broadcast? we always want to sent inside the same region, even for gradients and symmetry?
+	
+	
 	
 	
 	Ref "=" Exp ";" 				-> Stmt{cons("Assign")}
@@ -601,8 +645,7 @@ sorts	Group MetaClass RotateContinuous
 	Connect "(" ModHolderRef "," Exp")" ";"			-> Stmt{cons("Connect")}
 	Rotate "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("Rotate")}
 	RotateContinuous "(" ModHolderRef "," Exp ")" ";"			-> Stmt{cons("RotateCont")}
-	%% "disconnect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"DisconnectPart"}
-	%% "connect_part" "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"ConnectPart"}
+
 	
 	Stop "(" ModHolderRef ")" ";"			-> Stmt{cons("Stop")}
 	
@@ -614,14 +657,15 @@ sorts	Group MetaClass RotateContinuous
 	"rotate" -> Rotate
 	"disconnect" -> Disconnect
 	"connect" -> Connect
-
+	
+	"Packet" -> PacketPrim
 
 	context-free syntax
 		
 		
 	
-	%% Exp 			-> ModHolderOrExp
-	%% ModHolderRef 	-> ModHolderOrExp
+	Exp 			-> ModHolderOrExp
+	ModHolderRef 	-> ModHolderOrExp
 	
 	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
 	"until" "(" Stop ")" ";" -> StopCondition{cons("Until")}
@@ -632,60 +676,77 @@ sorts	Group MetaClass RotateContinuous
 	
 	ID -> FuncRef{cons("FuncRef")}
 	
-	Obj "." ID -> MethodRef{cons("MethodRef")}
+	SysObj "." ID 					-> MethodRef{cons("MethodRef")}
+	Meta "." MetaMethodRef 		-> MethodRef{cons("MethodPrimRef")}
+	Region "." RegionMethodRef 		-> MethodRef{cons("MethodPrimRef")}
 	
 	ID -> VarRef{cons("VarRef")}
 	
 	
 	
-	SequenceGeneric						-> SequenceRef{cons("SequenceGenericRef"),prefer}
+	SequencePrim						-> SequenceRef{cons("SequencePrimRef"),prefer}
 	ID		 							-> SequenceRef{cons("SequenceRef")}
 
 	
 	
 	
-	context-free priorities
-	{
-	 	%% "module" "." ModuleFieldID -> ModuleFieldRef{"ModuleFieldRef"}
-	 	%% ModuleFieldRef -> Ref
-	 	Obj "." ModuleFieldID 			-> Ref{cons("FieldRef")}
-	} > {
-		Obj "." ID 			-> Ref{cons("FieldRef")}
-	 }
+	Meta "." MetaFieldID 			-> Ref{cons("FieldPrimRef")}
+	Module "." ModuleFieldID 		-> Ref{cons("FieldPrimRef")}
+	SysObj "." ID					-> Ref{cons("FieldRef")}
+	
+	PacketVarRef "." PayloadID 						-> Ref{cons("PayloadPrimRef")}
+	PacketVarRef "." ID 						-> Ref{cons("PayloadRef")}
+	VarRef 						-> PacketVarRef
+
+	 
+	ModuleFieldID 	-> ID{reject}
+	MetaFieldID  	-> ID{reject}
+	MetaMethodRef  	-> ID{reject}
+	RegionMethodRef -> ID{reject}
+	PayloadID 		-> ID{reject}
 	
 	lexical syntax
-	"ID" -> ModuleFieldID
+	"id" -> ModuleFieldID 
+	"id" -> MetaFieldID
 	"metaID" -> ModuleFieldID
 	"metaPart" -> ModuleFieldID
 	
+	"regionID" -> MetaFieldID
+	
+	"moduleID" -> PayloadID
+	"metaID" -> PayloadID
+	"regionID" -> PayloadID
+	"connSource" -> PayloadID
+	"connDest" -> PayloadID
 	
 	
-	"Main" 									-> SequenceGeneric
-	"Choose" 								-> SequenceGeneric
+	"enable"	-> MetaMethodRef
+	"atPrimaryBorder" -> RegionMethodRef
+	"atSecondaryBorder" -> RegionMethodRef
+	
+	"Main" 									-> SequencePrim
+	"Choose" 								-> SequencePrim
 	
 	context-free syntax
-		ID -> ModuleFieldID{reject}
-	 SysObj -> Obj
-	VarRef -> Obj
 
-	 "@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
+
+	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
 	
-	context-free priorities
-	{
-	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition  -> Instr{cons("Instr")}
-	} > {
-	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
-	}
-	
-	
-	context-free priorities
-	{
 	MethodRef	"(" {Exp "," }* ")" ";"  -> Stmt{cons("FuncCall")}
 	MethodRef 	"(" {Exp "," }* ")" 	 -> Exp{cons("FuncCall")}
-	} > {
-	FuncRef  "(" {Exp "," }* ")"   			-> Exp{cons("FuncCall")}
-	FuncRef  "(" {Exp "," }* ")" ";"			-> Stmt{cons("FuncCall")}
-	}
+	
+		FuncRef  "(" {Exp "," }* ")" ";"	-> Stmt{cons("FuncCall")}
+		FuncRef  "(" {Exp "," }* ")"   		-> Exp{cons("FuncCall")}
+	FuncPrimRef "(" {Exp "," }* ")" ";"		-> Stmt{cons("FuncPrimCall")}
+	FuncPrimRef "(" {Exp "," }* ")" 		-> Exp{cons("FuncPrimCall")}
+	
+	
+	
+	FuncPrimRef -> FuncRef{reject}
+
+	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition  -> Instr{cons("Instr"),prefer}
+
+	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{cons("Instr")}

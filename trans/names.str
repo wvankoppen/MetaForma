@@ -181,30 +181,30 @@ rules
 rules
 
   nam-get-scope-types :
-    Sequence(SequenceGenericRef(n), _, _, _, _, _) -> [ Packet()
-                                                      , Var()
-                                                      , Instruction()
-                                                      , EventHandler()
-                                                      ]
+    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [ Packet()
+                                                   , Var()
+                                                   , Instruction()
+                                                   , EventHandler()
+                                                   ]
 
   nam-get-definition-keys :
-    Sequence(SequenceGenericRef(n), _, _, _, _, _) -> [n]
+    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [n]
 
   nam-get-definitions :
-    Sequence(SequenceGenericRef(n), _, _, _, _, _) -> [(Sequence(), [n])]
+    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [(Sequence(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Sequence(SequenceGenericRef(n), _, _, _, _, _) -> <Sequence(
-                                                         SequenceGenericRef(nam-annotate-def(|path__))
-                                                       , id
-                                                       , id
-                                                       , id
-                                                       , id
-                                                       , id
-                                                       )>
+    Sequence(SequencePrimRef(n), _, _, _, _, _) -> <Sequence(
+                                                      SequencePrimRef(nam-annotate-def(|path__))
+                                                    , id
+                                                    , id
+                                                    , id
+                                                    , id
+                                                    , id
+                                                    )>
 
   nam-unique :
-    Sequence(SequenceGenericRef(n), _, _, _, _, _) -> <id>
+    Sequence(SequencePrimRef(n), _, _, _, _, _) -> <id>
 
 
 rules
@@ -269,13 +269,13 @@ rules
 rules
 
   nam-get-uses-keys :
-    SequenceGenericRef(n) -> [n]
+    SequencePrimRef(n) -> [n]
 
   nam-get-uses :
-    SequenceGenericRef(n) -> [(Sequence(), [n])]
+    SequencePrimRef(n) -> [(Sequence(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    SequenceGenericRef(n) -> <SequenceGenericRef(nam-annotate-use(|paths__, Sequence()))>
+    SequencePrimRef(n) -> <SequencePrimRef(nam-annotate-use(|paths__, Sequence()))>
 
 
 rules
@@ -515,6 +515,31 @@ rules
 rules
 
   nam-get-definition-keys :
+    PacketVarDecl(t, n) -> [n]
+
+  nam-get-definitions :
+    PacketVarDecl(t, n) -> [(Var(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    PacketVarDecl(t, n) -> <PacketVarDecl(id, nam-annotate-def(|path__))>
+
+  adjust-index-def-data(store__|namespace__, path__):
+    PacketVarDecl(t, n) -> <store__> DefData(
+                                       [namespace__|path__]
+                                     , Type()
+                                     , t
+                                     )
+
+  type-of :
+    PacketVarDecl(t, n) -> t
+
+  nam-unique :
+    PacketVarDecl(t, n) -> <id>
+
+
+rules
+
+  nam-get-definition-keys :
     Param(t, x) -> [x]
 
   nam-get-definitions :
@@ -701,39 +726,17 @@ rules
 rules
 
   nam-get-uses-keys :
-    FieldRef(Module(), "id") -> ["id"]
+    PrimRefPacket(v, p) -> ["connSource"]
 
   nam-get-uses :
-    FieldRef(Module(), "id") -> [(Field(), ["id"])]
+    PrimRefPacket(v, p) -> [(Payload(), ["connSource"])]
 
   nam-annotate-names(|paths__, path__):
-    FieldRef(Module(), "id") -> <FieldRef(
-                                   Module()
-                                 , nam-annotate-use(|paths__, Field())
-                                 )>
+    PrimRefPacket(v, p) -> <PrimRefPacket(id, id)>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    FieldRef(Module(), "id") -> [Def([Field(), "id"])]
-    where <target__> "id"
-
-
-rules
-
-  nam-get-uses-keys :
-    FieldRef(Module(), "metaID") -> ["metaID"]
-
-  nam-get-uses :
-    FieldRef(Module(), "metaID") -> [(Field(), ["metaID"])]
-
-  nam-annotate-names(|paths__, path__):
-    FieldRef(Module(), "metaID") -> <FieldRef(
-                                       Module()
-                                     , nam-annotate-use(|paths__, Field())
-                                     )>
-
-  adjust-index-lookup(target__|namespace__, path__, prefix__):
-    FieldRef(Module(), "metaID") -> [Def([Field(), "metaID"])]
-    where <target__> "metaID"
+    PrimRefPacket(v, p) -> [Def([Payload(), "connSource"])]
+    where <target__> "connSource"
 
 
 rules

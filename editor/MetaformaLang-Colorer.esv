@@ -10,10 +10,19 @@ darkyellow = 127 127 0
 colorer
        SysObj : darkblue                                                 
 	Type     : 127 0 85 bold
-	Obj     : 0 128 0      
+	// Obj     : 0 128 0      
 	ConstLan	: brown 
+	FuncPrimRef : brown
 	ModuleFieldID : darkgreen
+	MetaFieldID : darkgreen
+	PayloadID : darkgreen
+	Bool: darkblue
+	
 	SysObj : darkblue
+	// Module : darkblue
+	// Meta : darkblue
+	// Region : darkblue
+	
 	ModHolderRef: darkyellow
 	
 	 

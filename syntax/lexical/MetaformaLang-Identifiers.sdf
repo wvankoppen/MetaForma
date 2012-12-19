@@ -54,9 +54,17 @@ lexical syntax
 	"SOUTH"			-> ConstLan
 	"MAX_BYTE"		-> Const
 	
+	"isMALE"		-> FuncPrimRef
+	"isFEMALE"		-> FuncPrimRef
+	"isWEST"		-> FuncPrimRef
+	"isEAST"		-> FuncPrimRef
+	"isNORTH"		-> FuncPrimRef
+	"isSOUTH"		-> FuncPrimRef
+	"min"			-> FuncPrimRef
+	"pow2"			-> FuncPrimRef
+	
+	%% FuncPrimRef -> ID{reject}
 
-	
-	
 	
 	
 	
@@ -65,8 +73,7 @@ lexical syntax
 	"rotate"		-> Core
 	"stop"			-> Core
 	"rotate_continuous"	-> Core
-	%% "disconnect_part"	-> Core
-	%% "connect_part"	-> Core
+
 	
 	
 	

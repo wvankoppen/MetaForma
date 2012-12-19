@@ -19,8 +19,10 @@ outliner Default outliner
   Declaration.Sequence
   Stmt.Unicast
   Exp.FuncCall
+  Exp.FuncPrimCall
   Stmt.TryRegion
   Stmt.FuncCall
+  Stmt.FuncPrimCall
   EvHdlrSemi.If
   Instr.Instr
   FuncDecl.FuncDecl

@@ -44,10 +44,10 @@ packet AddNeighbor {
 packet Gradient {
 	byte pri;
 	byte sec;
-}
+} 
 
 when (receive (AddNeighbor p)) {
-	if (p.metaID == meta.Left) {
+	if (3 == 3) {
 		meta.TopLeft = p.first;  
 		meta.BottomLeft = p.second;
 	}
@@ -84,7 +84,7 @@ region {
 }
 
 meta {
- 	part [NE, NW, SE, SW];	
+ 	part [NORTH_EAST, NORTH_WEST, SOUTH_EAST, SOUTH_WEST];	
 	
 	byte Top;
 	byte Bottom;
@@ -95,19 +95,19 @@ meta {
 	byte BottomLeft; 
 	byte BottomRight;
 
-	void neighborHook (byte metaID, byte destConn) {
-		if (metaID != module.metaID && module.metaID != 0) {
+	void neighborHook (byte metaId, byte destConn) {
+		if (metaId != module.metaID && module.metaID != 0) {
 			if (destConn == 5 || destConn == 6) {
-				Right = metaID;
+				Right = metaId;
 			}
 		 	if (destConn == 2 || destConn == 7) {
-		 		Top = metaID;
+		 		Top = metaId;
 		 	}
 			if (destConn == 0 || destConn == 3) {
-				Left = metaID;
+				Left = metaId;
 			}
 			if (destConn == 1 || destConn == 4) {
-				Bottom = metaID;
+				Bottom = metaId;
 			}
 		}
 	}
@@ -168,12 +168,14 @@ sequence Main {
 		when (receive (AssignMetaID p)) {
 			if (module.metaID == 0) {
 				module.metaID = p.newMetaID;
+				meta.id = 4;
+				
 				
 				if (isMALE(p.connDest) && module.metaPart == null) {
-					module.metaPart = Right;
+					module.metaPart = NORTH_EAST;
 				}
 				else if (isWEST(p.connDest) && module.metaPart == null) {
-					module.metaPart = Top;
+					module.metaPart = NORTH_WEST;
 				}
 				else if (isEAST(p.connDest) && module.metaPart == null) {
 					module.metaPart = Bottom;
@@ -191,7 +193,7 @@ sequence Main {
 			meta.id = module.id;
 			unicast AssignMetaID (newMetaID = module.id) to $(connSource: EAST&MALE&NORTH);
 		}	
-	} 
+	}  
 
 	 meta.enable();
 	 
@@ -200,7 +202,7 @@ sequence Main {
 
 
 sequence Choose {
-	when (receive (Packet p)) {
+	when (receive (Packet p)) { 
 		// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
 		meta.neighborHook (p.metaID,p.connDest);
 	}
@@ -209,7 +211,7 @@ sequence Choose {
 	
 	do {
 		// UP
-		try region FlipThrough orientating BOTTOM_RIGHT from Top excluding TopLeft,Left,Bottom;
+		try region FlipThrough orientating BOTTOM_RIGHT from To2p excluding TopLeft,Left,Bottom;
 		try region FlipAlong orientating BOTTOM_RIGHT from Right,TopRight excluding Top;
 		try region FlipThrough orientating LEFT_BOTTOM from Right excluding Top, TopRight;
 		

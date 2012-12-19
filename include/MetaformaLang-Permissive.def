@@ -1,3 +1,4 @@
+
 definition
 
 module lexical/MetaformaLang-Identifiers
@@ -43,10 +44,9 @@ exports
                                                   -> "borders"       {recover, cons("INSERTION")}
                                                   -> "packet"        {recover, cons("INSERTION")}
                                                   -> "part"          {recover, cons("INSERTION")}
-                                                  -> "when"          {recover, cons("INSERTION")}
                                                   -> "receive"       {recover, cons("INSERTION")}
+                                                  -> "when"          {recover, cons("INSERTION")}
                                                   -> "rate"          {recover, cons("INSERTION")}
-                                                  -> "}"             {recover, cons("INSERTION")}
                                                   -> "]"             {recover, cons("INSERTION")}
                                                   -> "group"         {recover, cons("INSERTION")}
                                                   -> "wait"          {recover, cons("INSERTION")}
@@ -55,6 +55,8 @@ exports
                                                   -> ")"             {recover, cons("INSERTION")}
                                                   -> "@"             {recover, cons("INSERTION")}
                                                   -> ","             {recover, cons("INSERTION")}
+                                                  -> "}"             {recover, cons("INSERTION")}
+                                                  -> "do"            {recover, cons("INSERTION")}
 
   syntax
     %% Kernel syntax insertion recovery rules   
@@ -98,20 +100,28 @@ exports
     "brown"     -> Color 
 
   lexical syntax
-    "false"             -> Bool     
-    "true"              -> Bool     
-    "MALE"              -> ConstLan 
-    "FEMALE"            -> ConstLan 
-    "WEST"              -> ConstLan 
-    "EAST"              -> ConstLan 
-    "NORTH"             -> ConstLan 
-    "SOUTH"             -> ConstLan 
-    "MAX_BYTE"          -> Const    
-    "connect"           -> Core     
-    "disconnect"        -> Core     
-    "rotate"            -> Core     
-    "stop"              -> Core     
-    "rotate_continuous" -> Core     
+    "false"             -> Bool        
+    "true"              -> Bool        
+    "MALE"              -> ConstLan    
+    "FEMALE"            -> ConstLan    
+    "WEST"              -> ConstLan    
+    "EAST"              -> ConstLan    
+    "NORTH"             -> ConstLan    
+    "SOUTH"             -> ConstLan    
+    "MAX_BYTE"          -> Const       
+    "isMALE"            -> FuncPrimRef 
+    "isFEMALE"          -> FuncPrimRef 
+    "isWEST"            -> FuncPrimRef 
+    "isEAST"            -> FuncPrimRef 
+    "isNORTH"           -> FuncPrimRef 
+    "isSOUTH"           -> FuncPrimRef 
+    "min"               -> FuncPrimRef 
+    "pow2"              -> FuncPrimRef 
+    "connect"           -> Core        
+    "disconnect"        -> Core        
+    "rotate"            -> Core        
+    "stop"              -> Core        
+    "rotate_continuous" -> Core        
 
   context-free syntax
     "null"         -> Exp    {cons("Null")}
@@ -258,28 +268,29 @@ exports
     "void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"                                                 -> FuncDecl          {cons("FuncDecl")}
     Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"                                  -> FuncDecl          {cons("FuncDecl")}
     Type ID                                                                                                           -> ParamListElem     {cons("Param")}
-    ID                                                                                                                -> Type              {avoid}
     "packet" ID "{" PayloadDecl* "}"                                                                                  -> Definition        {cons("Packet")}
     FuncDecl                                                                                                          -> Declaration       
     Type ID ";"                                                                                                       -> VarDecl           {cons("VarDecl")}
     Type ID ";"                                                                                                       -> FieldDecl         {cons("FieldDecl")}
     Type ID ";"                                                                                                       -> PayloadDecl       {cons("PayloadDecl")}
-    PacketRef ID                                                                                                      -> PacketVarDecl     {cons("VarDecl")}
+    PacketRef ID                                                                                                      -> PacketVarDecl     {cons("PacketVarDecl")}
     "part" "[" {MetaPart ","}* "]" ";"                                                                                -> PartDecl          {cons("MetaPartDecl")}
     ID                                                                                                                -> MetaPart          {cons("MetaPart")}
     ID                                                                                                                -> Ref               {cons("VarRef")}
     ID                                                                                                                -> PayloadRef        {cons("PayloadRef")}
     PayloadRef "=" Exp                                                                                                -> AssignElem        {cons("AssignElem")}
     {AssignElem ","}*                                                                                                 -> AssignList        {cons("AssignList")}
+    "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";"                                                         -> Stmt              {cons("Unicast")}
+    "receive" "(" PacketVarDecl ")"                                                                                   -> Receive           {cons("Receive")}
     "sequence" SequenceRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl* Instr* "}"                                      -> Declaration       {cons("Sequence")}
     EvHdlr                                                                                                            -> Definition        
     "when" "(" Receive ")" "{" VarDecl* Stmt* "}"                                                                     -> EvHdlr            {cons("EvHdlr")}
     "when" "(" EventExp ")" "{" VarDecl* Stmt* "}"                                                                    -> EvHdlrSemi        {cons("If")}
     ID                                                                                                                -> PacketRef         {cons("PacketRef")}
-    "receive" "(" PacketVarDecl ")"                                                                                   -> Receive           {cons("Receive")}
+    PacketPrim                                                                                                        -> PacketRef         {cons("PacketPrimRef")}
+    PacketPrim                                                                                                        -> ID                {reject}
     Exp                                                                                                               -> EventExp          
     "rate" Ref                                                                                                        -> Rate              {cons("Rate")}
-    "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";"                                                         -> Stmt              {cons("Unicast")}
     Ref "=" Exp ";"                                                                                                   -> Stmt              {cons("Assign")}
     Stmt                                                                                                              -> Block             {cons("Block")}
     "{" Stmt* "}"                                                                                                     -> Block             {cons("Block")}
@@ -308,47 +319,64 @@ exports
     "rotate"            -> Rotate           
     "disconnect"        -> Disconnect       
     "connect"           -> Connect          
+    "Packet"            -> PacketPrim       
 
   context-free syntax
-    "wait" "(" Stop ")" ";"  -> StopCondition {cons("Wait")}
-    "until" "(" Stop ")" ";" -> StopCondition {cons("Until")}
-    "consensus" "(" ")"      -> Stop          {cons("Consensus")}
-    Exp                      -> Stop          
-    ID                       -> FuncRef       {cons("FuncRef")}
-    Obj "." ID               -> MethodRef     {cons("MethodRef")}
-    ID                       -> VarRef        {cons("VarRef")}
-    SequenceGeneric          -> SequenceRef   {cons("SequenceGenericRef"), prefer}
-    ID                       -> SequenceRef   {cons("SequenceRef")}
-
-  context-free priorities
-    { Obj "." ModuleFieldID -> Ref {cons("FieldRef")} } >
-    { Obj "." ID -> Ref {cons("FieldRef")} }
+    Exp                        -> ModHolderOrExp 
+    ModHolderRef               -> ModHolderOrExp 
+    "wait" "(" Stop ")" ";"    -> StopCondition  {cons("Wait")}
+    "until" "(" Stop ")" ";"   -> StopCondition  {cons("Until")}
+    "consensus" "(" ")"        -> Stop           {cons("Consensus")}
+    Exp                        -> Stop           
+    ID                         -> FuncRef        {cons("FuncRef")}
+    SysObj "." ID              -> MethodRef      {cons("MethodRef")}
+    Meta "." MetaMethodRef     -> MethodRef      {cons("MethodPrimRef")}
+    Region "." RegionMethodRef -> MethodRef      {cons("MethodPrimRef")}
+    ID                         -> VarRef         {cons("VarRef")}
+    SequencePrim               -> SequenceRef    {cons("SequencePrimRef"), prefer}
+    ID                         -> SequenceRef    {cons("SequenceRef")}
+    Meta "." MetaFieldID       -> Ref            {cons("FieldPrimRef")}
+    Module "." ModuleFieldID   -> Ref            {cons("FieldPrimRef")}
+    SysObj "." ID              -> Ref            {cons("FieldRef")}
+    PacketVarRef "." PayloadID -> Ref            {cons("PayloadPrimRef")}
+    PacketVarRef "." ID        -> Ref            {cons("PayloadRef")}
+    VarRef                     -> PacketVarRef   
+    ModuleFieldID              -> ID             {reject}
+    MetaFieldID                -> ID             {reject}
+    MetaMethodRef              -> ID             {reject}
+    RegionMethodRef            -> ID             {reject}
+    PayloadID                  -> ID             {reject}
 
   lexical syntax
-    "ID"       -> ModuleFieldID   
-    "metaID"   -> ModuleFieldID   
-    "metaPart" -> ModuleFieldID   
-    "Main"     -> SequenceGeneric 
-    "Choose"   -> SequenceGeneric 
+    "id"                -> ModuleFieldID   
+    "id"                -> MetaFieldID     
+    "metaID"            -> ModuleFieldID   
+    "metaPart"          -> ModuleFieldID   
+    "regionID"          -> MetaFieldID     
+    "moduleID"          -> PayloadID       
+    "metaID"            -> PayloadID       
+    "regionID"          -> PayloadID       
+    "connSource"        -> PayloadID       
+    "connDest"          -> PayloadID       
+    "enable"            -> MetaMethodRef   
+    "atPrimaryBorder"   -> RegionMethodRef 
+    "atSecondaryBorder" -> RegionMethodRef 
+    "Main"              -> SequencePrim    
+    "Choose"            -> SequencePrim    
 
   context-free syntax
-    ID                                       -> ModuleFieldID {reject}
-    SysObj                                   -> Obj           
-    VarRef                                   -> Obj           
-    "@" ID "." ID                            -> ModHolderRef  {cons("ModHolderRef")}
-    "@" ID                                   -> ModHolderRef  {cons("ModHolderRef")}
-    "orientation" "matches" {OrientRef ","}* -> Exp           {cons("OrientMatch")}
-
-  context-free priorities
-    { "do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition -> Instr
-      {cons("Instr")} } >
-    { "do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr {cons("Instr")} }
-
-  context-free priorities
-    { MethodRef "(" {Exp ","}* ")" ";" -> Stmt {cons("FuncCall")}
-      MethodRef "(" {Exp ","}* ")" -> Exp {cons("FuncCall")} } >
-    { FuncRef "(" {Exp ","}* ")" -> Exp {cons("FuncCall")}
-      FuncRef "(" {Exp ","}* ")" ";" -> Stmt {cons("FuncCall")} }
+    "@" ID "." ID                                                 -> ModHolderRef {cons("ModHolderRef")}
+    "@" ID                                                        -> ModHolderRef {cons("ModHolderRef")}
+    "orientation" "matches" {OrientRef ","}*                      -> Exp          {cons("OrientMatch")}
+    MethodRef "(" {Exp ","}* ")" ";"                              -> Stmt         {cons("FuncCall")}
+    MethodRef "(" {Exp ","}* ")"                                  -> Exp          {cons("FuncCall")}
+    FuncRef "(" {Exp ","}* ")" ";"                                -> Stmt         {cons("FuncCall")}
+    FuncRef "(" {Exp ","}* ")"                                    -> Exp          {cons("FuncCall")}
+    FuncPrimRef "(" {Exp ","}* ")" ";"                            -> Stmt         {cons("FuncPrimCall")}
+    FuncPrimRef "(" {Exp ","}* ")"                                -> Exp          {cons("FuncPrimCall")}
+    FuncPrimRef                                                   -> FuncRef      {reject}
+    "do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition -> Instr        {cons("Instr"), prefer}
+    "do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}"               -> Instr        {cons("Instr")}
 
 module Common
 imports MetaformaLang
@@ -412,28 +440,29 @@ exports
     "void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"                                                 -> FuncDecl          {cons("FuncDecl")}
     Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"                                  -> FuncDecl          {cons("FuncDecl")}
     Type ID                                                                                                           -> ParamListElem     {cons("Param")}
-    ID                                                                                                                -> Type              {avoid}
     "packet" ID "{" PayloadDecl* "}"                                                                                  -> Definition        {cons("Packet")}
     FuncDecl                                                                                                          -> Declaration       
     Type ID ";"                                                                                                       -> VarDecl           {cons("VarDecl")}
     Type ID ";"                                                                                                       -> FieldDecl         {cons("FieldDecl")}
     Type ID ";"                                                                                                       -> PayloadDecl       {cons("PayloadDecl")}
-    PacketRef ID                                                                                                      -> PacketVarDecl     {cons("VarDecl")}
+    PacketRef ID                                                                                                      -> PacketVarDecl     {cons("PacketVarDecl")}
     "part" "[" {MetaPart ","}* "]" ";"                                                                                -> PartDecl          {cons("MetaPartDecl")}
     ID                                                                                                                -> MetaPart          {cons("MetaPart")}
     ID                                                                                                                -> Ref               {cons("VarRef")}
     ID                                                                                                                -> PayloadRef        {cons("PayloadRef")}
     PayloadRef "=" Exp                                                                                                -> AssignElem        {cons("AssignElem")}
     {AssignElem ","}*                                                                                                 -> AssignList        {cons("AssignList")}
+    "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";"                                                         -> Stmt              {cons("Unicast")}
+    "receive" "(" PacketVarDecl ")"                                                                                   -> Receive           {cons("Receive")}
     "sequence" SequenceRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl* Instr* "}"                                      -> Declaration       {cons("Sequence")}
     EvHdlr                                                                                                            -> Definition        
     "when" "(" Receive ")" "{" VarDecl* Stmt* "}"                                                                     -> EvHdlr            {cons("EvHdlr")}
     "when" "(" EventExp ")" "{" VarDecl* Stmt* "}"                                                                    -> EvHdlrSemi        {cons("If")}
     ID                                                                                                                -> PacketRef         {cons("PacketRef")}
-    "receive" "(" PacketVarDecl ")"                                                                                   -> Receive           {cons("Receive")}
+    PacketPrim                                                                                                        -> PacketRef         {cons("PacketPrimRef")}
+    PacketPrim                                                                                                        -> ID                {reject}
     Exp                                                                                                               -> EventExp          
     "rate" Ref                                                                                                        -> Rate              {cons("Rate")}
-    "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";"                                                         -> Stmt              {cons("Unicast")}
     Ref "=" Exp ";"                                                                                                   -> Stmt              {cons("Assign")}
     Stmt                                                                                                              -> Block             {cons("Block")}
     "{" Stmt* "}"                                                                                                     -> Block             {cons("Block")}
@@ -462,44 +491,61 @@ exports
     "rotate"            -> Rotate           
     "disconnect"        -> Disconnect       
     "connect"           -> Connect          
+    "Packet"            -> PacketPrim       
 
   context-free syntax
-    "wait" "(" Stop ")" ";"  -> StopCondition {cons("Wait")}
-    "until" "(" Stop ")" ";" -> StopCondition {cons("Until")}
-    "consensus" "(" ")"      -> Stop          {cons("Consensus")}
-    Exp                      -> Stop          
-    ID                       -> FuncRef       {cons("FuncRef")}
-    Obj "." ID               -> MethodRef     {cons("MethodRef")}
-    ID                       -> VarRef        {cons("VarRef")}
-    SequenceGeneric          -> SequenceRef   {cons("SequenceGenericRef"), prefer}
-    ID                       -> SequenceRef   {cons("SequenceRef")}
-
-  context-free priorities
-    { Obj "." ModuleFieldID -> Ref {cons("FieldRef")} } >
-    { Obj "." ID -> Ref {cons("FieldRef")} }
+    Exp                        -> ModHolderOrExp 
+    ModHolderRef               -> ModHolderOrExp 
+    "wait" "(" Stop ")" ";"    -> StopCondition  {cons("Wait")}
+    "until" "(" Stop ")" ";"   -> StopCondition  {cons("Until")}
+    "consensus" "(" ")"        -> Stop           {cons("Consensus")}
+    Exp                        -> Stop           
+    ID                         -> FuncRef        {cons("FuncRef")}
+    SysObj "." ID              -> MethodRef      {cons("MethodRef")}
+    Meta "." MetaMethodRef     -> MethodRef      {cons("MethodPrimRef")}
+    Region "." RegionMethodRef -> MethodRef      {cons("MethodPrimRef")}
+    ID                         -> VarRef         {cons("VarRef")}
+    SequencePrim               -> SequenceRef    {cons("SequencePrimRef"), prefer}
+    ID                         -> SequenceRef    {cons("SequenceRef")}
+    Meta "." MetaFieldID       -> Ref            {cons("FieldPrimRef")}
+    Module "." ModuleFieldID   -> Ref            {cons("FieldPrimRef")}
+    SysObj "." ID              -> Ref            {cons("FieldRef")}
+    PacketVarRef "." PayloadID -> Ref            {cons("PayloadPrimRef")}
+    PacketVarRef "." ID        -> Ref            {cons("PayloadRef")}
+    VarRef                     -> PacketVarRef   
+    ModuleFieldID              -> ID             {reject}
+    MetaFieldID                -> ID             {reject}
+    MetaMethodRef              -> ID             {reject}
+    RegionMethodRef            -> ID             {reject}
+    PayloadID                  -> ID             {reject}
 
   lexical syntax
-    "ID"       -> ModuleFieldID   
-    "metaID"   -> ModuleFieldID   
-    "metaPart" -> ModuleFieldID   
-    "Main"     -> SequenceGeneric 
-    "Choose"   -> SequenceGeneric 
+    "id"                -> ModuleFieldID   
+    "id"                -> MetaFieldID     
+    "metaID"            -> ModuleFieldID   
+    "metaPart"          -> ModuleFieldID   
+    "regionID"          -> MetaFieldID     
+    "moduleID"          -> PayloadID       
+    "metaID"            -> PayloadID       
+    "regionID"          -> PayloadID       
+    "connSource"        -> PayloadID       
+    "connDest"          -> PayloadID       
+    "enable"            -> MetaMethodRef   
+    "atPrimaryBorder"   -> RegionMethodRef 
+    "atSecondaryBorder" -> RegionMethodRef 
+    "Main"              -> SequencePrim    
+    "Choose"            -> SequencePrim    
 
   context-free syntax
-    ID                                       -> ModuleFieldID {reject}
-    SysObj                                   -> Obj           
-    VarRef                                   -> Obj           
-    "@" ID "." ID                            -> ModHolderRef  {cons("ModHolderRef")}
-    "@" ID                                   -> ModHolderRef  {cons("ModHolderRef")}
-    "orientation" "matches" {OrientRef ","}* -> Exp           {cons("OrientMatch")}
-
-  context-free priorities
-    { "do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition -> Instr
-      {cons("Instr")} } >
-    { "do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr {cons("Instr")} }
-
-  context-free priorities
-    { MethodRef "(" {Exp ","}* ")" ";" -> Stmt {cons("FuncCall")}
-      MethodRef "(" {Exp ","}* ")" -> Exp {cons("FuncCall")} } >
-    { FuncRef "(" {Exp ","}* ")" -> Exp {cons("FuncCall")}
-      FuncRef "(" {Exp ","}* ")" ";" -> Stmt {cons("FuncCall")} }
+    "@" ID "." ID                                                 -> ModHolderRef {cons("ModHolderRef")}
+    "@" ID                                                        -> ModHolderRef {cons("ModHolderRef")}
+    "orientation" "matches" {OrientRef ","}*                      -> Exp          {cons("OrientMatch")}
+    MethodRef "(" {Exp ","}* ")" ";"                              -> Stmt         {cons("FuncCall")}
+    MethodRef "(" {Exp ","}* ")"                                  -> Exp          {cons("FuncCall")}
+    FuncRef "(" {Exp ","}* ")" ";"                                -> Stmt         {cons("FuncCall")}
+    FuncRef "(" {Exp ","}* ")"                                    -> Exp          {cons("FuncCall")}
+    FuncPrimRef "(" {Exp ","}* ")" ";"                            -> Stmt         {cons("FuncPrimCall")}
+    FuncPrimRef "(" {Exp ","}* ")"                                -> Exp          {cons("FuncPrimCall")}
+    FuncPrimRef                                                   -> FuncRef      {reject}
+    "do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition -> Instr        {cons("Instr"), prefer}
+    "do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}"               -> Instr        {cons("Instr")}

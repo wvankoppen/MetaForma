@@ -34,7 +34,7 @@ rules // Analysis
   analyze:
     (ast, path, project-path) -> (ast'', errors, warnings, notes, filesToAnalyze')
     with
-      ast'                    := <desugar-all> ast; // Optional AST desugaring
+      ast'                    := <desugar-all-nbl> ast; // Optional AST desugaring
       (ast'', filesToAnalyze) := <analyze-top(|<language>)> (ast', path, project-path);
       index-transaction(
 	      errors                := <collect-all(constraint-error, conc)> ast'';
@@ -153,9 +153,9 @@ rules // Debugging
     with
     	index-setup(|<language>, [project-path], $[[project-path]/[path]]);
    		// <project-name>ast => name;
-    	filename := <guarantee-extension(|"index.allfiles.aterm")> path;
-        data   := <map(\filename -> (filename, <index-get-all-in-file> filename)\)> <index-get-all-files>;
-  		<filter(?Type(_,_))>data => result
+    	filename := <guarantee-extension(|"index.types.aterm")> path;
+        data   := <flatten-list><map(\filename -> <index-get-all-in-file> filename\)> <index-get-all-files>;
+  		result := <filter(?Type(_,_))>data
   
   
   index-manual:

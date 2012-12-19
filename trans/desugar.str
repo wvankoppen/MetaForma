@@ -121,6 +121,24 @@ where
 desugar: NbsFilter(d@ModHolderRef(m)) -> NbsFilter("in",d)
 
 
+
+
+
+
+
+
+desugar-all-nbl = id//desugar-all;topdown(try(desugar-nbl))
+// 
+// desugar-nbl: FieldRef(v,"connSource") -> PrimRefPacket(v,"connSource")
+// desugar-nbl: FieldRef(v,"connDest") -> PrimRefPacket(v,"connDest")
+// desugar-nbl: FieldRef(v,"metaID") -> PrimRefPacket(v,"metaID")
+
+
+
+
+
+
+
 desugar: FuncCall(MethodRef(Module(), "fixSymmetry"), [v]) -> 
 Instr(
   [ EvHdlr(
@@ -152,6 +170,6 @@ Instr(
 signature constructors
 	EvHdlr : X * X * X * X * X -> EvHdlr
 	VisItem : X * X * X * X -> VisItem
-
+PrimRefPacket: X * X -> PrimRefPacket
 // desugar: Broadcast(p,assignlist,rate) -> Unicast(p,assignlist,Conn(),Int(255),rate)
 

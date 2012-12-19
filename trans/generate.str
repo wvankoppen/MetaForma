@@ -126,13 +126,13 @@ to-java: Goto(s) -> $[mfStateMngr.nextSequence([<to-java>s]);]
 
 
 to-java: SequenceRef(n) -> $[Sequence.[n]] 
-	where 
-		not(<eq>(n,"Main"));
-		not(<eq>(n,"Choose"))
+	// where 
+	// 	not(<eq>(n,"Main"));
+	// 	not(<eq>(n,"Choose"))
 		
-to-java: SequenceRef("Choose") -> $[SequenceGeneric.Choose]
-to-java: SequenceRef("Main") -> $[SequenceGeneric.Main]
-to-java: SequenceGenericRef(n) -> $[SequenceGeneric.[n]]  
+// to-java: SequenceRef("Choose") -> $[SequenceGeneric.Choose]
+// to-java: SequenceRef("Main") -> $[SequenceGeneric.Main]
+to-java: SequencePrimRef(n) -> $[SequenceGeneric.[n]]  
 
 
 to-java: BinOp (op,e1,e2) -> $[([<to-java>e1] [<to-java>op] [<to-java>e2])]

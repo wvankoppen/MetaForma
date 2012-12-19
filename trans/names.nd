@@ -73,7 +73,7 @@ rules
 	Group(n) :
 	 	defines Group n
 	 
-	Sequence (SequenceGenericRef(n),_,_,_,_,_):
+	Sequence (SequencePrimRef(n),_,_,_,_,_):
 		defines Sequence n	
 		scopes Packet,Var,Instruction,EventHandler
 		
@@ -92,7 +92,7 @@ rules
 	SequenceRef(n):
 		refers to Sequence n
 		
-	SequenceGenericRef(n):
+	SequencePrimRef(n):
 		refers to Sequence n
 		
 	Packet (n,_):
@@ -114,7 +114,7 @@ rules
 		
 	EvHdlr(n,Receive (VarDecl(PacketRef(p),n)),_,_):
 		refers to Packet p
-		defines Var n
+		defines Var n 
 		scopes Payload,Field,Var
 	
 	
@@ -143,6 +143,9 @@ rules
 	
 			
 	VarDecl(t,n): 
+		defines  Var n of type t
+		
+	PacketVarDecl(t,n): 
 		defines  Var n of type t
 		
 	Param(t, x) :
@@ -184,11 +187,11 @@ rules
 	MethodRef(Region(), "atPrimaryBorder"):
 		refers to Function "atPrimaryBorder"
 		
-	FieldRef(Module(),"id"):
-		refers to Field "id"
-	
-	FieldRef(Module(),"metaID"):
-		refers to Field "metaID"	
+		
+	PrimRefPacket(v,p):
+		refers to Payload "connSource"
+		
+
 		
 	FieldRef(c,n):
 		refers to Field n in Class cl

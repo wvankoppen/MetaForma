@@ -72,7 +72,7 @@ rules
 	
 		
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Sequence(SequenceGenericRef(_{[Sequence(), name, program]}),_,_,_,_,_) -> <store-results> DefData([Sequence(), program], Sequence(), term)
+		term@Sequence(SequencePrimRef(_{[Sequence(), name, program]}),_,_,_,_,_) -> <store-results> DefData([Sequence(), program], Sequence(), term)
 	
 	adjust-index-def-data(store-results|namespace, path): 
 		term@Sequence(SequenceRef(_{[Sequence(), name, program]}),_,_,_,_,_) -> <store-results> DefData([Sequence(), program], Sequence(), term)
