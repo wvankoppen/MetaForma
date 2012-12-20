@@ -288,8 +288,8 @@ sorts	Group MetaClass RotateContinuous
 	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{cons("If")}
  	%%"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
-	ID									-> PacketRef {cons("PacketRef")}
-	PacketPrim							-> PacketRef {cons("PacketPrimRef")}
+	ID									-> PacketRef {cons("Packet")}
+	PacketPrim							-> PacketRef {cons("Packet")}
 	
 	PacketPrim	-> ID{reject}
 	
@@ -419,6 +419,7 @@ sorts	Group MetaClass RotateContinuous
 	"connDest" -> PayloadID
 	
 	"enable"	-> MetaMethodRef
+	"finish" -> RegionMethodRef
 	"atPrimaryBorder" -> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
 	
@@ -594,8 +595,8 @@ sorts	Group MetaClass RotateContinuous
 	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{cons("If")}
  	%%"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
-	ID									-> PacketRef {cons("PacketRef")}
-	PacketPrim							-> PacketRef {cons("PacketPrimRef")}
+	ID									-> PacketRef {cons("Packet")}
+	PacketPrim							-> PacketRef {cons("Packet")}
 	
 	PacketPrim	-> ID{reject}
 	
@@ -725,6 +726,7 @@ sorts	Group MetaClass RotateContinuous
 	"connDest" -> PayloadID
 	
 	"enable"	-> MetaMethodRef
+	"finish" -> RegionMethodRef
 	"atPrimaryBorder" -> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
 	

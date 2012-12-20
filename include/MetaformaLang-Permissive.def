@@ -286,8 +286,8 @@ exports
     EvHdlr                                                                                                            -> Definition        
     "when" "(" Receive ")" "{" VarDecl* Stmt* "}"                                                                     -> EvHdlr            {cons("EvHdlr")}
     "when" "(" EventExp ")" "{" VarDecl* Stmt* "}"                                                                    -> EvHdlrSemi        {cons("If")}
-    ID                                                                                                                -> PacketRef         {cons("PacketRef")}
-    PacketPrim                                                                                                        -> PacketRef         {cons("PacketPrimRef")}
+    ID                                                                                                                -> PacketRef         {cons("Packet")}
+    PacketPrim                                                                                                        -> PacketRef         {cons("Packet")}
     PacketPrim                                                                                                        -> ID                {reject}
     Exp                                                                                                               -> EventExp          
     "rate" Ref                                                                                                        -> Rate              {cons("Rate")}
@@ -360,6 +360,7 @@ exports
     "connSource"        -> PayloadID       
     "connDest"          -> PayloadID       
     "enable"            -> MetaMethodRef   
+    "finish"            -> RegionMethodRef 
     "atPrimaryBorder"   -> RegionMethodRef 
     "atSecondaryBorder" -> RegionMethodRef 
 
@@ -461,8 +462,8 @@ exports
     EvHdlr                                                                                                            -> Definition        
     "when" "(" Receive ")" "{" VarDecl* Stmt* "}"                                                                     -> EvHdlr            {cons("EvHdlr")}
     "when" "(" EventExp ")" "{" VarDecl* Stmt* "}"                                                                    -> EvHdlrSemi        {cons("If")}
-    ID                                                                                                                -> PacketRef         {cons("PacketRef")}
-    PacketPrim                                                                                                        -> PacketRef         {cons("PacketPrimRef")}
+    ID                                                                                                                -> PacketRef         {cons("Packet")}
+    PacketPrim                                                                                                        -> PacketRef         {cons("Packet")}
     PacketPrim                                                                                                        -> ID                {reject}
     Exp                                                                                                               -> EventExp          
     "rate" Ref                                                                                                        -> Rate              {cons("Rate")}
@@ -535,6 +536,7 @@ exports
     "connSource"        -> PayloadID       
     "connDest"          -> PayloadID       
     "enable"            -> MetaMethodRef   
+    "finish"            -> RegionMethodRef 
     "atPrimaryBorder"   -> RegionMethodRef 
     "atSecondaryBorder" -> RegionMethodRef 
 

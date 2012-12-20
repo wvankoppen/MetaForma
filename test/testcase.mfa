@@ -8,28 +8,29 @@ packet Stuurmij {
 }
 meta {
 	part [NORTH_EAST,SOUTH_EAST, SOUTH_WEST];	
+	byte TopLeft;
 } 
 
 module{}
 
 region{} 
- 
+  
 sequence Choose {
-	byte voo;
-	float xoo;
-	float x11;
+	// byte voo;
+	// float xoo;
+	// float x11;
 	
 	xoo = x11;
+	meta.TopLeft = 3;  
 	voo = xoo;
 	disconnect(@meerderemods.mod1,@groep);
 	module.id = @groep;
 	
 	module.id = @meerderemods.mod1;
 	do {
+		
 		when (receive(Stuurmij p)) {
-			module.metaPart = NORTH_EAST;
-			voo = p.connDest;
-			voo = p.f;
+			voo = p.f;   
 		}	
 	}
 	 	

@@ -58,6 +58,7 @@ when (receive (AddNeighbor p)) {
 	if (p.metaID == meta.Top) {
 		meta.TopLeft = p.first;
 		meta.TopRight = p.second;
+		module.id = @Clover.North;
 	}
 	if (p.metaID == meta.Bottom) {
 		meta.BottomLeft = p.first;

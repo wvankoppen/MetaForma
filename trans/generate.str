@@ -254,11 +254,11 @@ to-java: NbsOp(constraints) -> $[ctrl.nbs()[<concat-strings><map(to-java)>constr
 to-java: NbsFilter(name,val) -> $[.nbsFilter[<to-upper-first>name]([<to-java>val])]
 
 	  
-to-java: PacketPrimRef(p) -> $[Packet[p]]
-to-java: PacketRef(p) -> $[Packet[p]]
+// to-java: PacketPrimRef(p) -> $[Packet[p]]
+to-java: Packet(p) -> $[Packet[p]]
 
 
-to-java: Unicast(p@PacketRef(packet),AssignList(assigns),dests,rate) -> $[
+to-java: Unicast(p@Packet(packet),AssignList(assigns),dests,rate) -> $[
 	if (ctrl.freqLimit("[packet]",[<compile-rate>rate])) {
 		ctrl.unicast(([p'])new [p'](ctrl)[assigns'],[<to-java>dests]);
 	}

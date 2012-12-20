@@ -116,8 +116,8 @@ regular tree grammar
     ListPlusOfBorderItem0    -> <conc>(ListPlusOfBorderItem0,ListStarOfBorderItem0)
     ListPlusOfBorderItem0    -> <conc>(ListPlusOfBorderItem0,ListPlusOfBorderItem0)
     ListPlusOfBorderItem0    -> <cons>(BorderItem,ListStarOfBorderItem0)
-    OptBorderDecl1           -> <some>(BorderDecl)
-    OptBorderDecl1           -> <none>()
+    OptBorderDecl0           -> <some>(BorderDecl)
+    OptBorderDecl0           -> <none>()
     ListStarOfFieldDecl0     -> ListPlusOfFieldDecl0
     ListStarOfFieldDecl0     -> <nil>()
     ListStarOfFieldDecl0     -> <conc>(ListStarOfFieldDecl0,ListStarOfFieldDecl0)
@@ -125,8 +125,8 @@ regular tree grammar
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListStarOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListPlusOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <cons>(FieldDecl,ListStarOfFieldDecl0)
-    OptPartDecl1             -> <some>(PartDecl)
-    OptPartDecl1             -> <none>()
+    OptPartDecl0             -> <some>(PartDecl)
+    OptPartDecl0             -> <none>()
     ListStarOfVisItem0       -> ListPlusOfVisItem0
     ListStarOfVisItem0       -> <nil>()
     ListStarOfVisItem0       -> <conc>(ListStarOfVisItem0,ListStarOfVisItem0)
@@ -148,8 +148,8 @@ regular tree grammar
     ListPlusOfDefinition0    -> <conc>(ListPlusOfDefinition0,ListStarOfDefinition0)
     ListPlusOfDefinition0    -> <conc>(ListPlusOfDefinition0,ListPlusOfDefinition0)
     ListPlusOfDefinition0    -> <cons>(Definition,ListStarOfDefinition0)
-    OptVisualize1            -> <some>(Visualize)
-    OptVisualize1            -> <none>()
+    OptVisualize0            -> <some>(Visualize)
+    OptVisualize0            -> <none>()
     ListStarOfStringChar0    -> <string>
     ListPlusOfStringChar0    -> <string>
     ListStarOfNbsFilter0     -> ListPlusOfNbsFilter0
@@ -217,8 +217,8 @@ regular tree grammar
     Stmt                     -> Assign(Ref,Exp)
     Rate                     -> Rate(Ref)
     EventExp                 -> Exp
-    PacketRef                -> PacketPrimRef(PacketPrim)
-    PacketRef                -> PacketRef(ID)
+    PacketRef                -> Packet(PacketPrim)
+    PacketRef                -> Packet(ID)
     EvHdlrSemi               -> If(EventExp,ListStarOfVarDecl0,ListStarOfStmt0)
     EvHdlr                   -> EvHdlr(Receive,ListStarOfVarDecl0,ListStarOfStmt0)
     Definition               -> EvHdlr
@@ -249,9 +249,9 @@ regular tree grammar
     BorderItem               -> BorderItem(Direction,Exp)
     BorderDecl               -> BorderDecl(ListStarOfBorderItem0)
     Definition               -> ConstDecl(Type,ID,Exp)
-    Definition               -> Class(Region,OptBorderDecl1,ListStarOfFuncDecl0)
+    Definition               -> Class(Region,OptBorderDecl0,ListStarOfFuncDecl0)
     Definition               -> Class(Module,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
-    Definition               -> Class(Meta,OptPartDecl1,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
+    Definition               -> Class(Meta,OptPartDecl0,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
     Definition               -> GroupDef
     ModHolderOrSeqRef        -> SequenceRef
     ModHolderOrSeqRef        -> ModHolderRef
@@ -259,7 +259,7 @@ regular tree grammar
     VisItem                  -> VisItem(ModHolderOrSeqRef,ColorRef)
     VisGroup                 -> VisGroup(ID,ListStarOfVisItem0)
     Visualize                -> Visualize(ListStarOfVisGroup0)
-    Start                    -> Program(ID,OptVisualize1,ListStarOfDefinition0,ListStarOfDeclaration0)
+    Start                    -> Program(ID,OptVisualize0,ListStarOfDefinition0,ListStarOfDeclaration0)
     SequencePrim             -> <string>
     RegionMethodRef          -> <string>
     MetaMethodRef            -> <string>

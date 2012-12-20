@@ -27,8 +27,8 @@ signature
     Block           : Stmt -> Block
     Rate            : Ref -> Rate
                     : Exp -> EventExp
-    PacketPrimRef   : PacketPrim -> PacketRef
-    PacketRef       : ID -> PacketRef
+    Packet          : PacketPrim -> PacketRef
+    Packet          : ID -> PacketRef
     If              : EventExp * List(VarDecl) * List(Stmt) -> EvHdlrSemi
     EvHdlr          : Receive * List(VarDecl) * List(Stmt) -> EvHdlr
     Receive         : PacketVarDecl -> Receive

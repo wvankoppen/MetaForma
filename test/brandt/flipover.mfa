@@ -15,7 +15,7 @@ sequence FlipOver {
 	module.gradientPropagate();
 
 	do  {
-		if (module.gradPri == 0 && module.gradSec < 3 || module.gradSec==0 && module.gradPri<3) { 
+		if (gradPri == 0 && module.gradSec < 3 || module.gradSec==0 && module.gradPri<3) { 
 			module.group = @Outside;
 		}
 		if (module.gradPri > 0 && module.gradSec > 0) { 

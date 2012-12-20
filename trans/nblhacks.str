@@ -31,6 +31,15 @@ imports
         	Def(u@[_, name|_]) := <index-lookup> group;
         	g := name{u}
         	
+     // adjust-index-lookup(target__|namespace__, path__, prefix__):
+     //    FieldRef(c, f) -> <index-lookup-children(|Field(), prefix__)> g
+     //    where 
+     //    	<debug>$["adjust-index-lookup"];<debug>(namespace__, path__, prefix__);
+     //    	<target__> f;
+     //    	Def(u@[_, name|_]) := <index-lookup> c;
+     //    	g := name{u};
+     //    	<debug>$[g found: [g]]
+        	
         	
     
    to-upper-first: str -> <conc-strings>(<implode-string>[<to-upper>head],<implode-string>tail)

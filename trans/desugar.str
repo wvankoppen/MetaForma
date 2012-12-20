@@ -25,7 +25,7 @@ tail: [x|xs] -> xs
 desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(desugar-td));innermost(desugar)//;alltd(desugar-flatten)
 
 
-desugar-td: Unicast(PacketRef(p),AssignList(assignlist),nbsop,rate) -> Unicast(PacketRef(p),AssignList(assignlist'),nbsop,rate)
+desugar-td: Unicast(Packet(p),AssignList(assignlist),nbsop,rate) -> Unicast(Packet(p),AssignList(assignlist'),nbsop,rate)
 where
 	assignlist' := <map(desugar-payload(|<strip-annos>p))>assignlist
 	
@@ -142,7 +142,7 @@ desugar-all-nbl = topdown(try(desugar-nbl))
 desugar: FuncCall(MethodRef(Module(), "fixSymmetry"), [v]) -> 
 Instr(
   [ EvHdlr(
-      Receive(PacketVarDecl(PacketRef("Symmetry"), "p"))
+      Receive(PacketVarDecl(Packet("Symmetry"), "p"))
     , []
     , [ FuncCall(
           MethodRef(Module(), "fixSymmetry")
@@ -156,7 +156,7 @@ Instr(
 , [ If(
       v
     , [ Unicast(
-          PacketRef("Symmetry")
+          Packet("Symmetry")
         , AssignList([])
         , NbsOp([NbsFilter("inRegion", Bool("true"))])
         , None()

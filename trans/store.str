@@ -35,15 +35,15 @@ rules
 	
 	
 	adjust-index-def-data(store-results|namespace, path): 
-		term@EvHdlr(_{[EventHandler(), _, program]}, Receive(PacketVarDecl(p@PacketRef(_),_)), _, _) -> <store-results> DefData([EventHandler(), <strip-annos>p, program], EventHandler(), term)
+		term@EvHdlr(_{[EventHandler(), _, program]}, Receive(PacketVarDecl(p@Packet(_),_)), _, _) -> <store-results> DefData([EventHandler(), <strip-annos>p, program], EventHandler(), term)
 
 		
 	adjust-index-def-data(store-results|namespace, path): 
-		term@EvHdlr(_{[EventHandler(), _, _,  program]}, Receive(PacketVarDecl(p@PacketRef(_),_)), _, _) -> <store-results> DefData([EventHandler(), <strip-annos>p, program], EventHandler(), term)
+		term@EvHdlr(_{[EventHandler(), _, _,  program]}, Receive(PacketVarDecl(p@Packet(_),_)), _, _) -> <store-results> DefData([EventHandler(), <strip-annos>p, program], EventHandler(), term)
 
 		
 	adjust-index-def-data(store-results|namespace, path): 
-		term@EvHdlr(_{[EventHandler(), _, _, _,  program]},Receive(PacketVarDecl(p@PacketRef(_),_)), _, _) -> <store-results> DefData([EventHandler(), <strip-annos>p, program], EventHandler(), term)	
+		term@EvHdlr(_{[EventHandler(), _, _, _,  program]},Receive(PacketVarDecl(p@Packet(_),_)), _, _) -> <store-results> DefData([EventHandler(), <strip-annos>p, program], EventHandler(), term)	
 
 	
 	
@@ -125,7 +125,7 @@ rules
   
   index-get-evhdlr(|name): packet -> values
    where   
-     <desugar-all-nbl><index-get-all-values> DefData([EventHandler(), PacketRef(<strip-annos>packet), <strip-annos> name], EventHandler(), () ) => values
+     <desugar-all-nbl><index-get-all-values> DefData([EventHandler(), Packet(<strip-annos>packet), <strip-annos> name], EventHandler(), () ) => values
       
         
     

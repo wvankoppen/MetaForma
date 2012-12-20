@@ -21,7 +21,7 @@ imports
 rules
 	
 	
- 	type-of: Packet(n,_,_) -> Class(n)
+ 	type-of: Packet(n,_,_) -> Packet(n)
 
 	type-of: FieldPrimRef(Module(), "metaPart") -> MetaPart()
 	type-of: FieldPrimRef(Module(), "id") -> Mod()
@@ -33,6 +33,8 @@ rules
 	
 	type-of: ModHolderRef(_) -> Group()
 	type-of: ModHolderRef(_,_) -> Mod()
+	
+	type-of: Packet(n) -> Packet(n)
 
 
 	type-of: FieldRef(o,f) -> <type-of><index-lookup>f
@@ -62,3 +64,6 @@ rules
       case ?name#(_) : !$[[name]]
       otherwise : id
     end
+    
+    signature constructors
+    	Packet: X -> Pacet

@@ -96,7 +96,7 @@ rules
 		refers to Sequence n
 		
 	Packet (n,_):
-		defines Packet n of type Type(n)
+		defines Packet n of type Type(Packet(n))
 		scopes Payload,Field,Program
 		
 		
@@ -108,11 +108,11 @@ rules
 // , [
 		
 
-	Receive (VarDecl(PacketRef(p),n)):
+	Receive (VarDecl(Packet(p),n)):
 		refers to Packet p
 		defines Var n
 		
-	EvHdlr(n,Receive (VarDecl(PacketRef(p),n)),_,_):
+	EvHdlr(n,Receive (VarDecl(Packet(p),n)),_,_):
 		refers to Packet p
 		defines Var n 
 		scopes Payload,Field,Var
@@ -138,15 +138,13 @@ rules
 	 	
 	 	//where group refers to Group g
 	
-	ModHolderRef("Floor"):
-		refers to Group "Floor"
-	
 			
 	VarDecl(t,n): 
 		defines  Var n of type t
 		
-	PacketVarDecl(t,n): 
-		defines  Var n of type t
+	PacketVarDecl(packetref,n): 
+		defines  Var n of type packetref
+		// where packetref has type Type(Packet(t))
 		
 	Param(t, x) :
     	defines Var x of type t	
@@ -170,16 +168,21 @@ rules
 	PayloadDecl(t,n): 
 		defines Payload n of type  t
 	
-	PacketRef(p):
+	Packet(p):
 		refers to Packet p
 		//scopes Payload,Field,Var
 	
 	PayloadRef (n):
 		refers to Payload n
+		
+	PayloadRef (obj,n):
+		refers to Payload n	in Packet p
+		where obj has type p
 	
 	VarRef(n): 
-		refers to Var n			
-		refers to Field n
+		refers to Var n
+		refers to Field n			
+		// refers to Field n in Class Module()
 		refers to MetaPart n
 		refers to Const n
 		
@@ -194,13 +197,16 @@ rules
 	Type(c): refers to Class c
 		
 	FieldRef(c,n):
-		refers to Field n in Class cl
-		where c has type Type(cl)
+		refers to Field n in Class c
+		// where c has type Type(cl)
 		// refers to Class c
 	
 	// Class (n,_,_):
 	// 	defines Class n
 	
+		
+	Meta(): refers to Class Meta()
+	Module(): refers to Class Module()
 		
 	Class (n,_,_): // Module and Meta
 		defines Class n of type Type(n)
