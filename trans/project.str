@@ -25,8 +25,8 @@ rules
 	project-name: SequenceRef(n) -> <strip-annos>n
 	project-name: SequencePrimRef(n) -> <strip-annos>n
 	project-name: MetaPart(n) -> <strip-annos>n
-	project-name: Packet(n,_) -> <strip-annos>n
-	project-name: Packet(n,_,_) -> <strip-annos>n
+	project-name: PacketDecl(n,_) -> <strip-annos>n
+	project-name: PacketDecl(n,_,_) -> <strip-annos>n
 	project-name: PayloadDecl(t,n) -><strip-annos> n
 	project-name: Group(n,_) -><strip-annos> n
 	project-name: Group(n) -><strip-annos> n

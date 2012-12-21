@@ -265,10 +265,11 @@ exports
     "meta"                                                                                                            -> Meta              {cons("Meta")}
     "module"                                                                                                          -> Module            {cons("Module")}
     "region"                                                                                                          -> Region            {cons("Region")}
+    "config"                                                                                                          -> Config            {cons("Config")}
     "void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"                                                 -> FuncDecl          {cons("FuncDecl")}
     Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"                                  -> FuncDecl          {cons("FuncDecl")}
     Type ID                                                                                                           -> ParamListElem     {cons("Param")}
-    "packet" ID "{" PayloadDecl* "}"                                                                                  -> Definition        {cons("Packet")}
+    "packet" ID "{" PayloadDecl* "}"                                                                                  -> Definition        {cons("PacketDecl")}
     FuncDecl                                                                                                          -> Declaration       
     Type ID ";"                                                                                                       -> VarDecl           {cons("VarDecl")}
     Type ID ";"                                                                                                       -> FieldDecl         {cons("FieldDecl")}
@@ -287,7 +288,7 @@ exports
     "when" "(" Receive ")" "{" VarDecl* Stmt* "}"                                                                     -> EvHdlr            {cons("EvHdlr")}
     "when" "(" EventExp ")" "{" VarDecl* Stmt* "}"                                                                    -> EvHdlrSemi        {cons("If")}
     ID                                                                                                                -> PacketRef         {cons("Packet")}
-    PacketPrim                                                                                                        -> PacketRef         {cons("Packet")}
+    PacketPrim                                                                                                        -> PacketRef         {cons("PacketPrim")}
     PacketPrim                                                                                                        -> ID                {reject}
     Exp                                                                                                               -> EventExp          
     "rate" Ref                                                                                                        -> Rate              {cons("Rate")}
@@ -331,12 +332,14 @@ exports
     ID                         -> FuncRef        {cons("FuncRef")}
     SysObj "." ID              -> MethodRef      {cons("MethodRef")}
     Meta "." MetaMethodRef     -> MethodRef      {cons("MethodPrimRef")}
+    Module "." ModuleMethodRef -> MethodRef      {cons("MethodPrimRef")}
     Region "." RegionMethodRef -> MethodRef      {cons("MethodPrimRef")}
     ID                         -> VarRef         {cons("VarRef")}
     SequencePrim               -> SequenceRef    {cons("SequencePrimRef"), prefer}
     ID                         -> SequenceRef    {cons("SequenceRef")}
     Meta "." MetaFieldID       -> Ref            {cons("FieldPrimRef")}
     Module "." ModuleFieldID   -> Ref            {cons("FieldPrimRef")}
+    Config "." ConfigFieldID   -> Ref            {cons("FieldPrimRef")}
     SysObj "." ID              -> Ref            {cons("FieldRef")}
     PacketVarRef "." PayloadID -> Ref            {cons("PayloadPrimRef")}
     PacketVarRef "." ID        -> Ref            {cons("PayloadRef")}
@@ -344,8 +347,10 @@ exports
     ModuleFieldID              -> ID             {reject}
     MetaFieldID                -> ID             {reject}
     MetaMethodRef              -> ID             {reject}
+    ModuleMethodRef            -> ID             {reject}
     RegionMethodRef            -> ID             {reject}
     PayloadID                  -> ID             {reject}
+    ConfigFieldID              -> ID             {reject}
 
   lexical syntax
     "id"                -> ModuleFieldID   
@@ -354,15 +359,18 @@ exports
     "group"             -> ModuleFieldID   
     "metaPart"          -> ModuleFieldID   
     "regionID"          -> MetaFieldID     
+    "size"              -> MetaFieldID     
     "moduleID"          -> PayloadID       
     "metaID"            -> PayloadID       
     "regionID"          -> PayloadID       
     "connSource"        -> PayloadID       
     "connDest"          -> PayloadID       
+    "proximity"         -> ModuleMethodRef 
     "enable"            -> MetaMethodRef   
     "finish"            -> RegionMethodRef 
     "atPrimaryBorder"   -> RegionMethodRef 
     "atSecondaryBorder" -> RegionMethodRef 
+    "assignTime"        -> ConfigFieldID   
 
   lexical syntax
     "Main"   -> SequencePrim 
@@ -371,6 +379,7 @@ exports
   context-free syntax
     "@" ID "." ID                                                 -> ModHolderRef {cons("ModHolderRef")}
     "@" ID                                                        -> ModHolderRef {cons("ModHolderRef")}
+    "@*"                                                          -> ModHolderRef {cons("ModHolderAllRef")}
     "orientation" "matches" {OrientRef ","}*                      -> Exp          {cons("OrientMatch")}
     MethodRef "(" {Exp ","}* ")" ";"                              -> Stmt         {cons("FuncCall")}
     MethodRef "(" {Exp ","}* ")"                                  -> Exp          {cons("FuncCall")}
@@ -441,10 +450,11 @@ exports
     "meta"                                                                                                            -> Meta              {cons("Meta")}
     "module"                                                                                                          -> Module            {cons("Module")}
     "region"                                                                                                          -> Region            {cons("Region")}
+    "config"                                                                                                          -> Config            {cons("Config")}
     "void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"                                                 -> FuncDecl          {cons("FuncDecl")}
     Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"                                  -> FuncDecl          {cons("FuncDecl")}
     Type ID                                                                                                           -> ParamListElem     {cons("Param")}
-    "packet" ID "{" PayloadDecl* "}"                                                                                  -> Definition        {cons("Packet")}
+    "packet" ID "{" PayloadDecl* "}"                                                                                  -> Definition        {cons("PacketDecl")}
     FuncDecl                                                                                                          -> Declaration       
     Type ID ";"                                                                                                       -> VarDecl           {cons("VarDecl")}
     Type ID ";"                                                                                                       -> FieldDecl         {cons("FieldDecl")}
@@ -463,7 +473,7 @@ exports
     "when" "(" Receive ")" "{" VarDecl* Stmt* "}"                                                                     -> EvHdlr            {cons("EvHdlr")}
     "when" "(" EventExp ")" "{" VarDecl* Stmt* "}"                                                                    -> EvHdlrSemi        {cons("If")}
     ID                                                                                                                -> PacketRef         {cons("Packet")}
-    PacketPrim                                                                                                        -> PacketRef         {cons("Packet")}
+    PacketPrim                                                                                                        -> PacketRef         {cons("PacketPrim")}
     PacketPrim                                                                                                        -> ID                {reject}
     Exp                                                                                                               -> EventExp          
     "rate" Ref                                                                                                        -> Rate              {cons("Rate")}
@@ -507,12 +517,14 @@ exports
     ID                         -> FuncRef        {cons("FuncRef")}
     SysObj "." ID              -> MethodRef      {cons("MethodRef")}
     Meta "." MetaMethodRef     -> MethodRef      {cons("MethodPrimRef")}
+    Module "." ModuleMethodRef -> MethodRef      {cons("MethodPrimRef")}
     Region "." RegionMethodRef -> MethodRef      {cons("MethodPrimRef")}
     ID                         -> VarRef         {cons("VarRef")}
     SequencePrim               -> SequenceRef    {cons("SequencePrimRef"), prefer}
     ID                         -> SequenceRef    {cons("SequenceRef")}
     Meta "." MetaFieldID       -> Ref            {cons("FieldPrimRef")}
     Module "." ModuleFieldID   -> Ref            {cons("FieldPrimRef")}
+    Config "." ConfigFieldID   -> Ref            {cons("FieldPrimRef")}
     SysObj "." ID              -> Ref            {cons("FieldRef")}
     PacketVarRef "." PayloadID -> Ref            {cons("PayloadPrimRef")}
     PacketVarRef "." ID        -> Ref            {cons("PayloadRef")}
@@ -520,8 +532,10 @@ exports
     ModuleFieldID              -> ID             {reject}
     MetaFieldID                -> ID             {reject}
     MetaMethodRef              -> ID             {reject}
+    ModuleMethodRef            -> ID             {reject}
     RegionMethodRef            -> ID             {reject}
     PayloadID                  -> ID             {reject}
+    ConfigFieldID              -> ID             {reject}
 
   lexical syntax
     "id"                -> ModuleFieldID   
@@ -530,15 +544,18 @@ exports
     "group"             -> ModuleFieldID   
     "metaPart"          -> ModuleFieldID   
     "regionID"          -> MetaFieldID     
+    "size"              -> MetaFieldID     
     "moduleID"          -> PayloadID       
     "metaID"            -> PayloadID       
     "regionID"          -> PayloadID       
     "connSource"        -> PayloadID       
     "connDest"          -> PayloadID       
+    "proximity"         -> ModuleMethodRef 
     "enable"            -> MetaMethodRef   
     "finish"            -> RegionMethodRef 
     "atPrimaryBorder"   -> RegionMethodRef 
     "atSecondaryBorder" -> RegionMethodRef 
+    "assignTime"        -> ConfigFieldID   
 
   lexical syntax
     "Main"   -> SequencePrim 
@@ -547,6 +564,7 @@ exports
   context-free syntax
     "@" ID "." ID                                                 -> ModHolderRef {cons("ModHolderRef")}
     "@" ID                                                        -> ModHolderRef {cons("ModHolderRef")}
+    "@*"                                                          -> ModHolderRef {cons("ModHolderAllRef")}
     "orientation" "matches" {OrientRef ","}*                      -> Exp          {cons("OrientMatch")}
     MethodRef "(" {Exp ","}* ")" ";"                              -> Stmt         {cons("FuncCall")}
     MethodRef "(" {Exp ","}* ")"                                  -> Exp          {cons("FuncCall")}

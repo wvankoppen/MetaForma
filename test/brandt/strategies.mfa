@@ -33,7 +33,7 @@ visualize {
   
 
 packet AssignMetaID { 
-	byte newMetaID; 
+	byte xyz; 
 }	
 
 packet AddNeighbor {
@@ -126,9 +126,9 @@ meta {
  	
  }
 
+ 
 
-
-module  {
+module  { 
 	byte gradPri;
 	byte gradSec;
 	boolean isRef;
@@ -165,7 +165,7 @@ sequence Main {
 		meta.neighborHook (p.connSource,p.connDest);
 	}
 	
-	do {	
+	do {	 
 		when (receive (AssignMetaID p)) {
 			if (module.metaID == 0) {
 				module.metaID = p.newMetaID;
@@ -179,20 +179,20 @@ sequence Main {
 					module.metaPart = NORTH_WEST;
 				}
 				else if (isEAST(p.connDest) && module.metaPart == null) {
-					module.metaPart = Bottom;
+					module.metaPart = NORTH_WEST;
 				}
 			}
 			
-			if (module.metaPart == Left) {
+			if (module.metaPart == NORTH_WEST) {
 				break;
 			}
 			
-			unicast AssignMetaID (newMetaID = newMetaID) to $(connSource: pow2((p.connDest + 4) % 8)) rate config.rate;
+			unicast AssignMetaID (xyz = p.xyz) to $(connSource: pow2((p.connDest + 4) % 8)) rate config.rate;
 		}
-		when ( #(connSource: EAST&MALE, metaPart:None) == 2 && !#(connSource: WEST, metaPart:None)) {
+		when ( #(connSource: EAST&MALE, metaPart:null) == 2 && !#(connSource: WEST, metaPart:null)) {
 			module.metaPart = Left;
 			meta.id = module.id;
-			unicast AssignMetaID (newMetaID = module.id) to $(connSource: EAST&MALE&NORTH);
+			unicast AssignMetaID (xyz = module.id) to $(connSource: EAST&MALE&NORTH);
 		}	
 	}  
 
@@ -212,7 +212,7 @@ sequence Choose {
 	
 	do {
 		// UP
-		try region FlipThrough orientating BOTTOM_RIGHT from To2p excluding TopLeft,Left,Bottom;
+		try region FlipThrough orientating BOTTOM_RIGHT from Top excluding TopLeft,Left,Bottom;
 		try region FlipAlong orientating BOTTOM_RIGHT from Right,TopRight excluding Top;
 		try region FlipThrough orientating LEFT_BOTTOM from Right excluding Top, TopRight;
 		

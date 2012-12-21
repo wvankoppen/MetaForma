@@ -251,6 +251,7 @@ sorts	Group MetaClass RotateContinuous
 	"meta" 							-> Meta{cons("Meta")}
 	"module"						-> Module{cons("Module")}
 	"region"						-> Region{cons("Region")}
+	"config"						-> Config{cons("Config")}
 	
 	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
 	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
@@ -258,7 +259,7 @@ sorts	Group MetaClass RotateContinuous
 	Type ID 			-> ParamListElem{cons("Param")}
 	%% ID					-> Type{avoid}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> Definition{cons("Packet")}
+	"packet" ID "{" PayloadDecl* "}" 					-> Definition{cons("PacketDecl")}
 	FuncDecl 											-> Declaration
 
 	
@@ -289,7 +290,7 @@ sorts	Group MetaClass RotateContinuous
  	%%"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
 	ID									-> PacketRef {cons("Packet")}
-	PacketPrim							-> PacketRef {cons("Packet")}
+	PacketPrim							-> PacketRef {cons("PacketPrim")}
 	
 	PacketPrim	-> ID{reject}
 	
@@ -375,7 +376,9 @@ sorts	Group MetaClass RotateContinuous
 	
 	SysObj "." ID 					-> MethodRef{cons("MethodRef")}
 	Meta "." MetaMethodRef 		-> MethodRef{cons("MethodPrimRef")}
+	Module "." ModuleMethodRef 		-> MethodRef{cons("MethodPrimRef")}
 	Region "." RegionMethodRef 		-> MethodRef{cons("MethodPrimRef")}
+	
 	
 	ID -> VarRef{cons("VarRef")}
 	
@@ -389,6 +392,7 @@ sorts	Group MetaClass RotateContinuous
 	
 	Meta "." MetaFieldID 			-> Ref{cons("FieldPrimRef")}
 	Module "." ModuleFieldID 		-> Ref{cons("FieldPrimRef")}
+	Config "." ConfigFieldID 		-> Ref{cons("FieldPrimRef")}
 	SysObj "." ID					-> Ref{cons("FieldRef")}
 	
 	PacketVarRef "." PayloadID 						-> Ref{cons("PayloadPrimRef")}
@@ -399,29 +403,33 @@ sorts	Group MetaClass RotateContinuous
 	ModuleFieldID 	-> ID{reject}
 	MetaFieldID  	-> ID{reject}
 	MetaMethodRef  	-> ID{reject}
+	ModuleMethodRef -> ID{reject}
 	RegionMethodRef -> ID{reject}
 	PayloadID 		-> ID{reject}
-	
+	ConfigFieldID	-> ID{reject}
 	
 	lexical syntax
-	"id" -> ModuleFieldID 
-	"id" -> MetaFieldID
-	"metaID" -> ModuleFieldID
-	"group" -> ModuleFieldID
-	"metaPart" -> ModuleFieldID
+	"id" 		-> ModuleFieldID 
+	"id" 		-> MetaFieldID
+	"metaID" 	-> ModuleFieldID
+	"group" 	-> ModuleFieldID
+	"metaPart" 	-> ModuleFieldID
 	
-	"regionID" -> MetaFieldID
+	"regionID" 	-> MetaFieldID
+	"size" 		-> MetaFieldID
 	
-	"moduleID" -> PayloadID
-	"metaID" -> PayloadID
-	"regionID" -> PayloadID
-	"connSource" -> PayloadID
-	"connDest" -> PayloadID
+	"moduleID" 	-> PayloadID
+	"metaID" 	-> PayloadID
+	"regionID" 	-> PayloadID
+	"connSource"-> PayloadID
+	"connDest" 	-> PayloadID
 	
-	"enable"	-> MetaMethodRef
-	"finish" -> RegionMethodRef
-	"atPrimaryBorder" -> RegionMethodRef
+	"proximity"			-> ModuleMethodRef
+	"enable"			-> MetaMethodRef
+	"finish" 			-> RegionMethodRef
+	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
+	"assignTime" 		-> ConfigFieldID
 	
 	
 	lexical syntax
@@ -433,6 +441,8 @@ sorts	Group MetaClass RotateContinuous
 
 	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
+	"@*"											-> ModHolderRef{cons("ModHolderAllRef")}
+	
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
 	
@@ -558,6 +568,7 @@ sorts	Group MetaClass RotateContinuous
 	"meta" 							-> Meta{cons("Meta")}
 	"module"						-> Module{cons("Module")}
 	"region"						-> Region{cons("Region")}
+	"config"						-> Config{cons("Config")}
 	
 	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
 	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
@@ -565,7 +576,7 @@ sorts	Group MetaClass RotateContinuous
 	Type ID 			-> ParamListElem{cons("Param")}
 	%% ID					-> Type{avoid}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> Definition{cons("Packet")}
+	"packet" ID "{" PayloadDecl* "}" 					-> Definition{cons("PacketDecl")}
 	FuncDecl 											-> Declaration
 
 	
@@ -596,7 +607,7 @@ sorts	Group MetaClass RotateContinuous
  	%%"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
 	ID									-> PacketRef {cons("Packet")}
-	PacketPrim							-> PacketRef {cons("Packet")}
+	PacketPrim							-> PacketRef {cons("PacketPrim")}
 	
 	PacketPrim	-> ID{reject}
 	
@@ -682,7 +693,9 @@ sorts	Group MetaClass RotateContinuous
 	
 	SysObj "." ID 					-> MethodRef{cons("MethodRef")}
 	Meta "." MetaMethodRef 		-> MethodRef{cons("MethodPrimRef")}
+	Module "." ModuleMethodRef 		-> MethodRef{cons("MethodPrimRef")}
 	Region "." RegionMethodRef 		-> MethodRef{cons("MethodPrimRef")}
+	
 	
 	ID -> VarRef{cons("VarRef")}
 	
@@ -696,6 +709,7 @@ sorts	Group MetaClass RotateContinuous
 	
 	Meta "." MetaFieldID 			-> Ref{cons("FieldPrimRef")}
 	Module "." ModuleFieldID 		-> Ref{cons("FieldPrimRef")}
+	Config "." ConfigFieldID 		-> Ref{cons("FieldPrimRef")}
 	SysObj "." ID					-> Ref{cons("FieldRef")}
 	
 	PacketVarRef "." PayloadID 						-> Ref{cons("PayloadPrimRef")}
@@ -706,29 +720,33 @@ sorts	Group MetaClass RotateContinuous
 	ModuleFieldID 	-> ID{reject}
 	MetaFieldID  	-> ID{reject}
 	MetaMethodRef  	-> ID{reject}
+	ModuleMethodRef -> ID{reject}
 	RegionMethodRef -> ID{reject}
 	PayloadID 		-> ID{reject}
-	
+	ConfigFieldID	-> ID{reject}
 	
 	lexical syntax
-	"id" -> ModuleFieldID 
-	"id" -> MetaFieldID
-	"metaID" -> ModuleFieldID
-	"group" -> ModuleFieldID
-	"metaPart" -> ModuleFieldID
+	"id" 		-> ModuleFieldID 
+	"id" 		-> MetaFieldID
+	"metaID" 	-> ModuleFieldID
+	"group" 	-> ModuleFieldID
+	"metaPart" 	-> ModuleFieldID
 	
-	"regionID" -> MetaFieldID
+	"regionID" 	-> MetaFieldID
+	"size" 		-> MetaFieldID
 	
-	"moduleID" -> PayloadID
-	"metaID" -> PayloadID
-	"regionID" -> PayloadID
-	"connSource" -> PayloadID
-	"connDest" -> PayloadID
+	"moduleID" 	-> PayloadID
+	"metaID" 	-> PayloadID
+	"regionID" 	-> PayloadID
+	"connSource"-> PayloadID
+	"connDest" 	-> PayloadID
 	
-	"enable"	-> MetaMethodRef
-	"finish" -> RegionMethodRef
-	"atPrimaryBorder" -> RegionMethodRef
+	"proximity"			-> ModuleMethodRef
+	"enable"			-> MetaMethodRef
+	"finish" 			-> RegionMethodRef
+	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
+	"assignTime" 		-> ConfigFieldID
 	
 	
 	lexical syntax
@@ -740,6 +758,8 @@ sorts	Group MetaClass RotateContinuous
 
 	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
+	"@*"											-> ModHolderRef{cons("ModHolderAllRef")}
+	
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
 	

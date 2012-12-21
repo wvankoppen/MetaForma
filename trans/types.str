@@ -21,7 +21,7 @@ imports
 rules
 	
 	
- 	type-of: Packet(n,_,_) -> Packet(n)
+ 	type-of: PacketDecl(n,_,_) -> Packet(n)
 
 	type-of: FieldPrimRef(Module(), "metaPart") -> MetaPart()
 	type-of: FieldPrimRef(Module(), "id") -> Mod()
@@ -41,7 +41,7 @@ rules
 	type-of: PayloadRef(f) -> <type-of><index-lookup>f
 	
 	
-	type-of: VarRef(n) ->  <type-of>  <index-lookup> n
+	type-of: VarRef(n) ->  <type-of><index-lookup> n
 	
 		 
 	type-of: Meta() -> Class(Meta())
@@ -51,7 +51,7 @@ rules
 	
 	type-of: PayloadDecl (t,n) -> t
 	
-	type-of: Def(uri) -><index-get-data(|Type())> Def(uri)
+	type-of: Def(uri) ->  <index-get-data(|Type())> Def(uri)
 	
 	print-type = 
     switch id

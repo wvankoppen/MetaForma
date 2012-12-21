@@ -30,7 +30,7 @@ where
 	assignlist' := <map(desugar-payload(|<strip-annos>p))>assignlist
 	
 
-desugar-payload(|packet): AssignElem(PayloadRef(f),exp) -> AssignElem(PayloadRef(packet,f),exp)
+desugar-payload(|packet): AssignElem(PayloadRef(f),exp) -> AssignElem(PayloadRef(Packet(packet),f),exp)
 
 desugar: EvHdlr(receive,vars,stats) -> EvHdlr (<newname>,receive,vars,stats)
 

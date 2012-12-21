@@ -60,7 +60,7 @@ rules
 	
 	
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Packet(_{[Packet(), name, program]},_) -> <store-results> DefData([Packet(), program], Packet(), term)
+		term@PacketDecl(_{[Packet(), name, program]},_) -> <store-results> DefData([Packet(), program], Packet(), term)
 		
 	
 
@@ -94,9 +94,9 @@ rules
 	
 		
 	adjust-index-def-data(store-results|namespace, path):
-       decl -> <store-results> Type([namespace|path], type)
+       decl -> <store-results> DefData([namespace|path], Type(), type)
         where
-          type := <type-of> decl	
+          type := <debug(!$[Store type:])><type-of> decl	
 		
 		
 	
@@ -109,7 +109,7 @@ rules
        	 <map(try(swap-counter))>comb => packets'
        	 
        	 
-     swap-counter: (i,Packet(n,decls)) -> Packet(n,i,decls)
+     swap-counter: (i,PacketDecl(n,decls)) -> PacketDecl(n,i,decls)
         
     index-get-packets: name-> <packet-add-numbers><index-getcons(|name)>Packet()
    

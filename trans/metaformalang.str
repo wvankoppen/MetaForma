@@ -156,7 +156,7 @@ rules // Debugging
     	filename := <guarantee-extension(|"index.types.aterm")> path;
         // data   := <flatten-list><map(\filename -> <index-get-all-in-file> filename\)> <index-get-all-files>;
         data   := <index-get-all-in-file> path;
-  		result := <filter(?Type(_,_))>data
+  		result := <filter(?DefData(_,Type(),_))>data
   
   
   index-manual:
@@ -229,7 +229,7 @@ rules // Utility
 			
 			
 			packets := <index-get-packets>name;
-			packets-all :=  [Packet("Packet",0,[])|<index-get-packets>name];
+			packets-all :=  [PacketDecl("Packet",0,[])|<index-get-packets>name];
 			
 			<debug>"##############################";
 			<debug>"COMPILE PACKETRECEIVES";

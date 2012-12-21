@@ -26,4 +26,4 @@ outliner Default outliner
   EvHdlrSemi.If
   Instr.Instr
   FuncDecl.FuncDecl
-  Definition.Packet
+  Definition.PacketDecl

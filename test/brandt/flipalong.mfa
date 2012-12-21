@@ -32,12 +32,12 @@ sequence FlipAlong  {
 	rotate(@Clover.East,QUART);
 	rotate(@Clover.North,HALF);
 	rotate(@Clover.East,QUART);
-	connect(@Clover.North,@Main);
-	connect(@Clover.West,@Main);
+	connect(@Clover.North,@*);
+	connect(@Clover.West,@*);
 	
 	do {
-		disconnect(@Clover.East,@Main);
-		disconnect(@Clover.South,@Main);
+		disconnect(@Clover.East,@*);
+		disconnect(@Clover.South,@*);
 	}
 	
 	rotate(@Clover.East,-QUART);

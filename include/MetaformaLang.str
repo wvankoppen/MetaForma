@@ -3,6 +3,7 @@ module MetaformaLang
 signature
   constructors
                     : String -> STRING
+    ModHolderAllRef : ModHolderRef
     ModHolderRef    : ID -> ModHolderRef
     ModHolderRef    : ID * ID -> ModHolderRef
                     : VarRef -> PacketVarRef
@@ -10,6 +11,7 @@ signature
     SequencePrimRef : SequencePrim -> SequenceRef
     VarRef          : ID -> VarRef
     MethodPrimRef   : Region * RegionMethodRef -> MethodRef
+    MethodPrimRef   : Module * ModuleMethodRef -> MethodRef
     MethodPrimRef   : Meta * MetaMethodRef -> MethodRef
     MethodRef       : SysObj * ID -> MethodRef
     FuncRef         : ID -> FuncRef
@@ -27,7 +29,7 @@ signature
     Block           : Stmt -> Block
     Rate            : Ref -> Rate
                     : Exp -> EventExp
-    Packet          : PacketPrim -> PacketRef
+    PacketPrim      : PacketPrim -> PacketRef
     Packet          : ID -> PacketRef
     If              : EventExp * List(VarDecl) * List(Stmt) -> EvHdlrSemi
     EvHdlr          : Receive * List(VarDecl) * List(Stmt) -> EvHdlr
@@ -54,6 +56,7 @@ signature
     PayloadRef      : PacketVarRef * ID -> Ref
     PayloadPrimRef  : PacketVarRef * PayloadID -> Ref
     FieldRef        : SysObj * ID -> Ref
+    FieldPrimRef    : Config * ConfigFieldID -> Ref
     FieldPrimRef    : Module * ModuleFieldID -> Ref
     FieldPrimRef    : Meta * MetaFieldID -> Ref
     VarRef          : ID -> Ref
@@ -67,6 +70,7 @@ signature
     Param           : Type * ID -> ParamListElem
     FuncDecl        : Type * ID * List(ParamListElem) * List(Declaration) * List(Stmt) * Exp -> FuncDecl
     FuncDecl        : ID * List(ParamListElem) * List(Declaration) * List(Stmt) -> FuncDecl
+    Config          : Config
     Region          : Region
     Module          : Module
     Meta            : Meta
@@ -77,7 +81,7 @@ signature
     BorderItem      : Direction * Exp -> BorderItem
     BorderDecl      : List(BorderItem) -> BorderDecl
                     : EvHdlr -> Definition
-    Packet          : ID * List(PayloadDecl) -> Definition
+    PacketDecl      : ID * List(PayloadDecl) -> Definition
     ConstDecl       : Type * ID * Exp -> Definition
     Class           : Region * Option(BorderDecl) * List(FuncDecl) -> Definition
     Class           : Module * List(FieldDecl) * List(FuncDecl) -> Definition
@@ -91,8 +95,10 @@ signature
     Visualize       : List(VisGroup) -> Visualize
     Program         : ID * Option(Visualize) * List(Definition) * List(Declaration) -> Start
                     : String -> SequencePrim
+                    : String -> ConfigFieldID
                     : String -> RegionMethodRef
                     : String -> MetaMethodRef
+                    : String -> ModuleMethodRef
                     : String -> PayloadID
                     : String -> MetaFieldID
                     : String -> ModuleFieldID

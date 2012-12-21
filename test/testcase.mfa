@@ -1,37 +1,13 @@
 program testcase
 
-group groep
-group meerderemods [mod1,mod2]
  
 packet Stuurmij {
 	byte f;
 }
-meta {
-	part [NORTH_EAST,SOUTH_EAST, SOUTH_WEST];	
-	byte TopLeft;
-} 
-
-module{}
-
-region{} 
   
 sequence Choose {
-	// byte voo;
-	// float xoo;
-	// float x11;
-	
-	xoo = x11;
-	meta.TopLeft = 3;  
-	voo = xoo;
-	disconnect(@meerderemods.mod1,@groep);
-	module.id = @groep;
-	
-	module.id = @meerderemods.mod1;
-	do {
-		
-		when (receive(Stuurmij p)) {
-			voo = p.f;   
-		}	
+	when (receive (Stuurmij p )) {
+		unicast Stuurmij(f=p.f) to $();
 	}
 	 	
 }

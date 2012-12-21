@@ -95,8 +95,8 @@ rules
 	SequencePrimRef(n):
 		refers to Sequence n
 		
-	Packet (n,_):
-		defines Packet n of type Type(Packet(n))
+	PacketDecl (n,_):
+		defines Packet n of type Packet(n)
 		scopes Payload,Field,Program
 		
 		
@@ -125,7 +125,7 @@ rules
 		defines Function n
 		scopes Payload,Field,Var
 		
-	Unicast(p,_,_,_):
+	Unicast(Packet(p),_,_,_):
 		refers to Packet p
 		
 	
@@ -177,7 +177,7 @@ rules
 		
 	PayloadRef (obj,n):
 		refers to Payload n	in Packet p
-		where obj has type p
+		where obj has type Packet(p)
 	
 	VarRef(n): 
 		refers to Var n
@@ -209,11 +209,11 @@ rules
 	Module(): refers to Class Module()
 		
 	Class (n,_,_): // Module and Meta
-		defines Class n of type Type(n)
+		defines Class n of type n
 		scopes Payload,Field,Var,Function
 
 	Class (n,_): // Region
-		defines Class n of type Type(n)
+		defines Class n of type n
 		scopes Payload,Field,Var,Function
 	
 	

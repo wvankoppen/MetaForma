@@ -301,29 +301,29 @@ rules
 rules
 
   nam-get-scope-types :
-    Packet(n, _) -> [Payload(), Field(), Program()]
+    PacketDecl(n, _) -> [Payload(), Field(), Program()]
 
   nam-get-definition-keys :
-    Packet(n, _) -> [n]
+    PacketDecl(n, _) -> [n]
 
   nam-get-definitions :
-    Packet(n, _) -> [(Packet(), [n])]
+    PacketDecl(n, _) -> [(Packet(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Packet(n, _) -> <Packet(nam-annotate-def(|path__), id)>
+    PacketDecl(n, _) -> <PacketDecl(nam-annotate-def(|path__), id)>
 
   adjust-index-def-data(store__|namespace__, path__):
-    Packet(n, _) -> <store__> DefData(
-                                [namespace__|path__]
-                              , Type()
-                              , Type(Packet(n))
-                              )
+    PacketDecl(n, _) -> <store__> DefData(
+                                    [namespace__|path__]
+                                  , Type()
+                                  , Packet(n)
+                                  )
 
   type-of :
-    Packet(n, _) -> Type(Packet(n))
+    PacketDecl(n, _) -> Packet(n)
 
   nam-unique :
-    Packet(n, _) -> <id>
+    PacketDecl(n, _) -> <id>
 
 
 rules
@@ -442,18 +442,18 @@ rules
 rules
 
   nam-get-uses-keys :
-    Unicast(p, _, _, _) -> [p]
+    Unicast(Packet(p), _, _, _) -> [p]
 
   nam-get-uses :
-    Unicast(p, _, _, _) -> [(Packet(), [p])]
+    Unicast(Packet(p), _, _, _) -> [(Packet(), [p])]
 
   nam-annotate-names(|paths__, path__):
-    Unicast(p, _, _, _) -> <Unicast(
-                              nam-annotate-use(|paths__, Packet())
-                            , id
-                            , id
-                            , id
-                            )>
+    Unicast(Packet(p), _, _, _) -> <Unicast(
+                                      Packet(nam-annotate-use(|paths__, Packet()))
+                                    , id
+                                    , id
+                                    , id
+                                    )>
 
 
 rules
@@ -687,11 +687,11 @@ rules
 
   nam-get-uses-keys :
     PayloadRef(obj, n) -> [n]
-    where p := <type-of> obj
+    where Packet(p) := <type-of> obj
 
   nam-get-uses :
     PayloadRef(obj, n) -> [(Payload(), [n])]
-    where p := <type-of> obj
+    where Packet(p) := <type-of> obj
 
   nam-annotate-names(|paths__, path__):
     PayloadRef(obj, n) -> <PayloadRef(id, nam-annotate-use(|paths__, Payload()))>
@@ -699,7 +699,7 @@ rules
   adjust-index-lookup(target__|namespace__, path__, prefix__):
     PayloadRef(obj, n) -> <index-lookup-children(|Payload(), prefix__)> p
     where <target__> n
-    where p := <type-of> obj
+    where Packet(p) := <type-of> obj
 
 
 rules
@@ -835,11 +835,11 @@ rules
     Class(n, _, _) -> <store__> DefData(
                                   [namespace__|path__]
                                 , Type()
-                                , Type(n)
+                                , n
                                 )
 
   type-of :
-    Class(n, _, _) -> Type(n)
+    Class(n, _, _) -> n
 
   nam-unique :
     Class(n, _, _) -> <id>
@@ -867,11 +867,11 @@ rules
     Class(n, _) -> <store__> DefData(
                                [namespace__|path__]
                              , Type()
-                             , Type(n)
+                             , n
                              )
 
   type-of :
-    Class(n, _) -> Type(n)
+    Class(n, _) -> n
 
   nam-unique :
     Class(n, _) -> <id>

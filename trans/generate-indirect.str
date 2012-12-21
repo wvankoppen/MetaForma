@@ -28,7 +28,7 @@ strategies
 
 	map2str(rule) = map(rule);concat-strings 
 
-	compile-packet: Packet(packet,i,payloaddecls) -> $[
+	compile-packet: PacketDecl(packet,i,payloaddecls) -> $[
 		class [packet'] extends PacketBase {
 			
 			public static byte getTypeNr() {return [i];}
@@ -86,7 +86,7 @@ strategies
   packet-name: packet -> $[Packet[packet]] where not (<eq>(packet,"Packet"))
   
 	 
- compile-packetreceive(|n): Packet(packet,i,payloaddecls) -> $[
+ compile-packetreceive(|n): PacketDecl(packet,i,payloaddecls) -> $[
   	public void receivePacket([<packet-name>packet] p) {
   		[code]
   	}
@@ -125,7 +125,7 @@ where
 	<debug>$[Compile Region class]
 
 
-compile-packetbuild: p@Packet(n,nr,payloads) -> $[		 if (typeNr == [name].getTypeNr()) {
+compile-packetbuild: p@PacketDecl(n,nr,payloads) -> $[		 if (typeNr == [name].getTypeNr()) {
 			[name] p = ([name])new [name](this).deserialize(msg,connector);
 			preprocessPacket(p);
 			receivePacket(p); 

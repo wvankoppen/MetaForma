@@ -54,6 +54,6 @@ signature
 	EvHdlr : X * X -> EvHdlr
 	PacketReceive:  X * X -> PacketReceive
 	Class: X * X -> Class
-	Packet: X * X * X -> Packet
+	PacketDecl: X * X * X -> PacketDecl
 	PayloadRef: X * X -> PayloadRef
 	

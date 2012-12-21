@@ -59,6 +59,7 @@ sorts	Group MetaClass RotateContinuous
 	"meta" 							-> Meta{"Meta"}
 	"module"						-> Module{"Module"}
 	"region"						-> Region{"Region"}
+	"config"						-> Config{"Config"}
 	
 	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{"FuncDecl"}
 	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{"FuncDecl"}
@@ -66,7 +67,7 @@ sorts	Group MetaClass RotateContinuous
 	Type ID 			-> ParamListElem{"Param"}
 	%% ID					-> Type{avoid}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> Definition{"Packet"}
+	"packet" ID "{" PayloadDecl* "}" 					-> Definition{"PacketDecl"}
 	FuncDecl 											-> Declaration
 
 	
@@ -97,7 +98,7 @@ sorts	Group MetaClass RotateContinuous
  	%%"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
 	ID									-> PacketRef {"Packet"}
-	PacketPrim							-> PacketRef {"Packet"}
+	PacketPrim							-> PacketRef {"PacketPrim"}
 	
 	PacketPrim	-> ID{reject}
 	
@@ -183,7 +184,9 @@ sorts	Group MetaClass RotateContinuous
 	
 	SysObj "." ID 					-> MethodRef{"MethodRef"}
 	Meta "." MetaMethodRef 		-> MethodRef{"MethodPrimRef"}
+	Module "." ModuleMethodRef 		-> MethodRef{"MethodPrimRef"}
 	Region "." RegionMethodRef 		-> MethodRef{"MethodPrimRef"}
+	
 	
 	ID -> VarRef{"VarRef"}
 	
@@ -197,6 +200,7 @@ sorts	Group MetaClass RotateContinuous
 	
 	Meta "." MetaFieldID 			-> Ref{"FieldPrimRef"}
 	Module "." ModuleFieldID 		-> Ref{"FieldPrimRef"}
+	Config "." ConfigFieldID 		-> Ref{"FieldPrimRef"}
 	SysObj "." ID					-> Ref{"FieldRef"}
 	
 	PacketVarRef "." PayloadID 						-> Ref{"PayloadPrimRef"}
@@ -207,29 +211,33 @@ sorts	Group MetaClass RotateContinuous
 	ModuleFieldID 	-> ID{reject}
 	MetaFieldID  	-> ID{reject}
 	MetaMethodRef  	-> ID{reject}
+	ModuleMethodRef -> ID{reject}
 	RegionMethodRef -> ID{reject}
 	PayloadID 		-> ID{reject}
-	
+	ConfigFieldID	-> ID{reject}
 	
 	lexical syntax
-	"id" -> ModuleFieldID 
-	"id" -> MetaFieldID
-	"metaID" -> ModuleFieldID
-	"group" -> ModuleFieldID
-	"metaPart" -> ModuleFieldID
+	"id" 		-> ModuleFieldID 
+	"id" 		-> MetaFieldID
+	"metaID" 	-> ModuleFieldID
+	"group" 	-> ModuleFieldID
+	"metaPart" 	-> ModuleFieldID
 	
-	"regionID" -> MetaFieldID
+	"regionID" 	-> MetaFieldID
+	"size" 		-> MetaFieldID
 	
-	"moduleID" -> PayloadID
-	"metaID" -> PayloadID
-	"regionID" -> PayloadID
-	"connSource" -> PayloadID
-	"connDest" -> PayloadID
+	"moduleID" 	-> PayloadID
+	"metaID" 	-> PayloadID
+	"regionID" 	-> PayloadID
+	"connSource"-> PayloadID
+	"connDest" 	-> PayloadID
 	
-	"enable"	-> MetaMethodRef
-	"finish" -> RegionMethodRef
-	"atPrimaryBorder" -> RegionMethodRef
+	"proximity"			-> ModuleMethodRef
+	"enable"			-> MetaMethodRef
+	"finish" 			-> RegionMethodRef
+	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
+	"assignTime" 		-> ConfigFieldID
 	
 	
 	lexical syntax
@@ -241,6 +249,8 @@ sorts	Group MetaClass RotateContinuous
 
 	"@" ID "." ID									-> ModHolderRef{"ModHolderRef"}
 	"@" ID 											-> ModHolderRef{"ModHolderRef"}
+	"@*"											-> ModHolderRef{"ModHolderAllRef"}
+	
 	"orientation" "matches" {OrientRef ","}* -> Exp{"OrientMatch"}
 	
 	
