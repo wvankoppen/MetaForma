@@ -1,0 +1,21 @@
+module defines
+
+imports
+  lib/analysis-library.generated
+  lib/analysis-library-internal.generated
+  lib/index-library.generated
+
+
+imports
+
+
+signature
+  constructors
+    Type        : DefDataKind
+    Import      : DefDataKind
+    Transitive  : ImportAnno
+    CurrentFile : ImportAnno
+
+  constructors
+    MetaPart : Namespace
+    n        : Namespace

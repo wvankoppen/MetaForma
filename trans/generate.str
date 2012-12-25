@@ -54,11 +54,14 @@ where
 
 to-java: FuncCall(n,args) -> $[[<to-java>n]([<concat-glue(|",")><map(to-java)>args])]
 to-java: ModHolderRef(g,m) -> $[Mod.[g]_[m]]
-to-java: ModHolderRef(g) -> $[Group.[g]]  
+to-java: ModHolderRef(g) -> $[Group.[g]]
+to-java: ModHolderAllRef() -> $[Group.X]  
 to-java: FuncRef(n) -> n
+
 
 to-java: OrientRef(o) -> $[Orientation.[o]]
 to-java: MethodRef(obj,n) -> $[[<to-java>obj].[n]]
+where <debug>$[Compile methodref [n]]
 
 to-java: Break() -> $[mfStateMngr.nextInstruction()]
 
@@ -66,10 +69,12 @@ to-java-instr: Instr(i,evhdlrs,evsemi,stat*,postcon) -> $[
 	[instr] 
 	] 
 where
-	<debug>$[Instruction start [i]];
-	<map2str(to-java)>evsemi => java-evsemi;
+	<debug(!$[Instruction start [i]: ])>evsemi;
+	<map2str(to-java-stat)>evsemi => java-evsemi;
+	<debug(!$[Instruction stats [i]:])>stat*;
 	<map2str(to-java-stat)>stat* => block;
-	<to-java-stop(|i,java-evsemi,block)>postcon => instr;
+	<debug(!$[Instruction stopcondition [i]:])>postcon;
+	<to-java-stopcon(|i,java-evsemi,block)>postcon => instr;
 	<debug>$[Instruction end [i]]
 
 // to-java-all: Start(Module(m),defs,decls) -> $[public class [m]Controller extends MfController implements ControllerInformationProvider {
@@ -78,16 +83,17 @@ where
 
 
 // A doWait has no event habndlers because it is only evaluated once
-to-java-stop(|i,java-evsemi,java-stats): Wait(wait) -> 
+to-java-stopcon(|i,java-evsemi,java-stats): Wait(wait) -> 
 $[
 	if (mfStateMngr.doWait([i]))  {
+		[java-evsemi]
 		[java-stats]
 		[java-statemngr-call]
 	}]
 where
 	<to-java-stop>wait => java-statemngr-call
 
-to-java-stop(|i,java-evsemi,java-stats): Until(wait) -> $[
+to-java-stopcon(|i,java-evsemi,java-stats): Until(wait) -> $[
 	if (mfStateMngr.doUntil([i]))  {
 		[java-evsemi]
 		[java-stats]
@@ -119,19 +125,13 @@ where brackets := "[]"
 to-java: OrientMatch(orients) -> $[[<concat-glue(|" || ")><map(orientref)>orients]
 ] 
 
-orientref: OrientRef(r) -> $[mfStateMngr.getState().getOrientation().equals(Orientation.[r]))]
+orientref: OrientRef(r) -> $[mfStateMngr.getState().getOrientation().equals(Orientation.[r])]
 
 
 to-java: Goto(s) -> $[mfStateMngr.nextSequence([<to-java>s]);]
 
 
 to-java: SequenceRef(n) -> $[Sequence.[n]] 
-	// where 
-	// 	not(<eq>(n,"Main"));
-	// 	not(<eq>(n,"Choose"))
-		
-// to-java: SequenceRef("Choose") -> $[SequenceGeneric.Choose]
-// to-java: SequenceRef("Main") -> $[SequenceGeneric.Main]
 to-java: SequencePrimRef(n) -> $[SequenceGeneric.[n]]  
 
 
@@ -159,49 +159,53 @@ to-java: Min(i) -> $[-[<to-java>i]]
 
 to-java: Block(stats) -> $[[<concat-strings><map(to-java-stat)>stats]]
 
-to-java: If(c,stats) -> $[ if ([<to-java>c]) {
-		[<concat-strings><map(to-java-stat)>stats]
+to-java-stat: If(c,stats) -> $[ if ([<to-java>c]) {
+		[<map2str(to-java-stat)>stats]
 }]
+where <debug>$[Compile IF start]
 
-to-java: IfElse(c,stats1,stats2) -> $[ if ([<to-java>c]) {
-		[<concat-strings><map(to-java-stat)>stats1]
+to-java-stat: IfElse(c,stats1,stats2) -> $[ if ([<to-java>c]) {
+		[<map2str(to-java-stat)>stats1]
 }
 else {
-		[<concat-strings><map(to-java-stat)>stats2]
+		[<map2str(to-java-stat)>stats2]
 }]
+where <debug>$[Compile IFELSE start]
 
 // to-java: FieldRef(obj,f) -> $[[<to-java>obj].getVar("[f]")]
 to-java: d@FieldRef(obj,f) -> $[[<to-java>obj].[f]]
-where 
-	f' := <strip-annos>f;
-	 not (<eq>(f',"id"));
-	 not (<eq>(f',"group"))
-
-to-java: FieldRef(obj, f) -> $[[<to-java>obj].getID()]
-where 
-	<eq>(<strip-annos>f,"id")
-	
-to-java: FieldRef(obj,f) -> $[[<to-java>obj].getGroup()]
-where 
-	<eq>(<strip-annos>f,"group")
-
+// where 
+// 	f' := <strip-annos>f;
+// 	 not (<eq>(f',"id"));
+// 	 not (<eq>(f',"group"))
 
 to-java: ConstDecl(t,n,v) -> $[public final [<to-java>t] [n] = [<to-java>v]]
 
-to-java: VarDecl(t,n) -> $[[<to-java>t] [n]]
+to-java: FieldPrimRef(obj,f) -> $[[<to-java>obj].get[<to-letter>f]()]
+
+
+
+
+to-java: VarDecl(t,n) -> $[[<to-java>t] [n]; [n] = 0]
 
 
 to-java: Assign(v@VarRef(_), e) -> $[[<to-java>v] = [<to-java>e]]
 
 
-to-java: Assign(FieldRef(obj,"id"),val) -> $[[<to-java>obj].setID([<to-java>val])]
-to-java: Assign(FieldRef(obj,"group"),val) -> $[[<to-java>obj].setGroup([<to-java>val])]
+to-letter: "id" -> "ID"
+to-letter: "group" -> "Group"
+to-letter: "metaID" -> "MetaID"
+to-letter: "metaPart" -> "MetaPart"
+to-letter: "size" -> "Size"
+to-letter: "regionID" -> "regionID"
+
+to-java: Assign(FieldPrimRef(obj,f),val) -> $[[<to-java>obj].set[<to-letter>f]([<to-java>val])]
 
 to-java: Assign(FieldRef(obj,field),val) -> $[[<to-java>obj].setVar("[field]",[val'])]
-where
-	not(<eq>(field,"id"));
-	not(<eq>(field,"group"));
-	<to-java>val => val'
+ where
+// 	not(<eq>(field,"id"));
+// 	not(<eq>(field,"group"));
+ 	<to-java>val => val'
 
  
 
@@ -223,11 +227,12 @@ to-java: Meta() -> $[ctrl.meta()]
 
 to-java: Actuation() -> $[ctrl.getActuation()]
 
-
+to-java: VarRef(n{[Unresolved(_)|_]}) -> <debug>"UNRESOLVED VAR!"
 to-java: VarRef(n{[Var()|_]}) -> <strip-annos>n
+to-java: VarRef(n{[Field()|_]}) -> <strip-annos>n
 to-java: VarRef(n{[MetaPart()|_]}) -> $[MetaPart.[<strip-annos>n]]
 
-to-java: PayloadRef(p,n) -> n
+to-java: PayloadRef(var,n) ->$[[<to-java>var].[n]]
 to-java: Par(e) -> $[ ([<to-java>e]) ]
 
 to-java: Const(n) -> $[MfController.[n]]
@@ -258,21 +263,17 @@ to-java: NbsFilter(name,val) -> $[.nbsFilter[<to-upper-first>name]([<to-java>val
 to-java: Packet(p) -> $[Packet[p]]
 
 
-to-java: Unicast(p@Packet(packet),AssignList(assigns),dests,rate) -> $[
-	if (ctrl.freqLimit("[packet]",[<compile-rate>rate])) {
+to-java-stat: Unicast(p@Packet(packet),AssignList(assigns),dests) -> $[
+	if (ctrl.freqLimit("[packet]",mfConfig.getPropagationRate())) {
 		ctrl.unicast(([p'])new [p'](ctrl)[assigns'],[<to-java>dests]);
-	}
-	]
+	}]
 where
 	p' := <to-java>p;
 	assigns' := <map2str(to-java)>assigns
 
 
-compile-rate: Some(Rate(exp)) -> <to-java>exp
-compile-rate: None() -> $[true]
-
-to-java: AssignElem(var,val) -> $[.setVar("[<to-java>var]",[<to-java>val])]
-
+// to-java: AssignElem(var,val) -> $[.setVar("[<to-java>var]",[<to-java>val])]
+to-java: AssignElem(PayloadRef(Packet(_),var),val) -> $[.setVar("[var]",[<to-java>val])]
 
 
 
@@ -286,11 +287,11 @@ to-java: Color(c) -> $[Color.[c]]
 
 	
 to-java: MetaPart(n) -> $[[n],]
+to-java: MetaPartNoneRef(_) -> $[MetaPart.NONE]
 
-to-java: FieldDecl(t,n) -> $[[<to-java>t] [n];
-]
-to-java: PayloadDecl(t,n) -> $[[<to-java>t] [n];
-]
+to-java: FieldDecl(t,n) -> $[public [<to-java>t] [n]]
+
+to-java: PayloadDecl(t,n) -> $[public [<to-java>t] [n]]
 
 
 
@@ -305,3 +306,7 @@ to-java: BorderLeft() -> $[BorderLine.LEFT]
 to-java: BorderRight() -> $[BorderLine.RIGHT]
 to-java: BorderTop() -> $[BorderLine.TOP]
 to-java: BorderBottom() -> $[BorderLine.BOTTOM] 	 
+
+
+// +1 because PacketDiscover has 0, and we can't do bitwise or on that
+to-debug: n -> $[pow2([n].getTypeNr() + 1)]

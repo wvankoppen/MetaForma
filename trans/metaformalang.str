@@ -165,13 +165,13 @@ rules // Debugging
       filename := <guarantee-extension(|"index.global.aterm")> path;
       index-setup(|<language>, [project-path], $[[project-path]/[path]]);
       
-      <strip-annos><project-name>ast => name;
-      evhdlrs := <index-get-evhdlrs>name;
-      packets := <index-get-packets>name;
+      <strip-annos><project-name>ast => prog;
+      evhdlrs := <index-get-evhdlrs(|prog)>;
+      packets := <index-get-packets(|prog)>;
       
-      cons := [VisItem(),Group(),Class(),Sequence(),MetaPart(),Const()];
+      cons := [VisItem(),Group(),Class(),Sequence(),MetaPart(),Const(),DebugItem()];
       
-      data := <flatten-list>[packets|[evhdlrs|<map(index-getcons(|name))>cons]]
+      data := <flatten-list>[packets|[evhdlrs|<map(index-getcons(|prog))>cons]]
       
       
             
@@ -222,18 +222,18 @@ rules // Utility
 		(selected, position, ast, path, project-path) -> (filename, controller)
 		with
 			<debug>"Generate direct Java code";
-			<project-name>ast => name;
-			<guarantee-extension(|"java")> $[[name]Controller] => filename ;
+			<project-name>ast => program;
+			<guarantee-extension(|"java")> $[[program]Controller] => filename ;
 			<base-filename> path => javafile;
 			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
 			
 			
-			packets := <index-get-packets>name;
-			packets-all :=  [PacketDecl("Packet",0,[])|<index-get-packets>name];
+			packets := <index-get-packets(|program)>;
+			packets-all :=  <index-get-packets-names(|program)>;
 			
 			<debug>"##############################";
 			<debug>"COMPILE PACKETRECEIVES";
-			java-packetreceives := <map2str(compile-packetreceive(|name))>packets-all;
+			java-packetreceives := <map2str(compile-packetreceive(|program))>packets-all;
 			
 			<debug>"##############################";
 			<debug>"COMPILE PACKETS";
@@ -242,30 +242,30 @@ rules // Utility
 			
 			<debug>"##############################";
 			<debug>"COMPILE SEQUENCES";
-			seqs := <index-getcons(|name)>Sequence();
+			seqs := <index-getcons(|program)>Sequence();
 			java-seqs := <map2str(compile)>seqs;
 			
 			<debug>"##############################";
 			<debug>"COMPILE CLASSES";
-			java-classes := <map2str(compile)><debug(!"Classes:")><index-getcons(|name)>Class();
+			java-classes := <map2str(compile)><debug(!"Classes:")><index-getcons(|program)>Class();
 			
 			<debug>"##############################";
 			debug(!"COMPILE VISUALS");
-			java-visuals := <map2str(to-java)><debug(!"Visuals:")><index-getcons(|name)>VisItem();
-			
+			java-visuals := <map2str(to-java)><debug(!"Visuals:")><index-getcons(|program)>VisItem();
+			java-debug := <concat-glue(|" | ")><map(project-name;packet-name;to-debug)><debug(!"DebugItems:")><list-breakout><index-getcons(|program)>DebugItem();
 			
 			<debug>"##############################";
 			debug(!"COMPILE CONSTS");
-			java-consts := <map2str(to-java)><debug(!"Consts:")><index-getcons(|name)>Const();
+			java-consts := <map2str(to-java)><debug(!"Consts:")><index-getcons(|program)>Const();
 			
 			<debug>"##############################";
 			debug(!"COMPILE NAMES");
-			names-metapart := <concat-glue(|",")><map(project-name)><index-getcons(|name)>MetaPart();
-			names-sequence := <concat-glue(|",")><map(project-name)>seqs;
-			names-group := <concat-glue(|",")><map(project-name)><index-getcons(|name)>Group();
-			names-mod :=  <map2str(to-java)><index-getcons(|name)>Group();
+			names-metapart := <concat-glue(|",")><map(project-name)><index-getcons(|program)>MetaPart();
+			names-sequence := <concat-glue(|",")><filter(not(is-prim-seq))><map(project-name)>seqs;
+			names-group := <concat-glue(|",")><map(project-name)><index-getcons(|program)>Group();
+			names-mod :=  <map2str(to-java)><index-getcons(|program)>Group();
 			
-			name-l := <lower-case>name;
+			name-l := <lower-case>program;
 			
 			dt := "<What date function to use?>";
 			
@@ -292,18 +292,18 @@ import ussr.samples.atron.simulations.metaforma.lib.constant.*;
 import ussr.samples.atron.simulations.metaforma.lib.iface.*;
 
 
-class <name>Simulation extends MfSimulation {
+class <program>Simulation extends MfSimulation {
 
 	public static void main(String[] args) {
 		MfSimulation.initSimulator();		
-		new <name>Simulation().main();
+		new <program>Simulation().main();
 	
 	}
 
 	protected Robot getRobot() {
 		ATRON a = new ATRON() {
 			public Controller createController() {
-				return new <name>Controller();
+				return new <program>Controller();
 			}
 		};
 		a.setRubberRing();
@@ -312,19 +312,19 @@ class <name>Simulation extends MfSimulation {
 	}
 
 	protected ArrayList$<$ModulePosition$>$ buildRobot() {
-		return new MfBuilder().buildCar(4,Mod.X);
+		return new MfBuilder().buildGrid(Mod.X);
 	}
 	
 	protected void changeWorldHook(WorldDescription world) {
-        ObstacleGenerator generator = new ObstacleGenerator();
-        generator.obstacalize(ObstacleGenerator.ObstacleType.LINE, world);
-        world.setPlaneTexture(WorldDescription.GREY_GRID_TEXTURE);
+        // ObstacleGenerator generator = new ObstacleGenerator();
+        // generator.obstacalize(ObstacleGenerator.ObstacleType.LINE, world);
+        // world.setPlaneTexture(WorldDescription.GREY_GRID_TEXTURE);
     }
 }
 		
 <java-packets>
 				
-public class <name>Controller extends MfController implements ControllerInformationProvider {
+public class <program>Controller extends MfController implements ControllerInformationProvider {
 	
 	<java-consts>
 	
@@ -360,7 +360,7 @@ public class <name>Controller extends MfController implements ControllerInformat
 	private BagMeta meta; 
 	private BagRegion region;
 	
-	private <name>Controller ctrl;
+	private <program>Controller ctrl;
 	
 
 	public void init() {		
@@ -382,10 +382,7 @@ public class <name>Controller extends MfController implements ControllerInformat
 		
 		<java-visuals>
 		
-		
-	
-		
-		mfVisual.setMessageFilter(255);//^ pow2(PacketDiscover.getTypeNr()));		
+		mfVisual.setMessageFilter(0+<java-debug>);//^ pow2(PacketDiscover.getTypeNr()));		
 	}
 
 	

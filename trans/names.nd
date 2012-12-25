@@ -40,14 +40,18 @@ namespaces
 	Payload
 	Program
 	VisItem
-	VisGroup
+	// VisGroup
 	EventHandler
 	Const
+	DebugItem
 	
 rules
 	
-	VisGroup(n,g):
-		defines VisGroup n
+	// VisGroup(n,g):
+	// 	defines VisGroup n
+		
+	DebugItem(n,packets):
+		defines DebugItem n
 		
 	VisItem(n,g,ref,color):
 		defines VisItem n
@@ -61,7 +65,7 @@ rules
 	
 	Program(n,_,_,_):
 		defines non-unique Program n
-		scopes Group, Packet, Class, Sequence,/*Function,*/MetaPart,EventHandler,VisItem,Const
+		scopes Group, Packet, Class, Sequence,/*Function,*/MetaPart,EventHandler,VisItem,Const,DebugItem
 
 	Group(n,_) :
 		defines Group n of type Group()
@@ -73,11 +77,11 @@ rules
 	Group(n) :
 	 	defines Group n
 	 
-	Sequence (SequencePrimRef(n),_,_,_,_,_):
-		defines Sequence n	
-		scopes Packet,Var,Instruction,EventHandler
+	// Sequence (SequencePrimRef(n),_,_,_,_,_):
+	// 	defines Sequence n	
+	// 	scopes Packet,Var,Instruction,EventHandler
 		
-	Sequence (SequenceRef(n),_,_,_,_,_):
+	Sequence (n,_,_,_,_,_):
 		defines Sequence n	
 		scopes Packet,Var,Instruction,EventHandler
 		
@@ -88,12 +92,11 @@ rules
 		
 
 
-		
 	SequenceRef(n):
-		refers to Sequence n
+		refers to Sequence n	
 		
-	SequencePrimRef(n):
-		refers to Sequence n
+	// SequencePrimRef(n):
+	// 	refers to Sequence n
 		
 	PacketDecl (n,_):
 		defines Packet n of type Packet(n)
@@ -112,10 +115,14 @@ rules
 		refers to Packet p
 		defines Var n
 		
+ // NO, no refs to PacketPrim!
+		
 	EvHdlr(n,Receive (VarDecl(Packet(p),n)),_,_):
 		refers to Packet p
 		defines Var n 
-		scopes Payload,Field,Var
+		scopes Payload,Field,Var	
+	
+	
 	
 	
 	
@@ -125,7 +132,7 @@ rules
 		defines Function n
 		scopes Payload,Field,Var
 		
-	Unicast(Packet(p),_,_,_):
+	Unicast(Packet(p),_,_):
 		refers to Packet p
 		
 	

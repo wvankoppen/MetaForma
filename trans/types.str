@@ -53,13 +53,26 @@ rules
 	
 	type-of: Def(uri) ->  <index-get-data(|Type())> Def(uri)
 	
+	type-of: NbsCount(_) -> Byte()
+	type-of: Int(i) -> Int()
+	
+	type-of: Not(_) -> Boolean()
+	type-of: Bool(_) -> Boolean()
+	type-of: MetaPartNoneRef(_) -> MetaPart()
+	
+	type-of: BinOp(_,e1,e2) -> t1 
+	where 
+		t1 := <type-of>e1;
+		t2 := <type-of>e2;
+		<eq>(t1,t2)
+	
 	print-type = 
     switch id
       case ?Void() : !"void"
-      case ?Int() : !"int"
-      case ?Float() : !"float"
-      case ?MetaPart() : !"meta-part"
-      case ?Byte() : !"byte"
+      case ?Int() : !"Integer"
+      case ?Float() : !"Float"
+      case ?MetaPart() : !"MetaPart"
+      case ?Byte() : !"Byte"
       case ?Class(c) : !$[Class [c]]
       case ?name#(_) : !$[[name]]
       otherwise : id

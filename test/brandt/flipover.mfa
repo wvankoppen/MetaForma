@@ -7,15 +7,15 @@ group Outside
 
 
 sequence FlipOver {
-	byte HALF;
-	byte QUART;
+	int HALF;
+	int QUART;
 	
 	
 	module.gradientInit();
 	module.gradientPropagate();
 
 	do  {
-		if (gradPri == 0 && module.gradSec < 3 || module.gradSec==0 && module.gradPri<3) { 
+		if (module.gradPri == 0 && module.gradSec < 3 || module.gradSec==0 && module.gradPri<3) { 
 			module.group = @Outside;
 		}
 		if (module.gradPri > 0 && module.gradSec > 0) { 

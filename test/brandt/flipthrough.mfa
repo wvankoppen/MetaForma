@@ -2,10 +2,10 @@ program Brandt
 
 group UpLifter [Top,Bottom,Left,Right]
 group Dummy [Left,Right]
-
+ 
 sequence FlipThrough {
-	byte QUART;
-	byte HALF;
+	int QUART;
+	int HALF;
 	
 	module.gradientInit();
 	module.gradientPropagate();
@@ -41,7 +41,7 @@ sequence FlipThrough {
 		rotate(@UpLifter.Bottom, HALF);
 	} 
 	
-	connect(@X, @UpLifter);	
+	connect(@*, @UpLifter);	
 	
 	region.finish();	
 }

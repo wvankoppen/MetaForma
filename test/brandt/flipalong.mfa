@@ -2,15 +2,15 @@ program Brandt
 group Clover [North,South,West,East]
 
 sequence FlipAlong  {
-	byte QUART; 
-	byte HALF;
+	int QUART; 
+	int HALF;
 	
 	if (orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
 		QUART = -90;
 		HALF = -180;
 	}
 	else {
-		QUART = 90;
+		QUART = 90; 
 		HALF = 180;
 	}
 	
@@ -20,11 +20,11 @@ sequence FlipAlong  {
 
 		
 	do {		
-		if (gradPri==3 && gradSec==0) module.id = @Clover.West;
-		if (gradPri==2 && gradSec==0) module.id = @Clover.South;
-		if (gradPri==3 && gradSec==1) module.id = @Clover.North;
-		if (gradPri==2 && gr2adSec==1) module.id = @Clover.East;
-		module.isRef = (gradPri == 0 && gradSec == 3);
+		if (module.gradPri==3 && module.gradSec==0) module.id = @Clover.West;
+		if (module.gradPri==2 && module.gradSec==0) module.id = @Clover.South;
+		if (module.gradPri==3 && module.gradSec==1) module.id = @Clover.North;
+		if (module.gradPri==2 && module.gradSec==1) module.id = @Clover.East;
+		module.isRef = (module.gradPri == 0 && module.gradSec == 3);
 	}
 			 
 	
@@ -46,7 +46,7 @@ sequence FlipAlong  {
 	rotate(@Clover.North,QUART);
 	connect(@Clover.South,@Clover.West);
 	
-	module.fixSymmetry(isRef);
+	module.fixSymmetry(module.isRef);
 	
 	// do {
 	// 	when (receive (Symmetry p)) {

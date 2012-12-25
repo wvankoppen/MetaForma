@@ -63,7 +63,6 @@ lexical syntax
 	"min"			-> FuncPrimRef
 	"pow2"			-> FuncPrimRef
 	
-	%% FuncPrimRef -> ID{reject}
 
 	
 	

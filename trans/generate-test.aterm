@@ -1,8 +1,0 @@
-Module(
-  "generate-test"
-, [ Imports([Import("libstratego-lib"), Import("libjava-front")])
-  , Strategies(
-      [SDefT("generate"{31443}, [], [], Build(ToMetaExpr([])))]
-    )
-  ]
-)

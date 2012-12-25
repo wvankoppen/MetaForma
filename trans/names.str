@@ -39,24 +39,24 @@ signature
     Payload      : Namespace
     Program      : Namespace
     VisItem      : Namespace
-    VisGroup     : Namespace
     EventHandler : Namespace
     Const        : Namespace
+    DebugItem    : Namespace
 
 
 rules
 
   nam-get-definition-keys :
-    VisGroup(n, g) -> [n]
+    DebugItem(n, packets) -> [n]
 
   nam-get-definitions :
-    VisGroup(n, g) -> [(VisGroup(), [n])]
+    DebugItem(n, packets) -> [(DebugItem(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    VisGroup(n, g) -> <VisGroup(nam-annotate-def(|path__), id)>
+    DebugItem(n, packets) -> <DebugItem(nam-annotate-def(|path__), id)>
 
   nam-unique :
-    VisGroup(n, g) -> <id>
+    DebugItem(n, packets) -> <id>
 
 
 rules
@@ -118,6 +118,7 @@ rules
                            , EventHandler()
                            , VisItem()
                            , Const()
+                           , DebugItem()
                            ]
 
   nam-get-definition-keys :
@@ -201,59 +202,23 @@ rules
 rules
 
   nam-get-scope-types :
-    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [ Packet()
-                                                   , Var()
-                                                   , Instruction()
-                                                   , EventHandler()
-                                                   ]
+    Sequence(n, _, _, _, _, _) -> [ Packet()
+                                  , Var()
+                                  , Instruction()
+                                  , EventHandler()
+                                  ]
 
   nam-get-definition-keys :
-    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [n]
+    Sequence(n, _, _, _, _, _) -> [n]
 
   nam-get-definitions :
-    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [(Sequence(), [n])]
+    Sequence(n, _, _, _, _, _) -> [(Sequence(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Sequence(SequencePrimRef(n), _, _, _, _, _) -> <Sequence(
-                                                      SequencePrimRef(nam-annotate-def(|path__))
-                                                    , id
-                                                    , id
-                                                    , id
-                                                    , id
-                                                    , id
-                                                    )>
+    Sequence(n, _, _, _, _, _) -> <Sequence(nam-annotate-def(|path__), id, id, id, id, id)>
 
   nam-unique :
-    Sequence(SequencePrimRef(n), _, _, _, _, _) -> <id>
-
-
-rules
-
-  nam-get-scope-types :
-    Sequence(SequenceRef(n), _, _, _, _, _) -> [ Packet()
-                                               , Var()
-                                               , Instruction()
-                                               , EventHandler()
-                                               ]
-
-  nam-get-definition-keys :
-    Sequence(SequenceRef(n), _, _, _, _, _) -> [n]
-
-  nam-get-definitions :
-    Sequence(SequenceRef(n), _, _, _, _, _) -> [(Sequence(), [n])]
-
-  nam-annotate-names(|paths__, path__):
-    Sequence(SequenceRef(n), _, _, _, _, _) -> <Sequence(
-                                                  SequenceRef(nam-annotate-def(|path__))
-                                                , id
-                                                , id
-                                                , id
-                                                , id
-                                                , id
-                                                )>
-
-  nam-unique :
-    Sequence(SequenceRef(n), _, _, _, _, _) -> <id>
+    Sequence(n, _, _, _, _, _) -> <id>
 
 
 rules
@@ -284,18 +249,6 @@ rules
 
   nam-annotate-names(|paths__, path__):
     SequenceRef(n) -> <SequenceRef(nam-annotate-use(|paths__, Sequence()))>
-
-
-rules
-
-  nam-get-uses-keys :
-    SequencePrimRef(n) -> [n]
-
-  nam-get-uses :
-    SequencePrimRef(n) -> [(Sequence(), [n])]
-
-  nam-annotate-names(|paths__, path__):
-    SequencePrimRef(n) -> <SequencePrimRef(nam-annotate-use(|paths__, Sequence()))>
 
 
 rules
@@ -442,18 +395,17 @@ rules
 rules
 
   nam-get-uses-keys :
-    Unicast(Packet(p), _, _, _) -> [p]
+    Unicast(Packet(p), _, _) -> [p]
 
   nam-get-uses :
-    Unicast(Packet(p), _, _, _) -> [(Packet(), [p])]
+    Unicast(Packet(p), _, _) -> [(Packet(), [p])]
 
   nam-annotate-names(|paths__, path__):
-    Unicast(Packet(p), _, _, _) -> <Unicast(
-                                      Packet(nam-annotate-use(|paths__, Packet()))
-                                    , id
-                                    , id
-                                    , id
-                                    )>
+    Unicast(Packet(p), _, _) -> <Unicast(
+                                   Packet(nam-annotate-use(|paths__, Packet()))
+                                 , id
+                                 , id
+                                 )>
 
 
 rules

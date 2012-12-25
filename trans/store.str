@@ -35,18 +35,19 @@ rules
 	
 	
 	adjust-index-def-data(store-results|namespace, path): 
-		term@EvHdlr(_{[EventHandler(), _, program]}, Receive(PacketVarDecl(p@Packet(_),_)), _, _) -> <store-results> DefData([EventHandler(), <strip-annos>p, program], EventHandler(), term)
+		term@EvHdlr(_{uri}, Receive(PacketVarDecl(packet,_)), _, _) -> <store-results> DefData([EventHandler(), packet-name,program], EventHandler(), term)
+		where
+			program := <project-program>uri;
+			packet-name := <project-name>packet
 
+	project-program: [EventHandler(), _, p] -> p
+	project-program: [EventHandler(), _,_, p] -> p
+	project-program: [EventHandler(), _,_,_, p] -> p
 		
+	
 	adjust-index-def-data(store-results|namespace, path): 
-		term@EvHdlr(_{[EventHandler(), _, _,  program]}, Receive(PacketVarDecl(p@Packet(_),_)), _, _) -> <store-results> DefData([EventHandler(), <strip-annos>p, program], EventHandler(), term)
-
+		term@DebugItem(ShowPackets(){[DebugItem(), _, program]}, packets) -> <store-results> DefData([DebugItem(), program], DebugItem(), packets)	
 		
-	adjust-index-def-data(store-results|namespace, path): 
-		term@EvHdlr(_{[EventHandler(), _, _, _,  program]},Receive(PacketVarDecl(p@Packet(_),_)), _, _) -> <store-results> DefData([EventHandler(), <strip-annos>p, program], EventHandler(), term)	
-
-	
-	
 		
 	adjust-index-def-data(store-results|namespace, path): 
 		term@VisItem(_{[VisItem(), _, program]}, _, _, _) -> <store-results> DefData([VisItem(), program], VisItem(), term)
@@ -74,10 +75,10 @@ rules
 	
 		
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Sequence(SequencePrimRef(_{[Sequence(), name, program]}),_,_,_,_,_) -> <store-results> DefData([Sequence(), program], Sequence(), term)
+		term@Sequence(SequencePrimRef(_){[Sequence(), name, program]},_,_,_,_,_) -> <store-results> DefData([Sequence(), program], Sequence(), term)
 	
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Sequence(SequenceRef(_{[Sequence(), name, program]}),_,_,_,_,_) -> <store-results> DefData([Sequence(), program], Sequence(), term)
+		term@Sequence(_{[Sequence(), name, program]},_,_,_,_,_) -> <store-results> DefData([Sequence(), program], Sequence(), term)
 			
 		
 	adjust-index-def-data(store-results|namespace, path): 
@@ -96,7 +97,7 @@ rules
 	adjust-index-def-data(store-results|namespace, path):
        decl -> <store-results> DefData([namespace|path], Type(), type)
         where
-          type := <debug(!$[Store type:])><type-of> decl	
+          type := <type-of> decl	
 		
 		
 	
@@ -111,21 +112,23 @@ rules
        	 
      swap-counter: (i,PacketDecl(n,decls)) -> PacketDecl(n,i,decls)
         
-    index-get-packets: name-> <packet-add-numbers><index-getcons(|name)>Packet()
+    index-get-packets(|prog) = !<packet-add-numbers><index-getcons(|prog)>Packet()
    
-   index-getcons(|name): type -> values
+   index-get-packets-names(|prog) = !["Packet"|<map(project-name)><index-get-packets(|prog)>]
+   
+   
+   index-getcons(|prog): cons -> values
    where   
-     <desugar-all-nbl><index-get-all-values> DefData([type, <strip-annos> name], type, ()) => values
+     <desugar-all-nbl><index-get-all-values> DefData([cons, <strip-annos> prog], cons, ()) => values
   
-  index-get-evhdlrs: name -> values
-  where            
-  	<flatten-list><map(project-name;index-get-evhdlr(|name))><index-get-packets>name => values
+   
+   index-get-evhdlrs(|prog) = !<flatten-list><map(index-get-evhdlr-packet(|prog))><index-get-packets-names(|prog)>
+   
   
   
-  
-  index-get-evhdlr(|name): packet -> values
+  index-get-evhdlr-packet(|prog): packet-name -> values
    where   
-     <desugar-all-nbl><index-get-all-values> DefData([EventHandler(), Packet(<strip-annos>packet), <strip-annos> name], EventHandler(), () ) => values
+     <map(desugar-all-nbl)><index-get-all-values> DefData([EventHandler(), <strip-annos> packet-name,prog], EventHandler(), () ) => values
       
         
     

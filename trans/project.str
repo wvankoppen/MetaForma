@@ -21,16 +21,24 @@ imports
 	
 rules
 	project-name: Program(n,_,_,_) -> <strip-annos>n
-	project-name: Sequence(state,_,_,_,_,_) -> <project-name>state
+	project-name: Sequence(n,_,_,_,_,_) -> <strip-annos>n
 	project-name: SequenceRef(n) -> <strip-annos>n
 	project-name: SequencePrimRef(n) -> <strip-annos>n
 	project-name: MetaPart(n) -> <strip-annos>n
 	project-name: PacketDecl(n,_) -> <strip-annos>n
 	project-name: PacketDecl(n,_,_) -> <strip-annos>n
+	project-name: Packet(n) -> <strip-annos>n
+	project-name: PacketPrim(n) -> <strip-annos>n
 	project-name: PayloadDecl(t,n) -><strip-annos> n
 	project-name: Group(n,_) -><strip-annos> n
 	project-name: Group(n) -><strip-annos> n
 
+	 packet-name: "Packet" -> "PacketBase"
+ 	 packet-name: packet -> $[Packet[packet]] where not (<eq>(packet,"Packet"))
+
 	get-sequences: (p,index) -> Def([State(), n, p])
 	where
 		n := <project-name>
+		
+		
+	list-breakout: [list] -> list

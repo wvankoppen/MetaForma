@@ -13,19 +13,19 @@ sorts	Group MetaClass RotateContinuous
   
     Start
  
- 
-
- 
- 
   context-free syntax
   %% Definition:  INDIRECT code generation
   %% Declaration: DIRECT code generation
   
-   "program" ID Visualize? Definition* Declaration*						-> Start {"Program"}
+   "program" ID Debug? Definition* Declaration*						-> Start {"Program"}
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %% Visualisation
+    %% Debug and visualisation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    "debug" "{" ShowPackets? Visualize? "}" -> Debug{"Debug"}
+    "show" "[" {PacketRef ","}* "]" ";"	-> ShowPackets{"ShowPackets"}
+    
     "visualize" "{" VisGroup*"}" -> Visualize {"Visualize"}
     ID "{" VisItem* "}" 		 -> VisGroup{"VisGroup"}
 	ModHolderOrSeqRef ":" ColorRef ";" -> VisItem{"VisItem"}
@@ -51,10 +51,10 @@ sorts	Group MetaClass RotateContinuous
 	
 	Direction ":" Exp ";" -> BorderItem{"BorderItem"}
 	
-	"left" -> Direction{"BorderLeft"}
-	"right" -> Direction{"BorderRight"}
-	"top" -> Direction{"BorderTop"} 
-	"bottom" -> Direction{"BorderBottom"}  
+	"left" 		-> Direction{"BorderLeft"}
+	"right" 	-> Direction{"BorderRight"}
+	"top" 		-> Direction{"BorderTop"} 
+	"bottom" 	-> Direction{"BorderBottom"}  
 	
 	"meta" 							-> Meta{"Meta"}
 	"module"						-> Module{"Module"}
@@ -65,7 +65,6 @@ sorts	Group MetaClass RotateContinuous
 	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{"FuncDecl"}
 	
 	Type ID 			-> ParamListElem{"Param"}
-	%% ID					-> Type{avoid}
 	
 	"packet" ID "{" PayloadDecl* "}" 					-> Definition{"PacketDecl"}
 	FuncDecl 											-> Declaration
@@ -80,15 +79,21 @@ sorts	Group MetaClass RotateContinuous
 	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{"MetaPartDecl"}
 	ID 									-> MetaPart{"MetaPart"}
 	
+	
+	"None" -> ID{reject}
+	
+	MetaPartNoneRef 					-> Exp{"MetaPartNoneRef"}
+	
 	ID 									-> Ref{"VarRef"}
 	ID 									-> PayloadRef{"PayloadRef"}
 	
 	PayloadRef "=" Exp					-> AssignElem{"AssignElem"}
 	{AssignElem ","}*					-> AssignList{"AssignList"} 
-	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{"Unicast"}
+	%% "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{"Unicast"}
+	"unicast" PacketRef "(" AssignList ")" "to" Nbs  ";" -> Stmt{"Unicast"}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{"Receive"}
 	
-	"sequence" SequenceRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{"Sequence"}
+	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{"Sequence"}
 	
 	
 	EvHdlr										 -> Definition
@@ -158,13 +163,22 @@ sorts	Group MetaClass RotateContinuous
 	"break" ";"	-> Stmt{"Break"}
 	
 	lexical syntax
+		
+	%% We define these as lexical syntax such that Spoofax does not see it as a keyword and thus make it bold
+		
 	"stop" -> Stop
 	"rotate_continuous" -> RotateContinuous	
 	"rotate" -> Rotate
 	"disconnect" -> Disconnect
 	"connect" -> Connect
 	
+	"None"	-> MetaPartNoneRef
 	"Packet" -> PacketPrim
+	"Discover" -> PacketPrim
+	"Consensus" -> PacketPrim
+	"MetaVarSync" -> PacketPrim
+	"Region" -> PacketPrim
+	"Symmetry" -> PacketPrim
 
 	context-free syntax
 		
@@ -173,11 +187,11 @@ sorts	Group MetaClass RotateContinuous
 	Exp 			-> ModHolderOrExp
 	ModHolderRef 	-> ModHolderOrExp
 	
-	"wait" "(" Stop ")" ";" -> StopCondition {"Wait"}
-	"until" "(" Stop ")" ";" -> StopCondition{"Until"}
+	"wait" "(" StopCondition ")" ";" -> InstrPost {"Wait"}
+	"until" "(" StopCondition ")" ";" -> InstrPost{"Until"}
 	
-	"consensus" "(" ")" 	-> Stop {"Consensus"}
-	Exp						-> Stop	
+	"consensus" "(" ")" 	-> StopCondition {"Consensus"}
+	Exp						-> StopCondition	
 	
 	
 	ID -> FuncRef{"FuncRef"}
@@ -194,6 +208,12 @@ sorts	Group MetaClass RotateContinuous
 	
 	SequencePrim						-> SequenceRef{"SequencePrimRef",prefer}
 	ID		 							-> SequenceRef{"SequenceRef"}
+	
+	%% Because we need to include SequenceName in the URI in NBL
+	%% SequencePrim						-> SequenceName{"SequencePrimName",prefer}
+	%% ID		 							-> SequenceName{"SequenceName"}
+	%% 
+	%% Oops: Constructors in de URI are not supported!
 
 	
 	
@@ -218,11 +238,12 @@ sorts	Group MetaClass RotateContinuous
 	
 	lexical syntax
 	"id" 		-> ModuleFieldID 
-	"id" 		-> MetaFieldID
+	%% "id" 		-> MetaFieldID
 	"metaID" 	-> ModuleFieldID
 	"group" 	-> ModuleFieldID
 	"metaPart" 	-> ModuleFieldID
 	
+	"id" 		-> MetaFieldID
 	"regionID" 	-> MetaFieldID
 	"size" 		-> MetaFieldID
 	
@@ -234,6 +255,7 @@ sorts	Group MetaClass RotateContinuous
 	
 	"proximity"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
+	"create"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
 	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
@@ -259,14 +281,15 @@ sorts	Group MetaClass RotateContinuous
 	
 		FuncRef  "(" {Exp "," }* ")" ";"	-> Stmt{"FuncCall"}
 		FuncRef  "(" {Exp "," }* ")"   		-> Exp{"FuncCall"}
-	FuncPrimRef "(" {Exp "," }* ")" ";"		-> Stmt{"FuncPrimCall"}
-	FuncPrimRef "(" {Exp "," }* ")" 		-> Exp{"FuncPrimCall"}
+	FuncPrimRef2 "(" {Exp "," }* ")" ";"		-> Stmt{"FuncCall"}
+	FuncPrimRef2 "(" {Exp "," }* ")" 		-> Exp{"FuncCall"}
+	
+	FuncPrimRef -> FuncPrimRef2{"FuncPrimRef"}
 	
 	
-	
-	FuncPrimRef -> FuncRef{reject}
+	FuncPrimRef 	-> FuncRef{reject}
 
-	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition  -> Instr{"Instr",prefer}
+	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" InstrPost  -> Instr{"Instr",prefer}
 
 	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{"Instr"}
 	

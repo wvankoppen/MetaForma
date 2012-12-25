@@ -64,7 +64,6 @@ lexical syntax
 	"min"			-> FuncPrimRef
 	"pow2"			-> FuncPrimRef
 	
-	%% FuncPrimRef -> ID{reject}
 
 	
 	
@@ -213,11 +212,15 @@ sorts	Group MetaClass RotateContinuous
   %% Definition:  INDIRECT code generation
   %% Declaration: DIRECT code generation
   
-   "program" ID Visualize? Definition* Declaration*						-> Start {cons("Program")}
+   "program" ID Debug? Definition* Declaration*						-> Start {cons("Program")}
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Visualisation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    "debug" "{" ShowPackets? Visualize? "}" -> Debug{cons("Debug")}
+    "show" "[" {PacketRef ","}* "]" ";"	-> ShowPackets{cons("ShowPackets")}
+    
     "visualize" "{" VisGroup*"}" -> Visualize {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
 	ModHolderOrSeqRef ":" ColorRef ";" -> VisItem{cons("VisItem")}
@@ -272,15 +275,21 @@ sorts	Group MetaClass RotateContinuous
 	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
 	ID 									-> MetaPart{cons("MetaPart")}
 	
+	
+	"None" -> ID{reject}
+	
+	MetaPartNoneRef 					-> Exp{cons("MetaPartNoneRef")}
+	
 	ID 									-> Ref{cons("VarRef")}
 	ID 									-> PayloadRef{cons("PayloadRef")}
 	
 	PayloadRef "=" Exp					-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*					-> AssignList{cons("AssignList")} 
-	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{cons("Unicast")}
+	%% "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{"Unicast"}
+	"unicast" PacketRef "(" AssignList ")" "to" Nbs  ";" -> Stmt{cons("Unicast")}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
 	
-	"sequence" SequenceRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("Sequence")}
+	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("Sequence")}
 	
 	
 	EvHdlr										 -> Definition
@@ -350,13 +359,22 @@ sorts	Group MetaClass RotateContinuous
 	"break" ";"	-> Stmt{cons("Break")}
 	
 	lexical syntax
+		
+	%% We define these as lexical syntax such that Spoofax does not see it as a keyword and thus make it bold
+		
 	"stop" -> Stop
 	"rotate_continuous" -> RotateContinuous	
 	"rotate" -> Rotate
 	"disconnect" -> Disconnect
 	"connect" -> Connect
 	
+	"None"	-> MetaPartNoneRef
 	"Packet" -> PacketPrim
+	"Discover" -> PacketPrim
+	"Consensus" -> PacketPrim
+	"MetaVarSync" -> PacketPrim
+	"Region" -> PacketPrim
+	"Symmetry" -> PacketPrim
 
 	context-free syntax
 		
@@ -365,11 +383,11 @@ sorts	Group MetaClass RotateContinuous
 	Exp 			-> ModHolderOrExp
 	ModHolderRef 	-> ModHolderOrExp
 	
-	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
-	"until" "(" Stop ")" ";" -> StopCondition{cons("Until")}
+	"wait" "(" StopCondition ")" ";" -> InstrPost {cons("Wait")}
+	"until" "(" StopCondition ")" ";" -> InstrPost{cons("Until")}
 	
-	"consensus" "(" ")" 	-> Stop {cons("Consensus")}
-	Exp						-> Stop	
+	"consensus" "(" ")" 	-> StopCondition {cons("Consensus")}
+	Exp						-> StopCondition	
 	
 	
 	ID -> FuncRef{cons("FuncRef")}
@@ -386,6 +404,12 @@ sorts	Group MetaClass RotateContinuous
 	
 	SequencePrim						-> SequenceRef{cons("SequencePrimRef"),prefer}
 	ID		 							-> SequenceRef{cons("SequenceRef")}
+	
+	%% Because we need to include SequenceName in the URI in NBL
+	%% SequencePrim						-> SequenceName{"SequencePrimName",prefer}
+	%% ID		 							-> SequenceName{"SequenceName"}
+	%% 
+	%% Oops: Constructors in de URI are not supported!
 
 	
 	
@@ -410,11 +434,12 @@ sorts	Group MetaClass RotateContinuous
 	
 	lexical syntax
 	"id" 		-> ModuleFieldID 
-	"id" 		-> MetaFieldID
+	%% "id" 		-> MetaFieldID
 	"metaID" 	-> ModuleFieldID
 	"group" 	-> ModuleFieldID
 	"metaPart" 	-> ModuleFieldID
 	
+	"id" 		-> MetaFieldID
 	"regionID" 	-> MetaFieldID
 	"size" 		-> MetaFieldID
 	
@@ -426,6 +451,7 @@ sorts	Group MetaClass RotateContinuous
 	
 	"proximity"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
+	"create"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
 	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
@@ -451,14 +477,15 @@ sorts	Group MetaClass RotateContinuous
 	
 		FuncRef  "(" {Exp "," }* ")" ";"	-> Stmt{cons("FuncCall")}
 		FuncRef  "(" {Exp "," }* ")"   		-> Exp{cons("FuncCall")}
-	FuncPrimRef "(" {Exp "," }* ")" ";"		-> Stmt{cons("FuncPrimCall")}
-	FuncPrimRef "(" {Exp "," }* ")" 		-> Exp{cons("FuncPrimCall")}
+	FuncPrimRef2 "(" {Exp "," }* ")" ";"		-> Stmt{cons("FuncCall")}
+	FuncPrimRef2 "(" {Exp "," }* ")" 		-> Exp{cons("FuncCall")}
+	
+	FuncPrimRef -> FuncPrimRef2{cons("FuncPrimRef")}
 	
 	
-	
-	FuncPrimRef -> FuncRef{reject}
+	FuncPrimRef 	-> FuncRef{reject}
 
-	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition  -> Instr{cons("Instr"),prefer}
+	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" InstrPost  -> Instr{cons("Instr"),prefer}
 
 	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
 
@@ -530,11 +557,15 @@ sorts	Group MetaClass RotateContinuous
   %% Definition:  INDIRECT code generation
   %% Declaration: DIRECT code generation
   
-   "program" ID Visualize? Definition* Declaration*						-> Start {cons("Program")}
+   "program" ID Debug? Definition* Declaration*						-> Start {cons("Program")}
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Visualisation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    "debug" "{" ShowPackets? Visualize? "}" -> Debug{cons("Debug")}
+    "show" "[" {PacketRef ","}* "]" ";"	-> ShowPackets{cons("ShowPackets")}
+    
     "visualize" "{" VisGroup*"}" -> Visualize {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
 	ModHolderOrSeqRef ":" ColorRef ";" -> VisItem{cons("VisItem")}
@@ -589,15 +620,21 @@ sorts	Group MetaClass RotateContinuous
 	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
 	ID 									-> MetaPart{cons("MetaPart")}
 	
+	
+	"None" -> ID{reject}
+	
+	MetaPartNoneRef 					-> Exp{cons("MetaPartNoneRef")}
+	
 	ID 									-> Ref{cons("VarRef")}
 	ID 									-> PayloadRef{cons("PayloadRef")}
 	
 	PayloadRef "=" Exp					-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*					-> AssignList{cons("AssignList")} 
-	"unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{cons("Unicast")}
+	%% "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{"Unicast"}
+	"unicast" PacketRef "(" AssignList ")" "to" Nbs  ";" -> Stmt{cons("Unicast")}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
 	
-	"sequence" SequenceRef "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("Sequence")}
+	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("Sequence")}
 	
 	
 	EvHdlr										 -> Definition
@@ -667,13 +704,22 @@ sorts	Group MetaClass RotateContinuous
 	"break" ";"	-> Stmt{cons("Break")}
 	
 	lexical syntax
+		
+	%% We define these as lexical syntax such that Spoofax does not see it as a keyword and thus make it bold
+		
 	"stop" -> Stop
 	"rotate_continuous" -> RotateContinuous	
 	"rotate" -> Rotate
 	"disconnect" -> Disconnect
 	"connect" -> Connect
 	
+	"None"	-> MetaPartNoneRef
 	"Packet" -> PacketPrim
+	"Discover" -> PacketPrim
+	"Consensus" -> PacketPrim
+	"MetaVarSync" -> PacketPrim
+	"Region" -> PacketPrim
+	"Symmetry" -> PacketPrim
 
 	context-free syntax
 		
@@ -682,11 +728,11 @@ sorts	Group MetaClass RotateContinuous
 	Exp 			-> ModHolderOrExp
 	ModHolderRef 	-> ModHolderOrExp
 	
-	"wait" "(" Stop ")" ";" -> StopCondition {cons("Wait")}
-	"until" "(" Stop ")" ";" -> StopCondition{cons("Until")}
+	"wait" "(" StopCondition ")" ";" -> InstrPost {cons("Wait")}
+	"until" "(" StopCondition ")" ";" -> InstrPost{cons("Until")}
 	
-	"consensus" "(" ")" 	-> Stop {cons("Consensus")}
-	Exp						-> Stop	
+	"consensus" "(" ")" 	-> StopCondition {cons("Consensus")}
+	Exp						-> StopCondition	
 	
 	
 	ID -> FuncRef{cons("FuncRef")}
@@ -703,6 +749,12 @@ sorts	Group MetaClass RotateContinuous
 	
 	SequencePrim						-> SequenceRef{cons("SequencePrimRef"),prefer}
 	ID		 							-> SequenceRef{cons("SequenceRef")}
+	
+	%% Because we need to include SequenceName in the URI in NBL
+	%% SequencePrim						-> SequenceName{"SequencePrimName",prefer}
+	%% ID		 							-> SequenceName{"SequenceName"}
+	%% 
+	%% Oops: Constructors in de URI are not supported!
 
 	
 	
@@ -727,11 +779,12 @@ sorts	Group MetaClass RotateContinuous
 	
 	lexical syntax
 	"id" 		-> ModuleFieldID 
-	"id" 		-> MetaFieldID
+	%% "id" 		-> MetaFieldID
 	"metaID" 	-> ModuleFieldID
 	"group" 	-> ModuleFieldID
 	"metaPart" 	-> ModuleFieldID
 	
+	"id" 		-> MetaFieldID
 	"regionID" 	-> MetaFieldID
 	"size" 		-> MetaFieldID
 	
@@ -743,6 +796,7 @@ sorts	Group MetaClass RotateContinuous
 	
 	"proximity"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
+	"create"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
 	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
@@ -768,13 +822,14 @@ sorts	Group MetaClass RotateContinuous
 	
 		FuncRef  "(" {Exp "," }* ")" ";"	-> Stmt{cons("FuncCall")}
 		FuncRef  "(" {Exp "," }* ")"   		-> Exp{cons("FuncCall")}
-	FuncPrimRef "(" {Exp "," }* ")" ";"		-> Stmt{cons("FuncPrimCall")}
-	FuncPrimRef "(" {Exp "," }* ")" 		-> Exp{cons("FuncPrimCall")}
+	FuncPrimRef2 "(" {Exp "," }* ")" ";"		-> Stmt{cons("FuncCall")}
+	FuncPrimRef2 "(" {Exp "," }* ")" 		-> Exp{cons("FuncCall")}
+	
+	FuncPrimRef -> FuncPrimRef2{cons("FuncPrimRef")}
 	
 	
-	
-	FuncPrimRef -> FuncRef{reject}
+	FuncPrimRef 	-> FuncRef{reject}
 
-	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" StopCondition  -> Instr{cons("Instr"),prefer}
+	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" InstrPost  -> Instr{cons("Instr"),prefer}
 
 	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{cons("Instr")}

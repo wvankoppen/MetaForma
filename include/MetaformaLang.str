@@ -3,6 +3,7 @@ module MetaformaLang
 signature
   constructors
                     : String -> STRING
+    FuncPrimRef     : FuncPrimRef -> FuncPrimRef2
     ModHolderAllRef : ModHolderRef
     ModHolderRef    : ID -> ModHolderRef
     ModHolderRef    : ID * ID -> ModHolderRef
@@ -15,26 +16,27 @@ signature
     MethodPrimRef   : Meta * MetaMethodRef -> MethodRef
     MethodRef       : SysObj * ID -> MethodRef
     FuncRef         : ID -> FuncRef
-    Until           : Stop -> StopCondition
-    Wait            : Stop -> StopCondition
+                    : Exp -> StopCondition
+    Consensus       : StopCondition
+    Until           : StopCondition -> InstrPost
+    Wait            : StopCondition -> InstrPost
     MetaFieldRef    : ID -> MetaFieldRef
     Mod             : ID -> Mod
     Group           : ID -> GroupDef
     Group           : ID * List(Mod) -> GroupDef
     Instr           : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) -> Instr
-    Instr           : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) * StopCondition -> Instr
+    Instr           : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) * InstrPost -> Instr
                     : Stmt -> Instr
     OrientRef       : ID -> OrientRef
     Block           : List(Stmt) -> Block
     Block           : Stmt -> Block
-    Rate            : Ref -> Rate
                     : Exp -> EventExp
     PacketPrim      : PacketPrim -> PacketRef
     Packet          : ID -> PacketRef
     If              : EventExp * List(VarDecl) * List(Stmt) -> EvHdlrSemi
     EvHdlr          : Receive * List(VarDecl) * List(Stmt) -> EvHdlr
     Receive         : PacketVarDecl -> Receive
-    FuncPrimCall    : FuncPrimRef * List(Exp) -> Stmt
+    FuncCall        : FuncPrimRef2 * List(Exp) -> Stmt
     FuncCall        : FuncRef * List(Exp) -> Stmt
     FuncCall        : MethodRef * List(Exp) -> Stmt
     Break           : Stmt
@@ -49,7 +51,7 @@ signature
     If              : Exp * Block -> Stmt
     IfElse          : Exp * Block * Block -> Stmt
     Assign          : Ref * Exp -> Stmt
-    Unicast         : PacketRef * AssignList * Nbs * Option(Rate) -> Stmt
+    Unicast         : PacketRef * AssignList * Nbs -> Stmt
     AssignList      : List(AssignElem) -> AssignList
     AssignElem      : PayloadRef * Exp -> AssignElem
     PayloadRef      : ID -> PayloadRef
@@ -65,7 +67,7 @@ signature
     PayloadDecl     : Type * ID -> PayloadDecl
     FieldDecl       : Type * ID -> FieldDecl
     VarDecl         : Type * ID -> VarDecl
-    Sequence        : SequenceRef * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(FuncDecl) * List(Instr) -> Declaration
+    Sequence        : ID * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(FuncDecl) * List(Instr) -> Declaration
                     : FuncDecl -> Declaration
     Param           : Type * ID -> ParamListElem
     FuncDecl        : Type * ID * List(ParamListElem) * List(Declaration) * List(Stmt) * Exp -> FuncDecl
@@ -93,7 +95,9 @@ signature
     VisItem         : ModHolderOrSeqRef * ColorRef -> VisItem
     VisGroup        : ID * List(VisItem) -> VisGroup
     Visualize       : List(VisGroup) -> Visualize
-    Program         : ID * Option(Visualize) * List(Definition) * List(Declaration) -> Start
+    ShowPackets     : List(PacketRef) -> ShowPackets
+    Debug           : Option(ShowPackets) * Option(Visualize) -> Debug
+    Program         : ID * Option(Debug) * List(Definition) * List(Declaration) -> Start
                     : String -> SequencePrim
                     : String -> ConfigFieldID
                     : String -> RegionMethodRef
@@ -103,12 +107,11 @@ signature
                     : String -> MetaFieldID
                     : String -> ModuleFieldID
                     : String -> PacketPrim
+                    : String -> MetaPartNoneRef
                     : String -> Connect
                     : String -> Disconnect
                     : String -> Rotate
                     : String -> RotateContinuous
-                    : Exp -> Stop
-    Consensus       : Stop
                     : String -> Stop
     MetaPart        : ID -> MetaPart
     NbsFilter       : ModHolderRef -> NbsFilter
@@ -127,10 +130,11 @@ signature
     Int             : Type
     Byte            : Type
     Boolean         : Type
-    FuncPrimCall    : FuncPrimRef * List(Exp) -> Exp
+    FuncCall        : FuncPrimRef2 * List(Exp) -> Exp
     FuncCall        : FuncRef * List(Exp) -> Exp
     FuncCall        : MethodRef * List(Exp) -> Exp
     OrientMatch     : List(OrientRef) -> Exp
+    MetaPartNoneRef : MetaPartNoneRef -> Exp
     OrBit           : Exp * Exp -> Exp
     AndBit          : Exp * Exp -> Exp
     Or              : Exp * Exp -> Exp

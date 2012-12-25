@@ -82,32 +82,32 @@ strategies
   swap-index: (index,fieldname) -> $[[fieldname] = payload$[$[index]$]$;]	
 	
 	
-  packet-name: "Packet" -> "PacketBase"
-  packet-name: packet -> $[Packet[packet]] where not (<eq>(packet,"Packet"))
+ 
   
 	 
- compile-packetreceive(|n): PacketDecl(packet,i,payloaddecls) -> $[
-  	public void receivePacket([<packet-name>packet] p) {
+ compile-packetreceive(|program): packet-name -> $[
+  	public boolean receivePacket([<packet-name>packet-name] p) {
+  		boolean handled = false;
   		[code]
+  		if (handled) {
+			mfVisual.print("handle [packet-name] " + p);	
+		} 
+		else {
+			mfVisual.print("reject [packet-name] " + p);
+		}
+  		return handled;
   	}
   ]
   where
   	<debug>"Compile packetreceive";
- 	 <index-get-evhdlr(|n)> <strip-annos>packet => eventhandlers;
- 	 <map(simplify)>eventhandlers => result;
-  	code := <map2str(compile)>result => code
+ 	<index-get-evhdlr-packet(|program)>packet-name => eventhandlers;
+  	code := <map2str(compile)>eventhandlers => code
   	
+ 
+ correct-packet = ?Packet(<id>)
+ correct-packet = ?PacketPrim(<id>)
  	 
- simplify: EvHdlr(_{[_,name,p]},receive,vardecls, stats) -> EvHdlr (State(),<conc>(vardecls,stats)) 	 
- simplify: EvHdlr(_{[_,name,seq,p]},receive,vardecls, stats) -> EvHdlr (State(SequenceRef(seq)),<conc>(vardecls,stats)) 	 
- simplify: EvHdlr(_{[_,name,instr, seq,p]},receive,vardecls, stats) -> EvHdlr (State(SequenceRef(seq), instr),<conc>(vardecls,stats))	
- // simplify: x -> <debug(!"xxx")>x
 
-// to-java-global(|what) = 
-//  	<concat-strings><map(compile-class)><debug(!"classes:")><get-classes>
- 	
- 	
- // to-java-decls: Visualize (vis) -> $[[<concat-strings><map(to-java)>vis]]
 
 compile: Class(d@Region(),borderitems,funcs) -> $[
 	class BagRegion extends RegionCore {
@@ -128,9 +128,11 @@ where
 compile-packetbuild: p@PacketDecl(n,nr,payloads) -> $[		 if (typeNr == [name].getTypeNr()) {
 			[name] p = ([name])new [name](this).deserialize(msg,connector);
 			preprocessPacket(p);
-			receivePacket(p); 
+			receivePacket(p);
+			receivePacket((PacketBase)p);	
 		}
-		else ]
+		else 
+			]
 where
 	name := $[Packet[n]]
 
@@ -145,15 +147,15 @@ to-java: None() -> $[]
 	where
 		n := <construct2name>id';
 		<debug>$[Compile class [n]];
-		<map2str(to-java)>elements => elements'
+		<map2str(to-java-stat)>elements => elements'
 
 
 construct2name: Meta() -> $[Meta]
 construct2name: Module() -> $[Module]
 construct2name: Region() -> $[Region]
  
- compile: Sequence(namedec,evhdlrs,evts,vars,funcs,instrs) -> 
-$[if (mfStateMngr.at([n])) {
+ compile: Sequence(n,evhdlrs,evts,vars,funcs,instrs) -> 
+$[if (mfStateMngr.at([<to-seq>n])) {
 	[java-vars]
 	[java-evts]
 	  
@@ -161,7 +163,7 @@ $[if (mfStateMngr.at([n])) {
 }
 ]
 with
-	n := <to-java>namedec; 
+	// n := <to-java>namedec; 
 	<debug>$[## START COMPILE sequence [n]];
 	<map2str(to-java)>evts => java-evts;
 	<map2str(to-java-stat)>vars => java-vars;
@@ -171,15 +173,31 @@ with
 
  
   	
-  compile: e@EvHdlr (state,stats) ->
-  	$[if (mfStateMngr.check(p,[<to-java>state])) {
-  		[<map2str(to-java-stat)>stats]
+  compile: e@EvHdlr(_{uri},receive,vardecls, stats) ->
+  	$[if (mfStateMngr.check(p,[java-state])) {
+  		[java-code]
+  		handled = true;
   	}]
-  	where <debug>$[Compile EvHdlr];<debug>e
+  	where 
+  		<debug(!$[Compile EvHdlr START:])>e;
+  		java-state := <to-java>uri;
+  		<debug>java-state;
+  		java-code := <map2str(to-java-stat)><flatten-list>[vardecls|stats];
+  		<debug>$[Compile EvHdlr END]
   	
   	
-  to-java: State() -> $[true]
-  to-java: State(seq) -> $[new State([<to-java>seq])]
-  to-java: State(seq,i) -> $[new State([<to-java>seq],[i])]
+  	
+  	
+  to-java: [_,name,p] -> $[true]
+  to-java: [_,name,seq,p] -> $[[<to-seq>seq]]
+  to-java: [_,name,i,seq,p] -> $[new State([<to-seq>seq],[i])]
+  
+  // OOPS: Constructors not supported in URI!!!!
+  is-prim-seq = ?"Main"
+  is-prim-seq = ?"Choose" 
+  
+  to-seq: seq -> $[SequenceGeneric.[seq]] where is-prim-seq
+  to-seq: seq -> $[Sequence.[seq]]  where not(is-prim-seq)
+  
   
   

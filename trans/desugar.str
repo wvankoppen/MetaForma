@@ -25,7 +25,7 @@ tail: [x|xs] -> xs
 desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(desugar-td));innermost(desugar)//;alltd(desugar-flatten)
 
 
-desugar-td: Unicast(Packet(p),AssignList(assignlist),nbsop,rate) -> Unicast(Packet(p),AssignList(assignlist'),nbsop,rate)
+desugar-td: Unicast(Packet(p),AssignList(assignlist),nbsop) -> Unicast(Packet(p),AssignList(assignlist'),nbsop)
 where
 	assignlist' := <map(desugar-payload(|<strip-annos>p))>assignlist
 	
@@ -33,6 +33,7 @@ where
 desugar-payload(|packet): AssignElem(PayloadRef(f),exp) -> AssignElem(PayloadRef(Packet(packet),f),exp)
 
 desugar: EvHdlr(receive,vars,stats) -> EvHdlr (<newname>,receive,vars,stats)
+desugar: ShowPackets(packets) -> DebugItem (ShowPackets(),packets)
 
 desugar-td: Visualize (groups) -> Visualize (items)
 where
@@ -105,6 +106,7 @@ desugar: And(e1,e2) -> BinOp(And(),e1,e2)
 desugar: Or(e1,e2) -> BinOp(Or(),e1,e2)
 desugar: AndBit(e1,e2) -> BinOp(AndBit(),e1,e2)
 desugar: OrBit(e1,e2) -> BinOp(OrBit(),e1,e2)
+
 desugar: Eq(e1,e2) -> BinOp(Eq(),e1,e2)
 desugar: Neq(e1,e2) -> BinOp(Neq(),e1,e2)
 desugar: Lt(e1,e2) -> BinOp(Lt(),e1,e2)
@@ -129,9 +131,13 @@ desugar: NbsFilter(d@ModHolderRef(m)) -> NbsFilter("in",d)
 
 desugar-all-nbl = topdown(try(desugar-nbl))
  
- desugar-nbl: FieldPrimRef(o,f) -> FieldRef(o,f)
+ // desugar-nbl: FieldPrimRef(o,f) -> FieldRef(o,f) NO!
  desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f)
  desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f)
+  desugar-nbl: MethodPrimRef(o,f) -> MethodRef(o,f)
+  desugar-nbl: FuncPrimRef(f) -> FuncRef(f)
+//   desugar-nbl: SequenceName(n) -> SequenceRef(n)
+// desugar-nbl: SequencePrimName(n) -> SequencePrimRef(n)
 
 
 
@@ -159,7 +165,6 @@ Instr(
           Packet("Symmetry")
         , AssignList([])
         , NbsOp([NbsFilter("inRegion", Bool("true"))])
-        , None()
         )
       ]
     )
@@ -168,6 +173,8 @@ Instr(
 )
 
 signature constructors
+	ShowPackets: ShowPackets
+	DebugItem: X * X -> DebugItem
 	EvHdlr : X * X * X * X * X -> EvHdlr
 	VisItem : X * X * X * X -> VisItem
 PrimRefPacket: X * X -> PrimRefPacket
