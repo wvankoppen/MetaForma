@@ -13,42 +13,15 @@ imports
   desugar
  
  
- 
  // What about the scoping bug? That it has to scope multiple items?
- // How to make NBL recognize basic field variables like id and group?
- // Front@Axis; is not recognized
- // send AddNeighbor(first=v1, second=v2) to dests;       first must refer to a var defined in AddNeighbor
- 
- // how to store Receive event handlers in global or instruction Sequences
- 
- // How to store scattered declarations from multiple files in a single namespace, and retrieve them from it
-
-
 	
 namespaces
-	
-	Mod
-	Group
-	Packet
-	Var
-	Field
-	Class
-	Sequence
-	Instruction
-	Function
-	MetaPart
-	Payload
-	Program
-	VisItem
-	// VisGroup
-	EventHandler
-	Const
-	DebugItem
-	
+	Program Group Mod Var Packet Payload Sequence Instruction Class Field Method MetaPart DebugItem VisItem Constant EventHandler	
 rules
 	
-	// VisGroup(n,g):
-	// 	defines VisGroup n
+	Program(n,_,_,_):
+		defines non-unique Program n
+		scopes Group, Packet, Class, Sequence,MetaPart,EventHandler,VisItem,Constant,DebugItem
 		
 	DebugItem(n,packets):
 		defines DebugItem n
@@ -57,16 +30,8 @@ rules
 		defines VisItem n
 		
 	ConstDecl(t,n,v):
-		defines Const n
-	
-	EvHdlr(x, _, _, _):
-		defines EventHandler x
-		scopes Var
-	
-	Program(n,_,_,_):
-		defines non-unique Program n
-		scopes Group, Packet, Class, Sequence,/*Function,*/MetaPart,EventHandler,VisItem,Const,DebugItem
-
+		defines Constant n
+		
 	Group(n,_) :
 		defines Group n of type Group()
 		scopes Mod
@@ -76,31 +41,32 @@ rules
 		
 	Group(n) :
 	 	defines Group n
-	 
-	// Sequence (SequencePrimRef(n),_,_,_,_,_):
-	// 	defines Sequence n	
-	// 	scopes Packet,Var,Instruction,EventHandler
+	
+	
+	// Yes! 
+	 Sequence (SequencePrimRef(n),_,_,_,_,_):
+	 	defines Sequence n	
+	 	scopes Packet,Var,Instruction,EventHandler
 		
 	Sequence (n,_,_,_,_,_):
 		defines Sequence n	
-		scopes Packet,Var,Instruction,EventHandler
+		scopes Var,Instruction,EventHandler
 		
 	Instr(i,_,_,_,_):
 		defines Instruction i
 		scopes EventHandler,Packet
 		
-		
-
 
 	SequenceRef(n):
 		refers to Sequence n	
-		
-	// SequencePrimRef(n):
-	// 	refers to Sequence n
+	
+	// Yes!	
+	 SequencePrimRef(n):
+	 	refers to Sequence n
 		
 	PacketDecl (n,_):
 		defines Packet n of type Packet(n)
-		scopes Payload,Field,Program
+		scopes Payload
 		
 		
 		
@@ -120,17 +86,19 @@ rules
 	EvHdlr(n,Receive (VarDecl(Packet(p),n)),_,_):
 		refers to Packet p
 		defines Var n 
-		scopes Payload,Field,Var	
+		scopes Var	
 	
 	
-	
+	EvHdlr(x, _, _, _):
+		defines EventHandler x
+		scopes Var
 	
 	
 	
 	
 	FuncDecl (n,_,_,_): 
-		defines Function n
-		scopes Payload,Field,Var
+		defines Method n
+		scopes Field,Var
 		
 	Unicast(Packet(p),_,_):
 		refers to Packet p
@@ -157,16 +125,16 @@ rules
     	defines Var x of type t	
 	
 	FuncRef(n):
-		refers to Function n
+		refers to Method n
 		
 	
 		
 	MethodRef(Actuation(), n):
-		refers to Function n
+		refers to Method n
 		
 	
 	MethodRef(obj,n):
-		refers to Function n in Class obj
+		refers to Method n in Class obj
 		// where obj has type Type(c)
 	
 	FieldDecl(t,n): 
@@ -191,12 +159,10 @@ rules
 		refers to Field n			
 		// refers to Field n in Class Module()
 		refers to MetaPart n
-		refers to Const n
+		refers to Constant n
 		
 		
-	MethodRef(Region(), "atPrimaryBorder"):
-		refers to Function "atPrimaryBorder"
-		
+			
 		
 	PrimRefPacket(v,p):
 		refers to Payload "connSource"
@@ -208,8 +174,6 @@ rules
 		// where c has type Type(cl)
 		// refers to Class c
 	
-	// Class (n,_,_):
-	// 	defines Class n
 	
 		
 	Meta(): refers to Class Meta()
@@ -217,11 +181,11 @@ rules
 		
 	Class (n,_,_): // Module and Meta
 		defines Class n of type n
-		scopes Payload,Field,Var,Function
+		scopes Field,Method
 
 	Class (n,_): // Region
 		defines Class n of type n
-		scopes Payload,Field,Var,Function
+		scopes Field,Var,Method
 	
 	
 	MetaPart (n):

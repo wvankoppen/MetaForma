@@ -1,16 +1,18 @@
 program obstacleavoidance
 
-visualize {
-	north {
-		@LeftWheel: green;
-		@RightWheel: yellow;
-		@Axis: magenta;
-	}
-	south {
-		Main: black;
-		TurnFourWheeler: white;
-		TurnTwoWheeler: gray;
-		Drive: red;
+debug {
+	visualize {
+		north {
+			@LeftWheel: green;
+			@RightWheel: yellow;
+			@Axis: magenta;
+		}
+		south {
+			Main: black;
+			TurnFourWheeler: white;
+			TurnTwoWheeler: gray;
+			Drive: red;
+		}
 	}
 }
 

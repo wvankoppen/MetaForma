@@ -169,16 +169,10 @@ rules // Debugging
       evhdlrs := <index-get-evhdlrs(|prog)>;
       packets := <index-get-packets(|prog)>;
       
-      cons := [VisItem(),Group(),Class(),Sequence(),MetaPart(),Const(),DebugItem()];
+      cons := [VisItem(),Group(),Class(),Sequence(),MetaPart(),Constant(),DebugItem()];
       
       data := <flatten-list>[packets|[evhdlrs|<map(index-getcons(|prog))>cons]]
       
-      
-            
-      
-     
-     
-  
       
   // Cleans all data from the index.
   index-cleanall:
@@ -256,7 +250,7 @@ rules // Utility
 			
 			<debug>"##############################";
 			debug(!"COMPILE CONSTS");
-			java-consts := <map2str(to-java)><debug(!"Consts:")><index-getcons(|program)>Const();
+			java-consts := <map2str(to-java)><debug(!"Consts:")><index-getcons(|program)>Constant();
 			
 			<debug>"##############################";
 			debug(!"COMPILE NAMES");

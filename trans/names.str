@@ -26,22 +26,46 @@ signature
     CurrentFile : ImportAnno
 
   constructors
-    Mod          : Namespace
+    Program      : Namespace
     Group        : Namespace
-    Packet       : Namespace
+    Mod          : Namespace
     Var          : Namespace
-    Field        : Namespace
-    Class        : Namespace
+    Packet       : Namespace
+    Payload      : Namespace
     Sequence     : Namespace
     Instruction  : Namespace
-    Function     : Namespace
+    Class        : Namespace
+    Field        : Namespace
+    Method       : Namespace
     MetaPart     : Namespace
-    Payload      : Namespace
-    Program      : Namespace
-    VisItem      : Namespace
-    EventHandler : Namespace
-    Const        : Namespace
     DebugItem    : Namespace
+    VisItem      : Namespace
+    Constant     : Namespace
+    EventHandler : Namespace
+
+
+rules
+
+  nam-get-scope-types :
+    Program(n, _, _, _) -> [ Group()
+                           , Packet()
+                           , Class()
+                           , Sequence()
+                           , MetaPart()
+                           , EventHandler()
+                           , VisItem()
+                           , Constant()
+                           , DebugItem()
+                           ]
+
+  nam-get-definition-keys :
+    Program(n, _, _, _) -> [n]
+
+  nam-get-definitions :
+    Program(n, _, _, _) -> [(Program(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    Program(n, _, _, _) -> <Program(nam-annotate-def(|path__), id, id, id)>
 
 
 rules
@@ -80,55 +104,13 @@ rules
     ConstDecl(t, n, v) -> [n]
 
   nam-get-definitions :
-    ConstDecl(t, n, v) -> [(Const(), [n])]
+    ConstDecl(t, n, v) -> [(Constant(), [n])]
 
   nam-annotate-names(|paths__, path__):
     ConstDecl(t, n, v) -> <ConstDecl(id, nam-annotate-def(|path__), id)>
 
   nam-unique :
     ConstDecl(t, n, v) -> <id>
-
-
-rules
-
-  nam-get-scope-types :
-    EvHdlr(x, _, _, _) -> [Var()]
-
-  nam-get-definition-keys :
-    EvHdlr(x, _, _, _) -> [x]
-
-  nam-get-definitions :
-    EvHdlr(x, _, _, _) -> [(EventHandler(), [x])]
-
-  nam-annotate-names(|paths__, path__):
-    EvHdlr(x, _, _, _) -> <EvHdlr(nam-annotate-def(|path__), id, id, id)>
-
-  nam-unique :
-    EvHdlr(x, _, _, _) -> <id>
-
-
-rules
-
-  nam-get-scope-types :
-    Program(n, _, _, _) -> [ Group()
-                           , Packet()
-                           , Class()
-                           , Sequence()
-                           , MetaPart()
-                           , EventHandler()
-                           , VisItem()
-                           , Const()
-                           , DebugItem()
-                           ]
-
-  nam-get-definition-keys :
-    Program(n, _, _, _) -> [n]
-
-  nam-get-definitions :
-    Program(n, _, _, _) -> [(Program(), [n])]
-
-  nam-annotate-names(|paths__, path__):
-    Program(n, _, _, _) -> <Program(nam-annotate-def(|path__), id, id, id)>
 
 
 rules
@@ -202,11 +184,36 @@ rules
 rules
 
   nam-get-scope-types :
-    Sequence(n, _, _, _, _, _) -> [ Packet()
-                                  , Var()
-                                  , Instruction()
-                                  , EventHandler()
-                                  ]
+    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [ Packet()
+                                                   , Var()
+                                                   , Instruction()
+                                                   , EventHandler()
+                                                   ]
+
+  nam-get-definition-keys :
+    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [n]
+
+  nam-get-definitions :
+    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [(Sequence(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    Sequence(SequencePrimRef(n), _, _, _, _, _) -> <Sequence(
+                                                      SequencePrimRef(nam-annotate-def(|path__))
+                                                    , id
+                                                    , id
+                                                    , id
+                                                    , id
+                                                    , id
+                                                    )>
+
+  nam-unique :
+    Sequence(SequencePrimRef(n), _, _, _, _, _) -> <id>
+
+
+rules
+
+  nam-get-scope-types :
+    Sequence(n, _, _, _, _, _) -> [Var(), Instruction(), EventHandler()]
 
   nam-get-definition-keys :
     Sequence(n, _, _, _, _, _) -> [n]
@@ -253,8 +260,20 @@ rules
 
 rules
 
+  nam-get-uses-keys :
+    SequencePrimRef(n) -> [n]
+
+  nam-get-uses :
+    SequencePrimRef(n) -> [(Sequence(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    SequencePrimRef(n) -> <SequencePrimRef(nam-annotate-use(|paths__, Sequence()))>
+
+
+rules
+
   nam-get-scope-types :
-    PacketDecl(n, _) -> [Payload(), Field(), Program()]
+    PacketDecl(n, _) -> [Payload()]
 
   nam-get-definition-keys :
     PacketDecl(n, _) -> [n]
@@ -313,7 +332,7 @@ rules
     , Receive(VarDecl(Packet(p), n))
     , _
     , _
-    ) -> [Payload(), Field(), Var()]
+    ) -> [Var()]
 
   nam-get-definition-keys :
     EvHdlr(
@@ -377,13 +396,31 @@ rules
 rules
 
   nam-get-scope-types :
-    FuncDecl(n, _, _, _) -> [Payload(), Field(), Var()]
+    EvHdlr(x, _, _, _) -> [Var()]
+
+  nam-get-definition-keys :
+    EvHdlr(x, _, _, _) -> [x]
+
+  nam-get-definitions :
+    EvHdlr(x, _, _, _) -> [(EventHandler(), [x])]
+
+  nam-annotate-names(|paths__, path__):
+    EvHdlr(x, _, _, _) -> <EvHdlr(nam-annotate-def(|path__), id, id, id)>
+
+  nam-unique :
+    EvHdlr(x, _, _, _) -> <id>
+
+
+rules
+
+  nam-get-scope-types :
+    FuncDecl(n, _, _, _) -> [Field(), Var()]
 
   nam-get-definition-keys :
     FuncDecl(n, _, _, _) -> [n]
 
   nam-get-definitions :
-    FuncDecl(n, _, _, _) -> [(Function(), [n])]
+    FuncDecl(n, _, _, _) -> [(Method(), [n])]
 
   nam-annotate-names(|paths__, path__):
     FuncDecl(n, _, _, _) -> <FuncDecl(nam-annotate-def(|path__), id, id, id)>
@@ -524,10 +561,10 @@ rules
     FuncRef(n) -> [n]
 
   nam-get-uses :
-    FuncRef(n) -> [(Function(), [n])]
+    FuncRef(n) -> [(Method(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    FuncRef(n) -> <FuncRef(nam-annotate-use(|paths__, Function()))>
+    FuncRef(n) -> <FuncRef(nam-annotate-use(|paths__, Method()))>
 
 
 rules
@@ -536,12 +573,12 @@ rules
     MethodRef(Actuation(), n) -> [n]
 
   nam-get-uses :
-    MethodRef(Actuation(), n) -> [(Function(), [n])]
+    MethodRef(Actuation(), n) -> [(Method(), [n])]
 
   nam-annotate-names(|paths__, path__):
     MethodRef(Actuation(), n) -> <MethodRef(
                                     Actuation()
-                                  , nam-annotate-use(|paths__, Function())
+                                  , nam-annotate-use(|paths__, Method())
                                   )>
 
 
@@ -551,13 +588,13 @@ rules
     MethodRef(obj, n) -> [n]
 
   nam-get-uses :
-    MethodRef(obj, n) -> [(Function(), [n])]
+    MethodRef(obj, n) -> [(Method(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    MethodRef(obj, n) -> <MethodRef(id, nam-annotate-use(|paths__, Function()))>
+    MethodRef(obj, n) -> <MethodRef(id, nam-annotate-use(|paths__, Method()))>
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    MethodRef(obj, n) -> <index-lookup-children(|Function(), prefix__)> obj
+    MethodRef(obj, n) -> <index-lookup-children(|Method(), prefix__)> obj
     where <target__> n
 
 
@@ -663,7 +700,7 @@ rules
     VarRef(n) -> [ (Var(), [n])
                  , (Field(), [n])
                  , (MetaPart(), [n])
-                 , (Const(), [n])
+                 , (Constant(), [n])
                  ]
 
   nam-annotate-names(|paths__, path__):
@@ -673,28 +710,9 @@ rules
     VarRef(n) -> [ [Var()|path__]
                  , [Field()|path__]
                  , [MetaPart()|path__]
-                 , [Const()|path__]
+                 , [Constant()|path__]
                  ]
     where <target__> n
-
-
-rules
-
-  nam-get-uses-keys :
-    MethodRef(Region(), "atPrimaryBorder") -> ["atPrimaryBorder"]
-
-  nam-get-uses :
-    MethodRef(Region(), "atPrimaryBorder") -> [(Function(), ["atPrimaryBorder"])]
-
-  nam-annotate-names(|paths__, path__):
-    MethodRef(Region(), "atPrimaryBorder") -> <MethodRef(
-                                                 Region()
-                                               , nam-annotate-use(|paths__, Function())
-                                               )>
-
-  adjust-index-lookup(target__|namespace__, path__, prefix__):
-    MethodRef(Region(), "atPrimaryBorder") -> [Def([Function(), "atPrimaryBorder"])]
-    where <target__> "atPrimaryBorder"
 
 
 rules
@@ -768,11 +786,7 @@ rules
 rules
 
   nam-get-scope-types :
-    Class(n, _, _) -> [ Payload()
-                      , Field()
-                      , Var()
-                      , Function()
-                      ]
+    Class(n, _, _) -> [Field(), Method()]
 
   nam-get-definition-keys :
     Class(n, _, _) -> [n]
@@ -800,11 +814,7 @@ rules
 rules
 
   nam-get-scope-types :
-    Class(n, _) -> [ Payload()
-                   , Field()
-                   , Var()
-                   , Function()
-                   ]
+    Class(n, _) -> [Field(), Var(), Method()]
 
   nam-get-definition-keys :
     Class(n, _) -> [n]

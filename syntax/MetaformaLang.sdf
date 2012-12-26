@@ -7,7 +7,6 @@ imports
 
 exports
 
-sorts	Group MetaClass RotateContinuous
 
   context-free start-symbols
   
@@ -100,13 +99,10 @@ sorts	Group MetaClass RotateContinuous
 	"when" "(" Receive ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
 	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{"If"}
- 	%%"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
-	
+ 		
 	ID									-> PacketRef {"Packet"}
 	PacketPrim							-> PacketRef {"PacketPrim"}
-	
 	PacketPrim	-> ID{reject}
-	
 	
 	
 	
@@ -114,9 +110,6 @@ sorts	Group MetaClass RotateContinuous
 	"rate" Ref							-> Rate{"Rate"}
 	
 
-	
-	
-	
 	
 	
 	Ref "=" Exp ";" 				-> Stmt{"Assign"}

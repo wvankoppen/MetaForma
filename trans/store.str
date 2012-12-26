@@ -86,7 +86,7 @@ rules
 		
 		
 	adjust-index-def-data(store-results|namespace, path): 
-		term@ConstDecl(_,_{[Const(), name, program]},_) -> <store-results> DefData([Const(), program], Const(), term)
+		term@ConstDecl(_,_{[Constant(), name, program]},_) -> <store-results> DefData([Constant(), program], Constant(), term)
 			
 			
 			
