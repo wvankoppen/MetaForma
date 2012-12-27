@@ -11,7 +11,7 @@ exports
 	Ref		 				-> Exp
 	"#(" NbsOp ")"			-> Exp{"NbsCount"}
 	"$(" NbsOp ")"			-> Nbs{"Nbs"}
-	{NbsFilter ","}*	-> NbsOp{"NbsOp"}
+	{NbsFilter ","}*		-> NbsOp{"NbsOp"}
 	NbsFilterKey ":" Exp 	-> NbsFilter{"NbsFilter"}
 	ModHolderRef			-> NbsFilter{"NbsFilter"}
 	
@@ -29,14 +29,13 @@ exports
 	INT						-> Exp{"Int"}
 	FLOAT					-> Exp{"Float"}
 	Const					-> Exp{"Const"}
-	ConstLan					-> Exp{"Const"}
+	ConstLan				-> Exp{"Const"}
 	Bool					-> Exp{"Bool"}
-	ModHolderRef				-> Exp
+	ModHolderRef			-> Exp
 	"(" Exp ")"			    -> Exp{"Par"}
 	"[" {Exp ","}* "]"		-> Exp{"ByteArr"}
 	STRING					-> Exp{"String"}
 	
-	 
 	
 	Exp "%"	Exp					-> Exp{left,"Modulo"}
 	"!" Exp 					-> Exp{right,"Not"}

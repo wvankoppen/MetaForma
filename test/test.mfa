@@ -1,23 +1,7 @@
-program Testxyz
+program sdfsdf
 
-group Floor
- 
-packet AddNeighbor2 {
-	byte connSource;
-}
- 
-meta {
-	part [df,er];
-	byte z;
-}
 
-when (receive (AddNeighbor2 a)) {
-	byte xyz;	
-	xyz = a.connSource; 
-} 
- 
- 
- sequence doit {
- 	disconnect(@Floor,@Floor);
- 	
- }
+
+byte ddf = 4
+
+

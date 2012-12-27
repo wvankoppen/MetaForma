@@ -16,14 +16,14 @@ outliner Default outliner
   VisGroup.VisGroup
   GroupDef.Group
   FuncDecl.FuncDecl
-  Declaration.Sequence
   Stmt.Unicast
   Exp.FuncCall
   Exp.FuncCall
   Stmt.TryRegion
   Stmt.FuncCall
   Stmt.FuncCall
+  FuncDecl.FuncDecl
+  MainDef.PacketDecl
+  MainDef.Sequence
   EvHdlrSemi.If
   Instr.Instr
-  FuncDecl.FuncDecl
-  Definition.PacketDecl

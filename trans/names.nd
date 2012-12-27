@@ -179,13 +179,18 @@ rules
 	Meta(): refers to Class Meta()
 	Module(): refers to Class Module()
 		
+	//  non-unique because we desugar an empty module, meta and region class in the AST, this allows to omit the declaration in hello word program
+	 
 	Class (n,_,_): // Module and Meta
-		defines Class n of type n
+		defines non-unique Class n of type n
 		scopes Field,Method
 
 	Class (n,_): // Region
-		defines Class n of type n
+		defines non-unique Class n of type n
 		scopes Field,Var,Method
+	
+	FakeClass(n):
+		defines non-unique Class n of type n
 	
 	
 	MetaPart (n):

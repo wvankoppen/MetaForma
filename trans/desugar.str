@@ -11,41 +11,36 @@ imports
   libjava-front
   constructors
   store
-
-rules // Incremental code generation of project using compilation library.
-  
-  
- 
+ metaformalang
 rules 
 
-head: [x|xs] -> x
-tail: [x|xs] -> xs
-
  
-desugar-all = innermost(desugar-functions);innermost(desugar);topdown(try(desugar-td));innermost(desugar)//;alltd(desugar-flatten)
+// desugar-all = topdown(try(desugar-functions));innermost(desugar);topdown(try(desugar-td));innermost(desugar)
+desugar-all = topdown(try(desugar-td));innermost(desugar)
 
+desugar-td: Program(n,debug,decls,seqs) -> Program(n,debug,decls',seqs)
+where
+	 decls' := [FakeClass(Module())|[FakeClass(Meta())|[FakeClass(Region())|decls]]]  
+// Add fake declarations because not in every program we use the declaration, only the primitives
+	
 
 desugar-td: Unicast(Packet(p),AssignList(assignlist),nbsop) -> Unicast(Packet(p),AssignList(assignlist'),nbsop)
 where
-	assignlist' := <map(desugar-payload(|<strip-annos>p))>assignlist
+	assignlist' := <map(add-payload(|<strip-annos>p))>assignlist
 	
+	add-payload(|packet): AssignElem(PayloadRef(f),exp) -> AssignElem(PayloadRef(Packet(packet),f),exp)
 
-desugar-payload(|packet): AssignElem(PayloadRef(f),exp) -> AssignElem(PayloadRef(Packet(packet),f),exp)
 
-desugar: EvHdlr(receive,vars,stats) -> EvHdlr (<newname>,receive,vars,stats)
-desugar: ShowPackets(packets) -> DebugItem (ShowPackets(),packets)
 
 desugar-td: Visualize (groups) -> Visualize (items)
 where
-	<flatten-list><map(rem-visgroup)>groups => items
+	<flatten-list><map(rem-visgroup-container)>groups => items
 	
+	rem-visgroup-container: VisGroup (n,g) -> g'
+	where
+		<map(add-visgroup(|n))>g => g'
 
-rem-visgroup: VisGroup (n,g) -> g'
-where
-	<map(add-visgroup(|n))>g => g'
-
-
-add-visgroup(|n): VisItem(r,c) -> VisItem(<newname>,n,r,c) 
+		add-visgroup(|n): VisItem(r,c) -> VisItem(<newname>,n,r,c) 
 
 
 desugar-td: Sequence(n,ehdlrs,ifs,x,e,instrs) -> Sequence(n,ehdlrs,ifs,x,e,instrs''')  
@@ -53,35 +48,34 @@ where
 	<map(try(add-instrblock))>instrs => instrs';
 	<upto><dec><length>instrs' => nrs;
 	<zip>(nrs,instrs') => instrs'';
-	// <map(try(desugar-events2(|n)))>ehdlrs => ehdlrs';
 	<map(try(swap-counter(|n)))>instrs'' => instrs'''
+
+	add-instrblock: f -> Instr([],[],[],[f])
+	where
+		not (<eq>(<aterm-name>f,"Instr"))
+
+	swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*,postcon)) -> Instr(c,evts,evsemi,<conc>(vars,instr*),postcon)
+	swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*)) -> Instr(c,evts,evsemi,<conc>(vars,instr*),Wait(Consensus())) 
+
+
+
+desugar-td: Instr(d,evts,evsemi,instrs) -> Instr(d,evts,evsemi,instrs,Wait(Consensus()))
+  	 
+desugar-td: Connect(_,m1,m2) -> FuncCall(MethodRef(Actuation(),"connect"),[m1,m2])
+desugar-td: Disconnect(_,m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect"),[m1,m2])
+desugar-td: Rotate(_,m1,deg) -> FuncCall(MethodRef(Actuation(),"rotate"),[m1,deg])
+desugar-td: RotateCont(_,m1,v) -> FuncCall(MethodRef(Actuation(),"rotate_continuous"),[m1,v])
+desugar-td: Stop(_,m1) -> FuncCall(MethodRef(Actuation(),"stop"),[m1])
+
+
+
 
 
 // Desugar the vardecls out of an event
 desugar: If (e,vardecls,stats) -> If(e,<conc>(vardecls,stats))
 
-
-swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*,postcon)) -> Instr(c,evts,evsemi,<conc>(vars,instr*),postcon)
-swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*)) -> Instr(c,evts,evsemi,<conc>(vars,instr*),Wait(Consensus())) 
-
-	
-add-instrblock: f -> Instr([],[],[],[f])
-where
-	not (<?Instr(_,_,_,_,_,_)>f);
-	not (<?Instr(_,_,_,_,_)>f);
-	not (<?Instr(_,_,_,_)>f)
-	
-
-
-
-desugar-functions: Instr(d,evts,evsemi,instrs) -> Instr(d,evts,evsemi,instrs,Wait(Consensus()))  	 
-desugar-functions: Connect(_,m1,m2) -> FuncCall(MethodRef(Actuation(),"connect"),[m1,m2])
-desugar-functions: Disconnect(_,m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect"),[m1,m2])
-desugar-functions: Rotate(_,m1,deg) -> FuncCall(MethodRef(Actuation(),"rotate"),[m1,deg])
-desugar-functions: RotateCont(_,m1,v) -> FuncCall(MethodRef(Actuation(),"rotate_continuous"),[m1,v])
-desugar-functions: Stop(_,m1) -> FuncCall(MethodRef(Actuation(),"stop"),[m1])
-
-
+desugar: EvHdlr(receive,vars,stats) -> EvHdlr (<newname>,receive,vars,stats)
+desugar: ShowPackets(packets) -> DebugItem (ShowPackets(),packets)
 
 desugar: Class(d@Meta(),metaparts,decls,funcs) -> Class(d,metaparts,<conc>(decls,funcs))
 desugar: Class(d@Module(),decls,funcs) -> Class(d,(),<conc>(decls,funcs))
@@ -132,10 +126,10 @@ desugar: NbsFilter(d@ModHolderRef(m)) -> NbsFilter("in",d)
 desugar-all-nbl = topdown(try(desugar-nbl))
  
  // desugar-nbl: FieldPrimRef(o,f) -> FieldRef(o,f) NO!
- desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f)
- desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f)
-  desugar-nbl: MethodPrimRef(o,f) -> MethodRef(o,f)
-  desugar-nbl: FuncPrimRef(f) -> FuncRef(f)
+desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f)
+desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f)
+desugar-nbl: MethodPrimRef(o,f) -> MethodRef(o,f)
+desugar-nbl: FuncPrimRef(f) -> FuncRef(f)
 //   desugar-nbl: SequenceName(n) -> SequenceRef(n)
 // desugar-nbl: SequencePrimName(n) -> SequencePrimRef(n)
 
@@ -177,6 +171,6 @@ signature constructors
 	DebugItem: X * X -> DebugItem
 	EvHdlr : X * X * X * X * X -> EvHdlr
 	VisItem : X * X * X * X -> VisItem
-PrimRefPacket: X * X -> PrimRefPacket
-// desugar: Broadcast(p,assignlist,rate) -> Unicast(p,assignlist,Conn(),Int(255),rate)
+	PrimRefPacket: X * X -> PrimRefPacket
+	FakeClass: X -> FakeClass
 

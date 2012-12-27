@@ -16,9 +16,7 @@ lexical restrictions
 	String -/- ~[\"]
 	
 	
-
 lexical syntax
-	
 	"if"			-> ID {reject}
 	"else"			-> ID {reject}
 	"for"			-> ID {reject}
@@ -28,7 +26,7 @@ lexical syntax
 	"consensus"		-> ID {reject}
 	"goto"			-> ID {reject}
 	"when"			-> ID {reject}
-	
+	"null"			-> ID {reject}
 	 
 	 "red"			-> Color
 	 "blue"			-> Color
@@ -42,8 +40,6 @@ lexical syntax
 	 "magenta"		-> Color
 	 "brown"		-> Color
 	
-	
-	lexical syntax
 	"false"			-> Bool
 	"true"			-> Bool
 	
@@ -64,18 +60,12 @@ lexical syntax
 	"min"			-> FuncPrimRef
 	"pow2"			-> FuncPrimRef
 	
-
-	
-	
-	
 	"connect"		-> Core
 	"disconnect"	-> Core
 	"rotate"		-> Core
 	"stop"			-> Core
 	"rotate_continuous"	-> Core
 
-	
-	
 	
 	
 	
@@ -95,7 +85,7 @@ lexical syntax
 	"debug"			-> SysObj{cons("Debug")}
 	"config"		-> SysObj{cons("Config")}
 
-	"null"			-> ID {reject}
+	
 	 Const			-> ID {reject}
 	 ConstLan		-> ID {reject}
 	 Bool			-> ID {reject}
@@ -115,7 +105,7 @@ exports
 	Ref		 				-> Exp
 	"#(" NbsOp ")"			-> Exp{cons("NbsCount")}
 	"$(" NbsOp ")"			-> Nbs{cons("Nbs")}
-	{NbsFilter ","}*	-> NbsOp{cons("NbsOp")}
+	{NbsFilter ","}*		-> NbsOp{cons("NbsOp")}
 	NbsFilterKey ":" Exp 	-> NbsFilter{cons("NbsFilter")}
 	ModHolderRef			-> NbsFilter{cons("NbsFilter")}
 	
@@ -133,14 +123,13 @@ exports
 	INT						-> Exp{cons("Int")}
 	FLOAT					-> Exp{cons("Float")}
 	Const					-> Exp{cons("Const")}
-	ConstLan					-> Exp{cons("Const")}
+	ConstLan				-> Exp{cons("Const")}
 	Bool					-> Exp{cons("Bool")}
-	ModHolderRef				-> Exp
+	ModHolderRef			-> Exp
 	"(" Exp ")"			    -> Exp{cons("Par")}
 	"[" {Exp ","}* "]"		-> Exp{cons("ByteArr")}
 	STRING					-> Exp{cons("String")}
 	
-	 
 	
 	Exp "%"	Exp					-> Exp{left,cons("Modulo")}
 	"!" Exp 					-> Exp{right,cons("Not")}
@@ -197,18 +186,17 @@ imports
 	lexical/MetaformaLang-Identifiers
 
 exports
-
-sorts	Group MetaClass RotateContinuous
+	sorts MainDef
 
   context-free start-symbols
   
     Start
  
   context-free syntax
-  %% Definition:  INDIRECT code generation
-  %% Declaration: DIRECT code generation
+  %% Declaration: In main program space
+  %% MainDef: In all program space
   
-   "program" ID Debug? Definition* Declaration*						-> Start {cons("Program")}
+   "program" ID Debug? MainDef* Color*						-> Start {cons("Program")}
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Debug and visualisation
@@ -230,13 +218,13 @@ sorts	Group MetaClass RotateContinuous
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Header
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	GroupDef 										-> Definition
+	GroupDef 										-> MainDef
 
-	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
-	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{cons("Class")}
-	Region "{" BorderDecl? FuncDecl* "}" 			-> Definition{cons("Class")}
+	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> MainDef{cons("Class")}
+	Module "{" FieldDecl* FuncDecl* "}" 			-> MainDef{cons("Class")}
+	Region "{" BorderDecl? FuncDecl* "}" 			-> MainDef{cons("Class")}
 	
-	Type ID "=" Exp									-> Definition{cons("ConstDecl")}
+	Type ID "=" Exp									-> MainDef{cons("ConstDecl")}
 	
 	"borders" "[" BorderItem* "]"			-> BorderDecl{cons("BorderDecl")}
 	
@@ -252,14 +240,12 @@ sorts	Group MetaClass RotateContinuous
 	"region"						-> Region{cons("Region")}
 	"config"						-> Config{cons("Config")}
 	
-	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
-	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
+	"void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
+	Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
 	
 	Type ID 			-> ParamListElem{cons("Param")}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> Definition{cons("PacketDecl")}
-	FuncDecl 											-> Declaration
-
+	"packet" ID "{" PayloadDecl* "}" 					-> MainDef{cons("PacketDecl")}
 	
 	Type ID ";" 				-> VarDecl{cons("VarDecl")}
 	Type ID ";" 				-> FieldDecl{cons("FieldDecl")}
@@ -280,14 +266,15 @@ sorts	Group MetaClass RotateContinuous
 	
 	PayloadRef "=" Exp					-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*					-> AssignList{cons("AssignList")} 
-	%% "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{"Unicast"}
+	
 	"unicast" PacketRef "(" AssignList ")" "to" Nbs  ";" -> Stmt{cons("Unicast")}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
 	
-	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("Sequence")}
+	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> MainDef{cons("Sequence")}
 	
 	
-	EvHdlr										 -> Definition
+	EvHdlr										 -> MainDef
+	
 	"when" "(" Receive ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
 	
 	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{cons("If")}
@@ -531,18 +518,17 @@ imports
 	lexical/MetaformaLang-Identifiers
 
 exports
-
-sorts	Group MetaClass RotateContinuous
+	sorts MainDef
 
   context-free start-symbols
   
     Start
  
   context-free syntax
-  %% Definition:  INDIRECT code generation
-  %% Declaration: DIRECT code generation
+  %% Declaration: In main program space
+  %% MainDef: In all program space
   
-   "program" ID Debug? Definition* Declaration*						-> Start {cons("Program")}
+   "program" ID Debug? MainDef* Color*						-> Start {cons("Program")}
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Debug and visualisation
@@ -564,13 +550,13 @@ sorts	Group MetaClass RotateContinuous
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Header
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	GroupDef 										-> Definition
+	GroupDef 										-> MainDef
 
-	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> Definition{cons("Class")}
-	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{cons("Class")}
-	Region "{" BorderDecl? FuncDecl* "}" 			-> Definition{cons("Class")}
+	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> MainDef{cons("Class")}
+	Module "{" FieldDecl* FuncDecl* "}" 			-> MainDef{cons("Class")}
+	Region "{" BorderDecl? FuncDecl* "}" 			-> MainDef{cons("Class")}
 	
-	Type ID "=" Exp									-> Definition{cons("ConstDecl")}
+	Type ID "=" Exp									-> MainDef{cons("ConstDecl")}
 	
 	"borders" "[" BorderItem* "]"			-> BorderDecl{cons("BorderDecl")}
 	
@@ -586,14 +572,12 @@ sorts	Group MetaClass RotateContinuous
 	"region"						-> Region{cons("Region")}
 	"config"						-> Config{cons("Config")}
 	
-	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
-	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
+	"void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
+	Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
 	
 	Type ID 			-> ParamListElem{cons("Param")}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> Definition{cons("PacketDecl")}
-	FuncDecl 											-> Declaration
-
+	"packet" ID "{" PayloadDecl* "}" 					-> MainDef{cons("PacketDecl")}
 	
 	Type ID ";" 				-> VarDecl{cons("VarDecl")}
 	Type ID ";" 				-> FieldDecl{cons("FieldDecl")}
@@ -614,14 +598,15 @@ sorts	Group MetaClass RotateContinuous
 	
 	PayloadRef "=" Exp					-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*					-> AssignList{cons("AssignList")} 
-	%% "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{"Unicast"}
+	
 	"unicast" PacketRef "(" AssignList ")" "to" Nbs  ";" -> Stmt{cons("Unicast")}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
 	
-	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{cons("Sequence")}
+	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> MainDef{cons("Sequence")}
 	
 	
-	EvHdlr										 -> Definition
+	EvHdlr										 -> MainDef
+	
 	"when" "(" Receive ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
 	
 	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{cons("If")}

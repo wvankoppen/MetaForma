@@ -10,7 +10,6 @@ sequence FlipOver {
 	int HALF;
 	int QUART;
 	
-	
 	module.gradientInit();
 	module.gradientPropagate();
 

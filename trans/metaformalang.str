@@ -246,7 +246,7 @@ rules // Utility
 			<debug>"##############################";
 			debug(!"COMPILE VISUALS");
 			java-visuals := <map2str(to-java)><debug(!"Visuals:")><index-getcons(|program)>VisItem();
-			java-debug := <concat-glue(|" | ")><map(project-name;packet-name;to-debug)><debug(!"DebugItems:")><list-breakout><index-getcons(|program)>DebugItem();
+			java-debug := <concat-glue(|" | ")><map(project-name;packet-name;to-debug)><debug(!"DebugItems:")><try(list-breakout)><index-getcons(|program)>DebugItem();
 			
 			<debug>"##############################";
 			debug(!"COMPILE CONSTS");
@@ -541,10 +541,14 @@ destination-path := $[/home/wouter/git/ussr/src/ussr/samples/atron/simulations/m
 				<refresh-workspace-file> destination-file
 
 
-
+head: [x|xs] -> x
+tail: [x|xs] -> xs
 
 makedir: path -> 1
 	where not(<isdir>path);<mkdir>(path)
 
 makedir: path -> 1
 	where <isdir>path
+	
+aterm-name: aterm -> name
+	where ?<id>#(_) => name

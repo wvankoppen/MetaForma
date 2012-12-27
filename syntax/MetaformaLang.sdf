@@ -6,17 +6,17 @@ imports
 	lexical/MetaformaLang-Identifiers
 
 exports
-
+	sorts MainDef
 
   context-free start-symbols
   
     Start
  
   context-free syntax
-  %% Definition:  INDIRECT code generation
-  %% Declaration: DIRECT code generation
+  %% Declaration: In main program space
+  %% MainDef: In all program space
   
-   "program" ID Debug? Definition* Declaration*						-> Start {"Program"}
+   "program" ID Debug? MainDef* Color*						-> Start {"Program"}
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Debug and visualisation
@@ -38,13 +38,13 @@ exports
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Header
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	GroupDef 										-> Definition
+	GroupDef 										-> MainDef
 
-	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> Definition{"Class"}
-	Module "{" FieldDecl* FuncDecl* "}" 			-> Definition{"Class"}
-	Region "{" BorderDecl? FuncDecl* "}" 			-> Definition{"Class"}
+	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> MainDef{"Class"}
+	Module "{" FieldDecl* FuncDecl* "}" 			-> MainDef{"Class"}
+	Region "{" BorderDecl? FuncDecl* "}" 			-> MainDef{"Class"}
 	
-	Type ID "=" Exp									-> Definition{"ConstDecl"}
+	Type ID "=" Exp									-> MainDef{"ConstDecl"}
 	
 	"borders" "[" BorderItem* "]"			-> BorderDecl{"BorderDecl"}
 	
@@ -60,14 +60,12 @@ exports
 	"region"						-> Region{"Region"}
 	"config"						-> Config{"Config"}
 	
-	"void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"					-> FuncDecl{"FuncDecl"}
-	Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"	-> FuncDecl{"FuncDecl"}
+	"void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"					-> FuncDecl{"FuncDecl"}
+	Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "return" Exp ";" "}"	-> FuncDecl{"FuncDecl"}
 	
 	Type ID 			-> ParamListElem{"Param"}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> Definition{"PacketDecl"}
-	FuncDecl 											-> Declaration
-
+	"packet" ID "{" PayloadDecl* "}" 					-> MainDef{"PacketDecl"}
 	
 	Type ID ";" 				-> VarDecl{"VarDecl"}
 	Type ID ";" 				-> FieldDecl{"FieldDecl"}
@@ -88,14 +86,15 @@ exports
 	
 	PayloadRef "=" Exp					-> AssignElem{"AssignElem"}
 	{AssignElem ","}*					-> AssignList{"AssignList"} 
-	%% "unicast" PacketRef "(" AssignList ")" "to" Nbs Rate? ";" -> Stmt{"Unicast"}
+	
 	"unicast" PacketRef "(" AssignList ")" "to" Nbs  ";" -> Stmt{"Unicast"}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{"Receive"}
 	
-	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> Declaration{"Sequence"}
+	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> MainDef{"Sequence"}
 	
 	
-	EvHdlr										 -> Definition
+	EvHdlr										 -> MainDef
+	
 	"when" "(" Receive ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
 	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{"If"}

@@ -25,10 +25,6 @@ float PROXIMITY = 0.15
 byte FORWARD = 1
 byte BACKWARD = -1	
 
-module {
-	
-} 
-
 
 meta {	
 	void steer (int degrees) {
@@ -45,10 +41,6 @@ meta {
 		stop(@LeftWheel);
 		stop(@RightWheel);
 	}
-}
-
-region {
-	
 }
 
 sequence Main {

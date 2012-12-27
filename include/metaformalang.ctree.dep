@@ -4,11 +4,11 @@
 	 \
 	/home/wouter/git/MetaformaLang/lib/refactor-common.generated.str \
 	/home/wouter/git/MetaformaLang/trans/refactor.str \
-	/home/wouter/git/MetaformaLang/trans/metaformalang.str \
 	/home/wouter/git/MetaformaLang/trans/generate-indirect.str \
 	/home/wouter/git/MetaformaLang/trans/generate.str \
 	/home/wouter/git/MetaformaLang/trans/store.str \
 	/home/wouter/git/MetaformaLang/trans/project.str \
+	/home/wouter/git/MetaformaLang/trans/metaformalang.str \
 	/home/wouter/git/MetaformaLang/trans/constructors.str \
 	/home/wouter/git/MetaformaLang/trans/desugar.str \
 	/home/wouter/git/MetaformaLang/trans/check.str \

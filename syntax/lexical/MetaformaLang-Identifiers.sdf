@@ -15,9 +15,7 @@ lexical restrictions
 	String -/- ~[\"]
 	
 	
-
 lexical syntax
-	
 	"if"			-> ID {reject}
 	"else"			-> ID {reject}
 	"for"			-> ID {reject}
@@ -27,7 +25,7 @@ lexical syntax
 	"consensus"		-> ID {reject}
 	"goto"			-> ID {reject}
 	"when"			-> ID {reject}
-	
+	"null"			-> ID {reject}
 	 
 	 "red"			-> Color
 	 "blue"			-> Color
@@ -41,8 +39,6 @@ lexical syntax
 	 "magenta"		-> Color
 	 "brown"		-> Color
 	
-	
-	lexical syntax
 	"false"			-> Bool
 	"true"			-> Bool
 	
@@ -63,18 +59,12 @@ lexical syntax
 	"min"			-> FuncPrimRef
 	"pow2"			-> FuncPrimRef
 	
-
-	
-	
-	
 	"connect"		-> Core
 	"disconnect"	-> Core
 	"rotate"		-> Core
 	"stop"			-> Core
 	"rotate_continuous"	-> Core
 
-	
-	
 	
 	
 	
@@ -94,7 +84,7 @@ lexical syntax
 	"debug"			-> SysObj{"Debug"}
 	"config"		-> SysObj{"Config"}
 
-	"null"			-> ID {reject}
+	
 	 Const			-> ID {reject}
 	 ConstLan		-> ID {reject}
 	 Bool			-> ID {reject}

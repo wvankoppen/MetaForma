@@ -807,9 +807,6 @@ rules
   type-of :
     Class(n, _, _) -> n
 
-  nam-unique :
-    Class(n, _, _) -> <id>
-
 
 rules
 
@@ -835,8 +832,27 @@ rules
   type-of :
     Class(n, _) -> n
 
-  nam-unique :
-    Class(n, _) -> <id>
+
+rules
+
+  nam-get-definition-keys :
+    FakeClass(n) -> [n]
+
+  nam-get-definitions :
+    FakeClass(n) -> [(Class(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    FakeClass(n) -> <FakeClass(nam-annotate-def(|path__))>
+
+  adjust-index-def-data(store__|namespace__, path__):
+    FakeClass(n) -> <store__> DefData(
+                                [namespace__|path__]
+                              , Type()
+                              , n
+                              )
+
+  type-of :
+    FakeClass(n) -> n
 
 
 rules

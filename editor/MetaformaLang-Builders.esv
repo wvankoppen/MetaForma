@@ -35,7 +35,7 @@ builders
  //  builder  : "Reload index"                        = debug-index-reload (meta) (source)                
 
   builder		: "Jtree (selection)" = generate-java-aterm  (openeditor)(meta) (source)                             
-  builder		: "Java code (selection)" = generate-java  (meta) (source)                                                                                                                          
+  builder		: "Java code (selection)" = generate-java  (openeditor) (source)                                                                                                                          
 
 refactorings
 

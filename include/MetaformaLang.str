@@ -67,11 +67,9 @@ signature
     PayloadDecl     : Type * ID -> PayloadDecl
     FieldDecl       : Type * ID -> FieldDecl
     VarDecl         : Type * ID -> VarDecl
-    Sequence        : ID * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(FuncDecl) * List(Instr) -> Declaration
-                    : FuncDecl -> Declaration
     Param           : Type * ID -> ParamListElem
-    FuncDecl        : Type * ID * List(ParamListElem) * List(Declaration) * List(Stmt) * Exp -> FuncDecl
-    FuncDecl        : ID * List(ParamListElem) * List(Declaration) * List(Stmt) -> FuncDecl
+    FuncDecl        : Type * ID * List(ParamListElem) * List(VarDecl) * List(Stmt) * Exp -> FuncDecl
+    FuncDecl        : ID * List(ParamListElem) * List(VarDecl) * List(Stmt) -> FuncDecl
     Config          : Config
     Region          : Region
     Module          : Module
@@ -82,13 +80,14 @@ signature
     BorderLeft      : Direction
     BorderItem      : Direction * Exp -> BorderItem
     BorderDecl      : List(BorderItem) -> BorderDecl
-                    : EvHdlr -> Definition
-    PacketDecl      : ID * List(PayloadDecl) -> Definition
-    ConstDecl       : Type * ID * Exp -> Definition
-    Class           : Region * Option(BorderDecl) * List(FuncDecl) -> Definition
-    Class           : Module * List(FieldDecl) * List(FuncDecl) -> Definition
-    Class           : Meta * Option(PartDecl) * List(FieldDecl) * List(FuncDecl) -> Definition
-                    : GroupDef -> Definition
+                    : EvHdlr -> MainDef
+    Sequence        : ID * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(FuncDecl) * List(Instr) -> MainDef
+    PacketDecl      : ID * List(PayloadDecl) -> MainDef
+    ConstDecl       : Type * ID * Exp -> MainDef
+    Class           : Region * Option(BorderDecl) * List(FuncDecl) -> MainDef
+    Class           : Module * List(FieldDecl) * List(FuncDecl) -> MainDef
+    Class           : Meta * Option(PartDecl) * List(FieldDecl) * List(FuncDecl) -> MainDef
+                    : GroupDef -> MainDef
                     : SequenceRef -> ModHolderOrSeqRef
                     : ModHolderRef -> ModHolderOrSeqRef
     Color           : Color -> ColorRef
@@ -97,7 +96,7 @@ signature
     Visualize       : List(VisGroup) -> Visualize
     ShowPackets     : List(PacketRef) -> ShowPackets
     Debug           : Option(ShowPackets) * Option(Visualize) -> Debug
-    Program         : ID * Option(Debug) * List(Definition) * List(Declaration) -> Start
+    Program         : ID * Option(Debug) * List(MainDef) * List(Color) -> Start
                     : String -> SequencePrim
                     : String -> ConfigFieldID
                     : String -> RegionMethodRef

@@ -46,6 +46,7 @@ exports
                                                   -> "packet"        {recover, cons("INSERTION")}
                                                   -> "part"          {recover, cons("INSERTION")}
                                                   -> "receive"       {recover, cons("INSERTION")}
+                                                  -> "sequence"      {recover, cons("INSERTION")}
                                                   -> "when"          {recover, cons("INSERTION")}
                                                   -> "rate"          {recover, cons("INSERTION")}
                                                   -> "]"             {recover, cons("INSERTION")}
@@ -79,28 +80,27 @@ exports
     String -/- ~[\"]
 
   lexical syntax
-    "if"        -> ID    {reject}
-    "else"      -> ID    {reject}
-    "for"       -> ID    {reject}
-    "while"     -> ID    {reject}
-    "wait"      -> ID    {reject}
-    "until"     -> ID    {reject}
-    "consensus" -> ID    {reject}
-    "goto"      -> ID    {reject}
-    "when"      -> ID    {reject}
-    "red"       -> Color 
-    "blue"      -> Color 
-    "green"     -> Color 
-    "yellow"    -> Color 
-    "cyan"      -> Color 
-    "white"     -> Color 
-    "black"     -> Color 
-    "gray"      -> Color 
-    "orange"    -> Color 
-    "magenta"   -> Color 
-    "brown"     -> Color 
-
-  lexical syntax
+    "if"                -> ID          {reject}
+    "else"              -> ID          {reject}
+    "for"               -> ID          {reject}
+    "while"             -> ID          {reject}
+    "wait"              -> ID          {reject}
+    "until"             -> ID          {reject}
+    "consensus"         -> ID          {reject}
+    "goto"              -> ID          {reject}
+    "when"              -> ID          {reject}
+    "null"              -> ID          {reject}
+    "red"               -> Color       
+    "blue"              -> Color       
+    "green"             -> Color       
+    "yellow"            -> Color       
+    "cyan"              -> Color       
+    "white"             -> Color       
+    "black"             -> Color       
+    "gray"              -> Color       
+    "orange"            -> Color       
+    "magenta"           -> Color       
+    "brown"             -> Color       
     "false"             -> Bool        
     "true"              -> Bool        
     "MALE"              -> ConstLan    
@@ -138,7 +138,6 @@ exports
     "region"       -> SysObj {cons("Region")}
     "debug"        -> SysObj {cons("Debug")}
     "config"       -> SysObj {cons("Config")}
-    "null"         -> ID     {reject}
     Const          -> ID     {reject}
     ConstLan       -> ID     {reject}
     Bool           -> ID     {reject}
@@ -239,13 +238,13 @@ module MetaformaLang
 imports Common Exp lexical/MetaformaLang-Identifiers
 
 exports
-  sorts Group MetaClass RotateContinuous
+  sorts MainDef
 
   context-free start-symbols
     Start
 
   context-free syntax
-    "program" ID Debug? Definition* Declaration*                                                                      -> Start             {cons("Program")}
+    "program" ID Debug? MainDef* Color*                                                                               -> Start             {cons("Program")}
     "debug" "{" ShowPackets? Visualize? "}"                                                                           -> Debug             {cons("Debug")}
     "show" "[" {PacketRef ","}* "]" ";"                                                                               -> ShowPackets       {cons("ShowPackets")}
     "visualize" "{" VisGroup* "}"                                                                                     -> Visualize         {cons("Visualize")}
@@ -254,11 +253,11 @@ exports
     Color                                                                                                             -> ColorRef          {cons("Color")}
     ModHolderRef                                                                                                      -> ModHolderOrSeqRef 
     SequenceRef                                                                                                       -> ModHolderOrSeqRef 
-    GroupDef                                                                                                          -> Definition        
-    Meta "{" PartDecl? FieldDecl* FuncDecl* "}"                                                                       -> Definition        {cons("Class")}
-    Module "{" FieldDecl* FuncDecl* "}"                                                                               -> Definition        {cons("Class")}
-    Region "{" BorderDecl? FuncDecl* "}"                                                                              -> Definition        {cons("Class")}
-    Type ID "=" Exp                                                                                                   -> Definition        {cons("ConstDecl")}
+    GroupDef                                                                                                          -> MainDef           
+    Meta "{" PartDecl? FieldDecl* FuncDecl* "}"                                                                       -> MainDef           {cons("Class")}
+    Module "{" FieldDecl* FuncDecl* "}"                                                                               -> MainDef           {cons("Class")}
+    Region "{" BorderDecl? FuncDecl* "}"                                                                              -> MainDef           {cons("Class")}
+    Type ID "=" Exp                                                                                                   -> MainDef           {cons("ConstDecl")}
     "borders" "[" BorderItem* "]"                                                                                     -> BorderDecl        {cons("BorderDecl")}
     Direction ":" Exp ";"                                                                                             -> BorderItem        {cons("BorderItem")}
     "left"                                                                                                            -> Direction         {cons("BorderLeft")}
@@ -269,11 +268,10 @@ exports
     "module"                                                                                                          -> Module            {cons("Module")}
     "region"                                                                                                          -> Region            {cons("Region")}
     "config"                                                                                                          -> Config            {cons("Config")}
-    "void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"                                                 -> FuncDecl          {cons("FuncDecl")}
-    Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"                                  -> FuncDecl          {cons("FuncDecl")}
+    "void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"                                                     -> FuncDecl          {cons("FuncDecl")}
+    Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "return" Exp ";" "}"                                      -> FuncDecl          {cons("FuncDecl")}
     Type ID                                                                                                           -> ParamListElem     {cons("Param")}
-    "packet" ID "{" PayloadDecl* "}"                                                                                  -> Definition        {cons("PacketDecl")}
-    FuncDecl                                                                                                          -> Declaration       
+    "packet" ID "{" PayloadDecl* "}"                                                                                  -> MainDef           {cons("PacketDecl")}
     Type ID ";"                                                                                                       -> VarDecl           {cons("VarDecl")}
     Type ID ";"                                                                                                       -> FieldDecl         {cons("FieldDecl")}
     Type ID ";"                                                                                                       -> PayloadDecl       {cons("PayloadDecl")}
@@ -288,8 +286,8 @@ exports
     {AssignElem ","}*                                                                                                 -> AssignList        {cons("AssignList")}
     "unicast" PacketRef "(" AssignList ")" "to" Nbs ";"                                                               -> Stmt              {cons("Unicast")}
     "receive" "(" PacketVarDecl ")"                                                                                   -> Receive           {cons("Receive")}
-    "sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl* Instr* "}"                                               -> Declaration       {cons("Sequence")}
-    EvHdlr                                                                                                            -> Definition        
+    "sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl* Instr* "}"                                               -> MainDef           {cons("Sequence")}
+    EvHdlr                                                                                                            -> MainDef           
     "when" "(" Receive ")" "{" VarDecl* Stmt* "}"                                                                     -> EvHdlr            {cons("EvHdlr")}
     "when" "(" EventExp ")" "{" VarDecl* Stmt* "}"                                                                    -> EvHdlrSemi        {cons("If")}
     ID                                                                                                                -> PacketRef         {cons("Packet")}
@@ -436,13 +434,13 @@ module MetaformaLang
 imports Common Exp lexical/MetaformaLang-Identifiers
 
 exports
-  sorts Group MetaClass RotateContinuous
+  sorts MainDef
 
   context-free start-symbols
     Start
 
   context-free syntax
-    "program" ID Debug? Definition* Declaration*                                                                      -> Start             {cons("Program")}
+    "program" ID Debug? MainDef* Color*                                                                               -> Start             {cons("Program")}
     "debug" "{" ShowPackets? Visualize? "}"                                                                           -> Debug             {cons("Debug")}
     "show" "[" {PacketRef ","}* "]" ";"                                                                               -> ShowPackets       {cons("ShowPackets")}
     "visualize" "{" VisGroup* "}"                                                                                     -> Visualize         {cons("Visualize")}
@@ -451,11 +449,11 @@ exports
     Color                                                                                                             -> ColorRef          {cons("Color")}
     ModHolderRef                                                                                                      -> ModHolderOrSeqRef 
     SequenceRef                                                                                                       -> ModHolderOrSeqRef 
-    GroupDef                                                                                                          -> Definition        
-    Meta "{" PartDecl? FieldDecl* FuncDecl* "}"                                                                       -> Definition        {cons("Class")}
-    Module "{" FieldDecl* FuncDecl* "}"                                                                               -> Definition        {cons("Class")}
-    Region "{" BorderDecl? FuncDecl* "}"                                                                              -> Definition        {cons("Class")}
-    Type ID "=" Exp                                                                                                   -> Definition        {cons("ConstDecl")}
+    GroupDef                                                                                                          -> MainDef           
+    Meta "{" PartDecl? FieldDecl* FuncDecl* "}"                                                                       -> MainDef           {cons("Class")}
+    Module "{" FieldDecl* FuncDecl* "}"                                                                               -> MainDef           {cons("Class")}
+    Region "{" BorderDecl? FuncDecl* "}"                                                                              -> MainDef           {cons("Class")}
+    Type ID "=" Exp                                                                                                   -> MainDef           {cons("ConstDecl")}
     "borders" "[" BorderItem* "]"                                                                                     -> BorderDecl        {cons("BorderDecl")}
     Direction ":" Exp ";"                                                                                             -> BorderItem        {cons("BorderItem")}
     "left"                                                                                                            -> Direction         {cons("BorderLeft")}
@@ -466,11 +464,10 @@ exports
     "module"                                                                                                          -> Module            {cons("Module")}
     "region"                                                                                                          -> Region            {cons("Region")}
     "config"                                                                                                          -> Config            {cons("Config")}
-    "void" ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "}"                                                 -> FuncDecl          {cons("FuncDecl")}
-    Type ID "(" {ParamListElem ","}* ")" "{" Declaration* Stmt* "return" Exp ";" "}"                                  -> FuncDecl          {cons("FuncDecl")}
+    "void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"                                                     -> FuncDecl          {cons("FuncDecl")}
+    Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "return" Exp ";" "}"                                      -> FuncDecl          {cons("FuncDecl")}
     Type ID                                                                                                           -> ParamListElem     {cons("Param")}
-    "packet" ID "{" PayloadDecl* "}"                                                                                  -> Definition        {cons("PacketDecl")}
-    FuncDecl                                                                                                          -> Declaration       
+    "packet" ID "{" PayloadDecl* "}"                                                                                  -> MainDef           {cons("PacketDecl")}
     Type ID ";"                                                                                                       -> VarDecl           {cons("VarDecl")}
     Type ID ";"                                                                                                       -> FieldDecl         {cons("FieldDecl")}
     Type ID ";"                                                                                                       -> PayloadDecl       {cons("PayloadDecl")}
@@ -485,8 +482,8 @@ exports
     {AssignElem ","}*                                                                                                 -> AssignList        {cons("AssignList")}
     "unicast" PacketRef "(" AssignList ")" "to" Nbs ";"                                                               -> Stmt              {cons("Unicast")}
     "receive" "(" PacketVarDecl ")"                                                                                   -> Receive           {cons("Receive")}
-    "sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl* Instr* "}"                                               -> Declaration       {cons("Sequence")}
-    EvHdlr                                                                                                            -> Definition        
+    "sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl* Instr* "}"                                               -> MainDef           {cons("Sequence")}
+    EvHdlr                                                                                                            -> MainDef           
     "when" "(" Receive ")" "{" VarDecl* Stmt* "}"                                                                     -> EvHdlr            {cons("EvHdlr")}
     "when" "(" EventExp ")" "{" VarDecl* Stmt* "}"                                                                    -> EvHdlrSemi        {cons("If")}
     ID                                                                                                                -> PacketRef         {cons("Packet")}

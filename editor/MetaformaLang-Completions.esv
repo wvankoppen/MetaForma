@@ -13,13 +13,23 @@ completions
                                              
   // Syntax completion:                      
                                              
-  completion template Start :
-    "module " <m> (blank)  
-                                             
-  completion template Definition :
-    "entity " <e> " {" (cursor) "}" (blank)  
-                                             
+  completion template Start : "program " <m> "\n\n" (cursor)  (blank)  
+                         
+  
+  completion template Debug : "debug {" (cursor) "}" (blank)                                                              
+  completion template MainDef : "module {" (cursor) "}" (blank)  
+  completion template MainDef : "meta {" (cursor) "}" (blank)
+  completion template MainDef : "region {" (cursor) "}" (blank)                                           
  
+  completion template MainDef : "packet " <e> " {" (cursor) "}" (blank)
+  
+  completion template PartDecl : "part [" <e> " ];\n" (cursor) (blank)  
+
+  completion template VarDecl : "byte " <e> ";" (cursor) (blank)
+  completion template VarDecl : "int " <e> ";" (cursor) (blank)
+  completion template VarDecl : "float " <e> ";" (cursor) (blank)
+  
+   completion template VarDecl : "float " <e> ";" (cursor) (blank)
                                              
 
 completions
