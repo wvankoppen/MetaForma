@@ -84,9 +84,9 @@ signature
     Sequence        : ID * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(FuncDecl) * List(Instr) -> MainDef
     PacketDecl      : ID * List(PayloadDecl) -> MainDef
     ConstDecl       : Type * ID * Exp -> MainDef
-    Class           : Region * Option(BorderDecl) * List(FuncDecl) -> MainDef
-    Class           : Module * List(FieldDecl) * List(FuncDecl) -> MainDef
-    Class           : Meta * Option(PartDecl) * List(FieldDecl) * List(FuncDecl) -> MainDef
+    Region          : Option(BorderDecl) * List(FuncDecl) -> MainDef
+    Module          : List(FieldDecl) * List(FuncDecl) -> MainDef
+    Meta            : Option(PartDecl) * List(FieldDecl) * List(FuncDecl) -> MainDef
                     : GroupDef -> MainDef
                     : SequenceRef -> ModHolderOrSeqRef
                     : ModHolderRef -> ModHolderOrSeqRef

@@ -6,7 +6,7 @@ imports
 	lexical/MetaformaLang-Identifiers
 
 exports
-	sorts MainDef
+	sorts MainDef Stmt Receive
 
   context-free start-symbols
   
@@ -40,9 +40,9 @@ exports
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	GroupDef 										-> MainDef
 
-	Meta "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> MainDef{"Class"}
-	Module "{" FieldDecl* FuncDecl* "}" 			-> MainDef{"Class"}
-	Region "{" BorderDecl? FuncDecl* "}" 			-> MainDef{"Class"}
+	"meta" "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> MainDef{"Meta"}
+	"module" "{" FieldDecl* FuncDecl* "}" 			-> MainDef{"Module"}
+	"region" "{" BorderDecl? FuncDecl* "}" 			-> MainDef{"Region"}
 	
 	Type ID "=" Exp									-> MainDef{"ConstDecl"}
 	

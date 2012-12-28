@@ -77,8 +77,9 @@ desugar: If (e,vardecls,stats) -> If(e,<conc>(vardecls,stats))
 desugar: EvHdlr(receive,vars,stats) -> EvHdlr (<newname>,receive,vars,stats)
 desugar: ShowPackets(packets) -> DebugItem (ShowPackets(),packets)
 
-desugar: Class(d@Meta(),metaparts,decls,funcs) -> Class(d,metaparts,<conc>(decls,funcs))
-desugar: Class(d@Module(),decls,funcs) -> Class(d,(),<conc>(decls,funcs))
+desugar: Region(borders,funcs) -> Class(Region(),borders,funcs)
+desugar: Meta(metaparts,decls,funcs) -> Class(Meta(),metaparts,<conc>(decls,funcs))
+desugar: Module(decls,funcs) -> Class(Module(),(),<conc>(decls,funcs))
 
 desugar: Block(stats) -> [stats]
 where
@@ -173,4 +174,4 @@ signature constructors
 	VisItem : X * X * X * X -> VisItem
 	PrimRefPacket: X * X -> PrimRefPacket
 	FakeClass: X -> FakeClass
-
+	Class: X * X * X -> Class

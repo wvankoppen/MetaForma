@@ -810,31 +810,6 @@ rules
 
 rules
 
-  nam-get-scope-types :
-    Class(n, _) -> [Field(), Var(), Method()]
-
-  nam-get-definition-keys :
-    Class(n, _) -> [n]
-
-  nam-get-definitions :
-    Class(n, _) -> [(Class(), [n])]
-
-  nam-annotate-names(|paths__, path__):
-    Class(n, _) -> <Class(nam-annotate-def(|path__), id)>
-
-  adjust-index-def-data(store__|namespace__, path__):
-    Class(n, _) -> <store__> DefData(
-                               [namespace__|path__]
-                             , Type()
-                             , n
-                             )
-
-  type-of :
-    Class(n, _) -> n
-
-
-rules
-
   nam-get-definition-keys :
     FakeClass(n) -> [n]
 

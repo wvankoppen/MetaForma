@@ -185,9 +185,9 @@ rules
 		defines non-unique Class n of type n
 		scopes Field,Method
 
-	Class (n,_): // Region
-		defines non-unique Class n of type n
-		scopes Field,Var,Method
+	// Class (n,_): // Region
+	// 	defines non-unique Class n of type n
+	// 	scopes Field,Var,Method
 	
 	FakeClass(n):
 		defines non-unique Class n of type n

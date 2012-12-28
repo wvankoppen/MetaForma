@@ -107,8 +107,8 @@ regular tree grammar
     ListPlusOfBorderItem0    -> <conc>(ListPlusOfBorderItem0,ListStarOfBorderItem0)
     ListPlusOfBorderItem0    -> <conc>(ListPlusOfBorderItem0,ListPlusOfBorderItem0)
     ListPlusOfBorderItem0    -> <cons>(BorderItem,ListStarOfBorderItem0)
-    OptBorderDecl1           -> <some>(BorderDecl)
-    OptBorderDecl1           -> <none>()
+    OptBorderDecl0           -> <some>(BorderDecl)
+    OptBorderDecl0           -> <none>()
     ListStarOfFieldDecl0     -> ListPlusOfFieldDecl0
     ListStarOfFieldDecl0     -> <nil>()
     ListStarOfFieldDecl0     -> <conc>(ListStarOfFieldDecl0,ListStarOfFieldDecl0)
@@ -116,8 +116,8 @@ regular tree grammar
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListStarOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListPlusOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <cons>(FieldDecl,ListStarOfFieldDecl0)
-    OptPartDecl1             -> <some>(PartDecl)
-    OptPartDecl1             -> <none>()
+    OptPartDecl0             -> <some>(PartDecl)
+    OptPartDecl0             -> <none>()
     ListStarOfVisItem0       -> ListPlusOfVisItem0
     ListStarOfVisItem0       -> <nil>()
     ListStarOfVisItem0       -> <conc>(ListStarOfVisItem0,ListStarOfVisItem0)
@@ -139,10 +139,10 @@ regular tree grammar
     ListPlusOfPacketRef0     -> <conc>(ListPlusOfPacketRef0,ListStarOfPacketRef0)
     ListPlusOfPacketRef0     -> <conc>(ListPlusOfPacketRef0,ListPlusOfPacketRef0)
     ListPlusOfPacketRef0     -> <cons>(PacketRef,ListStarOfPacketRef0)
-    OptVisualize1            -> <some>(Visualize)
-    OptVisualize1            -> <none>()
-    OptShowPackets1          -> <some>(ShowPackets)
-    OptShowPackets1          -> <none>()
+    OptVisualize0            -> <some>(Visualize)
+    OptVisualize0            -> <none>()
+    OptShowPackets0          -> <some>(ShowPackets)
+    OptShowPackets0          -> <none>()
     ListStarOfColor0         -> ListPlusOfColor0
     ListStarOfColor0         -> <nil>()
     ListStarOfColor0         -> <conc>(ListStarOfColor0,ListStarOfColor0)
@@ -263,9 +263,9 @@ regular tree grammar
     BorderItem               -> BorderItem(Direction,Exp)
     BorderDecl               -> BorderDecl(ListStarOfBorderItem0)
     MainDef                  -> ConstDecl(Type,ID,Exp)
-    MainDef                  -> Class(Region,OptBorderDecl1,ListStarOfFuncDecl0)
-    MainDef                  -> Class(Module,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
-    MainDef                  -> Class(Meta,OptPartDecl1,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
+    MainDef                  -> Region(OptBorderDecl0,ListStarOfFuncDecl0)
+    MainDef                  -> Module(ListStarOfFieldDecl0,ListStarOfFuncDecl0)
+    MainDef                  -> Meta(OptPartDecl0,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
     MainDef                  -> GroupDef
     ModHolderOrSeqRef        -> SequenceRef
     ModHolderOrSeqRef        -> ModHolderRef
@@ -274,7 +274,7 @@ regular tree grammar
     VisGroup                 -> VisGroup(ID,ListStarOfVisItem0)
     Visualize                -> Visualize(ListStarOfVisGroup0)
     ShowPackets              -> ShowPackets(ListStarOfPacketRef0)
-    Debug                    -> Debug(OptShowPackets1,OptVisualize1)
+    Debug                    -> Debug(OptShowPackets0,OptVisualize0)
     Start                    -> Program(ID,OptDebug0,ListStarOfMainDef0,ListStarOfColor0)
     SequencePrim             -> <string>
     ConfigFieldID            -> <string>

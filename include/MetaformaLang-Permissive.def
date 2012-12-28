@@ -238,7 +238,7 @@ module MetaformaLang
 imports Common Exp lexical/MetaformaLang-Identifiers
 
 exports
-  sorts MainDef
+  sorts MainDef Stmt Receive
 
   context-free start-symbols
     Start
@@ -254,9 +254,9 @@ exports
     ModHolderRef                                                                                                      -> ModHolderOrSeqRef 
     SequenceRef                                                                                                       -> ModHolderOrSeqRef 
     GroupDef                                                                                                          -> MainDef           
-    Meta "{" PartDecl? FieldDecl* FuncDecl* "}"                                                                       -> MainDef           {cons("Class")}
-    Module "{" FieldDecl* FuncDecl* "}"                                                                               -> MainDef           {cons("Class")}
-    Region "{" BorderDecl? FuncDecl* "}"                                                                              -> MainDef           {cons("Class")}
+    "meta" "{" PartDecl? FieldDecl* FuncDecl* "}"                                                                     -> MainDef           {cons("Meta")}
+    "module" "{" FieldDecl* FuncDecl* "}"                                                                             -> MainDef           {cons("Module")}
+    "region" "{" BorderDecl? FuncDecl* "}"                                                                            -> MainDef           {cons("Region")}
     Type ID "=" Exp                                                                                                   -> MainDef           {cons("ConstDecl")}
     "borders" "[" BorderItem* "]"                                                                                     -> BorderDecl        {cons("BorderDecl")}
     Direction ":" Exp ";"                                                                                             -> BorderItem        {cons("BorderItem")}
@@ -434,7 +434,7 @@ module MetaformaLang
 imports Common Exp lexical/MetaformaLang-Identifiers
 
 exports
-  sorts MainDef
+  sorts MainDef Stmt Receive
 
   context-free start-symbols
     Start
@@ -450,9 +450,9 @@ exports
     ModHolderRef                                                                                                      -> ModHolderOrSeqRef 
     SequenceRef                                                                                                       -> ModHolderOrSeqRef 
     GroupDef                                                                                                          -> MainDef           
-    Meta "{" PartDecl? FieldDecl* FuncDecl* "}"                                                                       -> MainDef           {cons("Class")}
-    Module "{" FieldDecl* FuncDecl* "}"                                                                               -> MainDef           {cons("Class")}
-    Region "{" BorderDecl? FuncDecl* "}"                                                                              -> MainDef           {cons("Class")}
+    "meta" "{" PartDecl? FieldDecl* FuncDecl* "}"                                                                     -> MainDef           {cons("Meta")}
+    "module" "{" FieldDecl* FuncDecl* "}"                                                                             -> MainDef           {cons("Module")}
+    "region" "{" BorderDecl? FuncDecl* "}"                                                                            -> MainDef           {cons("Region")}
     Type ID "=" Exp                                                                                                   -> MainDef           {cons("ConstDecl")}
     "borders" "[" BorderItem* "]"                                                                                     -> BorderDecl        {cons("BorderDecl")}
     Direction ":" Exp ";"                                                                                             -> BorderItem        {cons("BorderItem")}

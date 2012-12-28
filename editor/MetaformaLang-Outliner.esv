@@ -1,9 +1,48 @@
 module MetaformaLang-Outliner
 
-imports MetaformaLang-Outliner.generated
+// imports MetaformaLang-Outliner.generated
 
 outliner
-  
-  // This file can be used for custom outliner rules.
-  //
-  // See the imported file for a brief introduction and examples.
+   Start.Program
+   _.Debug // Why does debug work here, whith the same notation as Meta?
+   _.ShowPackets
+		PacketRef.Packet
+		
+   _.Visualize
+   		_.VisGroup
+   			_.VisItem
+   			
+	_.PacketDecl
+		_.PayloadDecl
+	
+	// TODO: Event handlers do not work, they appear as Packets in the outline view.
+	
+	// EvHdlr
+	// EvHdlr._	
+	// _.EvHdlr	
+	// Receive
+	// Receive._
+	// _.Receive
+		_.PacketVarDecl
+		
+	MainDef._
+	MainDef.Class
+	MainDef.Sequence
+	
+	_.BorderItem
+	Direction._
+	
+	 MainDef.Meta
+	 MainDef.Region
+	// _.Region
+	// _.Module
+		_.MetaPartDecl
+			_.MetaPart
+	
+		_.FieldDecl
+		_.FuncDecl	
+			
+		
+		
+		
+		
