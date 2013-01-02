@@ -60,6 +60,10 @@ to-java: FuncRef(n) -> n
 
 
 to-java: OrientRef(o) -> $[Orientation.[o]]
+
+
+to-java: FuncCall(FuncActuationRef(f), args) -> $[ctrl.getActuation().[f]([<concat-glue(|",")><map(to-java)>args])]
+
 to-java: MethodRef(obj,n) -> $[[<to-java>obj].[n]]
 where <debug>$[Compile methodref [n]]
 
@@ -118,9 +122,10 @@ mod-enum: Group(groupname) -> $[[groupname](true)]
 
 
 
-to-java: TryRegion(n,o,incs,excls) -> $[region().tryRegion(new byte[brackets]{[<concat-glue(|",")><map(to-java)>incs]},new byte[brackets]{[<concat-glue(|",")><map(to-java)>excls]},[<to-java>n],[<to-java>o]);
+to-java: TryRegion(n,Some(Orientation(o)),incs,excls) -> $[region().tryRegion(new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>incs]},new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>excls]},[<to-java>n],[<to-java>o]);
 ]
-where brackets := "[]"
+to-java: TryRegion(n,None(),incs,excls) -> $[region().tryRegion(new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>incs]},new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>excls]});
+]
 
 to-java: OrientMatch(orients) -> $[[<concat-glue(|" || ")><map(orientref)>orients]
 ] 
@@ -128,6 +133,7 @@ to-java: OrientMatch(orients) -> $[[<concat-glue(|" || ")><map(orientref)>orient
 orientref: OrientRef(r) -> $[mfStateMngr.getState().getOrientation().equals(Orientation.[r])]
 
 
+to-java: GotoOrient(s,orient) -> $[mfStateMngr.nextSequence([<to-java>s],[<to-java>orient]);]
 to-java: Goto(s) -> $[mfStateMngr.nextSequence([<to-java>s]);]
 
 
@@ -186,7 +192,7 @@ to-java: FieldPrimRef(obj,f) -> $[[<to-java>obj].get[<to-letter>f]()]
 
 
 
-to-java: VarDecl(t,n) -> $[[<to-java>t] [n]; [n] = 0]
+to-java: VarDecl(t,n,v) -> $[[<to-java>t] [n]; [n] = [<to-java>v]]
 
 
 to-java: Assign(v@VarRef(_), e) -> $[[<to-java>v] = [<to-java>e]]
@@ -197,7 +203,8 @@ to-letter: "group" -> "Group"
 to-letter: "metaID" -> "MetaID"
 to-letter: "metaPart" -> "MetaPart"
 to-letter: "size" -> "Size"
-to-letter: "regionID" -> "regionID"
+to-letter: "sizeExtra" -> "SizeExtra"
+to-letter: "regionID" -> "RegionID"
 
 to-java: Assign(FieldPrimRef(obj,f),val) -> $[[<to-java>obj].set[<to-letter>f]([<to-java>val])]
 
@@ -225,11 +232,12 @@ to-java: Module() -> $[ctrl.module()]
 to-java: Region() -> $[ctrl.region()]
 to-java: Meta() -> $[ctrl.meta()]
 
-to-java: Actuation() -> $[ctrl.getActuation()]
+
 
 to-java: VarRef(n{[Unresolved(_)|_]}) -> <debug>"UNRESOLVED VAR!"
 to-java: VarRef(n{[Var()|_]}) -> <strip-annos>n
 to-java: VarRef(n{[Field()|_]}) -> <strip-annos>n
+to-java: VarRef(n{[Constant()|_]}) -> <strip-annos>n
 to-java: VarRef(n{[MetaPart()|_]}) -> $[MetaPart.[<strip-annos>n]]
 
 to-java: PayloadRef(var,n) ->$[[<to-java>var].[n]]
@@ -246,8 +254,7 @@ to-java: Byte() -> $[byte]
 to-java: Float() -> $[float]
 to-java: Boolean() -> $[boolean]
 
-to-java: ByteArr() -> $[byte[brackets]] where
-	brackets := "[]"
+to-java: ByteArr() -> $[byte[<bracks>]] 
 
 to-java: ByteArr(bytes) -> $[new byte [<bracks>]{[<concat-glue(|",")><map(to-java)>bytes]}]
 
@@ -302,11 +309,13 @@ to-java:  BorderItem(dir,exp) -> $[if (d.equals([<to-java>dir])) {
 ]
 where <debug>"Compile BorderItem"
 
-to-java: BorderLeft() -> $[BorderLine.LEFT]
-to-java: BorderRight() -> $[BorderLine.RIGHT]
-to-java: BorderTop() -> $[BorderLine.TOP]
-to-java: BorderBottom() -> $[BorderLine.BOTTOM] 	 
+// to-java: BorderLeft() -> $[BorderLine.LEFT]
+// to-java: BorderRight() -> $[BorderLine.RIGHT]
+// to-java: BorderTop() -> $[BorderLine.TOP]
+// to-java: BorderBottom() -> $[BorderLine.BOTTOM] 	 
 
+
+to-java: Border(b) -> $[BorderLine.[<to-upper>b]]
 
 // +1 because PacketDiscover has 0, and we can't do bitwise or on that
 to-debug: n -> $[pow2([n].getTypeNr() + 1)]

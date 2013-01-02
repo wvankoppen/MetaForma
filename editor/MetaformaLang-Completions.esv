@@ -13,24 +13,35 @@ completions
                                              
   // Syntax completion:                      
                                              
-  completion template Start : "program " <m> "\n\n" (cursor)  (blank)  
+  completion template Start : "program " <p> "\n\n" (cursor)  (blank)  
                          
   
   completion template Debug : "debug {" (cursor) "}" (blank)                                                              
   completion template MainDef : "module {" (cursor) "}" (blank)  
   completion template MainDef : "meta {" (cursor) "}" (blank)
-  completion template MainDef : "region {" (cursor) "}" (blank)                                           
+  completion template MainDef : "region {" (cursor) "}" (blank)
+  
+  completion template MainDef : "sequence " <s> " {\n" (cursor) "\n}\n"
+  
+  completion template MainDef : "group " <g> "[" (cursor) "]" (blank)
+  completion template MainDef : "group [" (cursor) "]" (blank)                                            
  
-  completion template MainDef : "packet " <e> " {" (cursor) "}" (blank)
+  completion template MainDef : "packet " <p> " {" (cursor) "}" (blank)
+  completion template PayloadDecl : "byte " <b> ";" (cursor) (blank)
   
-  completion template PartDecl : "part [" <e> " ];\n" (cursor) (blank)  
+  completion template PartDecl : "part [" <p> " ];\n" (cursor) (blank)  
 
-  completion template VarDecl : "byte " <e> ";" (cursor) (blank)
-  completion template VarDecl : "int " <e> ";" (cursor) (blank)
-  completion template VarDecl : "float " <e> ";" (cursor) (blank)
+  completion template VarDecl : "byte " <b> ";" (cursor) 
+  completion template VarDecl : "int " <i> ";" (cursor) 
+  completion template VarDecl : "float " <f> ";" (cursor) 
   
-   completion template VarDecl : "float " <e> ";" (cursor) (blank)
+   
                                              
+
+completion template Instr : "disconnect ("<e>"," <e> ");"
+completion template Stmt : "if ("<e>") {\n" <s> "\n}"(blank)  
+completion template Stmt : "if ("<e>") {\n" <s1> "\n}\nelse {\n" <s2> "\n}"(blank)  
+completion template Stmt : "disconnect2 ("<e>"," <e> ");"
 
 completions
   // Semantic (identifier) completion:   

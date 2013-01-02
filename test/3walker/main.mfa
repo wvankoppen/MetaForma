@@ -1,0 +1,207 @@
+program Christensen
+
+debug {
+	show [AssignMetaID,AddNeighbor,MetaVarSync]; 
+	
+	visualize {  
+	 	north {
+	 		@*: blue;
+	 	}
+	 	
+	 	south { 
+	 		Main: white;  	 
+	 	} 
+	} 
+}
+
+int HALF = 180
+int QUART = 90
+int EIGHT = 45
+
+group Walker[Left,Top,Right]
+group Uplifter[Left]
+
+packet AssignMetaID {
+	byte newID;
+	byte index;
+}
+  
+
+packet AddNeighbor {
+	byte first;
+	byte second;
+}
+
+packet Gradient {
+	byte pri;
+	byte sec;
+} 
+
+packet Absorb {
+	
+}
+
+when (receive (AddNeighbor p)) {
+	if (p.metaID != 0) {
+		if (p.metaID == meta.Left) {
+			meta.TopLeft = p.first;  
+			meta.BottomLeft = p.second;
+		}
+		if (p.metaID == meta.Right) {
+			meta.TopRight = p.first;
+			meta.BottomRight = p.second;
+		}
+		if (p.metaID == meta.Top) {
+			meta.TopLeft = p.first;
+			meta.TopRight = p.second;
+		}
+		if (p.metaID == meta.Bottom) {
+			meta.BottomLeft = p.first;
+			meta.BottomRight = p.second;
+		}
+	}
+}
+ 
+ 
+when (receive (Gradient p)) {
+	if (p.pri < module.gradPri || p.sec < module.gradSec) {
+		module.gradPri = min (p.pri,module.gradPri);
+		module.gradSec = min (p.sec,module.gradSec);
+		module.gradientPropagate();
+	}	
+}
+
+region {
+	borders [
+		left: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0; 
+		right: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0;
+		top: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0;
+		bottom: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0;
+	]
+}
+
+meta {
+ 	part [LeftPart, TopPart, RightPart];	
+	// Future work: express meta.Right as Right 
+	byte Top;
+	byte Bottom;
+	byte Left;
+	byte Right;
+	byte TopLeft;
+	byte TopRight;
+	byte BottomLeft; 
+	byte BottomRight;
+
+	byte continueWalk;
+
+	void neighborHook (byte metaId, byte destConn) {
+		if (metaId != module.metaID && module.metaID != 0) {
+			if (module.metaPart == TopPart) {
+				Top = metaId;
+			}
+			
+			if (module.metaPart == RightPart) {
+				Bottom = metaId;
+			}
+			if (module.metaPart == LeftPart) {
+				if (isNORTH(destConn)) {
+					Left = metaId;
+				}
+				else {
+					if (isWEST(destConn)) {
+						BottomLeft = metaId;
+					}
+					else {
+						Bottom = metaId;
+					}
+				}
+			}
+		}
+	}
+ 		
+	void absorb() {
+		unicast Absorb() to $();
+		meta.size = 1;
+	}
+ 	
+ }
+
+ 
+
+module  { 
+	byte gradPri;
+	byte gradSec;
+	boolean isRef;
+	boolean sourcePri;
+	boolean sourceSec;
+	
+
+	
+	void gradientPropagate () {		 
+		if (sourcePri){
+			gradPri = 0;
+		}
+		
+		if (sourceSec) {
+			gradSec = 0;
+		}
+		 unicast Gradient(pri=gradPri, sec=gradSec) to $();
+	}
+ 	
+
+	void gradientInit() {
+		sourcePri = region.atPrimaryBorder();
+		sourceSec = region.atSecondaryBorder();
+		
+		gradPri = MAX_BYTE;
+		gradSec = MAX_BYTE;			
+	}
+ }
+
+  
+sequence Main {
+ 	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
+	when (receive (Packet p)) {
+		meta.neighborHook (p.metaID,p.connDest);
+	}
+	
+	when (receive (Absorb p)) {
+		if (module.metaID == 0) {
+			module.metaID = p.metaID;
+			module.id = @Uplifter.Left; 
+		}
+	}
+	 
+	do {	  
+		when (receive (AssignMetaID p)) {
+			byte index;
+			
+			module.metaID = p.newID;
+				
+			if (p.index == 0) {
+				module.metaPart = TopPart; 
+				index = 1;
+			}
+			else if (p.index == 1) {
+				module.metaPart = RightPart;
+				meta.enable();
+				goto Choose;
+			}
+			
+			
+			unicast AssignMetaID (newID = p.newID,index=index) to $(connSource: pow2(mirror(p.connDest,true)));
+		}
+		when (#(connSource: EAST&MALE&NORTH, metaPart:None) == 2 && #(connSource: WEST&MALE&NORTH, metaID:0)==0) {
+			meta.create();
+			module.metaPart = LeftPart;
+		}	
+		// When a neighbor receives a packet, it sets its metaPart variable, and thus the above event will no longer trigger. Therefore use 2 events
+		when (module.metaPart == LeftPart && module.metaID != 0) {
+			unicast AssignMetaID (newID = module.metaID) to $(connSource: EAST&MALE&NORTH);
+		} 
+		
+	} until (consensus()); 
+	 
+	 
+	goto Choose;	
+}

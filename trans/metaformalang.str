@@ -29,6 +29,8 @@ imports
 
 rules // Analysis
   
+  destination-path(|prog) = !$[/home/wouter/git/ussr/src/ussr/samples/atron/simulations/metaforma/gen/[prog]/]
+  
 	// Analyzes the current program, returning a tuple with the analyzed AST, errors, warnings, notes and
 	// files that should be re-analyzed.
   analyze:
@@ -87,9 +89,13 @@ rules // Editor services
   // Returns "hover help" information for a particular node in the editor.
   // For references, this rule is invoked using the resolved term.
   editor-hover:
-    (target, position, ast, path, project-path) -> $[[uriString]]
+    (target, position, ast, path, project-path) -> uriString
     where
-      uriString := <index-uri-to-string> <index-uri> <index-find-key> target
+      index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+      <debug(!$[target:])>target;
+      uriString := $[([<project-name><type-of>target])    [<concat-glue(|".")><debug(!"Success!")><map(is-string <+ aterm-name)><reverse><tail><debug(!$[URI:])><index-uri>target]]
+      
+
 
   // Completes an identifier when the user presses control-space
   // (the completion identifier in the AST provides additional context information)
@@ -193,8 +199,7 @@ rules // Utility
     with
       index-parallel-analyze-files(analyze)
       
-      
-      to-java-all: x -> x where fail
+     
       
   desugar-aterm:
 		(selected, position, ast, path, project-path) -> (filename, result)
@@ -202,20 +207,11 @@ rules // Utility
 			<guarantee-extension(|"desugered.aterm")> path => filename ;
 			<desugar-all> selected => result
     
-      
-  generate-java-aterm:
-		(selected, position, ast, path, project-path) -> (filename, result)
-		where
-			<guarantee-extension(|"java.aterm")> path => filename ;
-			<base-filename> path => javafile;
-			<to-java-all> selected => result  
-      
-
-      
+       
    generate-java:
 		(selected, position, ast, path, project-path) -> (filename, controller)
 		with
-			<debug>"Generate direct Java code";
+			<debug>"Generate direct Java code.";
 			<project-name>ast => program;
 			<guarantee-extension(|"java")> $[[program]Controller] => filename ;
 			<base-filename> path => javafile;
@@ -250,7 +246,7 @@ rules // Utility
 			
 			<debug>"##############################";
 			debug(!"COMPILE CONSTS");
-			java-consts := <map2str(to-java)><debug(!"Consts:")><index-getcons(|program)>Constant();
+			java-consts := <map2str(to-java-stat)><debug(!"Consts:")><index-getcons(|program)>Constant();
 			
 			<debug>"##############################";
 			debug(!"COMPILE NAMES");
@@ -529,16 +525,16 @@ public class <program>Controller extends MfController implements ControllerInfor
 
 
 >;
-destination-path := $[/home/wouter/git/ussr/src/ussr/samples/atron/simulations/metaforma/gen/[name-l]/];
-<makedir>destination-path;
-				destination-file := $[[destination-path][filename]];
-				//<debug>$[Opening file..];
-				handle := <fopen> (destination-file, "w");
-				//<debug>$[Filling file..];
-				<fputs> (controller, handle);
-				fclose;
-				//<debug>$[Refreshing file: [filename]];
-				<refresh-workspace-file> destination-file
+
+	<makedir><destination-path(|name-l)>;
+	destination-file := $[[<destination-path(|name-l)>][filename]];
+	<debug>$[Opening file..  : [destination-file]];
+	handle := <fopen> (destination-file, "w");
+	<debug>$[Filling file..];
+	<fputs> (controller, handle);
+	fclose;
+	<debug>$[Refreshing file: [filename]];
+	<refresh-workspace-file> destination-file
 
 
 head: [x|xs] -> x
@@ -551,4 +547,5 @@ makedir: path -> 1
 	where <isdir>path
 	
 aterm-name: aterm -> name
-	where ?<id>#(_) => name
+	where  
+	?<id>#(_) => name

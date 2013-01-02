@@ -18,9 +18,10 @@ rules
 // desugar-all = topdown(try(desugar-functions));innermost(desugar);topdown(try(desugar-td));innermost(desugar)
 desugar-all = topdown(try(desugar-td));innermost(desugar)
 
-desugar-td: Program(n,debug,decls,seqs) -> Program(n,debug,decls',seqs)
+desugar-td: Program(n,debug,decls) -> Program(n,debug,decls')
 where
-	 decls' := [FakeClass(Module())|[FakeClass(Meta())|[FakeClass(Region())|decls]]]  
+	// put the fakeclasses at the end of the list, so reference resolving resolves to the existing one, if any
+	 decls' := <conc>([decls],[FakeClass(Module()),FakeClass(Meta()),FakeClass(Region())]) 
 // Add fake declarations because not in every program we use the declaration, only the primitives
 	
 
@@ -57,19 +58,25 @@ where
 	swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*,postcon)) -> Instr(c,evts,evsemi,<conc>(vars,instr*),postcon)
 	swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*)) -> Instr(c,evts,evsemi,<conc>(vars,instr*),Wait(Consensus())) 
 
+// Because we need to match the enum with an object 
+desugar-td: Eq(FieldPrimRef(Module(), "id"), ref) -> FuncCall(MethodRef(FuncCall(MethodRef(Module(),"getID"),[]), "equals"),[ref])
 
 
 desugar-td: Instr(d,evts,evsemi,instrs) -> Instr(d,evts,evsemi,instrs,Wait(Consensus()))
   	 
-desugar-td: Connect(_,m1,m2) -> FuncCall(MethodRef(Actuation(),"connect"),[m1,m2])
-desugar-td: Disconnect(_,m1,m2) -> FuncCall(MethodRef(Actuation(),"disconnect"),[m1,m2])
-desugar-td: Rotate(_,m1,deg) -> FuncCall(MethodRef(Actuation(),"rotate"),[m1,deg])
-desugar-td: RotateCont(_,m1,v) -> FuncCall(MethodRef(Actuation(),"rotate_continuous"),[m1,v])
-desugar-td: Stop(_,m1) -> FuncCall(MethodRef(Actuation(),"stop"),[m1])
+// desugar-td: Connect(_,m1,m2,inRegion) -> FuncCall(MethodRef(Actuation(),"connect"),[m1,m2,inRegion])
+// desugar-td: Disconnect(_,m1,m2,inRegion) -> FuncCall(MethodRef(Actuation(),"disconnect"),[m1,m2,inRegion])
+// desugar-td: Rotate(_,m1,deg) -> FuncCall(MethodRef(Actuation(),"rotate"),[m1,deg])
+// desugar-td: RotateCont(_,m1,v) -> FuncCall(MethodRef(Actuation(),"rotate_continuous"),[m1,v])
+// desugar-td: Stop(_,m1) -> FuncCall(MethodRef(Actuation(),"stop"),[m1])
 
 
-
-
+desugar: VarDecl(Boolean(),var) -> VarDecl(Boolean(),var,Bool("false"))
+desugar: VarDecl(Byte(),var) -> VarDecl(Byte(),var,Int(0))
+desugar: VarDecl(Int(),var) -> VarDecl(Int(),var,Int(0))
+// desugar: FuncCall(FuncActuationRef(f), args) -> FuncCall(MethodRef(Actuation(),f),args)
+// desugar-td: Connect("connect",ref1,ref2) -> Connect("connect",ref1,ref2,Bool("false"))
+// desugar-td: Disconnect("disconnect",ref1,ref2) -> Disconnect("disconnect",ref1,ref2,Bool("false")) 
 
 // Desugar the vardecls out of an event
 desugar: If (e,vardecls,stats) -> If(e,<conc>(vardecls,stats))
@@ -139,33 +146,33 @@ desugar-nbl: FuncPrimRef(f) -> FuncRef(f)
 
 
  
-
-desugar: FuncCall(MethodRef(Module(), "fixSymmetry"), [v]) -> 
-Instr(
-  [ EvHdlr(
-      Receive(PacketVarDecl(Packet("Symmetry"), "p"))
-    , []
-    , [ FuncCall(
-          MethodRef(Module(), "fixSymmetry")
-        , [FieldRef(VarRef("p"), "connSource"), FieldRef(VarRef("p"), "connDest")]
-        )
-      ]
-    )
-  ]
-, []
-, []
-, [ If(
-      v
-    , [ Unicast(
-          Packet("Symmetry")
-        , AssignList([])
-        , NbsOp([NbsFilter("inRegion", Bool("true"))])
-        )
-      ]
-    )
-  ]
-, Until(Consensus())
-)
+// move to generate phase.
+// desugar: FuncCall(MethodRef(Module(), "fixSymmetry"), [v]) -> 
+// Instr(
+//   [ EvHdlr(
+//       Receive(PacketVarDecl(Packet("Symmetry"), "p"))
+//     , []
+//     , [ FuncCall(
+//           MethodRef(Module(), "fixSymmetry")
+//         , [FieldRef(VarRef("p"), "connSource"), FieldRef(VarRef("p"), "connDest")]
+//         )
+//       ]
+//     )
+//   ]
+// , []
+// , []
+// , [ If(
+//       v
+//     , [ Unicast(
+//           Packet("Symmetry")
+//         , AssignList([])
+//         , NbsOp([NbsFilter("inRegion", Bool("true"))])
+//         )
+//       ]
+//     )
+//   ]
+// , Until(Consensus())
+// )
 
 signature constructors
 	ShowPackets: ShowPackets

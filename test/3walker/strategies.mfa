@@ -1,45 +1,118 @@
 program Christensen
 
-sequence Getup {
+
+sequence Choose {
+	try region GetUp orientating TOP_LEFT from Bottom excluding Top;
+}
+
+sequence GetUp {
 	module.gradientInit();
+	module.gradientPropagate();
 	
 	do {
-		assign (0,2,Mod.Walker_Left);
-		assign (1,3,Mod.Walker_Top);
-		assign (2,2,Mod.Walker_Right);
-	} wait (consensus())
+		if (module.gradPri==0 && module.gradSec==2) {module.id = @Walker.Left;}
+		if (module.gradPri==1 && module.gradSec==3) {module.id = @Walker.Top;}
+		if (module.gradPri==2 && module.gradSec==2) {module.id = @Walker.Right;}
+	}
 	
-	disconnect_part(Group.Uplifter, (NORTH&EAST&FEMALE)|(SOUTH&WEST)&FEMALE);
+	disconnect(@Uplifter, (NORTH&EAST&FEMALE)|(SOUTH&WEST&FEMALE));
 		
-	rotate(Mod.Uplifter_Left,-QUART);
-	rotate(Mod.Walker_Right,-QUART);
+	rotate(@Uplifter.Left,-QUART);
+	rotate(@Walker.Right,-QUART);
 	
-	connect(Mod.Walker_Left,Group.Floor,true);
+	connect(@Walker.Left,@*);
 		
-	disconnect(Mod.Walker_Right,Group.Uplifter,true);
+	disconnect(@Walker.Right,@Uplifter);
 		
 	do {
-		actuation.rotate(Mod.Uplifter_Left,QUART);
-		actuation.rotate(Mod.Walker_Right,QUART);
-	} wait (consensus())			
+		rotate(@Uplifter.Left,QUART);
+		rotate(@Walker.Right,QUART);
+	}		
 	
-	rotate(Mod.Walker_Top,-EIGHT);
-	rotate(Mod.Walker_Left,HALF);
-	rotate(Mod.Walker_Top,EIGHT);
+	do {
+		connect(@Uplifter.Left,@*);
+		rotate(@Walker.Top,-EIGHT);
+	}
+	
+	rotate(@Walker.Left,HALF);
+	rotate(@Walker.Top,EIGHT);
 			
 	do {
-		module.restoreID();
+		if (module.group == @Uplifter) {
+			module.restoreID();	
+		}
+		
 		if (meta.regionID == module.metaID) {
-			module.metaIDprevious = module.metaID;
+			meta.continueWalk = 1;
 		}
 	}
 	
-	meta.releaseRegion();
-				
-	if (module().metaID != module().metaIDprevious) {
-		meta().resetVars();
-		goto INIT;
+	do {
+		if (meta.continueWalk == 1) {
+			region.release();
+		}
+		else {
+			region.finish();
+		}
 	}
-	goto WALKSTEP;
 	
+	goto WalkStep;
+}
+
+sequence WalkStep {
+	do {
+		when (module.id == @Walker.Right && #(connSource: SOUTH)==0) {
+			goto GetDown;
+		}
+		connect(@Walker.Right, @*,true);
+	}
+	
+	disconnect(@Walker.Left, @*,false);
+	rotate(@Walker.Top,-45);
+	rotate(@Walker.Right,-180);
+	rotate(@Walker.Top, 45);
+	
+	do {
+		if (module.id == @Walker.Left) {
+			module.id = @Walker.Right;
+		}
+		else if (module.id == @Walker.Right) {
+			module.id = @Walker.Left;
+		}
+	}
+	
+	goto WalkStep;
+}
+
+sequence GetDown {
+	rotate(@Walker.Left,QUART);
+	
+	meta.absorb();
+	
+	if (module.group == @Walker) {
+		// try region from Bottom;
+	}
+	
+	disconnect(@Uplifter.Left, SOUTH);
+	
+	connect(@Walker.Left,@Uplifter.Left);
+	
+	disconnect(@Walker.Left,@*);
+	rotate(@Uplifter.Left,-QUART);
+	connect(@Walker.Right,@Uplifter.Left);
+	disconnect(@Walker.Left,@Uplifter.Left);
+	
+	do {
+		rotate(@Uplifter.Left,-QUART);
+		rotate(@Walker.Left,-QUART);
+	}
+	
+	do {
+		connect(@Walker.Left,@Uplifter.Left);
+		connect(@*,@Uplifter.Left);
+	}
+	
+	module.fixSymmetry (module.metaID != meta.regionID && module.atBorder(top));
+	
+	region.finish();
 }

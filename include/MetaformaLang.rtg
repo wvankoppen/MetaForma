@@ -51,6 +51,8 @@ regular tree grammar
     ListPlusOfMetaFieldRef0  -> <conc>(ListPlusOfMetaFieldRef0,ListStarOfMetaFieldRef0)
     ListPlusOfMetaFieldRef0  -> <conc>(ListPlusOfMetaFieldRef0,ListPlusOfMetaFieldRef0)
     ListPlusOfMetaFieldRef0  -> <cons>(MetaFieldRef,ListStarOfMetaFieldRef0)
+    OptOrientClause0         -> <some>(OrientClause)
+    OptOrientClause0         -> <none>()
     ListStarOfMod0           -> ListPlusOfMod0
     ListStarOfMod0           -> <nil>()
     ListStarOfMod0           -> <conc>(ListStarOfMod0,ListStarOfMod0)
@@ -107,8 +109,8 @@ regular tree grammar
     ListPlusOfBorderItem0    -> <conc>(ListPlusOfBorderItem0,ListStarOfBorderItem0)
     ListPlusOfBorderItem0    -> <conc>(ListPlusOfBorderItem0,ListPlusOfBorderItem0)
     ListPlusOfBorderItem0    -> <cons>(BorderItem,ListStarOfBorderItem0)
-    OptBorderDecl0           -> <some>(BorderDecl)
-    OptBorderDecl0           -> <none>()
+    OptBorderDecl1           -> <some>(BorderDecl)
+    OptBorderDecl1           -> <none>()
     ListStarOfFieldDecl0     -> ListPlusOfFieldDecl0
     ListStarOfFieldDecl0     -> <nil>()
     ListStarOfFieldDecl0     -> <conc>(ListStarOfFieldDecl0,ListStarOfFieldDecl0)
@@ -116,8 +118,8 @@ regular tree grammar
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListStarOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListPlusOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <cons>(FieldDecl,ListStarOfFieldDecl0)
-    OptPartDecl0             -> <some>(PartDecl)
-    OptPartDecl0             -> <none>()
+    OptPartDecl1             -> <some>(PartDecl)
+    OptPartDecl1             -> <none>()
     ListStarOfVisItem0       -> ListPlusOfVisItem0
     ListStarOfVisItem0       -> <nil>()
     ListStarOfVisItem0       -> <conc>(ListStarOfVisItem0,ListStarOfVisItem0)
@@ -139,17 +141,10 @@ regular tree grammar
     ListPlusOfPacketRef0     -> <conc>(ListPlusOfPacketRef0,ListStarOfPacketRef0)
     ListPlusOfPacketRef0     -> <conc>(ListPlusOfPacketRef0,ListPlusOfPacketRef0)
     ListPlusOfPacketRef0     -> <cons>(PacketRef,ListStarOfPacketRef0)
-    OptVisualize0            -> <some>(Visualize)
-    OptVisualize0            -> <none>()
-    OptShowPackets0          -> <some>(ShowPackets)
-    OptShowPackets0          -> <none>()
-    ListStarOfColor0         -> ListPlusOfColor0
-    ListStarOfColor0         -> <nil>()
-    ListStarOfColor0         -> <conc>(ListStarOfColor0,ListStarOfColor0)
-    ListPlusOfColor0         -> <conc>(ListStarOfColor0,ListPlusOfColor0)
-    ListPlusOfColor0         -> <conc>(ListPlusOfColor0,ListStarOfColor0)
-    ListPlusOfColor0         -> <conc>(ListPlusOfColor0,ListPlusOfColor0)
-    ListPlusOfColor0         -> <cons>(Color,ListStarOfColor0)
+    OptVisualize1            -> <some>(Visualize)
+    OptVisualize1            -> <none>()
+    OptShowPackets1          -> <some>(ShowPackets)
+    OptShowPackets1          -> <none>()
     ListStarOfMainDef0       -> ListPlusOfMainDef0
     ListStarOfMainDef0       -> <nil>()
     ListStarOfMainDef0       -> <conc>(ListStarOfMainDef0,ListStarOfMainDef0)
@@ -173,8 +168,10 @@ regular tree grammar
     BackSlashChar            -> <string>
     StringChar               -> <string>
     STRING                   -> <string>
+    Exp                      -> Border(Border)
     Instr                    -> Instr(ListStarOfEvHdlr0,ListStarOfEvHdlrSemi0,ListStarOfVarDecl0,ListStarOfStmt0)
     Instr                    -> Instr(ListStarOfEvHdlr0,ListStarOfEvHdlrSemi0,ListStarOfVarDecl0,ListStarOfStmt0,InstrPost)
+    FuncRef                  -> FuncActuationRef(FuncActuationRef)
     FuncPrimRef2             -> FuncPrimRef(FuncPrimRef)
     Exp                      -> FuncCall(FuncPrimRef2,ListStarOfExp0)
     Stmt                     -> FuncCall(FuncPrimRef2,ListStarOfExp0)
@@ -208,18 +205,14 @@ regular tree grammar
     ModHolderOrExp           -> ModHolderRef
     ModHolderOrExp           -> Exp
     Stmt                     -> Break()
-    Stmt                     -> Stop(Stop,ModHolderRef)
-    Stmt                     -> RotateCont(RotateContinuous,ModHolderRef,Exp)
-    Stmt                     -> Rotate(Rotate,ModHolderRef,Exp)
-    Stmt                     -> Connect(Connect,ModHolderRef,Exp)
-    Stmt                     -> Disconnect(Disconnect,ModHolderRef,Exp)
     MetaFieldRef             -> MetaFieldRef(ID)
     ByteList                 -> ByteArr(ListStarOfExp0)
-    Stmt                     -> TryRegion(SequenceRef,OrientRef,ListStarOfMetaFieldRef0,ListStarOfMetaFieldRef0)
+    Stmt                     -> TryRegion(SequenceRef,OptOrientClause0,ListStarOfMetaFieldRef0,ListStarOfMetaFieldRef0)
     Mod                      -> Mod(ID)
     GroupDef                 -> Group(ID)
     GroupDef                 -> Group(ID,ListStarOfMod0)
-    Stmt                     -> Goto(ID,ID)
+    OrientClause             -> Orientation(OrientRef)
+    Stmt                     -> GotoOrient(SequenceRef,OrientClause)
     Stmt                     -> Goto(SequenceRef)
     Instr                    -> Stmt
     OrientRef                -> OrientRef(ID)
@@ -247,6 +240,7 @@ regular tree grammar
     PacketVarDecl            -> PacketVarDecl(PacketRef,ID)
     PayloadDecl              -> PayloadDecl(Type,ID)
     FieldDecl                -> FieldDecl(Type,ID)
+    VarDecl                  -> VarDecl(Type,ID,Exp)
     VarDecl                  -> VarDecl(Type,ID)
     MainDef                  -> PacketDecl(ID,ListStarOfPayloadDecl0)
     ParamListElem            -> Param(Type,ID)
@@ -256,16 +250,12 @@ regular tree grammar
     Region                   -> Region()
     Module                   -> Module()
     Meta                     -> Meta()
-    Direction                -> BorderBottom()
-    Direction                -> BorderTop()
-    Direction                -> BorderRight()
-    Direction                -> BorderLeft()
-    BorderItem               -> BorderItem(Direction,Exp)
+    BorderItem               -> BorderItem(Border,Exp)
     BorderDecl               -> BorderDecl(ListStarOfBorderItem0)
     MainDef                  -> ConstDecl(Type,ID,Exp)
-    MainDef                  -> Region(OptBorderDecl0,ListStarOfFuncDecl0)
+    MainDef                  -> Region(OptBorderDecl1,ListStarOfFuncDecl0)
     MainDef                  -> Module(ListStarOfFieldDecl0,ListStarOfFuncDecl0)
-    MainDef                  -> Meta(OptPartDecl0,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
+    MainDef                  -> Meta(OptPartDecl1,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
     MainDef                  -> GroupDef
     ModHolderOrSeqRef        -> SequenceRef
     ModHolderOrSeqRef        -> ModHolderRef
@@ -274,9 +264,11 @@ regular tree grammar
     VisGroup                 -> VisGroup(ID,ListStarOfVisItem0)
     Visualize                -> Visualize(ListStarOfVisGroup0)
     ShowPackets              -> ShowPackets(ListStarOfPacketRef0)
-    Debug                    -> Debug(OptShowPackets0,OptVisualize0)
-    Start                    -> Program(ID,OptDebug0,ListStarOfMainDef0,ListStarOfColor0)
+    Debug                    -> Debug(OptShowPackets1,OptVisualize1)
+    Start                    -> Program(ID,OptDebug0,ListStarOfMainDef0)
+    Border                   -> <string>
     SequencePrim             -> <string>
+    FuncActuationRef         -> <string>
     ConfigFieldID            -> <string>
     RegionMethodRef          -> <string>
     MetaMethodRef            -> <string>

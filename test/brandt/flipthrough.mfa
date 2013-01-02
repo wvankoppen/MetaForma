@@ -18,7 +18,7 @@ sequence FlipThrough {
 		module.isRef = (module.gradPri == 0 && module.gradSec == 3);
 	}
 	
-	do  {				
+	do  {				 
 		disconnect(@UpLifter.Left, NORTH&MALE&EAST|SOUTH&MALE&WEST);
 		disconnect(@UpLifter.Right, NORTH&MALE&EAST);
 	} 
@@ -39,9 +39,15 @@ sequence FlipThrough {
 	do  {				
 		rotate(@UpLifter.Right, -HALF);
 		rotate(@UpLifter.Bottom, HALF);
-	} 
+	}
+	 
+	module.restoreID();
 	
 	connect(@*, @UpLifter);	
+	
+	
+	module.fixSymmetry(module.isRef);
+	
 	
 	region.finish();	
 }

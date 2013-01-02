@@ -58,6 +58,7 @@ lexical syntax
 	"isSOUTH"		-> FuncPrimRef
 	"min"			-> FuncPrimRef
 	"pow2"			-> FuncPrimRef
+	"mirror"		-> FuncPrimRef
 	
 	"connect"		-> Core
 	"disconnect"	-> Core

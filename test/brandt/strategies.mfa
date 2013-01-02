@@ -6,15 +6,13 @@ sequence Choose {
 		// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
 		meta.neighborHook (p.metaID,p.connDest);
 	} 
+	 
 	
-	do {
-		meta.broadcastMetaNeighbors();
-	}
-	until(20);
+	meta.broadcastMetaNeighbors();
 	
 	 
 	do { 
-		// UP 
+		// These 3 strategies will move meta-modules in upwards direction
 		try region FlipThrough orientating BOTTOM_RIGHT from Top excluding TopLeft,Left,Bottom;
 		try region FlipAlong orientating BOTTOM_RIGHT from Right,TopRight excluding Top;
 		try region FlipThrough orientating LEFT_BOTTOM from Right excluding Top, TopRight;

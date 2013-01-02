@@ -22,34 +22,31 @@ folding Default folding definitions
   
   Start.Program
   Debug.Debug
-  OptShowPackets0
+  OptShowPackets1
   ShowPackets.ShowPackets
-  OptVisualize0
+  OptVisualize1
   Visualize.Visualize
   VisGroup.VisGroup
   GroupDef.Group
   MainDef.Meta
-  OptPartDecl0
+  OptPartDecl1
   PartDecl.MetaPartDecl
   FuncDecl.FuncDecl
+  VarDecl.VarDecl
+  Exp.OrientMatch
   Stmt.Unicast
   AssignList.AssignList
   AssignElem.AssignElem
-  Exp.OrientMatch
   Nbs.Nbs
   Stmt.Assign
   Stmt.TryRegion
-  Stmt.Disconnect
-  Stmt.Connect
-  Stmt.Rotate
-  Stmt.RotateCont
   Stmt.FuncCall
   Stmt.FuncCall
   Stmt.FuncCall
   FuncDecl.FuncDecl
   MainDef.Module
   MainDef.Region
-  OptBorderDecl0
+  OptBorderDecl1
   BorderDecl.BorderDecl
   BorderItem.BorderItem
   MainDef.ConstDecl

@@ -47,25 +47,25 @@ signature
 rules
 
   nam-get-scope-types :
-    Program(n, _, _, _) -> [ Group()
-                           , Packet()
-                           , Class()
-                           , Sequence()
-                           , MetaPart()
-                           , EventHandler()
-                           , VisItem()
-                           , Constant()
-                           , DebugItem()
-                           ]
+    Program(n, _, _) -> [ Group()
+                        , Packet()
+                        , Class()
+                        , Sequence()
+                        , MetaPart()
+                        , EventHandler()
+                        , VisItem()
+                        , Constant()
+                        , DebugItem()
+                        ]
 
   nam-get-definition-keys :
-    Program(n, _, _, _) -> [n]
+    Program(n, _, _) -> [n]
 
   nam-get-definitions :
-    Program(n, _, _, _) -> [(Program(), [n])]
+    Program(n, _, _) -> [(Program(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Program(n, _, _, _) -> <Program(nam-annotate-def(|path__), id, id, id)>
+    Program(n, _, _) -> <Program(nam-annotate-def(|path__), id, id)>
 
 
 rules
@@ -483,26 +483,26 @@ rules
 rules
 
   nam-get-definition-keys :
-    VarDecl(t, n) -> [n]
+    VarDecl(t, n, v) -> [n]
 
   nam-get-definitions :
-    VarDecl(t, n) -> [(Var(), [n])]
+    VarDecl(t, n, v) -> [(Var(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    VarDecl(t, n) -> <VarDecl(id, nam-annotate-def(|path__))>
+    VarDecl(t, n, v) -> <VarDecl(id, nam-annotate-def(|path__), id)>
 
   adjust-index-def-data(store__|namespace__, path__):
-    VarDecl(t, n) -> <store__> DefData(
-                                 [namespace__|path__]
-                               , Type()
-                               , t
-                               )
+    VarDecl(t, n, v) -> <store__> DefData(
+                                    [namespace__|path__]
+                                  , Type()
+                                  , t
+                                  )
 
   type-of :
-    VarDecl(t, n) -> t
+    VarDecl(t, n, v) -> t
 
   nam-unique :
-    VarDecl(t, n) -> <id>
+    VarDecl(t, n, v) -> <id>
 
 
 rules
@@ -565,21 +565,6 @@ rules
 
   nam-annotate-names(|paths__, path__):
     FuncRef(n) -> <FuncRef(nam-annotate-use(|paths__, Method()))>
-
-
-rules
-
-  nam-get-uses-keys :
-    MethodRef(Actuation(), n) -> [n]
-
-  nam-get-uses :
-    MethodRef(Actuation(), n) -> [(Method(), [n])]
-
-  nam-annotate-names(|paths__, path__):
-    MethodRef(Actuation(), n) -> <MethodRef(
-                                    Actuation()
-                                  , nam-annotate-use(|paths__, Method())
-                                  )>
 
 
 rules
@@ -781,6 +766,18 @@ rules
 
   nam-annotate-names(|paths__, path__):
     Module() -> <nam-annotate-use(|paths__, Class())>
+
+
+rules
+
+  nam-get-uses-keys :
+    Region() -> [Region()]
+
+  nam-get-uses :
+    Region() -> [(Class(), [Region()])]
+
+  nam-annotate-names(|paths__, path__):
+    Region() -> <nam-annotate-use(|paths__, Class())>
 
 
 rules

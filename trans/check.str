@@ -8,7 +8,8 @@ imports
   lib/analysis-library.generated
   lib/analysis-library-internal.generated
   lib/nbl-library.generated
-types
+	types
+	project
 rules // Other
   
   

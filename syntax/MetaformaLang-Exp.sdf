@@ -1,4 +1,4 @@
-module Exp
+module MetaformaLang-Exp
 
 imports Common
 imports MetaformaLang

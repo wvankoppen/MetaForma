@@ -19,23 +19,14 @@ builders
                                                                                                                             
   builder  : "Show abstract syntaxx"                = generate-aterm (openeditor) (realtime) (meta) (source)
   builder  : "Show desugared syntax"                = desugar-aterm (openeditor) (realtime) (meta) (source)
-  builder  : "Show deffed syntax" = generate-deffed (openeditor) (meta) (source)
-  builder  : "Show analyzed syntax" = generate-analyzed (openeditor) (realtime) (meta) (source)
-  builder  : "Show only manual store" = index-manual (openeditor) (meta)
-  builder  : "Show index entries for current file" = index-currentfile (openeditor) (meta)
-  builder  : "Show types" = index-types (openeditor) (meta) 
-  builder  : "Show index entries for all files" = index-allfiles (openeditor) (meta) 
-  builder  : "Clear index" = index-cleanall (meta) (source)           
- //  builder  : "Show deffed syntax"                  = debug-generate-deffed (openeditor) (realtime) (meta) (source)          
- //  builder  : "Show analyzed syntax"                = debug-generate-analyzed (openeditor) (realtime) (meta) (source)        
- //  builder  : "Show index entries for current file" = debug-index-show-current-file (openeditor) (realtime) (meta) (source)  
- //  builder  : "Show index entries for all files"    = debug-index-show-all-files (openeditor) (realtime) (meta) (source)     
- //  builder  : "Clear index for current file"        = debug-index-clear-current (meta) (source)                              
- //  builder  : "Clear index"                         = debug-index-clear (meta) (source)                                      
- //  builder  : "Reload index"                        = debug-index-reload (meta) (source)                
-
-  builder		: "Jtree (selection)" = generate-java-aterm  (openeditor)(meta) (source)                             
-  builder		: "Java code (selection)" = generate-java  (openeditor) (source)                                                                                                                          
+  builder  : "Show deffed syntax" 					= generate-deffed (openeditor) (meta) (source)
+  builder  : "Show analyzed syntax" 				= generate-analyzed (openeditor) (realtime) (meta) (source)
+  builder  : "Show only manual store" 				= index-manual (openeditor) (meta)
+  builder  : "Show index entries for current file" 	= index-currentfile (openeditor) (meta)
+  builder  : "Show types" 							= index-types (openeditor) (meta) 
+  builder  : "Show index entries for all files" 	= index-allfiles (openeditor) (meta) 
+  builder  : "Clear index" 							= index-cleanall (meta) (source)                                        
+  builder  : "Java code (selection)" 				= generate-java  (source)                                                                                                                          
 
 refactorings
 

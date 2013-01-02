@@ -26,7 +26,7 @@ imports
 strategies
 	bracks = !"[]"
 
-	map2str(rule) = map(rule);concat-strings 
+	map2str(rule) = map(rule);concat-strings <+ !"" // empty list will fail 
 
 	compile-packet: PacketDecl(packet,i,payloaddecls) -> $[
 		class [packet'] extends PacketBase {

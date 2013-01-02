@@ -8,7 +8,7 @@ language General properties
   id            : MetaformaLang
   extends       : Root
                   
-  description   : "Spoofax/IMP-generated editor for the MetaformaLang language"
+  description   : "Spoofax/IMP-generated editor for the Metaforma language"
   url           : http://strategoxt.org
                   
   extensions    : mfa

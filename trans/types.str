@@ -36,7 +36,9 @@ rules
 	
 	type-of: Packet(n) -> Packet(n)
 
-
+	type-of: FuncDecl(n,_,_,stats) -> Void()
+	type-of: FuncCall (r,args) -> <type-of>r 
+	type-of: MethodRef(o,m) -> <type-of><index-lookup>m
 	type-of: FieldRef(o,f) -> <type-of><index-lookup>f
 	type-of: PayloadRef(f) -> <type-of><index-lookup>f
 	
@@ -44,9 +46,9 @@ rules
 	type-of: VarRef(n) ->  <type-of><index-lookup> n
 	
 		 
-	type-of: Meta() -> Class(Meta())
-	type-of: Module() -> Class(Module())
-	type-of: Region() -> Class(Region())
+	type-of: Meta() -> Class("meta")
+	type-of: Module() -> Class("module")
+	type-of: Region() -> Class("region")
 	
 	
 	type-of: PayloadDecl (t,n) -> t
@@ -73,7 +75,7 @@ rules
       case ?Float() : !"Float"
       case ?MetaPart() : !"MetaPart"
       case ?Byte() : !"Byte"
-      case ?Class(c) : !$[Class [c]]
+      case ?Class(n) : !$[Class[<to-upper>n] ]
       case ?name#(_) : !$[[name]]
       otherwise : id
     end

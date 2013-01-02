@@ -2,11 +2,11 @@ module MetaformaLang
 
 imports 
 	Common
-	Exp
+	MetaformaLang-Exp
 	lexical/MetaformaLang-Identifiers
 
 exports
-	sorts MainDef Stmt Receive
+	sorts MainDef Stmt Receive Sequence
 
   context-free start-symbols
   
@@ -16,7 +16,7 @@ exports
   %% Declaration: In main program space
   %% MainDef: In all program space
   
-   "program" ID Debug? MainDef* Color*						-> Start {"Program"}
+   "program" ID Debug? MainDef*						-> Start {"Program"}
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Debug and visualisation
@@ -46,14 +46,14 @@ exports
 	
 	Type ID "=" Exp									-> MainDef{"ConstDecl"}
 	
-	"borders" "[" BorderItem* "]"			-> BorderDecl{"BorderDecl"}
+	"borders" "[" BorderItem* "]"					-> BorderDecl{"BorderDecl"}
 	
-	Direction ":" Exp ";" -> BorderItem{"BorderItem"}
+	Border ":" Exp ";" -> BorderItem{"BorderItem"}
 	
-	"left" 		-> Direction{"BorderLeft"}
-	"right" 	-> Direction{"BorderRight"}
-	"top" 		-> Direction{"BorderTop"} 
-	"bottom" 	-> Direction{"BorderBottom"}  
+	%% "left" 		-> Direction{"BorderLeft"}
+	%% "right" 	-> Direction{"BorderRight"}
+	%% "top" 		-> Direction{"BorderTop"} 
+	%% "bottom" 	-> Direction{"BorderBottom"}  
 	
 	"meta" 							-> Meta{"Meta"}
 	"module"						-> Module{"Module"}
@@ -68,16 +68,16 @@ exports
 	"packet" ID "{" PayloadDecl* "}" 					-> MainDef{"PacketDecl"}
 	
 	Type ID ";" 				-> VarDecl{"VarDecl"}
+	Type ID "=" Exp ";"			-> VarDecl{"VarDecl"}
 	Type ID ";" 				-> FieldDecl{"FieldDecl"}
 	Type ID ";" 				-> PayloadDecl{"PayloadDecl"}
 	PacketRef ID 				-> PacketVarDecl{"PacketVarDecl"}
-	
 
 	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{"MetaPartDecl"}
 	ID 									-> MetaPart{"MetaPart"}
 	
 	
-	"None" -> ID{reject}
+	"None" 								-> ID{reject}
 	
 	MetaPartNoneRef 					-> Exp{"MetaPartNoneRef"}
 	
@@ -109,11 +109,7 @@ exports
 	"rate" Ref							-> Rate{"Rate"}
 	
 
-	
-	
 	Ref "=" Exp ";" 				-> Stmt{"Assign"}
-	
-	
 
 	Stmt							-> Block{"Block"}
 	"{" Stmt* "}" 							-> Block{"Block"}
@@ -130,27 +126,33 @@ exports
 		
 	Stmt -> Instr
 	"goto" SequenceRef ";"							-> Stmt{"Goto"}
-	"goto" ID "orientating" ID ";"			-> Stmt{"Goto"}
-	
+	"goto" SequenceRef OrientClause ";"							-> Stmt{"GotoOrient"}
+	"orientating" OrientRef 				-> OrientClause{"Orientation"}
+		
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{"Group"}
 	"group" ID							-> GroupDef{"Group"}
 	
 	ID 								-> Mod{"Mod"}
 	
-	"try" "region" SequenceRef "orientating" OrientRef "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{"TryRegion"}
+	"try" "region" SequenceRef OrientClause? "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{"TryRegion"}
+	
 	
 	 {Exp ","}* 				-> ByteList {"ByteArr"}
 	 ID 		-> MetaFieldRef {"MetaFieldRef"}
 	 
 
 	
-	Disconnect "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Disconnect"}
-	Connect "(" ModHolderRef "," Exp")" ";"			-> Stmt{"Connect"}
-	Rotate "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Rotate"}
-	RotateContinuous "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"RotateCont"}
-
-	
-	Stop "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
+%% 	Disconnect "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Disconnect"}
+%% 	Connect "(" ModHolderRef "," Exp")" ";"				-> Stmt{"Connect"}
+%% 	
+%% 	Disconnect "(" ModHolderRef "," Exp "," Exp ")" ";"			-> Stmt{"Disconnect"}
+%% 	Connect "(" ModHolderRef "," Exp "," Exp ")" ";"				-> Stmt{"Connect"}
+%% 	
+%% 	Rotate "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Rotate"}
+%% 	RotateContinuous "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"RotateCont"}
+%% 
+%% 	
+%% 	Stop "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
 	
 	"break" ";"	-> Stmt{"Break"}
 	
@@ -173,9 +175,6 @@ exports
 	"Symmetry" -> PacketPrim
 
 	context-free syntax
-		
-		
-	
 	Exp 			-> ModHolderOrExp
 	ModHolderRef 	-> ModHolderOrExp
 	
@@ -237,7 +236,9 @@ exports
 	
 	"id" 		-> MetaFieldID
 	"regionID" 	-> MetaFieldID
-	"size" 		-> MetaFieldID
+	%% "size" 		-> MetaFieldID
+	"sizeExtra" 		-> MetaFieldID
+	%% "absorbed"	-> MetaFieldID
 	
 	"moduleID" 	-> PayloadID
 	"metaID" 	-> PayloadID
@@ -245,13 +246,23 @@ exports
 	"connSource"-> PayloadID
 	"connDest" 	-> PayloadID
 	
+	"restoreID"			-> ModuleMethodRef
+	"atBorder"			-> ModuleMethodRef
+	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
 	"create"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
+	"release" 			-> RegionMethodRef
 	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
 	"assignTime" 		-> ConfigFieldID
+	
+	"connect" 			-> FuncActuationRef
+	"disconnect" 		-> FuncActuationRef
+	"rotate" 			-> FuncActuationRef
+	"stop" 				-> FuncActuationRef
+	
 	
 	
 	lexical syntax
@@ -277,7 +288,7 @@ exports
 	FuncPrimRef2 "(" {Exp "," }* ")" 		-> Exp{"FuncCall"}
 	
 	FuncPrimRef -> FuncPrimRef2{"FuncPrimRef"}
-	
+	FuncActuationRef -> FuncRef{"FuncActuationRef"}
 	
 	FuncPrimRef 	-> FuncRef{reject}
 
@@ -287,6 +298,15 @@ exports
 	
 	
 	
+	
+	Border -> Exp{"Border"}
+	Border -> ID{reject}
+	
+	lexical syntax
+	"top" 		-> Border
+	"bottom"	-> Border
+	"left"		-> Border
+	"right"		-> Border
 	
 	
 	

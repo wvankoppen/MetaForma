@@ -3,7 +3,7 @@ group Clover [North,South,West,East]
 
 sequence FlipAlong  {
 	int QUART; 
-	int HALF;
+	int HALF; 
 	
 	if (orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
 		QUART = -90;

@@ -7,6 +7,7 @@ group Outside
 
 
 sequence FlipOver {
+	
 	int HALF;
 	int QUART;
 	
@@ -32,9 +33,12 @@ sequence FlipOver {
 		if (module.gradPri==0 && module.gradSec==2) { 
 			module.id = @OutsideLifter.Bottom;
 		}
+		
+		
 		module.isRef = (module.gradPri == 0 && module.gradSec == 3);
 	}
-					
+	
+			
 	
 	disconnect(@Outside, @Inside);
 	disconnect(@OutsideLifter, @Inside);

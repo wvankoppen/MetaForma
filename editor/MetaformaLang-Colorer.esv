@@ -8,29 +8,37 @@ darkyellow = 127 127 0
 
 
 colorer
-       SysObj : darkblue                                                 
+    SysObj : darkblue                                                 
 	Type     : 127 0 85 bold
 	// Obj     : 0 128 0      
 	ConstLan	: brown 
 	FuncPrimRef : brown
+	FuncActuationRef : 127 0 0    bold
+	
+	ModHolderRef: darkyellow
+	SysObj : darkblue
 	ModuleFieldID : darkgreen
+	ModuleMethodRef : darkgreen
 	MetaFieldID : darkgreen
+	MetaMethodRef : darkgreen
+	RegionMethodRef : darkgreen
 	PayloadID : darkgreen
 	Bool: darkblue
 	
-	SysObj : darkblue
-	// Module : darkblue
-	// Meta : darkblue
-	// Region : darkblue
 	
-	ModHolderRef: darkyellow
+	// The sysobj is overridden by the keyword style!
+	Module : darkblue
+	Meta : darkblue
+	Region : darkblue
 	
-	 
-	Connect : blue
-	Disconnect : blue
-	Rotate : blue
-	Stop : blue
-	RotateContinuous : blue
+	
+	
+	 FuncActuationRef   = 128 0 0 bold    
+	// Connect : func
+	// Disconnect : func
+	// Rotate : func
+	// Stop : func
+	// RotateContinuous : func
 	
 	
 	_.ModHolder : 33 33 33

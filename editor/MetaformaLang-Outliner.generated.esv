@@ -16,9 +16,9 @@ outliner Default outliner
   VisGroup.VisGroup
   GroupDef.Group
   FuncDecl.FuncDecl
+  Exp.FuncCall
+  Exp.FuncCall
   Stmt.Unicast
-  Exp.FuncCall
-  Exp.FuncCall
   Stmt.TryRegion
   Stmt.FuncCall
   Stmt.FuncCall

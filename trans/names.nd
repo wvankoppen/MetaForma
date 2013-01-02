@@ -19,7 +19,7 @@ namespaces
 	Program Group Mod Var Packet Payload Sequence Instruction Class Field Method MetaPart DebugItem VisItem Constant EventHandler	
 rules
 	
-	Program(n,_,_,_):
+	Program(n,_,_):
 		defines non-unique Program n
 		scopes Group, Packet, Class, Sequence,MetaPart,EventHandler,VisItem,Constant,DebugItem
 		
@@ -114,7 +114,7 @@ rules
 	 	//where group refers to Group g
 	
 			
-	VarDecl(t,n): 
+	VarDecl(t,n,v): 
 		defines  Var n of type t
 		
 	PacketVarDecl(packetref,n): 
@@ -129,8 +129,8 @@ rules
 		
 	
 		
-	MethodRef(Actuation(), n):
-		refers to Method n
+	// MethodRef(Actuation(), n):
+	// 	refers to Method n
 		
 	
 	MethodRef(obj,n):
@@ -178,6 +178,7 @@ rules
 		
 	Meta(): refers to Class Meta()
 	Module(): refers to Class Module()
+	Region(): refers to Class Region()
 		
 	//  non-unique because we desugar an empty module, meta and region class in the AST, this allows to omit the declaration in hello word program
 	 
