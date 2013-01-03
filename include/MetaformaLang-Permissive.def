@@ -404,14 +404,15 @@ exports
     FuncPrimRef                                               -> FuncRef      {reject}
     "do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" InstrPost -> Instr        {cons("Instr"), prefer}
     "do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}"           -> Instr        {cons("Instr")}
-    Border                                                    -> Exp          {cons("Border")}
-    Border                                                    -> ID           {reject}
+    Border                                                    -> Exp          
+    BorderName                                                -> Border       {cons("Border")}
+    BorderName                                                -> ID           {reject}
 
   lexical syntax
-    "top"    -> Border 
-    "bottom" -> Border 
-    "left"   -> Border 
-    "right"  -> Border 
+    "top"    -> BorderName 
+    "bottom" -> BorderName 
+    "left"   -> BorderName 
+    "right"  -> BorderName 
 
 module Common
 imports MetaformaLang
@@ -610,11 +611,12 @@ exports
     FuncPrimRef                                               -> FuncRef      {reject}
     "do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" InstrPost -> Instr        {cons("Instr"), prefer}
     "do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}"           -> Instr        {cons("Instr")}
-    Border                                                    -> Exp          {cons("Border")}
-    Border                                                    -> ID           {reject}
+    Border                                                    -> Exp          
+    BorderName                                                -> Border       {cons("Border")}
+    BorderName                                                -> ID           {reject}
 
   lexical syntax
-    "top"    -> Border 
-    "bottom" -> Border 
-    "left"   -> Border 
-    "right"  -> Border 
+    "top"    -> BorderName 
+    "bottom" -> BorderName 
+    "left"   -> BorderName 
+    "right"  -> BorderName 

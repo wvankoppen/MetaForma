@@ -43,7 +43,7 @@ exports
 	"meta" "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> MainDef{"Meta"}
 	"module" "{" FieldDecl* FuncDecl* "}" 			-> MainDef{"Module"}
 	"region" "{" BorderDecl? FuncDecl* "}" 			-> MainDef{"Region"}
-	
+	 
 	Type ID "=" Exp									-> MainDef{"ConstDecl"}
 	
 	"borders" "[" BorderItem* "]"					-> BorderDecl{"BorderDecl"}
@@ -299,14 +299,15 @@ exports
 	
 	
 	
-	Border -> Exp{"Border"}
-	Border -> ID{reject}
+	Border -> Exp
+	BorderName -> Border{"Border"}
+	BorderName -> ID{reject}
 	
 	lexical syntax
-	"top" 		-> Border
-	"bottom"	-> Border
-	"left"		-> Border
-	"right"		-> Border
+	"top" 		-> BorderName
+	"bottom"	-> BorderName
+	"left"		-> BorderName
+	"right"		-> BorderName
 	
 	
 	

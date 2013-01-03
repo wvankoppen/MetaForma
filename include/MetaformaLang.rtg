@@ -168,7 +168,8 @@ regular tree grammar
     BackSlashChar            -> <string>
     StringChar               -> <string>
     STRING                   -> <string>
-    Exp                      -> Border(Border)
+    Border                   -> Border(BorderName)
+    Exp                      -> Border
     Instr                    -> Instr(ListStarOfEvHdlr0,ListStarOfEvHdlrSemi0,ListStarOfVarDecl0,ListStarOfStmt0)
     Instr                    -> Instr(ListStarOfEvHdlr0,ListStarOfEvHdlrSemi0,ListStarOfVarDecl0,ListStarOfStmt0,InstrPost)
     FuncRef                  -> FuncActuationRef(FuncActuationRef)
@@ -266,7 +267,7 @@ regular tree grammar
     ShowPackets              -> ShowPackets(ListStarOfPacketRef0)
     Debug                    -> Debug(OptShowPackets1,OptVisualize1)
     Start                    -> Program(ID,OptDebug0,ListStarOfMainDef0)
-    Border                   -> <string>
+    BorderName               -> <string>
     SequencePrim             -> <string>
     FuncActuationRef         -> <string>
     ConfigFieldID            -> <string>

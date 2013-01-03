@@ -26,7 +26,6 @@ packet AssignMetaID {
 	byte index;
 }
   
-
 packet AddNeighbor {
 	byte first;
 	byte second;
@@ -121,7 +120,7 @@ meta {
  		
 	void absorb() {
 		unicast Absorb() to $();
-		meta.size = 1;
+		meta.sizeExtra = 1;
 	}
  	
  }
@@ -138,14 +137,9 @@ module  {
 
 	
 	void gradientPropagate () {		 
-		if (sourcePri){
-			gradPri = 0;
-		}
-		
-		if (sourceSec) {
-			gradSec = 0;
-		}
-		 unicast Gradient(pri=gradPri, sec=gradSec) to $();
+		if (sourcePri) {gradPri = 0; }
+		if (sourceSec) {gradSec = 0; }
+		unicast Gradient(pri=gradPri, sec=gradSec) to $();
 	}
  	
 
@@ -176,6 +170,10 @@ sequence Main {
 		when (receive (AssignMetaID p)) {
 			byte index;
 			
+			if (true) {
+			
+			}
+			
 			module.metaID = p.newID;
 				
 			if (p.index == 0) {
@@ -188,10 +186,9 @@ sequence Main {
 				goto Choose;
 			}
 			
-			
 			unicast AssignMetaID (newID = p.newID,index=index) to $(connSource: pow2(mirror(p.connDest,true)));
 		}
-		when (#(connSource: EAST&MALE&NORTH, metaPart:None) == 2 && #(connSource: WEST&MALE&NORTH, metaID:0)==0) {
+		when (module.metaID == 0 && #(connSource: EAST&MALE&NORTH, metaPart:None)>0 && #(connSource: WEST&MALE&NORTH, metaID:0)==0) {
 			meta.create();
 			module.metaPart = LeftPart;
 		}	

@@ -2,7 +2,17 @@ program Christensen
 
 
 sequence Choose {
-	try region GetUp orientating TOP_LEFT from Bottom excluding Top;
+	when (receive (Packet p)) { 
+		// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
+		meta.neighborHook (p.metaID,p.connDest);
+	} 
+	do {
+		module.discover();
+	} until(15);
+		
+	do {
+		try region GetUp orientating TOP_LEFT from Bottom excluding Top;
+	} until (false);
 }
 
 sequence GetUp {

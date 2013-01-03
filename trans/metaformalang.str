@@ -92,7 +92,7 @@ rules // Editor services
     (target, position, ast, path, project-path) -> uriString
     where
       index-setup(|<language>, [project-path], $[[project-path]/[path]]);
-      <debug(!$[target:])>target;
+      // <debug(!$[target:])>target;
       uriString := $[([<project-name><type-of>target])    [<concat-glue(|".")><debug(!"Success!")><map(is-string <+ aterm-name)><reverse><tail><debug(!$[URI:])><index-uri>target]]
       
 
@@ -212,8 +212,11 @@ rules // Utility
 		(selected, position, ast, path, project-path) -> (filename, controller)
 		with
 			<debug>"Generate direct Java code.";
+			time-before := <times>;
 			<project-name>ast => program;
-			<guarantee-extension(|"java")> $[[program]Controller] => filename ;
+			name-l := <lower-case>program;
+			classname := $[[program]ControllerGen];
+			<guarantee-extension(|"java")>classname => filename ;
 			<base-filename> path => javafile;
 			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
 			
@@ -255,66 +258,31 @@ rules // Utility
 			names-group := <concat-glue(|",")><map(project-name)><index-getcons(|program)>Group();
 			names-mod :=  <map2str(to-java)><index-getcons(|program)>Group();
 			
-			name-l := <lower-case>program;
 			
-			dt := "<What date function to use?>";
+			time-after := <times>;
+			duration := $[[<Fst> <times-to-seconds> <diff-times> (time-after, time-before)] secs];
 			
 			controller := $<
 package ussr.samples.atron.simulations.metaforma.gen.<name-l>;
 
-/* File compiled at <dt> */
+/* File compiled in <duration> */
 
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set; 
 
-import ussr.description.Robot;
-import ussr.description.setup.ModulePosition;
-import ussr.description.setup.WorldDescription;
-import ussr.samples.ObstacleGenerator;
-import ussr.model.Controller;
+
 import ussr.model.debugging.ControllerInformationProvider;
-import ussr.samples.atron.ATRON;
 import ussr.samples.atron.simulations.metaforma.lib.*;
 import ussr.samples.atron.simulations.metaforma.lib.Packet.*;
 import ussr.samples.atron.simulations.metaforma.lib.constant.*;
 import ussr.samples.atron.simulations.metaforma.lib.iface.*;
 
 
-class <program>Simulation extends MfSimulation {
-
-	public static void main(String[] args) {
-		MfSimulation.initSimulator();		
-		new <program>Simulation().main();
-	
-	}
-
-	protected Robot getRobot() {
-		ATRON a = new ATRON() {
-			public Controller createController() {
-				return new <program>Controller();
-			}
-		};
-		a.setRubberRing();
-        a.setGentle();
-		return a;
-	}
-
-	protected ArrayList$<$ModulePosition$>$ buildRobot() {
-		return new MfBuilder().buildGrid(Mod.X);
-	}
-	
-	protected void changeWorldHook(WorldDescription world) {
-        // ObstacleGenerator generator = new ObstacleGenerator();
-        // generator.obstacalize(ObstacleGenerator.ObstacleType.LINE, world);
-        // world.setPlaneTexture(WorldDescription.GREY_GRID_TEXTURE);
-    }
-}
 		
 <java-packets>
 				
-public class <program>Controller extends MfController implements ControllerInformationProvider {
+public class <classname> extends MfController implements ControllerInformationProvider {
 	
 	<java-consts>
 	
@@ -350,7 +318,7 @@ public class <program>Controller extends MfController implements ControllerInfor
 	private BagMeta meta; 
 	private BagRegion region;
 	
-	private <program>Controller ctrl;
+	private <classname> ctrl;
 	
 
 	public void init() {		
@@ -368,7 +336,7 @@ public class <program>Controller extends MfController implements ControllerInfor
 		
 		module().part = MetaPart.NONE;
 		
-		mfVisual.print("File compiled at <dt>");
+		mfVisual.print("File compiled in <duration>");
 		
 		<java-visuals>
 		

@@ -163,7 +163,7 @@ to-java: Not(exp) -> $[ ![<to-java>exp] ]
 
 to-java: Min(i) -> $[-[<to-java>i]]
 
-to-java: Block(stats) -> $[[<concat-strings><map(to-java-stat)>stats]]
+// to-java: Block(stats) -> $[[<map2str(to-java-stat)>stats]] blocks are out-desugared 
 
 to-java-stat: If(c,stats) -> $[ if ([<to-java>c]) {
 		[<map2str(to-java-stat)>stats]
@@ -216,11 +216,9 @@ to-java: Assign(FieldRef(obj,field),val) -> $[[<to-java>obj].setVar("[field]",[v
 
  
 
-to-java: FuncDecl (n,params,evts,stats) -> $[ void [n] ([<concat-glue(|",")><map(to-java)>params]) {
+to-java-stat: FuncDecl (n,params,evts,stats) -> $[ void [n] ([<concat-glue(|",")><map(to-java)>params]) {
 	[<concat-strings><map(to-java-stat)>stats]	
-	
 }
-
 ]
 
 
@@ -315,7 +313,7 @@ where <debug>"Compile BorderItem"
 // to-java: BorderBottom() -> $[BorderLine.BOTTOM] 	 
 
 
-to-java: Border(b) -> $[BorderLine.[<to-upper>b]]
+to-java: Border(b) -> $[BorderLine.[<to-upper-first>b]] where <debug>$[Border [b]]
 
 // +1 because PacketDiscover has 0, and we can't do bitwise or on that
 to-debug: n -> $[pow2([n].getTypeNr() + 1)]

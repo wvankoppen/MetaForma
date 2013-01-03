@@ -3,6 +3,7 @@ module MetaformaLang
 signature
   constructors
                      : String -> STRING
+    Border           : BorderName -> Border
     FuncPrimRef      : FuncPrimRef -> FuncPrimRef2
     ModHolderAllRef  : ModHolderRef
     ModHolderRef     : ID -> ModHolderRef
@@ -91,7 +92,7 @@ signature
     ShowPackets      : List(PacketRef) -> ShowPackets
     Debug            : Option(ShowPackets) * Option(Visualize) -> Debug
     Program          : ID * Option(Debug) * List(MainDef) -> Start
-                     : String -> Border
+                     : String -> BorderName
                      : String -> SequencePrim
                      : String -> FuncActuationRef
                      : String -> ConfigFieldID
@@ -120,7 +121,7 @@ signature
     Int              : Type
     Byte             : Type
     Boolean          : Type
-    Border           : Border -> Exp
+                     : Border -> Exp
     FuncCall         : FuncPrimRef2 * List(Exp) -> Exp
     FuncCall         : FuncRef * List(Exp) -> Exp
     FuncCall         : MethodRef * List(Exp) -> Exp

@@ -88,13 +88,13 @@ desugar: Region(borders,funcs) -> Class(Region(),borders,funcs)
 desugar: Meta(metaparts,decls,funcs) -> Class(Meta(),metaparts,<conc>(decls,funcs))
 desugar: Module(decls,funcs) -> Class(Module(),(),<conc>(decls,funcs))
 
-desugar: Block(stats) -> [stats]
-where
-	not(<?[_|_]>stats)
-	
+ desugar: Block(stats) -> [stats]
+ where
+ 	not(<is-list>stats)
+ 	
 desugar: Block(stats) -> stats
-where
-	<?[_|_]>stats
+ where
+ 	<is-list>stats
 
 desugar: MetaFieldRef(n) -> FieldRef(Meta(),n)	
 	 

@@ -26,7 +26,8 @@ imports
 strategies
 	bracks = !"[]"
 
-	map2str(rule) = map(rule);concat-strings <+ !"" // empty list will fail 
+	map2str(rule) = map(rule);concat-strings 
+	
 
 	compile-packet: PacketDecl(packet,i,payloaddecls) -> $[
 		class [packet'] extends PacketBase {
@@ -109,12 +110,12 @@ strategies
  	 
 
 
-compile: Class(d@Region(),borderitems,funcs) -> $[
+compile: Class(d@Region(),borderdecl,funcs) -> $[
 	class BagRegion extends RegionCore {
 				
 		public boolean at(BorderLine d) {
 			boolean ret = false;
-			[<to-java>borderitems]
+			[<to-java>borderdecl]
 			return ret;
 		}
 		
@@ -137,7 +138,9 @@ where
 	name := $[Packet[n]]
 
 
-to-java: BorderDecl(items) -> <map2str(to-java)>items
+to-java: Some(BorderDecl(items)) -> <map2str(to-java)>items
+where <debug(!"Compile borderitems")>items
+
 to-java: None() -> $[]
 
  compile:  Class(id',_,elements) -> $[class Bag[n] extends [n]Core implements I[n]Bag {
