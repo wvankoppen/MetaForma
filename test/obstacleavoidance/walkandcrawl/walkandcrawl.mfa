@@ -1,0 +1,232 @@
+program WalkAndCrawl
+
+debug {
+	visualize {
+		north {
+			@LeftWheel: green;
+			@RightWheel: yellow;
+			@Axis: magenta;
+		}
+		south {
+			Main: black;
+			Turn: gray;
+			Drive: red;
+		}
+	}
+}
+
+// Algorithmic constants
+float PROXIMITY = 0.15
+float TIME_BACKWARD = 2
+float TIME_TURNAROUND = 2
+float TIME_CRAWL = 5
+
+byte STEER_DEGREES = 15
+
+byte FORWARD = -1
+byte BACKWARD = 1	
+
+int HALF=180
+int QUART=90
+
+// Define identification for the Car
+group Axis [Front,Back,Driver]
+group LeftWheel
+group RightWheel
+group Eight
+
+meta {
+	void drive (byte dirLeft, byte dirRight) {
+		rotating(@LeftWheel,-dirLeft); 
+		rotating(@RightWheel,dirRight);
+	} 
+	
+	void halt () {
+		stop(@LeftWheel);
+		stop(@RightWheel);
+	}
+	
+	void steer (int degrees) {
+		rotate(@Axis.Front,degrees);
+		rotate(@Axis.Back,-degrees);
+	}
+}
+  
+  
+sequence Main {
+	do {
+		meta.sizeExtra = 7;
+		meta.enable();	
+	}
+	goto Eight2Car;
+	
+}	
+
+sequence Eight2Snake {
+	retractSet(@Eight[3],MALE&EAST&NORTH | MALE&WEST&SOUTH); 
+	
+	do {
+		rotate(@Eight[0],-HALF);
+		rotate(@Eight[6],-HALF);
+	}
+}
+
+sequence Snake2Eight {
+	do {
+		rotate(@Eight[0],HALF);
+		rotate(@Eight[6],HALF);
+	}
+	connect(@Eight,@Eight);
+}
+
+
+sequence Drive {
+	when (module.id == @Axis.Driver && module.proximity() > PROXIMITY) {
+		goto Car2Eight;
+	} 
+	
+	do { 
+		when {
+			case #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0:								module.group = @LeftWheel;
+			case #(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0:								module.group = @RightWheel;
+			case (#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==0:	module.id = @Axis.Front;
+			case (#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==1:	module.id = @Axis.Back;
+			case #()==2: 																		module.id = @Axis.Driver;	
+		}
+	} until (config.assignTime);
+	
+	meta.drive(FORWARD,FORWARD);
+}
+
+
+sequence Crawl {
+	do {
+		rotating (@Eight[1],1);
+		rotating (@Eight[5],1);	
+	} until (TIME_CRAWL);
+	
+	do {
+		stop(@Eight[1]);
+		stop(@Eight[5]);
+	}
+	
+	do {
+		rotateAbsolute(@Eight[1],0);
+		rotateAbsolute(@Eight[5],0);
+	}
+	goto Snake2Eight;
+}
+
+ 
+sequence Turn {
+	meta.halt(); 
+	meta.steer(STEER_DEGREES);
+		
+	do {
+		meta.drive (BACKWARD,BACKWARD);	
+	} wait(TIME_BACKWARD);
+	
+	meta.halt();
+	
+	meta.steer(-STEER_DEGREES);
+	
+	goto Drive;
+}
+
+sequence Eight2Car {
+	do {retract(@Eight[0],0);
+		retract(@Eight[3],4); 
+	}
+	
+	rotate(@Eight[3],-QUART);
+	rotate(@Eight[4],-QUART);
+	
+	do {extend(@Eight[4],6);
+		rotate(@Eight[1],-QUART);
+		retract(@Eight[6],2);}
+	
+	do {rotate(@Eight[4],QUART);
+		rotate(@Eight[6],QUART); }
+	
+	extend(@Eight[0],0);
+	retract(@Eight[6],6);
+	
+	do {rotate(@Eight[0],-QUART);
+		rotate(@Eight[1],QUART);
+	}
+	
+	rotate(@Eight[0],QUART);
+	
+	do {extend(@Eight[5],4);
+		extend(@Eight[2],4);
+		extend(@Eight[1],4);
+	}
+	
+	retract(@Eight[4],6);
+	retract(@Eight[3],6);
+	
+	do {rotate(@Eight[1],QUART);
+		rotate(@Eight[3],QUART);
+	}
+	
+	extend(@Eight[1],6);
+	
+	do {retract(@Eight[3],0);
+		retract(@Eight[3],2);
+	}
+	rotate(@Eight[1],QUART);
+	
+	goto Drive;
+}
+
+sequence Car2Eight {
+	rotate(@Eight[1],-QUART);
+	
+	do {extend(@Eight[3],0);
+		extend(@Eight[3],2);
+	}
+	
+	retract(@Eight[1],6);
+	
+	do {rotate(@Eight[1],-QUART);
+		rotate(@Eight[3],-QUART);
+	}
+	
+	extend(@Eight[3],6);
+	extend(@Eight[4],6);
+	
+	do {retract(@Eight[5],4);
+		retract(@Eight[2],4);
+		retract(@Eight[1],4);
+	}
+	
+	rotate(@Eight[0],QUART);
+	
+	do {rotate(@Eight[0],QUART);
+		rotate(@Eight[1],-QUART);
+	}
+	
+	extend(@Eight[6],6);
+	retract(@Eight[0],0);
+	
+	do {rotate(@Eight[4],-QUART);
+		rotate(@Eight[6],-QUART); }
+	
+	do {retract(@Eight[4],6);
+		rotate(@Eight[1],QUART);
+		extend(@Eight[6],2);}
+	
+	rotate(@Eight[4],-QUART);
+	rotate(@Eight[3],-QUART);
+	
+		
+	
+	
+	do {extend(@Eight[0],0);
+		extend(@Eight[3],4); 
+	}
+	
+	goto Eight2Snake;
+}
+
+

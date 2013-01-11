@@ -240,7 +240,7 @@ rules // Utility
 			
 			<debug>"##############################";
 			<debug>"COMPILE CLASSES";
-			java-classes := <map2str(compile)><debug(!"Classes:")><index-getcons(|program)>Class();
+			java-classes := <map2str(compile)><debug(!"Classes:")><index-getclasses(|program)>;
 			
 			<debug>"##############################";
 			debug(!"COMPILE VISUALS");
@@ -340,7 +340,7 @@ public class <classname> extends MfController implements ControllerInformationPr
 		
 		<java-visuals>
 		
-		mfVisual.setMessageFilter(0+<java-debug>);//^ pow2(PacketDiscover.getTypeNr()));		
+		mfVisual.setMessageFilter(<java-debug>);//^ pow2(PacketDiscover.getTypeNr()));		
 	}
 
 	

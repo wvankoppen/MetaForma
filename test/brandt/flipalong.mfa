@@ -7,7 +7,7 @@ sequence FlipAlong  {
 	
 	if (orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
 		QUART = -90;
-		HALF = -180;
+		HALF = -180; 
 	}
 	else {
 		QUART = 90; 

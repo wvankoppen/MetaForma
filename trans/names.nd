@@ -16,12 +16,12 @@ imports
  // What about the scoping bug? That it has to scope multiple items?
 	
 namespaces
-	Program Group Mod Var Packet Payload Sequence Instruction Class Field Method MetaPart DebugItem VisItem Constant EventHandler	
+	Program Group Mod Var Packet Payload Sequence Instruction Class ClassFake Field Method MetaPart DebugItem VisItem Constant EventHandler	
 rules
 	
 	Program(n,_,_):
 		defines non-unique Program n
-		scopes Group, Packet, Class, Sequence,MetaPart,EventHandler,VisItem,Constant,DebugItem
+		scopes Group, Packet, Class,ClassFake, Sequence,MetaPart,EventHandler,VisItem,Constant,DebugItem
 		
 	DebugItem(n,packets):
 		defines DebugItem n
@@ -46,15 +46,16 @@ rules
 	// Yes! 
 	 Sequence (SequencePrimRef(n),_,_,_,_,_):
 	 	defines Sequence n	
-	 	scopes Packet,Var,Instruction,EventHandler
-		
+	 	scopes Var,Instruction,EventHandler
+	
+	// TODO: Make mutually exclusive	
 	Sequence (n,_,_,_,_,_):
 		defines Sequence n	
 		scopes Var,Instruction,EventHandler
 		
 	Instr(i,_,_,_,_):
 		defines Instruction i
-		scopes EventHandler,Packet
+		scopes EventHandler
 		
 
 	SequenceRef(n):
@@ -88,7 +89,7 @@ rules
 		defines Var n 
 		scopes Var	
 	
-	
+	// TODO: Make mutually exclusive
 	EvHdlr(x, _, _, _):
 		defines EventHandler x
 		scopes Var
@@ -164,8 +165,8 @@ rules
 		
 			
 		
-	PrimRefPacket(v,p):
-		refers to Payload "connSource"
+	//PrimRefPacket(v,p):
+	//	refers to Payload "connSource"
 		
 	Type(c): refers to Class c
 		
@@ -176,9 +177,9 @@ rules
 	
 	
 		
-	Meta(): refers to Class Meta()
-	Module(): refers to Class Module()
-	Region(): refers to Class Region()
+	Meta(): refers to Class Meta() // refers to ClassFake Meta() DOES NOT WORK??
+	Module(): refers to Class Module() //refers to ClassFake Module()
+	Region(): refers to Class Region() //refers to ClassFake Region()
 		
 	//  non-unique because we desugar an empty module, meta and region class in the AST, this allows to omit the declaration in hello word program
 	 

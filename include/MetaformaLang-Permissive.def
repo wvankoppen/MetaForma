@@ -47,14 +47,15 @@ exports
                                                   -> "receive"       {recover, cons("INSERTION")}
                                                   -> "sequence"      {recover, cons("INSERTION")}
                                                   -> "when"          {recover, cons("INSERTION")}
+                                                  -> "case"          {recover, cons("INSERTION")}
                                                   -> "rate"          {recover, cons("INSERTION")}
                                                   -> "orientating"   {recover, cons("INSERTION")}
-                                                  -> "]"             {recover, cons("INSERTION")}
                                                   -> "group"         {recover, cons("INSERTION")}
                                                   -> "wait"          {recover, cons("INSERTION")}
                                                   -> ";"             {recover, cons("INSERTION")}
                                                   -> "until"         {recover, cons("INSERTION")}
                                                   -> ")"             {recover, cons("INSERTION")}
+                                                  -> "]"             {recover, cons("INSERTION")}
                                                   -> "@"             {recover, cons("INSERTION")}
                                                   -> ","             {recover, cons("INSERTION")}
                                                   -> "}"             {recover, cons("INSERTION")}
@@ -80,50 +81,46 @@ exports
     String -/- ~[\"]
 
   lexical syntax
-    "if"                -> ID          {reject}
-    "else"              -> ID          {reject}
-    "for"               -> ID          {reject}
-    "while"             -> ID          {reject}
-    "wait"              -> ID          {reject}
-    "until"             -> ID          {reject}
-    "consensus"         -> ID          {reject}
-    "goto"              -> ID          {reject}
-    "when"              -> ID          {reject}
-    "null"              -> ID          {reject}
-    "red"               -> Color       
-    "blue"              -> Color       
-    "green"             -> Color       
-    "yellow"            -> Color       
-    "cyan"              -> Color       
-    "white"             -> Color       
-    "black"             -> Color       
-    "gray"              -> Color       
-    "orange"            -> Color       
-    "magenta"           -> Color       
-    "brown"             -> Color       
-    "false"             -> Bool        
-    "true"              -> Bool        
-    "MALE"              -> ConstLan    
-    "FEMALE"            -> ConstLan    
-    "WEST"              -> ConstLan    
-    "EAST"              -> ConstLan    
-    "NORTH"             -> ConstLan    
-    "SOUTH"             -> ConstLan    
-    "MAX_BYTE"          -> Const       
-    "isMALE"            -> FuncPrimRef 
-    "isFEMALE"          -> FuncPrimRef 
-    "isWEST"            -> FuncPrimRef 
-    "isEAST"            -> FuncPrimRef 
-    "isNORTH"           -> FuncPrimRef 
-    "isSOUTH"           -> FuncPrimRef 
-    "min"               -> FuncPrimRef 
-    "pow2"              -> FuncPrimRef 
-    "mirror"            -> FuncPrimRef 
-    "connect"           -> Core        
-    "disconnect"        -> Core        
-    "rotate"            -> Core        
-    "stop"              -> Core        
-    "rotate_continuous" -> Core        
+    "if"             -> ID          {reject}
+    "else"           -> ID          {reject}
+    "for"            -> ID          {reject}
+    "while"          -> ID          {reject}
+    "wait"           -> ID          {reject}
+    "until"          -> ID          {reject}
+    "consensus"      -> ID          {reject}
+    "goto"           -> ID          {reject}
+    "when"           -> ID          {reject}
+    "null"           -> ID          {reject}
+    "red"            -> Color       
+    "blue"           -> Color       
+    "green"          -> Color       
+    "yellow"         -> Color       
+    "cyan"           -> Color       
+    "white"          -> Color       
+    "black"          -> Color       
+    "gray"           -> Color       
+    "orange"         -> Color       
+    "magenta"        -> Color       
+    "brown"          -> Color       
+    "false"          -> Bool        
+    "true"           -> Bool        
+    "MALE"           -> ConstLan    
+    "FEMALE"         -> ConstLan    
+    "WEST"           -> ConstLan    
+    "EAST"           -> ConstLan    
+    "NORTH"          -> ConstLan    
+    "SOUTH"          -> ConstLan    
+    "MAX_BYTE"       -> Const       
+    "isMALE"         -> FuncPrimRef 
+    "isFEMALE"       -> FuncPrimRef 
+    "isWEST"         -> FuncPrimRef 
+    "isEAST"         -> FuncPrimRef 
+    "isNORTH"        -> FuncPrimRef 
+    "isSOUTH"        -> FuncPrimRef 
+    "min"            -> FuncPrimRef 
+    "pow2"           -> FuncPrimRef 
+    "mirror"         -> FuncPrimRef 
+    FuncActuationRef -> ID          {reject}
 
   context-free syntax
     "null"         -> Exp    {cons("Null")}
@@ -143,7 +140,6 @@ exports
     ConstLan       -> ID     {reject}
     Bool           -> ID     {reject}
     SysObj         -> ID     {reject}
-    Core           -> ID     {reject}
 
   )
 
@@ -288,6 +284,8 @@ exports
     EvHdlr                                                                                                  -> MainDef           
     "when" "(" Receive ")" "{" VarDecl* Stmt* "}"                                                           -> EvHdlr            {cons("EvHdlr")}
     "when" "(" EventExp ")" "{" VarDecl* Stmt* "}"                                                          -> EvHdlrSemi        {cons("If")}
+    "when" "{" Case* "}"                                                                                    -> EvHdlrSemi        {cons("Ifs")}
+    "case" Exp ":" Stmt*                                                                                    -> Case              {cons("If")}
     ID                                                                                                      -> PacketRef         {cons("Packet")}
     PacketPrim                                                                                              -> PacketRef         {cons("PacketPrim")}
     PacketPrim                                                                                              -> ID                {reject}
@@ -312,18 +310,13 @@ exports
     "break" ";"                                                                                             -> Stmt              {cons("Break")}
 
   lexical syntax
-    "stop"              -> Stop             
-    "rotate_continuous" -> RotateContinuous 
-    "rotate"            -> Rotate           
-    "disconnect"        -> Disconnect       
-    "connect"           -> Connect          
-    "None"              -> MetaPartNoneRef  
-    "Packet"            -> PacketPrim       
-    "Discover"          -> PacketPrim       
-    "Consensus"         -> PacketPrim       
-    "MetaVarSync"       -> PacketPrim       
-    "Region"            -> PacketPrim       
-    "Symmetry"          -> PacketPrim       
+    "None"        -> MetaPartNoneRef 
+    "Packet"      -> PacketPrim      
+    "Discover"    -> PacketPrim      
+    "Consensus"   -> PacketPrim      
+    "MetaVarSync" -> PacketPrim      
+    "Region"      -> PacketPrim      
+    "Symmetry"    -> PacketPrim      
 
   context-free syntax
     Exp                               -> ModHolderOrExp 
@@ -360,8 +353,10 @@ exports
     "metaID"            -> ModuleFieldID    
     "group"             -> ModuleFieldID    
     "metaPart"          -> ModuleFieldID    
+    "assignTime"        -> ConfigFieldID    
     "id"                -> MetaFieldID      
     "regionID"          -> MetaFieldID      
+    "size"              -> MetaFieldID      
     "sizeExtra"         -> MetaFieldID      
     "moduleID"          -> PayloadID        
     "metaID"            -> PayloadID        
@@ -372,8 +367,8 @@ exports
     "atBorder"          -> ModuleMethodRef  
     "fixSymmetry"       -> ModuleMethodRef  
     "proximity"         -> ModuleMethodRef  
+    "initMeta"          -> ModuleMethodRef  
     "enable"            -> MetaMethodRef    
-    "create"            -> MetaMethodRef    
     "finish"            -> RegionMethodRef  
     "release"           -> RegionMethodRef  
     "atPrimaryBorder"   -> RegionMethodRef  
@@ -381,14 +376,21 @@ exports
     "assignTime"        -> ConfigFieldID    
     "connect"           -> FuncActuationRef 
     "disconnect"        -> FuncActuationRef 
+    "extend"            -> FuncActuationRef 
+    "extendSet"         -> FuncActuationRef 
+    "retract"           -> FuncActuationRef 
+    "retractSet"        -> FuncActuationRef 
     "rotate"            -> FuncActuationRef 
     "stop"              -> FuncActuationRef 
+    "rotating"          -> FuncActuationRef 
+    "rotateAbsolute"    -> FuncActuationRef 
 
   lexical syntax
     "Main"   -> SequencePrim 
     "Choose" -> SequencePrim 
 
   context-free syntax
+    "@" ID "[" INT "]"                                        -> ModHolderRef {cons("ModHolderNumRef")}
     "@" ID "." ID                                             -> ModHolderRef {cons("ModHolderRef")}
     "@" ID                                                    -> ModHolderRef {cons("ModHolderRef")}
     "@*"                                                      -> ModHolderRef {cons("ModHolderAllRef")}
@@ -495,6 +497,8 @@ exports
     EvHdlr                                                                                                  -> MainDef           
     "when" "(" Receive ")" "{" VarDecl* Stmt* "}"                                                           -> EvHdlr            {cons("EvHdlr")}
     "when" "(" EventExp ")" "{" VarDecl* Stmt* "}"                                                          -> EvHdlrSemi        {cons("If")}
+    "when" "{" Case* "}"                                                                                    -> EvHdlrSemi        {cons("Ifs")}
+    "case" Exp ":" Stmt*                                                                                    -> Case              {cons("If")}
     ID                                                                                                      -> PacketRef         {cons("Packet")}
     PacketPrim                                                                                              -> PacketRef         {cons("PacketPrim")}
     PacketPrim                                                                                              -> ID                {reject}
@@ -519,18 +523,13 @@ exports
     "break" ";"                                                                                             -> Stmt              {cons("Break")}
 
   lexical syntax
-    "stop"              -> Stop             
-    "rotate_continuous" -> RotateContinuous 
-    "rotate"            -> Rotate           
-    "disconnect"        -> Disconnect       
-    "connect"           -> Connect          
-    "None"              -> MetaPartNoneRef  
-    "Packet"            -> PacketPrim       
-    "Discover"          -> PacketPrim       
-    "Consensus"         -> PacketPrim       
-    "MetaVarSync"       -> PacketPrim       
-    "Region"            -> PacketPrim       
-    "Symmetry"          -> PacketPrim       
+    "None"        -> MetaPartNoneRef 
+    "Packet"      -> PacketPrim      
+    "Discover"    -> PacketPrim      
+    "Consensus"   -> PacketPrim      
+    "MetaVarSync" -> PacketPrim      
+    "Region"      -> PacketPrim      
+    "Symmetry"    -> PacketPrim      
 
   context-free syntax
     Exp                               -> ModHolderOrExp 
@@ -567,8 +566,10 @@ exports
     "metaID"            -> ModuleFieldID    
     "group"             -> ModuleFieldID    
     "metaPart"          -> ModuleFieldID    
+    "assignTime"        -> ConfigFieldID    
     "id"                -> MetaFieldID      
     "regionID"          -> MetaFieldID      
+    "size"              -> MetaFieldID      
     "sizeExtra"         -> MetaFieldID      
     "moduleID"          -> PayloadID        
     "metaID"            -> PayloadID        
@@ -579,8 +580,8 @@ exports
     "atBorder"          -> ModuleMethodRef  
     "fixSymmetry"       -> ModuleMethodRef  
     "proximity"         -> ModuleMethodRef  
+    "initMeta"          -> ModuleMethodRef  
     "enable"            -> MetaMethodRef    
-    "create"            -> MetaMethodRef    
     "finish"            -> RegionMethodRef  
     "release"           -> RegionMethodRef  
     "atPrimaryBorder"   -> RegionMethodRef  
@@ -588,14 +589,21 @@ exports
     "assignTime"        -> ConfigFieldID    
     "connect"           -> FuncActuationRef 
     "disconnect"        -> FuncActuationRef 
+    "extend"            -> FuncActuationRef 
+    "extendSet"         -> FuncActuationRef 
+    "retract"           -> FuncActuationRef 
+    "retractSet"        -> FuncActuationRef 
     "rotate"            -> FuncActuationRef 
     "stop"              -> FuncActuationRef 
+    "rotating"          -> FuncActuationRef 
+    "rotateAbsolute"    -> FuncActuationRef 
 
   lexical syntax
     "Main"   -> SequencePrim 
     "Choose" -> SequencePrim 
 
   context-free syntax
+    "@" ID "[" INT "]"                                        -> ModHolderRef {cons("ModHolderNumRef")}
     "@" ID "." ID                                             -> ModHolderRef {cons("ModHolderRef")}
     "@" ID                                                    -> ModHolderRef {cons("ModHolderRef")}
     "@*"                                                      -> ModHolderRef {cons("ModHolderAllRef")}

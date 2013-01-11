@@ -93,11 +93,15 @@ exports
 	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> MainDef{"Sequence"}
 	
 	
-	EvHdlr										 -> MainDef
+	EvHdlr								 		 -> MainDef
 	
 	"when" "(" Receive ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
-	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{"If"}
+	
+	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" 	-> EvHdlrSemi{"If"}
+	"when" "{"Case* "}" 							-> EvHdlrSemi{"Ifs"}
+	"case" Exp ":" Stmt* 							-> Case{"If"}
+	
  		
 	ID									-> PacketRef {"Packet"}
 	PacketPrim							-> PacketRef {"PacketPrim"}
@@ -160,11 +164,11 @@ exports
 		
 	%% We define these as lexical syntax such that Spoofax does not see it as a keyword and thus make it bold
 		
-	"stop" -> Stop
-	"rotate_continuous" -> RotateContinuous	
-	"rotate" -> Rotate
-	"disconnect" -> Disconnect
-	"connect" -> Connect
+	%% "stop" -> Stop
+	%% "rotate_continuous" -> RotateContinuous	
+	%% "rotate" -> Rotate
+	%% "disconnect" -> Disconnect
+	%% "connect" -> Connect
 	
 	"None"	-> MetaPartNoneRef
 	"Packet" -> PacketPrim
@@ -234,15 +238,17 @@ exports
 	"group" 	-> ModuleFieldID
 	"metaPart" 	-> ModuleFieldID
 	
+	"assignTime"-> ConfigFieldID
+	
 	"id" 		-> MetaFieldID
 	"regionID" 	-> MetaFieldID
-	%% "size" 		-> MetaFieldID
-	"sizeExtra" 		-> MetaFieldID
+	"size" 		-> MetaFieldID
+	"sizeExtra" -> MetaFieldID
 	%% "absorbed"	-> MetaFieldID
 	
 	"moduleID" 	-> PayloadID
 	"metaID" 	-> PayloadID
-	"regionID" 	-> PayloadID
+	"regionID" 	-> PayloadID 
 	"connSource"-> PayloadID
 	"connDest" 	-> PayloadID
 	
@@ -250,18 +256,25 @@ exports
 	"atBorder"			-> ModuleMethodRef
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
+	"initMeta"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
-	"create"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
 	"release" 			-> RegionMethodRef
 	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
 	"assignTime" 		-> ConfigFieldID
 	
+	
 	"connect" 			-> FuncActuationRef
 	"disconnect" 		-> FuncActuationRef
+	"extend"			-> FuncActuationRef
+	"extendSet"			-> FuncActuationRef
+	"retract" 			-> FuncActuationRef
+	"retractSet"		-> FuncActuationRef
 	"rotate" 			-> FuncActuationRef
 	"stop" 				-> FuncActuationRef
+	"rotating"			-> FuncActuationRef
+	"rotateAbsolute"	-> FuncActuationRef
 	
 	
 	
@@ -271,7 +284,7 @@ exports
 	
 	context-free syntax
 
-
+	"@" ID "[" INT "]"								-> ModHolderRef{"ModHolderNumRef"}
 	"@" ID "." ID									-> ModHolderRef{"ModHolderRef"}
 	"@" ID 											-> ModHolderRef{"ModHolderRef"}
 	"@*"											-> ModHolderRef{"ModHolderAllRef"}

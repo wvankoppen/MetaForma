@@ -8,6 +8,7 @@ signature
     ModHolderAllRef  : ModHolderRef
     ModHolderRef     : ID -> ModHolderRef
     ModHolderRef     : ID * ID -> ModHolderRef
+    ModHolderNumRef  : ID * INT -> ModHolderRef
                      : VarRef -> PacketVarRef
     SequenceRef      : ID -> SequenceRef
     SequencePrimRef  : SequencePrim -> SequenceRef
@@ -36,6 +37,8 @@ signature
                      : Exp -> EventExp
     PacketPrim       : PacketPrim -> PacketRef
     Packet           : ID -> PacketRef
+    If               : Exp * List(Stmt) -> Case
+    Ifs              : List(Case) -> EvHdlrSemi
     If               : EventExp * List(VarDecl) * List(Stmt) -> EvHdlrSemi
     EvHdlr           : Receive * List(VarDecl) * List(Stmt) -> EvHdlr
     Receive          : PacketVarDecl -> Receive
@@ -95,12 +98,12 @@ signature
                      : String -> BorderName
                      : String -> SequencePrim
                      : String -> FuncActuationRef
-                     : String -> ConfigFieldID
                      : String -> RegionMethodRef
                      : String -> MetaMethodRef
                      : String -> ModuleMethodRef
                      : String -> PayloadID
                      : String -> MetaFieldID
+                     : String -> ConfigFieldID
                      : String -> ModuleFieldID
                      : String -> PacketPrim
                      : String -> MetaPartNoneRef

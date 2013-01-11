@@ -1,4 +1,4 @@
-program obstacleavoidance
+program ObstacleavoidanceBoth
 
 debug {
 	visualize {
@@ -67,26 +67,23 @@ sequence Main {
 		meta.enable();
 		
 	} until (config.assignTime);
-	
-	
-	 
+	 	 
 	goto Drive;
 }	
 
 
 sequence Drive {
- 	when (module.group == @Axis && module.proximity() > PROXIMITY) {
-		if (module.group == @Axis && #() == 2) {
-			meta.size = 3;
-			goto TurnTwoWheeler;
-		}
-		
-		if (module.group == @Axis && #() == 3) {
-			meta.size = 7;
-			goto TurnFourWheeler;
-		}	
-	}	
-	
+	when (module.group == @Axis && module.proximity() > PROXIMITY) {
+if (module.group == @Axis && #() == 2) {
+meta.size = 3;
+goto TurnTwoWheeler;
+}
+
+if (module.group == @Axis && #() == 3) {
+meta.size = 7;
+goto TurnFourWheeler;
+}
+} 
 	meta.drive(FORWARD,FORWARD);
 }
 

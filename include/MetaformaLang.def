@@ -61,12 +61,8 @@ lexical syntax
 	"pow2"			-> FuncPrimRef
 	"mirror"		-> FuncPrimRef
 	
-	"connect"		-> Core
-	"disconnect"	-> Core
-	"rotate"		-> Core
-	"stop"			-> Core
-	"rotate_continuous"	-> Core
-
+	FuncActuationRef	-> ID {reject}
+	
 	
 	
 	
@@ -91,7 +87,6 @@ lexical syntax
 	 ConstLan		-> ID {reject}
 	 Bool			-> ID {reject}
 	 SysObj			-> ID {reject}
-	 Core			-> ID {reject}
 
 module MetaformaLang-Exp
 
@@ -274,11 +269,15 @@ exports
 	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> MainDef{cons("Sequence")}
 	
 	
-	EvHdlr										 -> MainDef
+	EvHdlr								 		 -> MainDef
 	
 	"when" "(" Receive ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
 	
-	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{cons("If")}
+	
+	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" 	-> EvHdlrSemi{cons("If")}
+	"when" "{"Case* "}" 							-> EvHdlrSemi{cons("Ifs")}
+	"case" Exp ":" Stmt* 							-> Case{cons("If")}
+	
  		
 	ID									-> PacketRef {cons("Packet")}
 	PacketPrim							-> PacketRef {cons("PacketPrim")}
@@ -341,11 +340,11 @@ exports
 		
 	%% We define these as lexical syntax such that Spoofax does not see it as a keyword and thus make it bold
 		
-	"stop" -> Stop
-	"rotate_continuous" -> RotateContinuous	
-	"rotate" -> Rotate
-	"disconnect" -> Disconnect
-	"connect" -> Connect
+	%% "stop" -> Stop
+	%% "rotate_continuous" -> RotateContinuous	
+	%% "rotate" -> Rotate
+	%% "disconnect" -> Disconnect
+	%% "connect" -> Connect
 	
 	"None"	-> MetaPartNoneRef
 	"Packet" -> PacketPrim
@@ -415,15 +414,17 @@ exports
 	"group" 	-> ModuleFieldID
 	"metaPart" 	-> ModuleFieldID
 	
+	"assignTime"-> ConfigFieldID
+	
 	"id" 		-> MetaFieldID
 	"regionID" 	-> MetaFieldID
-	%% "size" 		-> MetaFieldID
-	"sizeExtra" 		-> MetaFieldID
+	"size" 		-> MetaFieldID
+	"sizeExtra" -> MetaFieldID
 	%% "absorbed"	-> MetaFieldID
 	
 	"moduleID" 	-> PayloadID
 	"metaID" 	-> PayloadID
-	"regionID" 	-> PayloadID
+	"regionID" 	-> PayloadID 
 	"connSource"-> PayloadID
 	"connDest" 	-> PayloadID
 	
@@ -431,18 +432,25 @@ exports
 	"atBorder"			-> ModuleMethodRef
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
+	"initMeta"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
-	"create"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
 	"release" 			-> RegionMethodRef
 	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
 	"assignTime" 		-> ConfigFieldID
 	
+	
 	"connect" 			-> FuncActuationRef
 	"disconnect" 		-> FuncActuationRef
+	"extend"			-> FuncActuationRef
+	"extendSet"			-> FuncActuationRef
+	"retract" 			-> FuncActuationRef
+	"retractSet"		-> FuncActuationRef
 	"rotate" 			-> FuncActuationRef
 	"stop" 				-> FuncActuationRef
+	"rotating"			-> FuncActuationRef
+	"rotateAbsolute"	-> FuncActuationRef
 	
 	
 	
@@ -452,7 +460,7 @@ exports
 	
 	context-free syntax
 
-
+	"@" ID "[" INT "]"								-> ModHolderRef{cons("ModHolderNumRef")}
 	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
 	"@*"											-> ModHolderRef{cons("ModHolderAllRef")}
@@ -641,11 +649,15 @@ exports
 	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> MainDef{cons("Sequence")}
 	
 	
-	EvHdlr										 -> MainDef
+	EvHdlr								 		 -> MainDef
 	
 	"when" "(" Receive ")" "{" VarDecl* Stmt* "}" -> EvHdlr{cons("EvHdlr")}
 	
-	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" -> EvHdlrSemi{cons("If")}
+	
+	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" 	-> EvHdlrSemi{cons("If")}
+	"when" "{"Case* "}" 							-> EvHdlrSemi{cons("Ifs")}
+	"case" Exp ":" Stmt* 							-> Case{cons("If")}
+	
  		
 	ID									-> PacketRef {cons("Packet")}
 	PacketPrim							-> PacketRef {cons("PacketPrim")}
@@ -708,11 +720,11 @@ exports
 		
 	%% We define these as lexical syntax such that Spoofax does not see it as a keyword and thus make it bold
 		
-	"stop" -> Stop
-	"rotate_continuous" -> RotateContinuous	
-	"rotate" -> Rotate
-	"disconnect" -> Disconnect
-	"connect" -> Connect
+	%% "stop" -> Stop
+	%% "rotate_continuous" -> RotateContinuous	
+	%% "rotate" -> Rotate
+	%% "disconnect" -> Disconnect
+	%% "connect" -> Connect
 	
 	"None"	-> MetaPartNoneRef
 	"Packet" -> PacketPrim
@@ -782,15 +794,17 @@ exports
 	"group" 	-> ModuleFieldID
 	"metaPart" 	-> ModuleFieldID
 	
+	"assignTime"-> ConfigFieldID
+	
 	"id" 		-> MetaFieldID
 	"regionID" 	-> MetaFieldID
-	%% "size" 		-> MetaFieldID
-	"sizeExtra" 		-> MetaFieldID
+	"size" 		-> MetaFieldID
+	"sizeExtra" -> MetaFieldID
 	%% "absorbed"	-> MetaFieldID
 	
 	"moduleID" 	-> PayloadID
 	"metaID" 	-> PayloadID
-	"regionID" 	-> PayloadID
+	"regionID" 	-> PayloadID 
 	"connSource"-> PayloadID
 	"connDest" 	-> PayloadID
 	
@@ -798,18 +812,25 @@ exports
 	"atBorder"			-> ModuleMethodRef
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
+	"initMeta"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
-	"create"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
 	"release" 			-> RegionMethodRef
 	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
 	"assignTime" 		-> ConfigFieldID
 	
+	
 	"connect" 			-> FuncActuationRef
 	"disconnect" 		-> FuncActuationRef
+	"extend"			-> FuncActuationRef
+	"extendSet"			-> FuncActuationRef
+	"retract" 			-> FuncActuationRef
+	"retractSet"		-> FuncActuationRef
 	"rotate" 			-> FuncActuationRef
 	"stop" 				-> FuncActuationRef
+	"rotating"			-> FuncActuationRef
+	"rotateAbsolute"	-> FuncActuationRef
 	
 	
 	
@@ -819,7 +840,7 @@ exports
 	
 	context-free syntax
 
-
+	"@" ID "[" INT "]"								-> ModHolderRef{cons("ModHolderNumRef")}
 	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
 	"@*"											-> ModHolderRef{cons("ModHolderAllRef")}

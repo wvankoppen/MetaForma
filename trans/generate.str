@@ -53,6 +53,7 @@ where
 	<debug(!"Compile stat: ")>exp
 
 to-java: FuncCall(n,args) -> $[[<to-java>n]([<concat-glue(|",")><map(to-java)>args])]
+to-java: ModHolderNumRef(g,i) -> $[new Module(Mod.[g],[i])]
 to-java: ModHolderRef(g,m) -> $[Mod.[g]_[m]]
 to-java: ModHolderRef(g) -> $[Group.[g]]
 to-java: ModHolderAllRef() -> $[Group.X]  
@@ -133,8 +134,8 @@ to-java: OrientMatch(orients) -> $[[<concat-glue(|" || ")><map(orientref)>orient
 orientref: OrientRef(r) -> $[mfStateMngr.getState().getOrientation().equals(Orientation.[r])]
 
 
-to-java: GotoOrient(s,orient) -> $[mfStateMngr.nextSequence([<to-java>s],[<to-java>orient]);]
-to-java: Goto(s) -> $[mfStateMngr.nextSequence([<to-java>s]);]
+to-java-stat: GotoOrient(s,orient) -> $[mfStateMngr.nextSequence([<to-java>s],[<to-java>orient]);]
+to-java-stat: Goto(s) -> $[mfStateMngr.nextSequence([<to-java>s]);]
 
 
 to-java: SequenceRef(n) -> $[Sequence.[n]] 
@@ -165,6 +166,9 @@ to-java: Min(i) -> $[-[<to-java>i]]
 
 // to-java: Block(stats) -> $[[<map2str(to-java-stat)>stats]] blocks are out-desugared 
 
+
+to-java-stat: Ifs(ifs) -> <map2str(to-java-stat)>ifs
+
 to-java-stat: If(c,stats) -> $[ if ([<to-java>c]) {
 		[<map2str(to-java-stat)>stats]
 }]
@@ -187,7 +191,7 @@ to-java: d@FieldRef(obj,f) -> $[[<to-java>obj].[f]]
 
 to-java: ConstDecl(t,n,v) -> $[public final [<to-java>t] [n] = [<to-java>v]]
 
-to-java: FieldPrimRef(obj,f) -> $[[<to-java>obj].get[<to-letter>f]()]
+to-java: FieldPrimRef(obj,f) -> $[[<to-java>obj].get[<to-let-func>f]()]
 
 
 
@@ -198,15 +202,21 @@ to-java: VarDecl(t,n,v) -> $[[<to-java>t] [n]; [n] = [<to-java>v]]
 to-java: Assign(v@VarRef(_), e) -> $[[<to-java>v] = [<to-java>e]]
 
 
-to-letter: "id" -> "ID"
-to-letter: "group" -> "Group"
-to-letter: "metaID" -> "MetaID"
-to-letter: "metaPart" -> "MetaPart"
-to-letter: "size" -> "Size"
-to-letter: "sizeExtra" -> "SizeExtra"
-to-letter: "regionID" -> "RegionID"
+to-let-func = switch id
+		case ?"id":  !"ID"
+		// case ?"group" : "Group"
+		// case ?"metaID" : "MetaID"
+		// case ?"metaPart" : "MetaPart"
+		// case ?"size" : "Size"
+		// case ?"sizeExtra" : "SizeExtra"
+		// case ?"regionID" : "RegionID"
+		// case ?"group" : "Group"
+		otherwise: <to-upper-first><id>
+	end
+	
 
-to-java: Assign(FieldPrimRef(obj,f),val) -> $[[<to-java>obj].set[<to-letter>f]([<to-java>val])]
+
+to-java: Assign(FieldPrimRef(obj,f),val) -> $[[<to-java>obj].set[<to-let-func>f]([<to-java>val])]
 
 to-java: Assign(FieldRef(obj,field),val) -> $[[<to-java>obj].setVar("[field]",[val'])]
  where

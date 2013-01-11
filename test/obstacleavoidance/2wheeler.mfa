@@ -1,7 +1,7 @@
-program obstacleavoidance
+program ObstacleavoidanceBoth
 
 float TURNAROUND_TIME = 2
-
+ 
 sequence TurnTwoWheeler {
 	do {
 		meta.drive (BACKWARD,BACKWARD);	

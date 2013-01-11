@@ -1,11 +1,11 @@
-program obstacleavoidance
+program ObstacleavoidanceBoth
 
-byte STEER_DEGREES = 12
+byte STEER_DEGREES = 12 
 float BACKWARD_TIME = 20
 
 
 sequence TurnFourWheeler {	
-	meta.halt();
+	meta.halt(); 
 	meta.steer(STEER_DEGREES);
 		
 	do {

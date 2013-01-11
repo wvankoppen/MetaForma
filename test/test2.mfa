@@ -1,13 +1,26 @@
 program Testxyz
 
 
-packet HiThere {}
-packet AddNeighbor {}
 
 
-when (receive (AddNeighbor p)) {
+packet HiThere {
+	
+}
 
-	unicast MetaIdSet (newMetaID = newMetaID) to $(connSource: pow2((p.destCon + 4) % 8));
+packet MetaIdSet {
+	byte newMetaID;
+}
+
+module {
+	// byte hoi;	
 }
 
 
+when (receive (HiThere p)) {
+	module.id = 4;
+}
+
+ 
+sequence test{
+	unicast MetaIdSet(newMetaID = 4) to $();
+} 

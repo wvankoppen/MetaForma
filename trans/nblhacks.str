@@ -45,3 +45,14 @@ imports
    to-upper-first: str -> <conc-strings>(<implode-string>[<to-upper>head],<implode-string>tail)
 where
 	<explode-string> str => [head|tail]
+	
+	
+	
+	
+  // adjust-index-lookup(target__|namespace__, path__, prefix__):
+  //   Module() -> <concat> [ [[Class()|path__]]
+  //                        , [Def([ClassFake(), Module()])]
+  //                        ]
+  //   where
+  //   	<debug> "bla"
+

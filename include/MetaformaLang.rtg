@@ -60,6 +60,13 @@ regular tree grammar
     ListPlusOfMod0           -> <conc>(ListPlusOfMod0,ListStarOfMod0)
     ListPlusOfMod0           -> <conc>(ListPlusOfMod0,ListPlusOfMod0)
     ListPlusOfMod0           -> <cons>(Mod,ListStarOfMod0)
+    ListStarOfCase0          -> ListPlusOfCase0
+    ListStarOfCase0          -> <nil>()
+    ListStarOfCase0          -> <conc>(ListStarOfCase0,ListStarOfCase0)
+    ListPlusOfCase0          -> <conc>(ListStarOfCase0,ListPlusOfCase0)
+    ListPlusOfCase0          -> <conc>(ListPlusOfCase0,ListStarOfCase0)
+    ListPlusOfCase0          -> <conc>(ListPlusOfCase0,ListPlusOfCase0)
+    ListPlusOfCase0          -> <cons>(Case,ListStarOfCase0)
     ListStarOfInstr0         -> ListPlusOfInstr0
     ListStarOfInstr0         -> <nil>()
     ListStarOfInstr0         -> <conc>(ListStarOfInstr0,ListStarOfInstr0)
@@ -109,8 +116,8 @@ regular tree grammar
     ListPlusOfBorderItem0    -> <conc>(ListPlusOfBorderItem0,ListStarOfBorderItem0)
     ListPlusOfBorderItem0    -> <conc>(ListPlusOfBorderItem0,ListPlusOfBorderItem0)
     ListPlusOfBorderItem0    -> <cons>(BorderItem,ListStarOfBorderItem0)
-    OptBorderDecl1           -> <some>(BorderDecl)
-    OptBorderDecl1           -> <none>()
+    OptBorderDecl0           -> <some>(BorderDecl)
+    OptBorderDecl0           -> <none>()
     ListStarOfFieldDecl0     -> ListPlusOfFieldDecl0
     ListStarOfFieldDecl0     -> <nil>()
     ListStarOfFieldDecl0     -> <conc>(ListStarOfFieldDecl0,ListStarOfFieldDecl0)
@@ -118,8 +125,8 @@ regular tree grammar
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListStarOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListPlusOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <cons>(FieldDecl,ListStarOfFieldDecl0)
-    OptPartDecl1             -> <some>(PartDecl)
-    OptPartDecl1             -> <none>()
+    OptPartDecl0             -> <some>(PartDecl)
+    OptPartDecl0             -> <none>()
     ListStarOfVisItem0       -> ListPlusOfVisItem0
     ListStarOfVisItem0       -> <nil>()
     ListStarOfVisItem0       -> <conc>(ListStarOfVisItem0,ListStarOfVisItem0)
@@ -141,10 +148,10 @@ regular tree grammar
     ListPlusOfPacketRef0     -> <conc>(ListPlusOfPacketRef0,ListStarOfPacketRef0)
     ListPlusOfPacketRef0     -> <conc>(ListPlusOfPacketRef0,ListPlusOfPacketRef0)
     ListPlusOfPacketRef0     -> <cons>(PacketRef,ListStarOfPacketRef0)
-    OptVisualize1            -> <some>(Visualize)
-    OptVisualize1            -> <none>()
-    OptShowPackets1          -> <some>(ShowPackets)
-    OptShowPackets1          -> <none>()
+    OptVisualize0            -> <some>(Visualize)
+    OptVisualize0            -> <none>()
+    OptShowPackets0          -> <some>(ShowPackets)
+    OptShowPackets0          -> <none>()
     ListStarOfMainDef0       -> ListPlusOfMainDef0
     ListStarOfMainDef0       -> <nil>()
     ListStarOfMainDef0       -> <conc>(ListStarOfMainDef0,ListStarOfMainDef0)
@@ -184,6 +191,7 @@ regular tree grammar
     ModHolderRef             -> ModHolderAllRef()
     ModHolderRef             -> ModHolderRef(ID)
     ModHolderRef             -> ModHolderRef(ID,ID)
+    ModHolderRef             -> ModHolderNumRef(ID,INT)
     PacketVarRef             -> VarRef
     Ref                      -> PayloadRef(PacketVarRef,ID)
     Ref                      -> PayloadPrimRef(PacketVarRef,PayloadID)
@@ -226,6 +234,8 @@ regular tree grammar
     EventExp                 -> Exp
     PacketRef                -> PacketPrim(PacketPrim)
     PacketRef                -> Packet(ID)
+    Case                     -> If(Exp,ListStarOfStmt0)
+    EvHdlrSemi               -> Ifs(ListStarOfCase0)
     EvHdlrSemi               -> If(EventExp,ListStarOfVarDecl0,ListStarOfStmt0)
     EvHdlr                   -> EvHdlr(Receive,ListStarOfVarDecl0,ListStarOfStmt0)
     MainDef                  -> EvHdlr
@@ -254,9 +264,9 @@ regular tree grammar
     BorderItem               -> BorderItem(Border,Exp)
     BorderDecl               -> BorderDecl(ListStarOfBorderItem0)
     MainDef                  -> ConstDecl(Type,ID,Exp)
-    MainDef                  -> Region(OptBorderDecl1,ListStarOfFuncDecl0)
+    MainDef                  -> Region(OptBorderDecl0,ListStarOfFuncDecl0)
     MainDef                  -> Module(ListStarOfFieldDecl0,ListStarOfFuncDecl0)
-    MainDef                  -> Meta(OptPartDecl1,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
+    MainDef                  -> Meta(OptPartDecl0,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
     MainDef                  -> GroupDef
     ModHolderOrSeqRef        -> SequenceRef
     ModHolderOrSeqRef        -> ModHolderRef
@@ -265,25 +275,20 @@ regular tree grammar
     VisGroup                 -> VisGroup(ID,ListStarOfVisItem0)
     Visualize                -> Visualize(ListStarOfVisGroup0)
     ShowPackets              -> ShowPackets(ListStarOfPacketRef0)
-    Debug                    -> Debug(OptShowPackets1,OptVisualize1)
+    Debug                    -> Debug(OptShowPackets0,OptVisualize0)
     Start                    -> Program(ID,OptDebug0,ListStarOfMainDef0)
     BorderName               -> <string>
     SequencePrim             -> <string>
     FuncActuationRef         -> <string>
-    ConfigFieldID            -> <string>
     RegionMethodRef          -> <string>
     MetaMethodRef            -> <string>
     ModuleMethodRef          -> <string>
     PayloadID                -> <string>
     MetaFieldID              -> <string>
+    ConfigFieldID            -> <string>
     ModuleFieldID            -> <string>
     PacketPrim               -> <string>
     MetaPartNoneRef          -> <string>
-    Connect                  -> <string>
-    Disconnect               -> <string>
-    Rotate                   -> <string>
-    RotateContinuous         -> <string>
-    Stop                     -> <string>
     Exp                      -> OrBit(Exp,Exp)
     Exp                      -> AndBit(Exp,Exp)
     Exp                      -> Or(Exp,Exp)
@@ -331,7 +336,6 @@ regular tree grammar
     Type                     -> Boolean()
     Exp                      -> Null()
     NbsFilterKey             -> <string>
-    Core                     -> <string>
     FuncPrimRef              -> <string>
     Const                    -> <string>
     ConstLan                 -> <string>

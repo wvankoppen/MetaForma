@@ -60,12 +60,8 @@ lexical syntax
 	"pow2"			-> FuncPrimRef
 	"mirror"		-> FuncPrimRef
 	
-	"connect"		-> Core
-	"disconnect"	-> Core
-	"rotate"		-> Core
-	"stop"			-> Core
-	"rotate_continuous"	-> Core
-
+	FuncActuationRef	-> ID {reject}
+	
 	
 	
 	
@@ -89,6 +85,4 @@ lexical syntax
 	 Const			-> ID {reject}
 	 ConstLan		-> ID {reject}
 	 Bool			-> ID {reject}
-	 SysObj			-> ID {reject}
-	 Core			-> ID {reject}
-	
+	 SysObj			-> ID {reject}	

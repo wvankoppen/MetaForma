@@ -35,6 +35,7 @@ signature
     Sequence     : Namespace
     Instruction  : Namespace
     Class        : Namespace
+    ClassFake    : Namespace
     Field        : Namespace
     Method       : Namespace
     MetaPart     : Namespace
@@ -50,6 +51,7 @@ rules
     Program(n, _, _) -> [ Group()
                         , Packet()
                         , Class()
+                        , ClassFake()
                         , Sequence()
                         , MetaPart()
                         , EventHandler()
@@ -184,11 +186,7 @@ rules
 rules
 
   nam-get-scope-types :
-    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [ Packet()
-                                                   , Var()
-                                                   , Instruction()
-                                                   , EventHandler()
-                                                   ]
+    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [Var(), Instruction(), EventHandler()]
 
   nam-get-definition-keys :
     Sequence(SequencePrimRef(n), _, _, _, _, _) -> [n]
@@ -231,7 +229,7 @@ rules
 rules
 
   nam-get-scope-types :
-    Instr(i, _, _, _, _) -> [EventHandler(), Packet()]
+    Instr(i, _, _, _, _) -> [EventHandler()]
 
   nam-get-definition-keys :
     Instr(i, _, _, _, _) -> [i]
@@ -698,22 +696,6 @@ rules
                  , [Constant()|path__]
                  ]
     where <target__> n
-
-
-rules
-
-  nam-get-uses-keys :
-    PrimRefPacket(v, p) -> ["connSource"]
-
-  nam-get-uses :
-    PrimRefPacket(v, p) -> [(Payload(), ["connSource"])]
-
-  nam-annotate-names(|paths__, path__):
-    PrimRefPacket(v, p) -> <PrimRefPacket(id, id)>
-
-  adjust-index-lookup(target__|namespace__, path__, prefix__):
-    PrimRefPacket(v, p) -> [Def([Payload(), "connSource"])]
-    where <target__> "connSource"
 
 
 rules

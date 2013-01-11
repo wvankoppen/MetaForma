@@ -122,7 +122,7 @@ sequence GetDown {
 		connect(@*,@Uplifter.Left);
 	}
 	
-	module.fixSymmetry (module.metaID != meta.regionID && module.atBorder(top));
+	module.fixSymmetry (module.metaID != meta.regionID && region.at(top));
 	
 	region.finish();
 }

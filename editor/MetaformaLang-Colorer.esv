@@ -4,7 +4,7 @@ imports
 	MetaformaLang-Colorer.generated
 
 colorer system colors
-darkyellow = 127 127 0
+darkyellow = 128 128 0
 
 
 colorer
@@ -13,13 +13,13 @@ colorer
 	// Obj     : 0 128 0      
 	ConstLan	: brown 
 	FuncPrimRef : brown
-	FuncActuationRef : 127 0 0    bold
 	
 	ModHolderRef: darkyellow
 	SysObj : darkblue
 	ModuleFieldID : darkgreen
 	ModuleMethodRef : darkgreen
 	MetaFieldID : darkgreen
+	ConfigFieldID : darkgreen
 	MetaMethodRef : darkgreen
 	RegionMethodRef : darkgreen
 	PayloadID : darkgreen
@@ -33,7 +33,7 @@ colorer
 	
 	
 	
-	 FuncActuationRef   = 128 0 0 bold    
+	 FuncActuationRef   : 128 0 0    
 	// Connect : func
 	// Disconnect : func
 	// Rotate : func

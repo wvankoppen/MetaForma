@@ -1,0 +1,74 @@
+program ObstacleavoidanceTwoWheeler
+
+debug {
+	visualize {
+		north {
+			@Car.LeftWheel: green;
+			@Car.RightWheel: yellow;
+			@Car.Driver: magenta;
+		}
+		south {
+			Main: black;
+			Turn: gray;
+			Drive: red;
+		}
+	}
+}
+
+// Algorithmic constants
+float PROXIMITY = 0.15
+float TIME_BACKWARD = 2
+float TIME_TURNAROUND = 2
+byte FORWARD = -1
+byte BACKWARD = 1	
+
+// Define identification for the Car
+group Car [LeftWheel,RightWheel,Driver]
+
+meta {
+	void drive (byte dirLeft, byte dirRight) {
+		rotateContinuous(@Car.LeftWheel,-dirLeft); 
+		rotateContinuous(@Car.RightWheel,dirRight);
+	} 
+}
+  
+sequence Main {	
+	do { 
+		when {
+			case #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0:	module.id = @Car.LeftWheel;
+			case #(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0:	module.id = @Car.RightWheel;
+			case #()==2: 											module.id = @Car.Driver;	
+		}
+	} until (config.assignTime);
+	
+	do {
+		meta.sizeExtra = 3;
+		meta.enable();	
+	}
+	
+	goto Drive;
+}	
+
+
+sequence Drive {
+	when (module.id == @Car.Driver && module.proximity() > PROXIMITY) {
+		goto Turn;
+	} 
+	meta.drive(FORWARD,FORWARD);
+}
+ 
+sequence Turn {
+	stop(@Car);
+	
+	do {
+		meta.drive (BACKWARD,BACKWARD);	
+	} wait(TIME_BACKWARD); 
+	
+	do {
+		meta.drive (BACKWARD,FORWARD);	
+	} wait(TIME_TURNAROUND);
+	
+	goto Drive;
+}
+
+

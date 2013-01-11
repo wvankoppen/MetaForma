@@ -21,7 +21,7 @@ desugar-all = topdown(try(desugar-td));innermost(desugar)
 desugar-td: Program(n,debug,decls) -> Program(n,debug,decls')
 where
 	// put the fakeclasses at the end of the list, so reference resolving resolves to the existing one, if any
-	 decls' := <conc>([decls],[FakeClass(Module()),FakeClass(Meta()),FakeClass(Region())]) 
+	 decls' := [FakeClass(Module()),FakeClass(Meta()),FakeClass(Region())|decls]
 // Add fake declarations because not in every program we use the declaration, only the primitives
 	
 
@@ -32,6 +32,7 @@ where
 	add-payload(|packet): AssignElem(PayloadRef(f),exp) -> AssignElem(PayloadRef(Packet(packet),f),exp)
 
 
+// desugar-td: Case(exp,stat) -> If (exp,[stat])	
 
 desugar-td: Visualize (groups) -> Visualize (items)
 where

@@ -24,16 +24,7 @@ imports
 	
 rules
 	
-	
-	// 
-	// remove-indirect-constructs: Instr(i,evts,evsemi,d,instr*,postcon) -> Instr(i,evsemi,instr'*,postcon)
-	// where
-	// 	instr'* := <conc>(evts,instr*)
-	// 	
-	// 	
-	// remove-indirect-constructs: Class(Meta(),parts,fields) -> Class(Meta(),fields)
-	
-	
+
 	adjust-index-def-data(store-results|namespace, path): 
 		term@EvHdlr(_{uri}, Receive(PacketVarDecl(packet,_)), _, _) -> <store-results> DefData([EventHandler(), packet-name,program], EventHandler(), term)
 		where
@@ -130,9 +121,40 @@ rules
    where   
      <map(desugar-all-nbl)><index-get-all-values> DefData([EventHandler(), <strip-annos> packet-name,prog], EventHandler(), () ) => values
       
-        
+     // rule : term() -> x 
+ 
+     
+    index-getclasses(|prog) = !Class();index-getcons(|prog);assure-class(|Meta()); assure-class(|Region()); assure-class(|Module())
+     
+    // doit=
+    // 	testdata
+    //   ; assure-class(|Meta())
+    //    ; debug(!"after one")
+    //   ; assure-class(|Module())
+    //   ; assure-class(|Region())
+    //   ; debug(!"This is it: ") 
     
+    external SRTS-EXT-eq-ignore-annos(|t)	// Make term-based comparison and ignore annotations
+         
+    assure-class(|c): classes -> cls'
+    where
+    	if <fetch-elem(?Class(<SRTS-EXT-eq-ignore-annos(|c)>,_,_))> classes then
+    		cls' := classes
+    	else
+    		cls' := [Class(c,[],[])|classes]
+    	end
+    	
+
     
+
+ //    testdata=![
+ //    	Class(
+	// 	     Meta(){[Class(), Meta(), "ObstacleavoidanceTwoWheeler"]}
+	// 	   , None()
+	// 	   , []
+ //   )
+ //   
+ //   
+ // ]   
     
-        
     

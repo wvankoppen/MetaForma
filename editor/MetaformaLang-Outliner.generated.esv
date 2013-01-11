@@ -26,4 +26,5 @@ outliner Default outliner
   MainDef.PacketDecl
   MainDef.Sequence
   EvHdlrSemi.If
+  Case.If
   Instr.Instr
