@@ -1,0 +1,105 @@
+package FourWheeler
+
+
+ 
+sequence Choose {
+	when (module.id == @Axis.Front && module.proximity() > PROXIMITY) {			
+		goto Car2Eight;
+	} 
+	
+	module.storeID();
+	
+	do { 
+		when {
+			case #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0:								module.group = @LeftWheel;
+			case #(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0:								module.group = @RightWheel;
+			case (#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==0:	module.id = @Axis.Front;
+			case (#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==1:	module.id = @Axis.Back;
+			case #()==2: 																		module.id = @Axis.Driver;				
+		}
+	} until (config.assignTime);
+		
+	meta.drive(FORWARD,FORWARD);
+}
+
+
+
+// check whether this is proper reverse!
+sequence Car2Eight {
+	meta.halt();
+	module.restoreID();
+	
+	rotate(@Eight[1],-QUART); 
+	
+	do {extend(@Eight[3],0);
+		extend(@Eight[3],2);
+	}
+	
+	retract(@Eight[1],6);
+	
+	do {rotate(@Eight[1],-QUART);
+		rotate(@Eight[3],-QUART);
+	}
+	
+	extend(@Eight[3],6);
+	extend(@Eight[4],6);
+	
+	do {retract(@Eight[5],4);
+		retract(@Eight[2],4);
+		retract(@Eight[1],4);
+	}
+	
+	rotate(@Eight[0],-QUART);
+	
+	do {rotate(@Eight[0],QUART);
+		rotate(@Eight[1],-QUART);
+	}
+	
+	extend(@Eight[6],6);
+	retract(@Eight[0],0);
+	
+	do {rotate(@Eight[4],-QUART);
+		rotate(@Eight[6],-QUART); }
+	
+	do {retract(@Eight[4],6);
+		rotate(@Eight[1],QUART);
+		extend(@Eight[6],2);}
+	
+	rotate(@Eight[4],-QUART);
+	rotate(@Eight[3],-QUART);
+	
+	
+	do {extend(@Eight[0],0);
+		extend(@Eight[3],4); 
+	}
+	
+	goto Eight2Snake;
+}
+
+sequence Eight2Snake {
+	retractSet(@Eight[3], MALE&EAST&NORTH | MALE&WEST&SOUTH); 
+	
+	do {
+		rotate(@Eight[0],-HALF);
+		rotate(@Eight[6],-HALF);
+	}
+	
+	goto Crawl;	
+}
+
+sequence Crawl {
+	do {
+		rotating (@Eight[1],1);
+		rotating (@Eight[5],1);	
+	} until (TIME_CRAWL);
+	
+	do {
+		stop(@Eight[1]);
+		stop(@Eight[5]);
+	}
+	
+	do {
+		rotateAbsolute(@Eight[1],0);
+		rotateAbsolute(@Eight[5],0);
+	}
+}

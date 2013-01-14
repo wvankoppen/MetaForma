@@ -1,4 +1,4 @@
-program Brandt
+package Brandt
  
 group InsideLifter [Top,Bottom]
 group OutsideLifter [Top,Bottom]

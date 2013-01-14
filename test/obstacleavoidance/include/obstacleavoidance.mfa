@@ -1,4 +1,4 @@
-program ObstacleavoidanceFourWheeler
+package ObstacleavoidanceTwoWheeler
 
 debug {
 	visualize {
@@ -27,8 +27,8 @@ group Car [LeftWheel,RightWheel,Driver]
 
 meta {
 	void drive (byte dirLeft, byte dirRight) {
-		rotateContinuous(@Car.LeftWheel,-dirLeft); 
-		rotateContinuous(@Car.RightWheel,dirRight);
+		rotating(@Car.LeftWheel,-dirLeft); 
+		rotating(@Car.RightWheel,dirRight);
 	} 
 }
   
@@ -58,16 +58,15 @@ sequence Drive {
 }
  
 sequence Turn {
-		meta.halt(); 
-	meta.steer(STEER_DEGREES);
-		
+	stop(@Car);
+	
 	do {
 		meta.drive (BACKWARD,BACKWARD);	
-	} wait(BACKWARD_TIME);
+	} wait(TIME_BACKWARD); 
 	
-	meta.halt();
-	
-	meta.steer(-STEER_DEGREES);
+	do {
+		meta.drive (BACKWARD,FORWARD);	
+	} wait(TIME_TURNAROUND);
 	
 	goto Drive;
 }

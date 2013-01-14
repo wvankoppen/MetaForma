@@ -192,14 +192,14 @@ exports
   %% Declaration: In main program space
   %% MainDef: In all program space
   
-   "program" ID Debug? MainDef*						-> Start {cons("Program")}
+   "package" ID Debug? MainDef*						-> Start {cons("Package")}
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Debug and visualisation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     "debug" "{" ShowPackets? Visualize? "}" -> Debug{cons("Debug")}
-    "show" "[" {PacketRef ","}* "]" ";"	-> ShowPackets{cons("ShowPackets")}
+    "show" "[" {PacketRef ","}* "]"	-> ShowPackets{cons("ShowPackets")}
     
     "visualize" "{" VisGroup*"}" -> Visualize {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
@@ -297,10 +297,7 @@ exports
 	"if" "(" Exp ")" Block "else" Block 		-> Stmt{cons("IfElse")}
 	
 	"if" "(" Exp ")" Block 					-> Stmt{cons("If")}
-		
-	
 			
-	
 		
 	ID 										-> OrientRef{cons("OrientRef")}	
 		
@@ -316,36 +313,13 @@ exports
 	
 	"try" "region" SequenceRef OrientClause? "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{cons("TryRegion")}
 	
-	
 	 {Exp ","}* 				-> ByteList {cons("ByteArr")}
 	 ID 		-> MetaFieldRef {cons("MetaFieldRef")}
 	 
-
-	
-%% 	Disconnect "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Disconnect"}
-%% 	Connect "(" ModHolderRef "," Exp")" ";"				-> Stmt{"Connect"}
-%% 	
-%% 	Disconnect "(" ModHolderRef "," Exp "," Exp ")" ";"			-> Stmt{"Disconnect"}
-%% 	Connect "(" ModHolderRef "," Exp "," Exp ")" ";"				-> Stmt{"Connect"}
-%% 	
-%% 	Rotate "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Rotate"}
-%% 	RotateContinuous "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"RotateCont"}
-%% 
-%% 	
-%% 	Stop "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
-	
 	"break" ";"	-> Stmt{cons("Break")}
 	
 	lexical syntax
-		
-	%% We define these as lexical syntax such that Spoofax does not see it as a keyword and thus make it bold
-		
-	%% "stop" -> Stop
-	%% "rotate_continuous" -> RotateContinuous	
-	%% "rotate" -> Rotate
-	%% "disconnect" -> Disconnect
-	%% "connect" -> Connect
-	
+			
 	"None"	-> MetaPartNoneRef
 	"Packet" -> PacketPrim
 	"Discover" -> PacketPrim
@@ -388,7 +362,6 @@ exports
 
 	
 	
-	
 	Meta "." MetaFieldID 			-> Ref{cons("FieldPrimRef")}
 	Module "." ModuleFieldID 		-> Ref{cons("FieldPrimRef")}
 	Config "." ConfigFieldID 		-> Ref{cons("FieldPrimRef")}
@@ -415,6 +388,7 @@ exports
 	"metaPart" 	-> ModuleFieldID
 	
 	"assignTime"-> ConfigFieldID
+	"propagationTime"-> ConfigFieldID
 	
 	"id" 		-> MetaFieldID
 	"regionID" 	-> MetaFieldID
@@ -433,6 +407,7 @@ exports
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
 	"initMeta"			-> ModuleMethodRef
+	"storeID"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
 	"release" 			-> RegionMethodRef
@@ -460,7 +435,7 @@ exports
 	
 	context-free syntax
 
-	"@" ID "[" INT "]"								-> ModHolderRef{cons("ModHolderNumRef")}
+	"@" ID "[" Exp "]"								-> ModHolderRef{cons("ModHolderNumRef")}
 	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
 	"@*"											-> ModHolderRef{cons("ModHolderAllRef")}
@@ -484,8 +459,6 @@ exports
 	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" InstrPost  -> Instr{cons("Instr"),prefer}
 
 	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
-	
-	
 	
 	
 	Border -> Exp
@@ -572,14 +545,14 @@ exports
   %% Declaration: In main program space
   %% MainDef: In all program space
   
-   "program" ID Debug? MainDef*						-> Start {cons("Program")}
+   "package" ID Debug? MainDef*						-> Start {cons("Package")}
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Debug and visualisation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     "debug" "{" ShowPackets? Visualize? "}" -> Debug{cons("Debug")}
-    "show" "[" {PacketRef ","}* "]" ";"	-> ShowPackets{cons("ShowPackets")}
+    "show" "[" {PacketRef ","}* "]"	-> ShowPackets{cons("ShowPackets")}
     
     "visualize" "{" VisGroup*"}" -> Visualize {cons("Visualize")}
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
@@ -677,10 +650,7 @@ exports
 	"if" "(" Exp ")" Block "else" Block 		-> Stmt{cons("IfElse")}
 	
 	"if" "(" Exp ")" Block 					-> Stmt{cons("If")}
-		
-	
 			
-	
 		
 	ID 										-> OrientRef{cons("OrientRef")}	
 		
@@ -696,36 +666,13 @@ exports
 	
 	"try" "region" SequenceRef OrientClause? "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{cons("TryRegion")}
 	
-	
 	 {Exp ","}* 				-> ByteList {cons("ByteArr")}
 	 ID 		-> MetaFieldRef {cons("MetaFieldRef")}
 	 
-
-	
-%% 	Disconnect "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Disconnect"}
-%% 	Connect "(" ModHolderRef "," Exp")" ";"				-> Stmt{"Connect"}
-%% 	
-%% 	Disconnect "(" ModHolderRef "," Exp "," Exp ")" ";"			-> Stmt{"Disconnect"}
-%% 	Connect "(" ModHolderRef "," Exp "," Exp ")" ";"				-> Stmt{"Connect"}
-%% 	
-%% 	Rotate "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Rotate"}
-%% 	RotateContinuous "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"RotateCont"}
-%% 
-%% 	
-%% 	Stop "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
-	
 	"break" ";"	-> Stmt{cons("Break")}
 	
 	lexical syntax
-		
-	%% We define these as lexical syntax such that Spoofax does not see it as a keyword and thus make it bold
-		
-	%% "stop" -> Stop
-	%% "rotate_continuous" -> RotateContinuous	
-	%% "rotate" -> Rotate
-	%% "disconnect" -> Disconnect
-	%% "connect" -> Connect
-	
+			
 	"None"	-> MetaPartNoneRef
 	"Packet" -> PacketPrim
 	"Discover" -> PacketPrim
@@ -768,7 +715,6 @@ exports
 
 	
 	
-	
 	Meta "." MetaFieldID 			-> Ref{cons("FieldPrimRef")}
 	Module "." ModuleFieldID 		-> Ref{cons("FieldPrimRef")}
 	Config "." ConfigFieldID 		-> Ref{cons("FieldPrimRef")}
@@ -795,6 +741,7 @@ exports
 	"metaPart" 	-> ModuleFieldID
 	
 	"assignTime"-> ConfigFieldID
+	"propagationTime"-> ConfigFieldID
 	
 	"id" 		-> MetaFieldID
 	"regionID" 	-> MetaFieldID
@@ -813,6 +760,7 @@ exports
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
 	"initMeta"			-> ModuleMethodRef
+	"storeID"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
 	"release" 			-> RegionMethodRef
@@ -840,7 +788,7 @@ exports
 	
 	context-free syntax
 
-	"@" ID "[" INT "]"								-> ModHolderRef{cons("ModHolderNumRef")}
+	"@" ID "[" Exp "]"								-> ModHolderRef{cons("ModHolderNumRef")}
 	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
 	"@*"											-> ModHolderRef{cons("ModHolderAllRef")}
@@ -864,8 +812,6 @@ exports
 	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" InstrPost  -> Instr{cons("Instr"),prefer}
 
 	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
-	
-	
 	
 	
 	Border -> Exp

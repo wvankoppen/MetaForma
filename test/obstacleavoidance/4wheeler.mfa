@@ -1,4 +1,4 @@
-program ObstacleavoidanceBoth
+package ObstacleavoidanceBoth
 
 byte STEER_DEGREES = 12 
 float BACKWARD_TIME = 20

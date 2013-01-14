@@ -191,7 +191,7 @@ regular tree grammar
     ModHolderRef             -> ModHolderAllRef()
     ModHolderRef             -> ModHolderRef(ID)
     ModHolderRef             -> ModHolderRef(ID,ID)
-    ModHolderRef             -> ModHolderNumRef(ID,INT)
+    ModHolderRef             -> ModHolderNumRef(ID,Exp)
     PacketVarRef             -> VarRef
     Ref                      -> PayloadRef(PacketVarRef,ID)
     Ref                      -> PayloadPrimRef(PacketVarRef,PayloadID)
@@ -276,7 +276,7 @@ regular tree grammar
     Visualize                -> Visualize(ListStarOfVisGroup0)
     ShowPackets              -> ShowPackets(ListStarOfPacketRef0)
     Debug                    -> Debug(OptShowPackets0,OptVisualize0)
-    Start                    -> Program(ID,OptDebug0,ListStarOfMainDef0)
+    Start                    -> Package(ID,OptDebug0,ListStarOfMainDef0)
     BorderName               -> <string>
     SequencePrim             -> <string>
     FuncActuationRef         -> <string>

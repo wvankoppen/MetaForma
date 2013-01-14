@@ -1,0 +1,12 @@
+package FourWheeler
+
+
+// Algorithmic constants
+int QUART = 90
+int HALF = 180
+byte FORWARD = 1
+byte BACKWARD = -1	
+byte TIME_CRAWL = 10
+float TIME_BACKWARD = 15
+float TIME_TURNAROUND = 2
+float PROXIMITY = 0.15

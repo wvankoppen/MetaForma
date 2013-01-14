@@ -20,7 +20,7 @@ imports
 	desugar
 	generate-indirect
 	nblhacks
- 
+ store
 strategies
 
  
@@ -38,11 +38,6 @@ rules // Transformation to java strings.
 
 
 
-
-
-
-
-
 add-glue(|glue): e -> (glue,e) 
 concat-glue(|glue): [head|tail] ->  $[[head][<map(conc-strings)><map(add-glue(|glue))>tail]]
 concat-glue(|glue): [] -> $[]
@@ -52,13 +47,12 @@ to-java-stat: exp -> $[[<to-java>exp];
 where
 	<debug(!"Compile stat: ")>exp
 
-to-java: FuncCall(n,args) -> $[[<to-java>n]([<concat-glue(|",")><map(to-java)>args])]
-to-java: ModHolderNumRef(g,i) -> $[new Module(Mod.[g],[i])]
+to-java: FuncCall(n,args) -> $[[<to-java>n]([<concat-glue(|",")><map(to-java)>args])] where <debug(!"FuncCall: ")>n
+to-java: ModHolderNumRef(g,i) -> $[new Module(Mod.[g],[<to-java>i])]
 to-java: ModHolderRef(g,m) -> $[Mod.[g]_[m]]
 to-java: ModHolderRef(g) -> $[Group.[g]]
 to-java: ModHolderAllRef() -> $[Group.X]  
 to-java: FuncRef(n) -> n
-
 
 to-java: OrientRef(o) -> $[Orientation.[o]]
 
@@ -123,10 +117,8 @@ mod-enum: Group(groupname) -> $[[groupname](true)]
 
 
 
-to-java: TryRegion(n,Some(Orientation(o)),incs,excls) -> $[region().tryRegion(new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>incs]},new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>excls]},[<to-java>n],[<to-java>o]);
-]
-to-java: TryRegion(n,None(),incs,excls) -> $[region().tryRegion(new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>incs]},new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>excls]});
-]
+to-java: TryRegion(n,Some(Orientation(o)),incs,excls) -> $[region().tryRegion(new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>incs]},new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>excls]},[<to-java>n],[<to-java>o])]
+to-java: TryRegion(n,None(),incs,excls) -> $[region().tryRegion(new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>incs]},new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>excls]})]
 
 to-java: OrientMatch(orients) -> $[[<concat-glue(|" || ")><map(orientref)>orients]
 ] 
@@ -143,6 +135,7 @@ to-java: SequencePrimRef(n) -> $[SequenceGeneric.[n]]
 
 
 to-java: BinOp (op,e1,e2) -> $[([<to-java>e1] [<to-java>op] [<to-java>e2])]
+to-java: BoolOp (op,e1,e2) -> $[([<to-java>e1] [<to-java>op] [<to-java>e2])]
 // where <debug>"Compile BinOp"
 
 to-java: AndBit() -> $[ & ]
@@ -154,6 +147,8 @@ to-java: Eq() -> $[ == ]
 to-java: Neq() -> $[ != ]
 to-java: Modulo() -> $[ % ]
 to-java: Plus() -> $[ + ]
+to-java: Mul() -> $[ * ]
+to-java: Div() -> $[ / ]
 to-java: Min() -> $[ - ]
 to-java: Lt() -> $[ < ]
 to-java: LtEq() -> $[ <= ]
@@ -196,21 +191,16 @@ to-java: FieldPrimRef(obj,f) -> $[[<to-java>obj].get[<to-let-func>f]()]
 
 
 
-to-java: VarDecl(t,n,v) -> $[[<to-java>t] [n]; [n] = [<to-java>v]]
+to-java: VarDecl(t,n,v) -> $[[<to-java>t] [n]; [<to-java>Assign(VarRef(n),v)]]
 
 
-to-java: Assign(v@VarRef(_), e) -> $[[<to-java>v] = [<to-java>e]]
+// Fieldrefs can be parsed as VarRefs, then we need to extract from URI
+to-java: Assign(v@VarRef(_{[Field(),name,obj,package]}), e) -> <to-java>Assign(FieldRef(obj,name),e)
+to-java: Assign(v@VarRef(_{uri@[Var()|_]}), e) -> $[[<to-java>v] = [<uri-to-cast>uri][<to-java>e]]
 
 
 to-let-func = switch id
 		case ?"id":  !"ID"
-		// case ?"group" : "Group"
-		// case ?"metaID" : "MetaID"
-		// case ?"metaPart" : "MetaPart"
-		// case ?"size" : "Size"
-		// case ?"sizeExtra" : "SizeExtra"
-		// case ?"regionID" : "RegionID"
-		// case ?"group" : "Group"
 		otherwise: <to-upper-first><id>
 	end
 	
@@ -273,8 +263,7 @@ to-java: NbsOp(constraints) -> $[ctrl.nbs()[<concat-strings><map(to-java)>constr
 
 to-java: NbsFilter(name,val) -> $[.nbsFilter[<to-upper-first>name]([<to-java>val])]
 
-	  
-// to-java: PacketPrimRef(p) -> $[Packet[p]]
+	 
 to-java: Packet(p) -> $[Packet[p]]
 
 

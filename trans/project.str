@@ -20,7 +20,7 @@ imports
 	
 	
 rules
-	project-name: Program(n,_,_) -> <strip-annos>n
+	project-name: Package(n,_,_) -> <strip-annos>n
 	project-name: Sequence(n,_,_,_,_,_) -> <strip-annos>n
 	project-name: SequenceRef(n) -> <strip-annos>n
 	project-name: SequencePrimRef(n) -> <strip-annos>n

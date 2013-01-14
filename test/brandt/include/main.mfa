@@ -1,5 +1,5 @@
-program Brandt
-
+package Brandt
+ 
 debug {
 	show [AssignMetaID,AddNeighbor,MetaVarSync]; 
 	
@@ -211,6 +211,7 @@ sequence Main {
 		 
 	} until (consensus()); 
 	 
+	meta.broadcastMetaNeighbors();
 	 
 	goto Choose;	
 }

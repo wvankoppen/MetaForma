@@ -18,11 +18,11 @@ rules
 // desugar-all = topdown(try(desugar-functions));innermost(desugar);topdown(try(desugar-td));innermost(desugar)
 desugar-all = topdown(try(desugar-td));innermost(desugar)
 
-desugar-td: Program(n,debug,decls) -> Program(n,debug,decls')
+desugar-td: Package(n,debug,decls) -> Package(n,debug,decls')
 where
 	// put the fakeclasses at the end of the list, so reference resolving resolves to the existing one, if any
 	 decls' := [FakeClass(Module()),FakeClass(Meta()),FakeClass(Region())|decls]
-// Add fake declarations because not in every program we use the declaration, only the primitives
+// Add fake declarations because not in every package we use the declaration, only the primitives
 	
 
 desugar-td: Unicast(Packet(p),AssignList(assignlist),nbsop) -> Unicast(Packet(p),AssignList(assignlist'),nbsop)
@@ -104,18 +104,20 @@ desugar: Nbs(d@NbsCount(_)) -> d
 	
 desugar: Min(e1,e2) -> BinOp(Min(),e1,e2)
 desugar: Plus(e1,e2) -> BinOp(Plus(),e1,e2)
+desugar: Mul(e1,e2) -> BinOp(Mul(),e1,e2)
+desugar: Div(e1,e2) -> BinOp(Div(),e1,e2)
 desugar: Modulo(e1,e2) -> BinOp(Modulo(),e1,e2)
 desugar: And(e1,e2) -> BinOp(And(),e1,e2)
 desugar: Or(e1,e2) -> BinOp(Or(),e1,e2)
 desugar: AndBit(e1,e2) -> BinOp(AndBit(),e1,e2)
 desugar: OrBit(e1,e2) -> BinOp(OrBit(),e1,e2)
 
-desugar: Eq(e1,e2) -> BinOp(Eq(),e1,e2)
-desugar: Neq(e1,e2) -> BinOp(Neq(),e1,e2)
-desugar: Lt(e1,e2) -> BinOp(Lt(),e1,e2)
-desugar: LtEq(e1,e2) -> BinOp(LtEq(),e1,e2)
-desugar: Gt(e1,e2) -> BinOp(Gt(),e1,e2)
-desugar: GtEq(e1,e2) -> BinOp(GtEq(),e1,e2)
+desugar: Eq(e1,e2) -> BoolOp(Eq(),e1,e2)
+desugar: Neq(e1,e2) -> BoolOp(Neq(),e1,e2)
+desugar: Lt(e1,e2) -> BoolOp(Lt(),e1,e2)
+desugar: LtEq(e1,e2) -> BoolOp(LtEq(),e1,e2)
+desugar: Gt(e1,e2) -> BoolOp(Gt(),e1,e2)
+desugar: GtEq(e1,e2) -> BoolOp(GtEq(),e1,e2)
 
 
 desugar: NbsOp (filters) -> NbsOp(filters')
@@ -132,13 +134,13 @@ desugar: NbsFilter(d@ModHolderRef(m)) -> NbsFilter("in",d)
 
 
 
-desugar-all-nbl = topdown(try(desugar-nbl))
+desugar-all-nbl = bottomup(try(desugar-nbl))
  
  // desugar-nbl: FieldPrimRef(o,f) -> FieldRef(o,f) NO!
 desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f)
-desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f)
 desugar-nbl: MethodPrimRef(o,f) -> MethodRef(o,f)
 desugar-nbl: FuncPrimRef(f) -> FuncRef(f)
+
 //   desugar-nbl: SequenceName(n) -> SequenceRef(n)
 // desugar-nbl: SequencePrimName(n) -> SequencePrimRef(n)
 

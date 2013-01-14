@@ -1,0 +1,97 @@
+package FourWheeler
+
+debug {
+	show [Packet]
+	
+	visualize {
+		north {
+			@LeftWheel: green;
+			@RightWheel: yellow;
+			@Axis: magenta;
+		}
+		south {
+			Main: black;
+			Car2Eight: gray;
+			Drive: red;
+		}
+	} 
+	
+}
+
+
+// Define identification for the Car
+group Axis [Driver,Front,Back]
+group LeftWheel
+group RightWheel
+group Eight
+
+ 
+packet Gradient {
+	byte pri;
+	byte sec;
+} 
+ 
+module {
+	byte gradPri;
+	byte gradSec;
+	
+	boolean sourcePri;
+	boolean sourceSec;
+	
+	void gradientPropagate () {		 
+		if (sourcePri){
+			gradPri = 0;
+		} 
+		
+		if (sourceSec) {
+			gradSec = 0;
+		}
+		  unicast Gradient(pri=gradPri, sec=gradSec) to $();
+	}
+ 	
+
+	void gradientInit() {
+		sourcePri = #(connSource: MALE&WEST)==2 && #()==2;
+		sourceSec = #(connSource: FEMALE&EAST)==2 && #()==2;
+		
+		gradPri = MAX_BYTE;
+		gradSec = MAX_BYTE;			
+	}
+} 
+
+
+meta {	
+	void steer (int degrees) {
+		rotate(@Axis.Front,degrees);
+		rotate(@Axis.Back,-degrees);
+	}
+	
+	void drive (byte dirLeft, byte dirRight) {
+		rotating(@LeftWheel,-dirLeft);
+		rotating(@RightWheel,dirRight);
+	}
+	
+	void halt () {
+		stop(@LeftWheel);
+		stop(@RightWheel);
+	}
+}
+
+when (receive (Gradient p)) {
+	if (p.pri + 1 < module.gradPri || p.sec + 1 < module.gradSec) {
+		module.gradPri = min (p.pri + 1,module.gradPri);
+		module.gradSec = min (p.sec + 1,module.gradSec);
+		module.gradientPropagate();
+	}	
+}
+
+  
+sequence Main {	
+	
+	do {
+		meta.sizeExtra = 7;
+		meta.enable();	
+	}
+	
+	goto Choose;
+}	

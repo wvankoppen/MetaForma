@@ -16,11 +16,11 @@ imports
  // What about the scoping bug? That it has to scope multiple items?
 	
 namespaces
-	Program Group Mod Var Packet Payload Sequence Instruction Class ClassFake Field Method MetaPart DebugItem VisItem Constant EventHandler	
+	Package Group Mod Var Packet Payload Sequence Instruction Class ClassFake Field Method MetaPart DebugItem VisItem Constant EventHandler	
 rules
 	
-	Program(n,_,_):
-		defines non-unique Program n
+	Package(n,_,_):
+		defines non-unique Package n
 		scopes Group, Packet, Class,ClassFake, Sequence,MetaPart,EventHandler,VisItem,Constant,DebugItem
 		
 	DebugItem(n,packets):
@@ -44,8 +44,8 @@ rules
 	
 	
 	// Yes! 
-	 Sequence (SequencePrimRef(n),_,_,_,_,_):
-	 	defines Sequence n	
+	 Sequence (SequencePrimRef("Main"),_,_,_,_,_):
+	 	defines Sequence "Main"	
 	 	scopes Var,Instruction,EventHandler
 	
 	// TODO: Make mutually exclusive	
@@ -104,6 +104,9 @@ rules
 	Unicast(Packet(p),_,_):
 		refers to Packet p
 		
+	
+	ModHolderNumRef(group,i):
+		refers to Group group
 	
 	ModHolderRef(group): 
 		refers to Group group

@@ -16,14 +16,14 @@ exports
   %% Declaration: In main program space
   %% MainDef: In all program space
   
-   "program" ID Debug? MainDef*						-> Start {"Program"}
+   "package" ID Debug? MainDef*						-> Start {"Package"}
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Debug and visualisation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     "debug" "{" ShowPackets? Visualize? "}" -> Debug{"Debug"}
-    "show" "[" {PacketRef ","}* "]" ";"	-> ShowPackets{"ShowPackets"}
+    "show" "[" {PacketRef ","}* "]"	-> ShowPackets{"ShowPackets"}
     
     "visualize" "{" VisGroup*"}" -> Visualize {"Visualize"}
     ID "{" VisItem* "}" 		 -> VisGroup{"VisGroup"}
@@ -121,10 +121,7 @@ exports
 	"if" "(" Exp ")" Block "else" Block 		-> Stmt{"IfElse"}
 	
 	"if" "(" Exp ")" Block 					-> Stmt{"If"}
-		
-	
 			
-	
 		
 	ID 										-> OrientRef{"OrientRef"}	
 		
@@ -140,36 +137,13 @@ exports
 	
 	"try" "region" SequenceRef OrientClause? "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{"TryRegion"}
 	
-	
 	 {Exp ","}* 				-> ByteList {"ByteArr"}
 	 ID 		-> MetaFieldRef {"MetaFieldRef"}
 	 
-
-	
-%% 	Disconnect "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Disconnect"}
-%% 	Connect "(" ModHolderRef "," Exp")" ";"				-> Stmt{"Connect"}
-%% 	
-%% 	Disconnect "(" ModHolderRef "," Exp "," Exp ")" ";"			-> Stmt{"Disconnect"}
-%% 	Connect "(" ModHolderRef "," Exp "," Exp ")" ";"				-> Stmt{"Connect"}
-%% 	
-%% 	Rotate "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"Rotate"}
-%% 	RotateContinuous "(" ModHolderRef "," Exp ")" ";"			-> Stmt{"RotateCont"}
-%% 
-%% 	
-%% 	Stop "(" ModHolderRef ")" ";"			-> Stmt{"Stop"}
-	
 	"break" ";"	-> Stmt{"Break"}
 	
 	lexical syntax
-		
-	%% We define these as lexical syntax such that Spoofax does not see it as a keyword and thus make it bold
-		
-	%% "stop" -> Stop
-	%% "rotate_continuous" -> RotateContinuous	
-	%% "rotate" -> Rotate
-	%% "disconnect" -> Disconnect
-	%% "connect" -> Connect
-	
+			
 	"None"	-> MetaPartNoneRef
 	"Packet" -> PacketPrim
 	"Discover" -> PacketPrim
@@ -212,7 +186,6 @@ exports
 
 	
 	
-	
 	Meta "." MetaFieldID 			-> Ref{"FieldPrimRef"}
 	Module "." ModuleFieldID 		-> Ref{"FieldPrimRef"}
 	Config "." ConfigFieldID 		-> Ref{"FieldPrimRef"}
@@ -239,6 +212,7 @@ exports
 	"metaPart" 	-> ModuleFieldID
 	
 	"assignTime"-> ConfigFieldID
+	"propagationTime"-> ConfigFieldID
 	
 	"id" 		-> MetaFieldID
 	"regionID" 	-> MetaFieldID
@@ -257,6 +231,7 @@ exports
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
 	"initMeta"			-> ModuleMethodRef
+	"storeID"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
 	"release" 			-> RegionMethodRef
@@ -284,7 +259,7 @@ exports
 	
 	context-free syntax
 
-	"@" ID "[" INT "]"								-> ModHolderRef{"ModHolderNumRef"}
+	"@" ID "[" Exp "]"								-> ModHolderRef{"ModHolderNumRef"}
 	"@" ID "." ID									-> ModHolderRef{"ModHolderRef"}
 	"@" ID 											-> ModHolderRef{"ModHolderRef"}
 	"@*"											-> ModHolderRef{"ModHolderAllRef"}
@@ -308,8 +283,6 @@ exports
 	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" InstrPost  -> Instr{"Instr",prefer}
 
 	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{"Instr"}
-	
-	
 	
 	
 	Border -> Exp

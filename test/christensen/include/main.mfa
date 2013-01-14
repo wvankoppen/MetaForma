@@ -1,4 +1,4 @@
-program Christensen
+package Christensen
 
 debug {
 	show [AssignMetaID,AddNeighbor,MetaVarSync]; 

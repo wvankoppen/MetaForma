@@ -17,7 +17,7 @@ imports
   lib/nbl-library.generated
 	names
 	desugar
-
+	project
 rules
 	
 	
@@ -33,6 +33,7 @@ rules
 	
 	type-of: ModHolderRef(_) -> Group()
 	type-of: ModHolderRef(_,_) -> Mod()
+	type-of: ModHolderNumRef(_,_) -> Mod()
 	
 	type-of: Packet(n) -> Packet(n)
 
@@ -61,6 +62,8 @@ rules
 	type-of: Not(_) -> Boolean()
 	type-of: Bool(_) -> Boolean()
 	type-of: MetaPartNoneRef(_) -> MetaPart()
+	
+	type-of: BoolOp(_,e1,e2) -> Boolean()
 	
 	type-of: BinOp(_,e1,e2) -> t1 
 	where 

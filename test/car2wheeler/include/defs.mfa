@@ -1,7 +1,7 @@
-program ObstacleavoidanceTwoWheeler
+package TwhoWheeler
 
 debug {
-	visualize {
+	visualize { 
 		north {
 			@Car.LeftWheel: green;
 			@Car.RightWheel: yellow;
@@ -15,20 +15,15 @@ debug {
 	}
 }
 
-// Algorithmic constants
-float PROXIMITY = 0.15
-float TIME_BACKWARD = 2
-float TIME_TURNAROUND = 2
-byte FORWARD = -1
-byte BACKWARD = 1	
+
 
 // Define identification for the Car
 group Car [LeftWheel,RightWheel,Driver]
 
 meta {
 	void drive (byte dirLeft, byte dirRight) {
-		rotateContinuous(@Car.LeftWheel,-dirLeft); 
-		rotateContinuous(@Car.RightWheel,dirRight);
+		rotating(@Car.LeftWheel,-dirLeft); 
+		rotating(@Car.RightWheel,dirRight);
 	} 
 }
   
@@ -46,29 +41,5 @@ sequence Main {
 		meta.enable();	
 	}
 	
-	goto Drive;
+	goto Choose;
 }	
-
-
-sequence Drive {
-	when (module.id == @Car.Driver && module.proximity() > PROXIMITY) {
-		goto Turn;
-	} 
-	meta.drive(FORWARD,FORWARD);
-}
- 
-sequence Turn {
-	stop(@Car);
-	
-	do {
-		meta.drive (BACKWARD,BACKWARD);	
-	} wait(TIME_BACKWARD); 
-	
-	do {
-		meta.drive (BACKWARD,FORWARD);	
-	} wait(TIME_TURNAROUND);
-	
-	goto Drive;
-}
-
-

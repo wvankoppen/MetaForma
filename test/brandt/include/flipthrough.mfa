@@ -1,4 +1,4 @@
-program Brandt
+package Brandt
 
 group UpLifter [Top,Bottom,Left,Right]
 group Dummy [Left,Right]
@@ -19,8 +19,8 @@ sequence FlipThrough {
 	}
 	
 	do  {				 
-		disconnect(@UpLifter.Left, NORTH&MALE&EAST|SOUTH&MALE&WEST);
-		disconnect(@UpLifter.Right, NORTH&MALE&EAST);
+		extendSet(@UpLifter.Left, NORTH&MALE&EAST|SOUTH&MALE&WEST);
+		retractSet(@UpLifter.Right, NORTH&MALE&EAST);
 	} 
 	
 	do  {				
@@ -28,7 +28,7 @@ sequence FlipThrough {
 		rotate(@UpLifter.Right, QUART);
 	} 
 	
-	disconnect(@UpLifter.Top, NORTH);
+	retractSet(@UpLifter.Top, NORTH);
 	rotate(@UpLifter.Top, HALF);
 	
 	do  {				
@@ -45,9 +45,7 @@ sequence FlipThrough {
 	
 	connect(@*, @UpLifter);	
 	
-	
 	module.fixSymmetry(module.isRef);
-	
-	
+		
 	region.finish();	
 }

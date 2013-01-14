@@ -26,7 +26,7 @@ signature
     CurrentFile : ImportAnno
 
   constructors
-    Program      : Namespace
+    Package      : Namespace
     Group        : Namespace
     Mod          : Namespace
     Var          : Namespace
@@ -48,7 +48,7 @@ signature
 rules
 
   nam-get-scope-types :
-    Program(n, _, _) -> [ Group()
+    Package(n, _, _) -> [ Group()
                         , Packet()
                         , Class()
                         , ClassFake()
@@ -61,13 +61,13 @@ rules
                         ]
 
   nam-get-definition-keys :
-    Program(n, _, _) -> [n]
+    Package(n, _, _) -> [n]
 
   nam-get-definitions :
-    Program(n, _, _) -> [(Program(), [n])]
+    Package(n, _, _) -> [(Package(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Program(n, _, _) -> <Program(nam-annotate-def(|path__), id, id)>
+    Package(n, _, _) -> <Package(nam-annotate-def(|path__), id, id)>
 
 
 rules
@@ -186,26 +186,26 @@ rules
 rules
 
   nam-get-scope-types :
-    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [Var(), Instruction(), EventHandler()]
+    Sequence(SequencePrimRef("Main"), _, _, _, _, _) -> [Var(), Instruction(), EventHandler()]
 
   nam-get-definition-keys :
-    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [n]
+    Sequence(SequencePrimRef("Main"), _, _, _, _, _) -> ["Main"]
 
   nam-get-definitions :
-    Sequence(SequencePrimRef(n), _, _, _, _, _) -> [(Sequence(), [n])]
+    Sequence(SequencePrimRef("Main"), _, _, _, _, _) -> [(Sequence(), ["Main"])]
 
   nam-annotate-names(|paths__, path__):
-    Sequence(SequencePrimRef(n), _, _, _, _, _) -> <Sequence(
-                                                      SequencePrimRef(nam-annotate-def(|path__))
-                                                    , id
-                                                    , id
-                                                    , id
-                                                    , id
-                                                    , id
-                                                    )>
+    Sequence(SequencePrimRef("Main"), _, _, _, _, _) -> <Sequence(
+                                                           SequencePrimRef(nam-annotate-def(|path__))
+                                                         , id
+                                                         , id
+                                                         , id
+                                                         , id
+                                                         , id
+                                                         )>
 
   nam-unique :
-    Sequence(SequencePrimRef(n), _, _, _, _, _) -> <id>
+    Sequence(SequencePrimRef("Main"), _, _, _, _, _) -> <id>
 
 
 rules
@@ -441,6 +441,18 @@ rules
                                  , id
                                  , id
                                  )>
+
+
+rules
+
+  nam-get-uses-keys :
+    ModHolderNumRef(group, i) -> [group]
+
+  nam-get-uses :
+    ModHolderNumRef(group, i) -> [(Group(), [group])]
+
+  nam-annotate-names(|paths__, path__):
+    ModHolderNumRef(group, i) -> <ModHolderNumRef(nam-annotate-use(|paths__, Group()), id)>
 
 
 rules

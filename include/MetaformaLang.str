@@ -8,7 +8,7 @@ signature
     ModHolderAllRef  : ModHolderRef
     ModHolderRef     : ID -> ModHolderRef
     ModHolderRef     : ID * ID -> ModHolderRef
-    ModHolderNumRef  : ID * INT -> ModHolderRef
+    ModHolderNumRef  : ID * Exp -> ModHolderRef
                      : VarRef -> PacketVarRef
     SequenceRef      : ID -> SequenceRef
     SequencePrimRef  : SequencePrim -> SequenceRef
@@ -94,7 +94,7 @@ signature
     Visualize        : List(VisGroup) -> Visualize
     ShowPackets      : List(PacketRef) -> ShowPackets
     Debug            : Option(ShowPackets) * Option(Visualize) -> Debug
-    Program          : ID * Option(Debug) * List(MainDef) -> Start
+    Package          : ID * Option(Debug) * List(MainDef) -> Start
                      : String -> BorderName
                      : String -> SequencePrim
                      : String -> FuncActuationRef

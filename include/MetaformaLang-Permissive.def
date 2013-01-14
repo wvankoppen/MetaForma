@@ -38,7 +38,7 @@ exports
     INSERTOPENQUOTE StringChar* WATEREOF          -> STRING          {cons("INSERTEND")}
     "/*"                                          -> INSERTSTART     {recover}
     INSERTSTART ( ~[\*] | CommentChar )* WATEREOF -> LAYOUT          {cons("INSERTEND")}
-                                                  -> "program"       {recover, cons("INSERTION")}
+                                                  -> "package"       {recover, cons("INSERTION")}
                                                   -> "show"          {recover, cons("INSERTION")}
                                                   -> "visualize"     {recover, cons("INSERTION")}
                                                   -> "borders"       {recover, cons("INSERTION")}
@@ -56,7 +56,6 @@ exports
                                                   -> "until"         {recover, cons("INSERTION")}
                                                   -> ")"             {recover, cons("INSERTION")}
                                                   -> "]"             {recover, cons("INSERTION")}
-                                                  -> "@"             {recover, cons("INSERTION")}
                                                   -> ","             {recover, cons("INSERTION")}
                                                   -> "}"             {recover, cons("INSERTION")}
                                                   -> "do"            {recover, cons("INSERTION")}
@@ -241,9 +240,9 @@ exports
     Start
 
   context-free syntax
-    "program" ID Debug? MainDef*                                                                            -> Start             {cons("Program")}
+    "package" ID Debug? MainDef*                                                                            -> Start             {cons("Package")}
     "debug" "{" ShowPackets? Visualize? "}"                                                                 -> Debug             {cons("Debug")}
-    "show" "[" {PacketRef ","}* "]" ";"                                                                     -> ShowPackets       {cons("ShowPackets")}
+    "show" "[" {PacketRef ","}* "]"                                                                         -> ShowPackets       {cons("ShowPackets")}
     "visualize" "{" VisGroup* "}"                                                                           -> Visualize         {cons("Visualize")}
     ID "{" VisItem* "}"                                                                                     -> VisGroup          {cons("VisGroup")}
     ModHolderOrSeqRef ":" ColorRef ";"                                                                      -> VisItem           {cons("VisItem")}
@@ -354,6 +353,7 @@ exports
     "group"             -> ModuleFieldID    
     "metaPart"          -> ModuleFieldID    
     "assignTime"        -> ConfigFieldID    
+    "propagationTime"   -> ConfigFieldID    
     "id"                -> MetaFieldID      
     "regionID"          -> MetaFieldID      
     "size"              -> MetaFieldID      
@@ -368,6 +368,7 @@ exports
     "fixSymmetry"       -> ModuleMethodRef  
     "proximity"         -> ModuleMethodRef  
     "initMeta"          -> ModuleMethodRef  
+    "storeID"           -> ModuleMethodRef  
     "enable"            -> MetaMethodRef    
     "finish"            -> RegionMethodRef  
     "release"           -> RegionMethodRef  
@@ -390,7 +391,7 @@ exports
     "Choose" -> SequencePrim 
 
   context-free syntax
-    "@" ID "[" INT "]"                                        -> ModHolderRef {cons("ModHolderNumRef")}
+    "@" ID "[" Exp "]"                                        -> ModHolderRef {cons("ModHolderNumRef")}
     "@" ID "." ID                                             -> ModHolderRef {cons("ModHolderRef")}
     "@" ID                                                    -> ModHolderRef {cons("ModHolderRef")}
     "@*"                                                      -> ModHolderRef {cons("ModHolderAllRef")}
@@ -454,9 +455,9 @@ exports
     Start
 
   context-free syntax
-    "program" ID Debug? MainDef*                                                                            -> Start             {cons("Program")}
+    "package" ID Debug? MainDef*                                                                            -> Start             {cons("Package")}
     "debug" "{" ShowPackets? Visualize? "}"                                                                 -> Debug             {cons("Debug")}
-    "show" "[" {PacketRef ","}* "]" ";"                                                                     -> ShowPackets       {cons("ShowPackets")}
+    "show" "[" {PacketRef ","}* "]"                                                                         -> ShowPackets       {cons("ShowPackets")}
     "visualize" "{" VisGroup* "}"                                                                           -> Visualize         {cons("Visualize")}
     ID "{" VisItem* "}"                                                                                     -> VisGroup          {cons("VisGroup")}
     ModHolderOrSeqRef ":" ColorRef ";"                                                                      -> VisItem           {cons("VisItem")}
@@ -567,6 +568,7 @@ exports
     "group"             -> ModuleFieldID    
     "metaPart"          -> ModuleFieldID    
     "assignTime"        -> ConfigFieldID    
+    "propagationTime"   -> ConfigFieldID    
     "id"                -> MetaFieldID      
     "regionID"          -> MetaFieldID      
     "size"              -> MetaFieldID      
@@ -581,6 +583,7 @@ exports
     "fixSymmetry"       -> ModuleMethodRef  
     "proximity"         -> ModuleMethodRef  
     "initMeta"          -> ModuleMethodRef  
+    "storeID"           -> ModuleMethodRef  
     "enable"            -> MetaMethodRef    
     "finish"            -> RegionMethodRef  
     "release"           -> RegionMethodRef  
@@ -603,7 +606,7 @@ exports
     "Choose" -> SequencePrim 
 
   context-free syntax
-    "@" ID "[" INT "]"                                        -> ModHolderRef {cons("ModHolderNumRef")}
+    "@" ID "[" Exp "]"                                        -> ModHolderRef {cons("ModHolderNumRef")}
     "@" ID "." ID                                             -> ModHolderRef {cons("ModHolderRef")}
     "@" ID                                                    -> ModHolderRef {cons("ModHolderRef")}
     "@*"                                                      -> ModHolderRef {cons("ModHolderAllRef")}

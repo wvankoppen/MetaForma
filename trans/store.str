@@ -26,113 +26,100 @@ rules
 	
 
 	adjust-index-def-data(store-results|namespace, path): 
-		term@EvHdlr(_{uri}, Receive(PacketVarDecl(packet,_)), _, _) -> <store-results> DefData([EventHandler(), packet-name,program], EventHandler(), term)
+		term@EvHdlr(_{uri}, Receive(PacketVarDecl(packet,_)), _, _) -> <store-results> DefData([EventHandler(), packet-name,package], EventHandler(), term)
 		where
-			program := <project-program>uri;
+			package := <project-package>uri;
 			packet-name := <project-name>packet
 
-	project-program: [EventHandler(), _, p] -> p
-	project-program: [EventHandler(), _,_, p] -> p
-	project-program: [EventHandler(), _,_,_, p] -> p
+	project-package: [EventHandler(), _, p] -> p
+	project-package: [EventHandler(), _,_, p] -> p
+	project-package: [EventHandler(), _,_,_, p] -> p
 		
 	
 	adjust-index-def-data(store-results|namespace, path): 
-		term@DebugItem(ShowPackets(){[DebugItem(), _, program]}, packets) -> <store-results> DefData([DebugItem(), program], DebugItem(), packets)	
+		term@DebugItem(ShowPackets(){[DebugItem(), _, package]}, packets) -> <store-results> DefData([DebugItem(), package], DebugItem(), packets)	
 		
 		
 	adjust-index-def-data(store-results|namespace, path): 
-		term@VisItem(_{[VisItem(), _, program]}, _, _, _) -> <store-results> DefData([VisItem(), program], VisItem(), term)
+		term@VisItem(_{[VisItem(), _, package]}, _, _, _) -> <store-results> DefData([VisItem(), package], VisItem(), term)
 		
 	
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Group(_{[Group(), name, program]}, _) -> <store-results> DefData([Group(), program], Group(), term)
+		term@Group(_{[Group(), name, package]}, _) -> <store-results> DefData([Group(), package], Group(), term)
 	
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Group(_{[Group(), name, program]}) -> <store-results> DefData([Group(), program], Group(), term)
+		term@Group(_{[Group(), name, package]}) -> <store-results> DefData([Group(), package], Group(), term)
 	
 	
 	adjust-index-def-data(store-results|namespace, path): 
-		term@PacketDecl(_{[Packet(), name, program]},_) -> <store-results> DefData([Packet(), program], Packet(), term)
+		term@PacketDecl(_{[Packet(), name, package]},_) -> <store-results> DefData([Packet(), package], Packet(), term)
 		
 	
 
 	// For Module & Meta class
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Class(_{[Class(), name, program]},_,_) -> <store-results> DefData([Class(), program], Class(), term)
+		term@Class(_{[Class(), name, package]},_,_) -> <store-results> DefData([Class(), package], Class(), term)
 	
 	// For Region class
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Class(_{[Class(), name, program]},_) -> <store-results> DefData([Class(), program], Class(), term)
+		term@Class(_{[Class(), name, package]},_) -> <store-results> DefData([Class(), package], Class(), term)
 	
 		
+	// We do not store the Choose sequence, as this one is fetched from the main's file AST. (multiple Choose seqs can be used in one "package")
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Sequence(SequencePrimRef(_){[Sequence(), name, program]},_,_,_,_,_) -> <store-results> DefData([Sequence(), program], Sequence(), term)
+		term@Sequence(SequencePrimRef("Main"){[Sequence(), name, package]},_,_,_,_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
 	
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Sequence(_{[Sequence(), name, program]},_,_,_,_,_) -> <store-results> DefData([Sequence(), program], Sequence(), term)
+		term@Sequence(_{[Sequence(), name, package]},_,_,_,_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
 			
 		
 	adjust-index-def-data(store-results|namespace, path): 
-		term@MetaPart(_{[MetaPart(), name, program]}) -> <store-results> DefData([MetaPart(), program], MetaPart(), term)
+		term@MetaPart(_{[MetaPart(), name, package]}) -> <store-results> DefData([MetaPart(), package], MetaPart(), term)
 		
 		
 	adjust-index-def-data(store-results|namespace, path): 
-		term@ConstDecl(_,_{[Constant(), name, program]},_) -> <store-results> DefData([Constant(), program], Constant(), term)
+		term@ConstDecl(_,_{[Constant(), name, package]},_) -> <store-results> DefData([Constant(), package], Constant(), term)
 			
-			
-			
-			
-			
-	
 		
 	adjust-index-def-data(store-results|namespace, path):
        decl -> <store-results> DefData([namespace|path], Type(), type)
         where
           type := <type-of> decl	
 		
-		
-	
-	
         
     packet-add-numbers: packets -> packets'
     where
-       	<map(inc;inc;inc;inc;inc)><upto><dec><length>packets => nrs;
+       	<map(inc;inc;inc;inc;inc;inc)><upto><dec><length>packets => nrs;
        	<zip>(nrs,packets) => comb;
        	 <map(try(swap-counter))>comb => packets'
        	 
        	 
      swap-counter: (i,PacketDecl(n,decls)) -> PacketDecl(n,i,decls)
         
-    index-get-packets(|prog) = !<packet-add-numbers><index-getcons(|prog)>Packet()
+    index-get-packets(|package) = !<packet-add-numbers><index-getcons(|package)>Packet()
    
-   index-get-packets-names(|prog) = !["Packet"|<map(project-name)><index-get-packets(|prog)>]
+   index-get-packets-names(|package) = !["Packet"|<map(project-name)><index-get-packets(|package)>]
    
    
-   index-getcons(|prog): cons -> values
+   index-getcons(|package): cons -> values
    where   
-     <desugar-all-nbl><index-get-all-values> DefData([cons, <strip-annos> prog], cons, ()) => values
+     <desugar-all-nbl><index-get-all-values> DefData([cons, <strip-annos> package], cons, ()) => values
   
    
-   index-get-evhdlrs(|prog) = !<flatten-list><map(index-get-evhdlr-packet(|prog))><index-get-packets-names(|prog)>
+   index-get-evhdlrs(|package) = !<flatten-list><map(index-get-evhdlr-packet(|package))><index-get-packets-names(|package)>
    
   
   
-  index-get-evhdlr-packet(|prog): packet-name -> values
+  index-get-evhdlr-packet(|package): packet-name -> values
    where   
-     <map(desugar-all-nbl)><index-get-all-values> DefData([EventHandler(), <strip-annos> packet-name,prog], EventHandler(), () ) => values
+     <map(desugar-all-nbl)><index-get-all-values> DefData([EventHandler(), <strip-annos> packet-name,package], EventHandler(), () ) => values
       
-     // rule : term() -> x 
  
      
-    index-getclasses(|prog) = !Class();index-getcons(|prog);assure-class(|Meta()); assure-class(|Region()); assure-class(|Module())
+    index-getclasses(|package) = !Class();index-getcons(|package);assure-class(|Meta()); assure-class(|Region()); assure-class(|Module())
+    
+    index-getsequences(|package): path -> [<desugar-all-nbl><collect-one(?Sequence("Choose",_,_,_,_,_))><index-get-all-in-file>path|<filter(not(?Sequence("Choose",_,_,_,_,_)))><index-getcons(|package)>Sequence()]
      
-    // doit=
-    // 	testdata
-    //   ; assure-class(|Meta())
-    //    ; debug(!"after one")
-    //   ; assure-class(|Module())
-    //   ; assure-class(|Region())
-    //   ; debug(!"This is it: ") 
     
     external SRTS-EXT-eq-ignore-annos(|t)	// Make term-based comparison and ignore annotations
          
@@ -143,9 +130,19 @@ rules
     	else
     		cls' := [Class(c,[],[])|classes]
     	end
-    	
-
     
+    
+    uri-to-cast: uri -> type-string
+    where
+    	switch <type-of>Def(uri)
+	    	case ?Byte(): !"(byte)"
+	    	case ?Int(): !"(int)"
+	    	otherwise: !""
+    	end;
+    	type-string := <id>
+    
+
+	index-getdebugitems(|package) = <try(list-breakout)><index-getcons(|package)>DebugItem()
 
  //    testdata=![
  //    	Class(

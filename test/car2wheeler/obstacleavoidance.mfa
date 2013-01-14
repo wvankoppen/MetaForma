@@ -1,0 +1,37 @@
+package TwhoWheeler
+
+
+// Algorithmic constants
+float PROXIMITY = 0.15
+float TIME_BACKWARD = 2
+float TIME_TURNAROUND = 2
+byte FORWARD = -1
+byte BACKWARD = 1	
+
+
+
+sequence Choose {
+	goto Drive;
+}
+
+sequence Drive {
+	when (module.id == @Car.Driver && module.proximity() > PROXIMITY) {
+		goto Turn;
+	} 
+	meta.drive(FORWARD,FORWARD);
+}
+ 
+sequence Turn {
+	stop(@Car);
+	
+	do {
+		meta.drive (BACKWARD,BACKWARD);	
+	} wait(TIME_BACKWARD); 
+	
+	do {
+		meta.drive (BACKWARD,FORWARD);	
+	} wait(TIME_TURNAROUND);
+	
+	goto Drive;
+}
+

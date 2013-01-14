@@ -84,24 +84,26 @@ strategies
 	
 	
  
-  
+ 
 	 
- compile-packetreceive(|program): packet-name -> $[
+ compile-packetreceive(|namespace): packet-name -> $[
   	public boolean receivePacket([<packet-name>packet-name] p) {
   		boolean handled = false;
   		[code]
+
   		if (handled) {
-			mfVisual.print("handle [packet-name] " + p);	
+			mfVisual.print(p,"handled [packet-name] " + p);	
 		} 
 		else {
-			mfVisual.print("reject [packet-name] " + p);
+			mfVisual.print(p,"rejected [packet-name] " + p);
 		}
+		
   		return handled;
   	}
   ]
   where
   	<debug>"Compile packetreceive";
- 	<index-get-evhdlr-packet(|program)>packet-name => eventhandlers;
+ 	<index-get-evhdlr-packet(|namespace)>packet-name => eventhandlers;
   	code := <map2str(compile)>eventhandlers => code
   	
  

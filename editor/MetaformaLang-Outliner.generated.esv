@@ -12,12 +12,12 @@ outliner Default outliner
   //
   //   _.<constructor>
   
-  Start.Program
+  Start.Package
   VisGroup.VisGroup
+  Exp.FuncCall
+  Exp.FuncCall
   GroupDef.Group
   FuncDecl.FuncDecl
-  Exp.FuncCall
-  Exp.FuncCall
   Stmt.Unicast
   Stmt.TryRegion
   Stmt.FuncCall

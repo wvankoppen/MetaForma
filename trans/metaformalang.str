@@ -29,7 +29,9 @@ imports
 
 rules // Analysis
   
-  destination-path(|prog) = !$[/home/wouter/git/ussr/src/ussr/samples/atron/simulations/metaforma/gen/[prog]/]
+  destination-path = !$[/home/wouter/git/ussr/src/ussr/samples/atron/simulations/metaforma/gen/];makedir
+  destination-path(|p) = !$[[<destination-path>][p]/];makedir
+  destination-path(|p,f) = !$[[<destination-path(|p)>][f]/];makedir  
   
 	// Analyzes the current program, returning a tuple with the analyzed AST, errors, warnings, notes and
 	// files that should be re-analyzed.
@@ -171,13 +173,13 @@ rules // Debugging
       filename := <guarantee-extension(|"index.global.aterm")> path;
       index-setup(|<language>, [project-path], $[[project-path]/[path]]);
       
-      <strip-annos><project-name>ast => prog;
-      evhdlrs := <index-get-evhdlrs(|prog)>;
-      packets := <index-get-packets(|prog)>;
+      <project-name>ast => package;
+      evhdlrs := <index-get-evhdlrs(|package)>;
+      packets := <index-get-packets(|package)>;
       
       cons := [VisItem(),Group(),Class(),Sequence(),MetaPart(),Constant(),DebugItem()];
       
-      data := <flatten-list>[packets|[evhdlrs|<map(index-getcons(|prog))>cons]]
+      data := [packets,evhdlrs|<map(index-getcons(|package))>cons]
       
       
   // Cleans all data from the index.
@@ -211,22 +213,26 @@ rules // Utility
    generate-java:
 		(selected, position, ast, path, project-path) -> (filename, controller)
 		with
-			<debug>"Generate direct Java code.";
+			<debug>"Generate direct Java code......";
+			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+			name-program := <remove-extension><base-filename>path;
 			time-before := <times>;
-			<project-name>ast => program;
-			name-l := <lower-case>program;
-			classname := $[[program]ControllerGen];
+			name-program-l := <lower-case>name-program;
+			
+			classname := $[[name-program]ControllerGen];
+			
 			<guarantee-extension(|"java")>classname => filename ;
 			<base-filename> path => javafile;
-			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+			package := <project-name>ast;
 			
+			 
 			
-			packets := <index-get-packets(|program)>;
-			packets-all :=  <index-get-packets-names(|program)>;
+			packets := <index-get-packets(|package)>;
+			packets-all :=  <index-get-packets-names(|package)>;
 			
 			<debug>"##############################";
 			<debug>"COMPILE PACKETRECEIVES";
-			java-packetreceives := <map2str(compile-packetreceive(|program))>packets-all;
+			java-packetreceives := <map2str(compile-packetreceive(|package))>packets-all;
 			
 			<debug>"##############################";
 			<debug>"COMPILE PACKETS";
@@ -235,35 +241,38 @@ rules // Utility
 			
 			<debug>"##############################";
 			<debug>"COMPILE SEQUENCES";
-			seqs := <index-getcons(|program)>Sequence();
+			
+			seqs := <debug><index-getsequences(|package)>path;
 			java-seqs := <map2str(compile)>seqs;
 			
 			<debug>"##############################";
 			<debug>"COMPILE CLASSES";
-			java-classes := <map2str(compile)><debug(!"Classes:")><index-getclasses(|program)>;
+			java-classes := <map2str(compile)><debug(!"Classes:")><index-getclasses(|package)>;
 			
 			<debug>"##############################";
 			debug(!"COMPILE VISUALS");
-			java-visuals := <map2str(to-java)><debug(!"Visuals:")><index-getcons(|program)>VisItem();
-			java-debug := <concat-glue(|" | ")><map(project-name;packet-name;to-debug)><debug(!"DebugItems:")><try(list-breakout)><index-getcons(|program)>DebugItem();
+			java-visuals := <map2str(to-java)><debug(!"Visuals:")><index-getcons(|package)>VisItem();
+			java-messagefilter := <concat-glue(|" | ")><filter(?"PacketBase")><map(project-name;packet-name;to-debug)><debug(!"DebugItems:")><index-getdebugitems(|package)>;
+			if <elem>(PacketPrim("Packet"),<index-getdebugitems(|package)>) then java-packetbase := "true" else java-packetbase := "false" end;
+			
 			
 			<debug>"##############################";
 			debug(!"COMPILE CONSTS");
-			java-consts := <map2str(to-java-stat)><debug(!"Consts:")><index-getcons(|program)>Constant();
+			java-consts := <map2str(to-java-stat)><debug(!"Consts:")><index-getcons(|package)>Constant();
 			
 			<debug>"##############################";
 			debug(!"COMPILE NAMES");
-			names-metapart := <concat-glue(|",")><map(project-name)><index-getcons(|program)>MetaPart();
+			names-metapart := <concat-glue(|",")><map(project-name)><index-getcons(|package)>MetaPart();
 			names-sequence := <concat-glue(|",")><filter(not(is-prim-seq))><map(project-name)>seqs;
-			names-group := <concat-glue(|",")><map(project-name)><index-getcons(|program)>Group();
-			names-mod :=  <map2str(to-java)><index-getcons(|program)>Group();
+			names-group := <concat-glue(|",")><map(project-name)><index-getcons(|package)>Group();
+			names-mod :=  <map2str(to-java)><index-getcons(|package)>Group();
 			
 			
 			time-after := <times>;
 			duration := $[[<Fst> <times-to-seconds> <diff-times> (time-after, time-before)] secs];
 			
 			controller := $<
-package ussr.samples.atron.simulations.metaforma.gen.<name-l>;
+package ussr.samples.atron.simulations.metaforma.gen.<package>.<name-program-l>;
 
 /* File compiled in <duration> */
 
@@ -285,8 +294,6 @@ import ussr.samples.atron.simulations.metaforma.lib.iface.*;
 public class <classname> extends MfController implements ControllerInformationProvider {
 	
 	<java-consts>
-	
-	
 	
 	@Override
 	public IMetaPart getMetaPart() {
@@ -340,7 +347,8 @@ public class <classname> extends MfController implements ControllerInformationPr
 		
 		<java-visuals>
 		
-		mfVisual.setMessageFilter(<java-debug>);//^ pow2(PacketDiscover.getTypeNr()));		
+		mfVisual.setMessageFilter(<java-messagefilter>);
+		mfVisual.setMessageFilterPacketBase(<java-packetbase>);
 	}
 
 	
@@ -490,12 +498,10 @@ public class <classname> extends MfController implements ControllerInformationPr
 			return (byte) (values().length - 1);
 		}
 	} 
-
-
 >;
 
-	<makedir><destination-path(|name-l)>;
-	destination-file := $[[<destination-path(|name-l)>][filename]];
+	
+	destination-file := $[[<destination-path(|package,name-program-l)>][filename]];
 	<debug>$[Opening file..  : [destination-file]];
 	handle := <fopen> (destination-file, "w");
 	<debug>$[Filling file..];
@@ -508,11 +514,15 @@ public class <classname> extends MfController implements ControllerInformationPr
 head: [x|xs] -> x
 tail: [x|xs] -> xs
 
-makedir: path -> 1
-	where not(<isdir>path);<mkdir>(path)
+makedir = <debug(!"Trying to make dir: ")><id>;
+		if not(<isdir><id>) then
+			<debug(!"Making dir: ")><id>;
+			<mkdir>(<id>) 
+			else
+				<debug(!"Dir exists: ")><id>
+		   end
 
-makedir: path -> 1
-	where <isdir>path
+
 	
 aterm-name: aterm -> name
 	where  
