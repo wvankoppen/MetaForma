@@ -2,172 +2,173 @@ module MetaformaLang
 
 signature
   constructors
-                     : String -> STRING
-    Border           : BorderName -> Border
-    FuncPrimRef      : FuncPrimRef -> FuncPrimRef2
-    ModHolderAllRef  : ModHolderRef
-    ModHolderRef     : ID -> ModHolderRef
-    ModHolderRef     : ID * ID -> ModHolderRef
-    ModHolderNumRef  : ID * Exp -> ModHolderRef
-                     : VarRef -> PacketVarRef
-    SequenceRef      : ID -> SequenceRef
-    SequencePrimRef  : SequencePrim -> SequenceRef
-    VarRef           : ID -> VarRef
-    MethodPrimRef    : Region * RegionMethodRef -> MethodRef
-    MethodPrimRef    : Module * ModuleMethodRef -> MethodRef
-    MethodPrimRef    : Meta * MetaMethodRef -> MethodRef
-    MethodRef        : SysObj * ID -> MethodRef
-    FuncActuationRef : FuncActuationRef -> FuncRef
-    FuncRef          : ID -> FuncRef
-                     : Exp -> StopCondition
-    Consensus        : StopCondition
-    Until            : StopCondition -> InstrPost
-    Wait             : StopCondition -> InstrPost
-    MetaFieldRef     : ID -> MetaFieldRef
-    Mod              : ID -> Mod
-    Group            : ID -> GroupDef
-    Group            : ID * List(Mod) -> GroupDef
-    Orientation      : OrientRef -> OrientClause
-    Instr            : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) -> Instr
-    Instr            : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) * InstrPost -> Instr
-                     : Stmt -> Instr
-    OrientRef        : ID -> OrientRef
-    Block            : List(Stmt) -> Block
-    Block            : Stmt -> Block
-                     : Exp -> EventExp
-    PacketPrim       : PacketPrim -> PacketRef
-    Packet           : ID -> PacketRef
-    If               : Exp * List(Stmt) -> Case
-    Ifs              : List(Case) -> EvHdlrSemi
-    If               : EventExp * List(VarDecl) * List(Stmt) -> EvHdlrSemi
-    EvHdlr           : Receive * List(VarDecl) * List(Stmt) -> EvHdlr
-    Receive          : PacketVarDecl -> Receive
-    FuncCall         : FuncPrimRef2 * List(Exp) -> Stmt
-    FuncCall         : FuncRef * List(Exp) -> Stmt
-    FuncCall         : MethodRef * List(Exp) -> Stmt
-    Break            : Stmt
-    TryRegion        : SequenceRef * Option(OrientClause) * List(MetaFieldRef) * List(MetaFieldRef) -> Stmt
-    GotoOrient       : SequenceRef * OrientClause -> Stmt
-    Goto             : SequenceRef -> Stmt
-    If               : Exp * Block -> Stmt
-    IfElse           : Exp * Block * Block -> Stmt
-    Assign           : Ref * Exp -> Stmt
-    Unicast          : PacketRef * AssignList * Nbs -> Stmt
-    AssignList       : List(AssignElem) -> AssignList
-    AssignElem       : PayloadRef * Exp -> AssignElem
-    PayloadRef       : ID -> PayloadRef
-    PayloadRef       : PacketVarRef * ID -> Ref
-    PayloadPrimRef   : PacketVarRef * PayloadID -> Ref
-    FieldRef         : SysObj * ID -> Ref
-    FieldPrimRef     : Config * ConfigFieldID -> Ref
-    FieldPrimRef     : Module * ModuleFieldID -> Ref
-    FieldPrimRef     : Meta * MetaFieldID -> Ref
-    VarRef           : ID -> Ref
-    MetaPartDecl     : List(MetaPart) -> PartDecl
-    PacketVarDecl    : PacketRef * ID -> PacketVarDecl
-    PayloadDecl      : Type * ID -> PayloadDecl
-    FieldDecl        : Type * ID -> FieldDecl
-    VarDecl          : Type * ID * Exp -> VarDecl
-    VarDecl          : Type * ID -> VarDecl
-    Param            : Type * ID -> ParamListElem
-    FuncDecl         : Type * ID * List(ParamListElem) * List(VarDecl) * List(Stmt) * Exp -> FuncDecl
-    FuncDecl         : ID * List(ParamListElem) * List(VarDecl) * List(Stmt) -> FuncDecl
-    Config           : Config
-    Region           : Region
-    Module           : Module
-    Meta             : Meta
-    BorderItem       : Border * Exp -> BorderItem
-    BorderDecl       : List(BorderItem) -> BorderDecl
-                     : EvHdlr -> MainDef
-    Sequence         : ID * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(FuncDecl) * List(Instr) -> MainDef
-    PacketDecl       : ID * List(PayloadDecl) -> MainDef
-    ConstDecl        : Type * ID * Exp -> MainDef
-    Region           : Option(BorderDecl) * List(FuncDecl) -> MainDef
-    Module           : List(FieldDecl) * List(FuncDecl) -> MainDef
-    Meta             : Option(PartDecl) * List(FieldDecl) * List(FuncDecl) -> MainDef
-                     : GroupDef -> MainDef
-                     : SequenceRef -> ModHolderOrSeqRef
-                     : ModHolderRef -> ModHolderOrSeqRef
-    Color            : Color -> ColorRef
-    VisItem          : ModHolderOrSeqRef * ColorRef -> VisItem
-    VisGroup         : ID * List(VisItem) -> VisGroup
-    Visualize        : List(VisGroup) -> Visualize
-    ShowPackets      : List(PacketRef) -> ShowPackets
-    Debug            : Option(ShowPackets) * Option(Visualize) -> Debug
-    Package          : ID * Option(Debug) * List(MainDef) -> Start
-                     : String -> BorderName
-                     : String -> SequencePrim
-                     : String -> FuncActuationRef
-                     : String -> RegionMethodRef
-                     : String -> MetaMethodRef
-                     : String -> ModuleMethodRef
-                     : String -> PayloadID
-                     : String -> MetaFieldID
-                     : String -> ConfigFieldID
-                     : String -> ModuleFieldID
-                     : String -> PacketPrim
-                     : String -> MetaPartNoneRef
-    MetaPart         : ID -> MetaPart
-    NbsFilter        : ModHolderRef -> NbsFilter
-    NbsFilter        : NbsFilterKey * Exp -> NbsFilter
-    NbsOp            : List(NbsFilter) -> NbsOp
-    Nbs              : NbsOp -> Nbs
-    Config           : SysObj
-    Debug            : SysObj
-    Region           : SysObj
-    Module           : SysObj
-    Meta             : SysObj
-    Robot            : SysObj
-    ByteArr          : Type
-    Void             : Type
-    Float            : Type
-    Int              : Type
-    Byte             : Type
-    Boolean          : Type
-                     : Border -> Exp
-    FuncCall         : FuncPrimRef2 * List(Exp) -> Exp
-    FuncCall         : FuncRef * List(Exp) -> Exp
-    FuncCall         : MethodRef * List(Exp) -> Exp
-    OrientMatch      : List(OrientRef) -> Exp
-    MetaPartNoneRef  : MetaPartNoneRef -> Exp
-    OrBit            : Exp * Exp -> Exp
-    AndBit           : Exp * Exp -> Exp
-    Or               : Exp * Exp -> Exp
-    And              : Exp * Exp -> Exp
-    Neq              : Exp * Exp -> Exp
-    Eq               : Exp * Exp -> Exp
-    GtEq             : Exp * Exp -> Exp
-    LtEq             : Exp * Exp -> Exp
-    Gt               : Exp * Exp -> Exp
-    Lt               : Exp * Exp -> Exp
-    Plus             : Exp * Exp -> Exp
-    Div              : Exp * Exp -> Exp
-    Mul              : Exp * Exp -> Exp
-    Min              : Exp * Exp -> Exp
-    Min              : Exp -> Exp
-    Not              : Exp -> Exp
-    Modulo           : Exp * Exp -> Exp
-    String           : STRING -> Exp
-    ByteArr          : List(Exp) -> Exp
-    Par              : Exp -> Exp
-                     : ModHolderRef -> Exp
-    Bool             : Bool -> Exp
-    Const            : ConstLan -> Exp
-    Const            : Const -> Exp
-    Float            : FLOAT -> Exp
-    Int              : INT -> Exp
-    NbsCount         : NbsOp -> Exp
-                     : Ref -> Exp
-    Null             : Exp
-                     : String -> NbsFilterKey
-                     : String -> FuncPrimRef
-                     : String -> Const
-                     : String -> ConstLan
-                     : String -> Bool
-                     : String -> Color
-                     : String -> FLOAT
-                     : String -> INT
-                     : String -> ID
+                        : String -> STRING
+    Border              : BorderName -> Border
+    FuncPrimRef         : FuncPrimRef -> FuncPrimRef2
+    ModHolderPrimRef    : ModHolderRef
+    ModHolderRef        : ID -> ModHolderRef
+    ModHolderRef        : ID * ID -> ModHolderRef
+    ModHolderNumRef     : ID * Exp -> ModHolderRef
+    ModHolderPrimNumRef : Exp -> ModHolderRef
+                        : VarRef -> PacketVarRef
+    SequenceRef         : ID -> SequenceRef
+    SequencePrimRef     : SequencePrim -> SequenceRef
+    VarRef              : ID -> VarRef
+    MethodPrimRef       : Region * RegionMethodRef -> MethodRef
+    MethodPrimRef       : Module * ModuleMethodRef -> MethodRef
+    MethodPrimRef       : Meta * MetaMethodRef -> MethodRef
+    MethodRef           : SysObj * ID -> MethodRef
+    FuncActuationRef    : FuncActuationRef -> FuncRef
+    FuncRef             : ID -> FuncRef
+                        : Exp -> StopCondition
+    Consensus           : StopCondition
+    Until               : StopCondition -> InstrPost
+    Wait                : StopCondition -> InstrPost
+    MetaFieldRef        : ID -> MetaFieldRef
+    Mod                 : ID -> Mod
+    Group               : ID -> GroupDef
+    Group               : ID * List(Mod) -> GroupDef
+    Orientation         : OrientRef -> OrientClause
+    Instr               : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) -> Instr
+    Instr               : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) * InstrPost -> Instr
+                        : Stmt -> Instr
+    OrientRef           : ID -> OrientRef
+    Block               : List(Stmt) -> Block
+    Block               : Stmt -> Block
+                        : Exp -> EventExp
+    PacketPrim          : PacketPrim -> PacketRef
+    Packet              : ID -> PacketRef
+    If                  : Exp * List(Stmt) -> Case
+    Ifs                 : List(Case) -> EvHdlrSemi
+    If                  : EventExp * List(VarDecl) * List(Stmt) -> EvHdlrSemi
+    EvHdlr              : Receive * List(VarDecl) * List(Stmt) -> EvHdlr
+    Receive             : PacketVarDecl -> Receive
+    FuncCall            : FuncPrimRef2 * List(Exp) -> Stmt
+    FuncCall            : FuncRef * List(Exp) -> Stmt
+    FuncCall            : MethodRef * List(Exp) -> Stmt
+    Break               : Stmt
+    TryRegion           : SequenceRef * Option(OrientClause) * List(MetaFieldRef) * List(MetaFieldRef) -> Stmt
+    GotoOrient          : SequenceRef * OrientClause -> Stmt
+    Goto                : SequenceRef -> Stmt
+    If                  : Exp * Block -> Stmt
+    IfElse              : Exp * Block * Block -> Stmt
+    Assign              : Ref * Exp -> Stmt
+    Unicast             : PacketRef * AssignList * Nbs -> Stmt
+    AssignList          : List(AssignElem) -> AssignList
+    AssignElem          : PayloadRef * Exp -> AssignElem
+    PayloadRef          : ID -> PayloadRef
+    PayloadRef          : PacketVarRef * ID -> Ref
+    PayloadPrimRef      : PacketVarRef * PayloadID -> Ref
+    FieldRef            : SysObj * ID -> Ref
+    FieldPrimRef        : Config * ConfigFieldID -> Ref
+    FieldPrimRef        : Module * ModuleFieldID -> Ref
+    FieldPrimRef        : Meta * MetaFieldID -> Ref
+    VarRef              : ID -> Ref
+    MetaPartDecl        : List(MetaPart) -> PartDecl
+    PacketVarDecl       : PacketRef * ID -> PacketVarDecl
+    PayloadDecl         : Type * ID -> PayloadDecl
+    FieldDecl           : Type * ID -> FieldDecl
+    VarDecl             : Type * ID * Exp -> VarDecl
+    VarDecl             : Type * ID -> VarDecl
+    Param               : Type * ID -> ParamListElem
+    FuncDecl            : Type * ID * List(ParamListElem) * List(VarDecl) * List(Stmt) * Exp -> FuncDecl
+    FuncDecl            : ID * List(ParamListElem) * List(VarDecl) * List(Stmt) -> FuncDecl
+    Config              : Config
+    Region              : Region
+    Module              : Module
+    Meta                : Meta
+    BorderItem          : Border * Exp -> BorderItem
+    BorderDecl          : List(BorderItem) -> BorderDecl
+                        : EvHdlr -> MainDef
+    Sequence            : ID * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(FuncDecl) * List(Instr) -> MainDef
+    PacketDecl          : ID * List(PayloadDecl) -> MainDef
+    ConstDecl           : Type * ID * Exp -> MainDef
+    Region              : Option(BorderDecl) * List(FuncDecl) -> MainDef
+    Module              : List(FieldDecl) * List(FuncDecl) -> MainDef
+    Meta                : Option(PartDecl) * List(FieldDecl) * List(FuncDecl) -> MainDef
+                        : GroupDef -> MainDef
+                        : SequenceRef -> ModHolderOrSeqRef
+                        : ModHolderRef -> ModHolderOrSeqRef
+    Color               : Color -> ColorRef
+    VisItem             : ModHolderOrSeqRef * ColorRef -> VisItem
+    VisGroup            : ID * List(VisItem) -> VisGroup
+    Visualize           : List(VisGroup) -> Visualize
+    ShowPackets         : List(PacketRef) -> ShowPackets
+    Debug               : Option(ShowPackets) * Option(Visualize) -> Debug
+    Package             : ID * Option(Debug) * List(MainDef) -> Start
+                        : String -> BorderName
+                        : String -> SequencePrim
+                        : String -> FuncActuationRef
+                        : String -> RegionMethodRef
+                        : String -> MetaMethodRef
+                        : String -> ModuleMethodRef
+                        : String -> PayloadID
+                        : String -> MetaFieldID
+                        : String -> ConfigFieldID
+                        : String -> ModuleFieldID
+                        : String -> PacketPrim
+                        : String -> MetaPartNoneRef
+    MetaPart            : ID -> MetaPart
+    NbsFilter           : ModHolderRef -> NbsFilter
+    NbsFilter           : NbsFilterKey * Exp -> NbsFilter
+    NbsOp               : List(NbsFilter) -> NbsOp
+    Nbs                 : NbsOp -> Nbs
+    Config              : SysObj
+    Debug               : SysObj
+    Region              : SysObj
+    Module              : SysObj
+    Meta                : SysObj
+    Robot               : SysObj
+    ByteArr             : Type
+    Void                : Type
+    Float               : Type
+    Int                 : Type
+    Byte                : Type
+    Boolean             : Type
+                        : Border -> Exp
+    FuncCall            : FuncPrimRef2 * List(Exp) -> Exp
+    FuncCall            : FuncRef * List(Exp) -> Exp
+    FuncCall            : MethodRef * List(Exp) -> Exp
+    OrientMatch         : List(OrientRef) -> Exp
+    MetaPartNoneRef     : MetaPartNoneRef -> Exp
+    OrBit               : Exp * Exp -> Exp
+    AndBit              : Exp * Exp -> Exp
+    Or                  : Exp * Exp -> Exp
+    And                 : Exp * Exp -> Exp
+    Neq                 : Exp * Exp -> Exp
+    Eq                  : Exp * Exp -> Exp
+    GtEq                : Exp * Exp -> Exp
+    LtEq                : Exp * Exp -> Exp
+    Gt                  : Exp * Exp -> Exp
+    Lt                  : Exp * Exp -> Exp
+    Plus                : Exp * Exp -> Exp
+    Div                 : Exp * Exp -> Exp
+    Mul                 : Exp * Exp -> Exp
+    Min                 : Exp * Exp -> Exp
+    Min                 : Exp -> Exp
+    Not                 : Exp -> Exp
+    Modulo              : Exp * Exp -> Exp
+    String              : STRING -> Exp
+    ByteArr             : List(Exp) -> Exp
+    Par                 : Exp -> Exp
+                        : ModHolderRef -> Exp
+    Bool                : Bool -> Exp
+    Const               : ConstLan -> Exp
+    Const               : Const -> Exp
+    Float               : FLOAT -> Exp
+    Int                 : INT -> Exp
+    NbsCount            : NbsOp -> Exp
+                        : Ref -> Exp
+    Null                : Exp
+                        : String -> NbsFilterKey
+                        : String -> FuncPrimRef
+                        : String -> Const
+                        : String -> ConstLan
+                        : String -> Bool
+                        : String -> Color
+                        : String -> FLOAT
+                        : String -> INT
+                        : String -> ID
 
 
 signature

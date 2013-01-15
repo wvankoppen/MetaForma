@@ -72,6 +72,9 @@ desugar-td: Instr(d,evts,evsemi,instrs) -> Instr(d,evts,evsemi,instrs,Wait(Conse
 // desugar-td: Stop(_,m1) -> FuncCall(MethodRef(Actuation(),"stop"),[m1])
 
 
+
+
+
 desugar: VarDecl(Boolean(),var) -> VarDecl(Boolean(),var,Bool("false"))
 desugar: VarDecl(Byte(),var) -> VarDecl(Byte(),var,Int(0))
 desugar: VarDecl(Int(),var) -> VarDecl(Int(),var,Int(0))
@@ -140,7 +143,8 @@ desugar-all-nbl = bottomup(try(desugar-nbl))
 desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f)
 desugar-nbl: MethodPrimRef(o,f) -> MethodRef(o,f)
 desugar-nbl: FuncPrimRef(f) -> FuncRef(f)
-
+desugar-nbl: ModHolderPrimRef() -> ModHolderRef("X")
+desugar-nbl: ModHolderPrimNumRef(i) -> ModHolderNumRef("X",i)
 //   desugar-nbl: SequenceName(n) -> SequenceRef(n)
 // desugar-nbl: SequencePrimName(n) -> SequencePrimRef(n)
 

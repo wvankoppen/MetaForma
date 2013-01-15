@@ -27,6 +27,8 @@ folding Default folding definitions
   OptVisualize0
   Visualize.Visualize
   VisGroup.VisGroup
+  VisItem.VisItem
+  ModHolderRef
   Exp.OrientMatch
   GroupDef.Group
   MainDef.Meta

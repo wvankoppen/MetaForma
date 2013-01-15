@@ -230,6 +230,9 @@ exports
 	"atBorder"			-> ModuleMethodRef
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
+	"tiltX"				-> ModuleMethodRef
+	"tiltY"				-> ModuleMethodRef
+	"tiltZ"				-> ModuleMethodRef
 	"initMeta"			-> ModuleMethodRef
 	"storeID"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
@@ -259,10 +262,11 @@ exports
 	
 	context-free syntax
 
+	"@" "X" "[" Exp "]"								-> ModHolderRef{"ModHolderPrimNumRef",prefer}
 	"@" ID "[" Exp "]"								-> ModHolderRef{"ModHolderNumRef"}
 	"@" ID "." ID									-> ModHolderRef{"ModHolderRef"}
 	"@" ID 											-> ModHolderRef{"ModHolderRef"}
-	"@*"											-> ModHolderRef{"ModHolderAllRef"}
+	"@X"											-> ModHolderRef{"ModHolderPrimRef"}
 	
 	"orientation" "matches" {OrientRef ","}* -> Exp{"OrientMatch"}
 	

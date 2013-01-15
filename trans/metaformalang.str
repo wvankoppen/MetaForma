@@ -232,7 +232,7 @@ rules // Utility
 			
 			<debug>"##############################";
 			<debug>"COMPILE PACKETRECEIVES";
-			java-packetreceives := <map2str(compile-packetreceive(|package))>packets-all;
+			java-packetreceives := <map2str(compile-packetreceive(|package))>["Symmetry"|packets-all]; // Add symmetry to it as the programmer does not define this packet
 			
 			<debug>"##############################";
 			<debug>"COMPILE PACKETS";
@@ -252,7 +252,7 @@ rules // Utility
 			<debug>"##############################";
 			debug(!"COMPILE VISUALS");
 			java-visuals := <map2str(to-java)><debug(!"Visuals:")><index-getcons(|package)>VisItem();
-			java-messagefilter := <concat-glue(|" | ")><filter(?"PacketBase")><map(project-name;packet-name;to-debug)><debug(!"DebugItems:")><index-getdebugitems(|package)>;
+			java-messagefilter := <concat-glue(|" | ")><map(project-name;packet-name;to-debug)><debug(!"DebugItems:")><filter(not(?PacketPrim("Packet")))><index-getdebugitems(|package)>;
 			if <elem>(PacketPrim("Packet"),<index-getdebugitems(|package)>) then java-packetbase := "true" else java-packetbase := "false" end;
 			
 			

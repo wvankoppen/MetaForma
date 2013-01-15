@@ -132,11 +132,6 @@ rules
 		refers to Method n
 		
 	
-		
-	// MethodRef(Actuation(), n):
-	// 	refers to Method n
-		
-	
 	MethodRef(obj,n):
 		refers to Method n in Class obj
 		// where obj has type Type(c)

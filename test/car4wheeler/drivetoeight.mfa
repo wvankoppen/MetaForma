@@ -27,6 +27,7 @@ sequence Choose {
 // check whether this is proper reverse!
 sequence Car2Eight {
 	meta.halt();
+	
 	module.restoreID();
 	
 	rotate(@Eight[1],-QUART); 

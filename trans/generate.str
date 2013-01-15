@@ -50,8 +50,7 @@ where
 to-java: FuncCall(n,args) -> $[[<to-java>n]([<concat-glue(|",")><map(to-java)>args])] where <debug(!"FuncCall: ")>n
 to-java: ModHolderNumRef(g,i) -> $[new Module(Mod.[g],[<to-java>i])]
 to-java: ModHolderRef(g,m) -> $[Mod.[g]_[m]]
-to-java: ModHolderRef(g) -> $[Group.[g]]
-to-java: ModHolderAllRef() -> $[Group.X]  
+to-java: ModHolderRef(g) -> $[Group.[g]]  
 to-java: FuncRef(n) -> n
 
 to-java: OrientRef(o) -> $[Orientation.[o]]
@@ -216,8 +215,8 @@ to-java: Assign(FieldRef(obj,field),val) -> $[[<to-java>obj].setVar("[field]",[v
 
  
 
-to-java-stat: FuncDecl (n,params,evts,stats) -> $[ void [n] ([<concat-glue(|",")><map(to-java)>params]) {
-	[<concat-strings><map(to-java-stat)>stats]	
+to-java-stat: FuncDecl (n,params,vars,stats) -> $[ void [n] ([<concat-glue(|",")><map(to-java)>params]) {
+	[<map2str(to-java-stat)><conc>(vars,stats)]	
 }
 ]
 

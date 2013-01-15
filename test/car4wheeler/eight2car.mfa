@@ -3,8 +3,87 @@ package FourWheeler
 
 
 sequence Choose {
-	goto Eight2Car;
+	goto Eight2CarNames;
 }
+
+
+sequence Eight2CarNames {
+	
+	do {
+		when (receive(Symmetry p)) {
+			module.fixSymmetry(p.connSource,p.connDest);
+		}
+		module.fixSymmetry(module.id == @X[0]);
+	} until(consensus());
+	
+	module.gradientInit();
+	
+	do {
+		module.gradientPropagate();
+	}	until (config.propagationTime);
+	
+	module.gradientAssignEight();
+	
+	
+	
+	do{	disconnect(@Eight[0],@Eight[2]);
+		disconnect(@Eight[3],@Eight[4]);
+	}
+	do{	rotate(@Eight[3],-90);
+		rotate(@Eight[4],-90);
+	}
+	
+	connect(@Eight[4],@Eight[3]);
+	
+	do{	rotate(@Eight[1],-90);
+		disconnect(@Eight[6],@Eight[5]);
+	}
+	
+	do{	rotate(@Eight[4],90);
+		rotate(@Eight[6],90);
+	}
+	
+	connect(@Eight[0],@Eight[6]);
+	disconnect(@Eight[6],@Eight[4]);
+	
+	do{	rotate(@Eight[0],-90);
+		rotate(@Eight[1],90);
+	}
+	
+	rotate(@Eight[0],90);
+	
+	do{	connect(@Eight[5],@Eight[6]);
+		connect(@Eight[2],@Eight[6]);
+		connect(@Eight[1],@Eight[4]);
+	}
+	
+	disconnect(@Eight[4],@Eight[3]);
+	disconnect(@Eight[3],@Eight[1]);
+	
+	do{	rotate(@Eight[1],90);
+		rotate(@Eight[3],90);
+	}
+	
+	connect(@Eight[1],@Eight[3]);
+	
+	do{	disconnect(@Eight[3],@Eight[5]);
+		disconnect(@Eight[3],@Eight[2]);
+	}
+	
+	rotate(@Eight[1],90);
+	
+	module.restoreSymmetry();
+	
+	if (module.id == @Eight[3] && module.tiltZ() > 50) {
+		// get up
+		goto GetUp;
+	}
+	else {
+		goto Drive;	
+	} 
+}
+
+
 
 sequence Eight2Car {
 	module.gradientInit();
@@ -13,14 +92,7 @@ sequence Eight2Car {
 		module.gradientPropagate();
 	}	until (config.propagationTime);
 	
-	do {
-		byte nr = (module.gradPri/2)*3;
-		if (module.gradSec%2==0) {
-			nr = nr + module.gradSec/2 + 1;
-		}
-		
-		module.id = @Eight[nr];
-	}
+	module.gradientAssignEight();
 	
 	do {retract(@Eight[0],0);
 		retract(@Eight[3],4); 
@@ -31,7 +103,7 @@ sequence Eight2Car {
 		rotate(@Eight[4],-QUART);
 	}
 	
-	extend(@Eight[4],2);
+	extend(@Eight[4],6);
 	
 	do {rotate(@Eight[1],-QUART);
 		retract(@Eight[6],2);}
@@ -48,12 +120,12 @@ sequence Eight2Car {
 	
 	rotate(@Eight[0],QUART);
 	
-	do {extend(@Eight[5],0);
+	do {extend(@Eight[5],4);
 		extend(@Eight[2],4);
 		extend(@Eight[1],4);
 	}
 	
-	retract(@Eight[4],2);
+	retract(@Eight[4],6);
 	retract(@Eight[3],6);
 	
 	do {rotate(@Eight[1],QUART);

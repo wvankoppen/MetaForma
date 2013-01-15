@@ -188,10 +188,11 @@ regular tree grammar
     Exp                      -> FuncCall(MethodRef,ListStarOfExp0)
     Stmt                     -> FuncCall(MethodRef,ListStarOfExp0)
     Exp                      -> OrientMatch(ListStarOfOrientRef0)
-    ModHolderRef             -> ModHolderAllRef()
+    ModHolderRef             -> ModHolderPrimRef()
     ModHolderRef             -> ModHolderRef(ID)
     ModHolderRef             -> ModHolderRef(ID,ID)
     ModHolderRef             -> ModHolderNumRef(ID,Exp)
+    ModHolderRef             -> ModHolderPrimNumRef(Exp)
     PacketVarRef             -> VarRef
     Ref                      -> PayloadRef(PacketVarRef,ID)
     Ref                      -> PayloadPrimRef(PacketVarRef,PayloadID)

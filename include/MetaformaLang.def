@@ -406,6 +406,9 @@ exports
 	"atBorder"			-> ModuleMethodRef
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
+	"tiltX"				-> ModuleMethodRef
+	"tiltY"				-> ModuleMethodRef
+	"tiltZ"				-> ModuleMethodRef
 	"initMeta"			-> ModuleMethodRef
 	"storeID"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
@@ -435,10 +438,11 @@ exports
 	
 	context-free syntax
 
+	"@" "X" "[" Exp "]"								-> ModHolderRef{cons("ModHolderPrimNumRef"),prefer}
 	"@" ID "[" Exp "]"								-> ModHolderRef{cons("ModHolderNumRef")}
 	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
-	"@*"											-> ModHolderRef{cons("ModHolderAllRef")}
+	"@X"											-> ModHolderRef{cons("ModHolderPrimRef")}
 	
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
@@ -759,6 +763,9 @@ exports
 	"atBorder"			-> ModuleMethodRef
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
+	"tiltX"				-> ModuleMethodRef
+	"tiltY"				-> ModuleMethodRef
+	"tiltZ"				-> ModuleMethodRef
 	"initMeta"			-> ModuleMethodRef
 	"storeID"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
@@ -788,10 +795,11 @@ exports
 	
 	context-free syntax
 
+	"@" "X" "[" Exp "]"								-> ModHolderRef{cons("ModHolderPrimNumRef"),prefer}
 	"@" ID "[" Exp "]"								-> ModHolderRef{cons("ModHolderNumRef")}
 	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
-	"@*"											-> ModHolderRef{cons("ModHolderAllRef")}
+	"@X"											-> ModHolderRef{cons("ModHolderPrimRef")}
 	
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	

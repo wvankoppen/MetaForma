@@ -1,7 +1,7 @@
 package FourWheeler
-
+ 
 debug {
-	show [Packet]
+	show [Consensus,Symmetry]
 	
 	visualize {
 		north {
@@ -13,6 +13,7 @@ debug {
 			Main: black;
 			Car2Eight: gray;
 			Drive: red;
+			Turn: green;
 		}
 	} 
 	
@@ -57,6 +58,15 @@ module {
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;			
 	}
+	
+	void gradientAssignEight () {
+		byte nr = (gradPri/2)*3;
+		if (gradSec%2==0) {
+			nr = nr + gradSec/2 + 1;
+		}
+		
+		module.id = @Eight[nr];
+	}
 } 
 
 
@@ -95,3 +105,17 @@ sequence Main {
 	
 	goto Choose;
 }	
+
+sequence GetUp {
+	rotate(@Eight[0],180);
+	do {
+		rotate(@Eight[1],-45);
+		rotate(@Eight[6],45);
+	}
+	
+	rotate(@Eight[0],-180);
+	do {
+		rotate(@Eight[1],45);
+		rotate(@Eight[6],-45);
+	}
+}
