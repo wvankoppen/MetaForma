@@ -1,14 +1,32 @@
 package FourWheeler
 
-
+strategy {
+	if (meta.type==NONE) {
+		goto AssignCar;
+	}
+	
+	if (meta.type==CAR) {
+		goto DriveToEight;
+	}	
+	
+	if (meta.type==EIGHT) {
+		goto Eight2Snake;
+	}
+}
  
-sequence Choose {
+sequence Drive {
 	when (module.id == @Axis.Front && module.proximity() > PROXIMITY) {			
 		goto Car2Eight;
 	} 
 	
-	module.storeID();
+	module.backupID();
 	
+	
+		
+	meta.drive(FORWARD,FORWARD);
+}
+
+sequence AssignCar {
 	do { 
 		when {
 			case #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0:								module.group = @LeftWheel;
@@ -18,15 +36,82 @@ sequence Choose {
 			case #()==2: 																		module.id = @Axis.Driver;				
 		}
 	} until (config.assignTime);
-		
-	meta.drive(FORWARD,FORWARD);
+	
+	meta.type=CAR;
+	finish();
+	
 }
 
-
+sequence Car2EightNames {
+	module.restoreID();
+	rotate(@Eight[1],-90);
+	do{	connect(@Eight[3],@Eight[5]);
+		connect(@Eight[3],@Eight[2]);
+	}
+	disconnect(@Eight[1],@Eight[3]);
+	do{	rotate(@Eight[1],-90);
+		rotate(@Eight[3],-90);
+	}
+	connect(@Eight[3],@Eight[1]);
+	connect(@Eight[4],@Eight[3]);
+	do{	disconnect(@Eight[5],@Eight[6]);
+		disconnect(@Eight[2],@Eight[6]);
+		disconnect(@Eight[1],@Eight[4]);
+	}
+	rotate(@Eight[0],-90);
+	do{	rotate(@Eight[0],90);
+		rotate(@Eight[1],-90);
+	}
+	connect(@Eight[6],@Eight[4]);
+	disconnect(@Eight[0],@Eight[6]);
+	do{	rotate(@Eight[4],-90);
+		rotate(@Eight[6],-90);
+	}
+	do{	rotate(@Eight[1],90);
+		connect(@Eight[6],@Eight[5]);
+	}
+	disconnect(@Eight[4],@Eight[3]);
+	do{	rotate(@Eight[3],90);
+		rotate(@Eight[4],90);
+	}
+	do{	connect(@Eight[0],@Eight[2]);
+		connect(@Eight[3],@Eight[4]);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+}
 
 // check whether this is proper reverse!
 sequence Car2Eight {
-	meta.halt();
 	
 	module.restoreID();
 	
@@ -64,10 +149,12 @@ sequence Car2Eight {
 	
 	do {retract(@Eight[4],6);
 		rotate(@Eight[1],QUART);
-		extend(@Eight[6],2);}
+		}
 	
-	rotate(@Eight[4],-QUART);
-	rotate(@Eight[3],-QUART);
+	extend(@Eight[6],2);
+	
+	rotate(@Eight[4],QUART);
+	rotate(@Eight[3],QUART);
 	
 	
 	do {extend(@Eight[0],0);
@@ -78,7 +165,10 @@ sequence Car2Eight {
 }
 
 sequence Eight2Snake {
-	retractSet(@Eight[3], MALE&EAST&NORTH | MALE&WEST&SOUTH); 
+	// retractSet(@Eight[3], MALE&EAST&NORTH | MALE&WEST&SOUTH);
+	do{ disconnect(@Eight[3],@Eight[2]);
+		disconnect(@Eight[3],@Eight[4]);
+	}
 	
 	do {
 		rotate(@Eight[0],-HALF);

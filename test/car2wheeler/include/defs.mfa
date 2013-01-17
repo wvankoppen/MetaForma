@@ -43,3 +43,10 @@ sequence Main {
 	
 	goto Choose;
 }	
+
+sequence Choose {
+	strategy;
+}
+
+
+

@@ -10,9 +10,10 @@ byte BACKWARD = 1
 
 
 
-sequence Choose {
+strategy {
 	goto Drive;
-}
+} 
+
 
 sequence Drive {
 	when (module.id == @Car.Driver && module.proximity() > PROXIMITY) {
@@ -20,7 +21,9 @@ sequence Drive {
 	} 
 	meta.drive(FORWARD,FORWARD);
 }
- 
+
+
+
 sequence Turn {
 	stop(@Car);
 	
@@ -32,6 +35,5 @@ sequence Turn {
 		meta.drive (BACKWARD,FORWARD);	
 	} wait(TIME_TURNAROUND);
 	
-	goto Drive;
+	finish();
 }
-

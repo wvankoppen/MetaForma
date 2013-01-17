@@ -25,7 +25,8 @@ builders
   builder  : "Show index entries for current file" 	= index-currentfile (openeditor) (meta)
   builder  : "Show types" 							= index-types (openeditor) (meta) 
   builder  : "Show index entries for all files" 	= index-allfiles (openeditor) (meta) 
-  builder  : "Clear index" 							= index-cleanall (meta) (source)                                        
+  builder  : "Clear index" 							= index-cleanall (meta) (source)
+  builder  : "Reload index" 						= index-forcereload  (source)                                        
   builder  : "Java code (selection)" 				= generate-java  (source)                                                                                                                          
 
 refactorings

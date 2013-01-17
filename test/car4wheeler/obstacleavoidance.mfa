@@ -2,14 +2,13 @@ package FourWheeler
 
 byte STEER_DEGREES = 12 
 
-
-sequence Choose {
+strategy {
 	goto Drive;
 }
 
 sequence Drive {
 	when (module.id == @Axis.Front && module.proximity() > PROXIMITY) {
-		goto Turn;
+		goto ObstacleAvoid;
 	} 
 	
 	do { 
@@ -31,18 +30,18 @@ sequence Drive {
 }
 
 
-
-sequence Turn {	
-	meta.halt(); 
-	meta.steer(STEER_DEGREES);
-		
-	do {
-		meta.drive (BACKWARD,BACKWARD);	
-	} wait(TIME_BACKWARD);
-	
-	meta.halt();
-	
-	meta.steer(-STEER_DEGREES);
-	
-	goto Drive;
-}
+// Turn
+// sequence ObstacleAvoid {	
+// 	meta.halt(); 
+// 	meta.steer(STEER_DEGREES);
+// 		
+// 	do {
+// 		meta.drive (BACKWARD,BACKWARD);	
+// 	} wait(TIME_BACKWARD);
+// 	
+// 	meta.halt();
+// 	
+// 	meta.steer(-STEER_DEGREES);
+// 	
+// 	goto Drive;
+// }

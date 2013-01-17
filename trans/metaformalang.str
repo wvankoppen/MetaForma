@@ -188,6 +188,13 @@ rules // Debugging
     with
       index-setup(|<language>, [project-path], $[[project-path]/[path]]);
       index-clear
+      
+
+  index-forcereload:
+    (selected, position, ast, path, project-path)  -> None()
+    with
+      index-setup(|<language>, [project-path], $[[project-path]/[path]]);
+      index-reload
     
 rules // Utility
   
@@ -242,7 +249,7 @@ rules // Utility
 			<debug>"##############################";
 			<debug>"COMPILE SEQUENCES";
 			
-			seqs := <debug><index-getsequences(|package)>path;
+			seqs := <index-getsequences(|package,<debug(!"STRATEGYY:")><try(list-breakout)><desugar-all-nbl><collect-one(?Strategy(_))><index-get-all-in-file>path)>;
 			java-seqs := <map2str(compile)>seqs;
 			
 			<debug>"##############################";
@@ -381,7 +388,9 @@ public class <classname> extends MfController implements ControllerInformationPr
 		 
 		 private Mod (boolean isNumGroup) {
 		if (isNumGroup) {
-			count = 48;
+			/* If we allow 8 different groups to be used, we can have at max 256/8=32 per module, and also 32 in total. 
+			*/
+			count = 32;
 		}
 	}
 	

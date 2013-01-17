@@ -91,7 +91,9 @@ exports
 	"receive" "(" PacketVarDecl ")" 	-> Receive{"Receive"}
 	
 	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> MainDef{"Sequence"}
+	"strategy" "{" Stmt* "}" -> MainDef{"Strategy"}	
 	
+	"strategy;"	-> Stmt{"StrategyRef"}
 	
 	EvHdlr								 		 -> MainDef
 	
@@ -123,26 +125,43 @@ exports
 	"if" "(" Exp ")" Block 					-> Stmt{"If"}
 			
 		
-	ID 										-> OrientRef{"OrientRef"}	
+	Orient 										-> OrientRef{"OrientRef"}	
+		
+	Orient -> ID{reject}	
 		
 	Stmt -> Instr
-	"goto" SequenceRef ";"							-> Stmt{"Goto"}
-	"goto" SequenceRef OrientClause ";"							-> Stmt{"GotoOrient"}
-	"orientating" OrientRef 				-> OrientClause{"Orientation"}
+	"execute" SequenceRef ";"							-> Stmt{"Goto"}
+	"execute" SequenceRef OrientClause ";"							-> Stmt{"GotoOrient"}
+	"orienting" OrientRef 				-> OrientClause{"Orientation"}
 		
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{"Group"}
 	"group" ID							-> GroupDef{"Group"}
 	
 	ID 								-> Mod{"Mod"}
 	
-	"try" "region" SequenceRef OrientClause? "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{"TryRegion"}
+	"try" "region" SequenceRef OrientClause? "including" {MetaFieldRef ","}*  ExcludingClause?  ";" -> Stmt{"TryRegion"}
+	
+	"excluding" {MetaFieldRef ","}* -> ExcludingClause{"Excluding"}
 	
 	 {Exp ","}* 				-> ByteList {"ByteArr"}
-	 ID 		-> MetaFieldRef {"MetaFieldRef"}
+	 ID 						-> MetaFieldRef {"MetaFieldRef"}
 	 
 	"break" ";"	-> Stmt{"Break"}
 	
 	lexical syntax
+	
+	"LEFT_BOTTOM"	-> Orient
+	"LEFT_TOP"	-> Orient
+	
+	"RIGHT_BOTTOM"	-> Orient
+	"RIGHT_TOP"	-> Orient
+	
+	"BOTTOM_LEFT"	-> Orient
+	"BOTTOM_RIGHT"	-> Orient
+	
+	"TOP_LEFT"	-> Orient
+	"TOP_RIGHT"	-> Orient
+
 			
 	"None"	-> MetaPartNoneRef
 	"Packet" -> PacketPrim
@@ -227,6 +246,7 @@ exports
 	"connDest" 	-> PayloadID
 	
 	"restoreID"			-> ModuleMethodRef
+	"restoreSymmetry"	-> ModuleMethodRef
 	"atBorder"			-> ModuleMethodRef
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
@@ -234,9 +254,12 @@ exports
 	"tiltY"				-> ModuleMethodRef
 	"tiltZ"				-> ModuleMethodRef
 	"initMeta"			-> ModuleMethodRef
-	"storeID"			-> ModuleMethodRef
+	"backupID"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
+	
+	"finish" 			-> MetaMethodRef	%% Experimental
+	
 	"release" 			-> RegionMethodRef
 	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
@@ -266,7 +289,7 @@ exports
 	"@" ID "[" Exp "]"								-> ModHolderRef{"ModHolderNumRef"}
 	"@" ID "." ID									-> ModHolderRef{"ModHolderRef"}
 	"@" ID 											-> ModHolderRef{"ModHolderRef"}
-	"@X"											-> ModHolderRef{"ModHolderPrimRef"}
+	"@X"											-> ModHolderRef{"ModHolderPrimRef",prefer}
 	
 	"orientation" "matches" {OrientRef ","}* -> Exp{"OrientMatch"}
 	
@@ -294,10 +317,10 @@ exports
 	BorderName -> ID{reject}
 	
 	lexical syntax
-	"top" 		-> BorderName
-	"bottom"	-> BorderName
-	"left"		-> BorderName
-	"right"		-> BorderName
+	"TOP" 		-> BorderName
+	"BOTTOM"	-> BorderName
+	"LEFT"		-> BorderName
+	"RIGHT"		-> BorderName
 	
 	
 	

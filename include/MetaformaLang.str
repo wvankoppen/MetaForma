@@ -25,6 +25,7 @@ signature
     Until               : StopCondition -> InstrPost
     Wait                : StopCondition -> InstrPost
     MetaFieldRef        : ID -> MetaFieldRef
+    Excluding           : List(MetaFieldRef) -> ExcludingClause
     Mod                 : ID -> Mod
     Group               : ID -> GroupDef
     Group               : ID * List(Mod) -> GroupDef
@@ -32,7 +33,7 @@ signature
     Instr               : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) -> Instr
     Instr               : List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Stmt) * InstrPost -> Instr
                         : Stmt -> Instr
-    OrientRef           : ID -> OrientRef
+    OrientRef           : Orient -> OrientRef
     Block               : List(Stmt) -> Block
     Block               : Stmt -> Block
                         : Exp -> EventExp
@@ -47,12 +48,13 @@ signature
     FuncCall            : FuncRef * List(Exp) -> Stmt
     FuncCall            : MethodRef * List(Exp) -> Stmt
     Break               : Stmt
-    TryRegion           : SequenceRef * Option(OrientClause) * List(MetaFieldRef) * List(MetaFieldRef) -> Stmt
+    TryRegion           : SequenceRef * Option(OrientClause) * List(MetaFieldRef) * Option(ExcludingClause) -> Stmt
     GotoOrient          : SequenceRef * OrientClause -> Stmt
     Goto                : SequenceRef -> Stmt
     If                  : Exp * Block -> Stmt
     IfElse              : Exp * Block * Block -> Stmt
     Assign              : Ref * Exp -> Stmt
+    StrategyRef         : Stmt
     Unicast             : PacketRef * AssignList * Nbs -> Stmt
     AssignList          : List(AssignElem) -> AssignList
     AssignElem          : PayloadRef * Exp -> AssignElem
@@ -80,6 +82,7 @@ signature
     BorderItem          : Border * Exp -> BorderItem
     BorderDecl          : List(BorderItem) -> BorderDecl
                         : EvHdlr -> MainDef
+    Strategy            : List(Stmt) -> MainDef
     Sequence            : ID * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(FuncDecl) * List(Instr) -> MainDef
     PacketDecl          : ID * List(PayloadDecl) -> MainDef
     ConstDecl           : Type * ID * Exp -> MainDef
@@ -108,6 +111,7 @@ signature
                         : String -> ModuleFieldID
                         : String -> PacketPrim
                         : String -> MetaPartNoneRef
+                        : String -> Orient
     MetaPart            : ID -> MetaPart
     NbsFilter           : ModHolderRef -> NbsFilter
     NbsFilter           : NbsFilterKey * Exp -> NbsFilter
@@ -154,7 +158,6 @@ signature
                         : ModHolderRef -> Exp
     Bool                : Bool -> Exp
     Const               : ConstLan -> Exp
-    Const               : Const -> Exp
     Float               : FLOAT -> Exp
     Int                 : INT -> Exp
     NbsCount            : NbsOp -> Exp
@@ -162,7 +165,6 @@ signature
     Null                : Exp
                         : String -> NbsFilterKey
                         : String -> FuncPrimRef
-                        : String -> Const
                         : String -> ConstLan
                         : String -> Bool
                         : String -> Color

@@ -37,7 +37,7 @@ lexical syntax
 	 "gray"			-> Color
 	 "orange"		-> Color
 	 "magenta"		-> Color
-	 "brown"		-> Color
+	 "pink"			-> Color
 	
 	"false"			-> Bool
 	"true"			-> Bool
@@ -48,7 +48,7 @@ lexical syntax
 	"EAST"			-> ConstLan
 	"NORTH"			-> ConstLan
 	"SOUTH"			-> ConstLan
-	"MAX_BYTE"		-> Const
+	"MAX_BYTE"		-> ConstLan
 	
 	"isMALE"		-> FuncPrimRef
 	"isFEMALE"		-> FuncPrimRef
@@ -82,7 +82,7 @@ lexical syntax
 	"config"		-> SysObj{"Config"}
 
 	
-	 Const			-> ID {reject}
+	 %%Const			-> ID {reject} is the same as constlan?
 	 ConstLan		-> ID {reject}
 	 Bool			-> ID {reject}
 	 SysObj			-> ID {reject}	

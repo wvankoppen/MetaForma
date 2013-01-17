@@ -116,8 +116,8 @@ mod-enum: Group(groupname) -> $[[groupname](true)]
 
 
 
-to-java: TryRegion(n,Some(Orientation(o)),incs,excls) -> $[region().tryRegion(new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>incs]},new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>excls]},[<to-java>n],[<to-java>o])]
-to-java: TryRegion(n,None(),incs,excls) -> $[region().tryRegion(new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>incs]},new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>excls]})]
+to-java: TryRegion(n,Some(Orientation(o)),incs,Some(Excluding(excls))) -> $[region().tryRegion(new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>incs]},new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>excls]},[<to-java>n],[<to-java>o])]
+to-java: TryRegion(n,None(),incs,Some(Excluding(excls))) -> $[region().tryRegion(new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>incs]},new byte[<bracks>]{[<concat-glue(|",")><map(to-java)>excls]},[<to-java>n])]
 
 to-java: OrientMatch(orients) -> $[[<concat-glue(|" || ")><map(orientref)>orients]
 ] 
@@ -125,9 +125,10 @@ to-java: OrientMatch(orients) -> $[[<concat-glue(|" || ")><map(orientref)>orient
 orientref: OrientRef(r) -> $[mfStateMngr.getState().getOrientation().equals(Orientation.[r])]
 
 
-to-java-stat: GotoOrient(s,orient) -> $[mfStateMngr.nextSequence([<to-java>s],[<to-java>orient]);]
-to-java-stat: Goto(s) -> $[mfStateMngr.nextSequence([<to-java>s]);]
+to-java: GotoOrient(s,orient) -> $[mfStateMngr.nextSequence([<to-java>s],[<to-java>orient])]
+to-java: Goto(s) -> $[mfStateMngr.nextSequence([<to-java>s])]
 
+to-java-stat: Strategy(strats) -> <map2str(to-java-stat)>strats
 
 to-java: SequenceRef(n) -> $[Sequence.[n]] 
 to-java: SequencePrimRef(n) -> $[SequenceGeneric.[n]]  

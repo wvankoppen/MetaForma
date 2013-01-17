@@ -42,6 +42,8 @@ folding Default folding definitions
   Nbs.Nbs
   Stmt.Assign
   Stmt.TryRegion
+  OptExcludingClause0
+  ExcludingClause.Excluding
   Stmt.FuncCall
   Stmt.FuncCall
   Stmt.FuncCall
@@ -64,3 +66,4 @@ folding Default folding definitions
   Exp
   InstrPost.Until
   Instr.Instr
+  MainDef.Strategy

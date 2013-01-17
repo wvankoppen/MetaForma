@@ -51,6 +51,8 @@ regular tree grammar
     ListPlusOfMetaFieldRef0  -> <conc>(ListPlusOfMetaFieldRef0,ListStarOfMetaFieldRef0)
     ListPlusOfMetaFieldRef0  -> <conc>(ListPlusOfMetaFieldRef0,ListPlusOfMetaFieldRef0)
     ListPlusOfMetaFieldRef0  -> <cons>(MetaFieldRef,ListStarOfMetaFieldRef0)
+    OptExcludingClause0      -> <some>(ExcludingClause)
+    OptExcludingClause0      -> <none>()
     OptOrientClause0         -> <some>(OrientClause)
     OptOrientClause0         -> <none>()
     ListStarOfMod0           -> ListPlusOfMod0
@@ -217,7 +219,8 @@ regular tree grammar
     Stmt                     -> Break()
     MetaFieldRef             -> MetaFieldRef(ID)
     ByteList                 -> ByteArr(ListStarOfExp0)
-    Stmt                     -> TryRegion(SequenceRef,OptOrientClause0,ListStarOfMetaFieldRef0,ListStarOfMetaFieldRef0)
+    ExcludingClause          -> Excluding(ListStarOfMetaFieldRef0)
+    Stmt                     -> TryRegion(SequenceRef,OptOrientClause0,ListStarOfMetaFieldRef0,OptExcludingClause0)
     Mod                      -> Mod(ID)
     GroupDef                 -> Group(ID)
     GroupDef                 -> Group(ID,ListStarOfMod0)
@@ -225,7 +228,7 @@ regular tree grammar
     Stmt                     -> GotoOrient(SequenceRef,OrientClause)
     Stmt                     -> Goto(SequenceRef)
     Instr                    -> Stmt
-    OrientRef                -> OrientRef(ID)
+    OrientRef                -> OrientRef(Orient)
     Stmt                     -> If(Exp,Block)
     Stmt                     -> IfElse(Exp,Block,Block)
     Block                    -> Block(ListStarOfStmt0)
@@ -240,6 +243,8 @@ regular tree grammar
     EvHdlrSemi               -> If(EventExp,ListStarOfVarDecl0,ListStarOfStmt0)
     EvHdlr                   -> EvHdlr(Receive,ListStarOfVarDecl0,ListStarOfStmt0)
     MainDef                  -> EvHdlr
+    Stmt                     -> StrategyRef()
+    MainDef                  -> Strategy(ListStarOfStmt0)
     MainDef                  -> Sequence(ID,ListStarOfEvHdlr0,ListStarOfEvHdlrSemi0,ListStarOfVarDecl0,ListStarOfFuncDecl0,ListStarOfInstr0)
     Receive                  -> Receive(PacketVarDecl)
     Stmt                     -> Unicast(PacketRef,AssignList,Nbs)
@@ -290,6 +295,7 @@ regular tree grammar
     ModuleFieldID            -> <string>
     PacketPrim               -> <string>
     MetaPartNoneRef          -> <string>
+    Orient                   -> <string>
     Exp                      -> OrBit(Exp,Exp)
     Exp                      -> AndBit(Exp,Exp)
     Exp                      -> Or(Exp,Exp)
@@ -338,7 +344,6 @@ regular tree grammar
     Exp                      -> Null()
     NbsFilterKey             -> <string>
     FuncPrimRef              -> <string>
-    Const                    -> <string>
     ConstLan                 -> <string>
     Bool                     -> <string>
     Color                    -> <string>

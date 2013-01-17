@@ -92,10 +92,10 @@ strategies
   		[code]
 
   		if (handled) {
-			mfVisual.print(p,"handled [packet-name] " + p);	
+			mfVisual.print([param],"handled [packet-name] " + p);	
 		} 
 		else {
-			mfVisual.print(p,"rejected [packet-name] " + p);
+			mfVisual.print([param],"rejected [packet-name] " + p);
 		}
 		
   		return handled;
@@ -104,7 +104,11 @@ strategies
   where
   	<debug>"Compile packetreceive";
  	<index-get-evhdlr-packet(|namespace)>packet-name => eventhandlers;
-  	code := <map2str(compile)>eventhandlers => code
+  	code := <map2str(compile)>eventhandlers => code;
+  	param := <name2param>packet-name
+  	
+  name2param = ?"Packet"; !"true"
+  name2param = not(?"PacketBase"); !"p"	
   	
  
  correct-packet = ?Packet(<id>)

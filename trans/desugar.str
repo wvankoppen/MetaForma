@@ -16,7 +16,16 @@ rules
 
  
 // desugar-all = topdown(try(desugar-functions));innermost(desugar);topdown(try(desugar-td));innermost(desugar)
-desugar-all = topdown(try(desugar-td));innermost(desugar)
+desugar-all = topdown(try(desugar-prepare));bottomup(try(desugar-td));innermost(desugar)
+
+desugar-prepare= fail
+
+// This needs to be done BEFORE inserting instruction blocks! 
+// EDIT: NO!
+// desugar-td: Strategy (n,evhdlrs,tryregions) -> Sequence(n,evhdlrs,[],[],[], [Instr(0,[],[],tryregions,Until(Bool("false")))])
+
+
+desugar-td: TryRegion(n,o,incs,None()) -> TryRegion(n,o,incs,Some(Excluding([]))) 
 
 desugar-td: Package(n,debug,decls) -> Package(n,debug,decls')
 where

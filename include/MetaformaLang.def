@@ -38,7 +38,7 @@ lexical syntax
 	 "gray"			-> Color
 	 "orange"		-> Color
 	 "magenta"		-> Color
-	 "brown"		-> Color
+	 "pink"			-> Color
 	
 	"false"			-> Bool
 	"true"			-> Bool
@@ -49,7 +49,7 @@ lexical syntax
 	"EAST"			-> ConstLan
 	"NORTH"			-> ConstLan
 	"SOUTH"			-> ConstLan
-	"MAX_BYTE"		-> Const
+	"MAX_BYTE"		-> ConstLan
 	
 	"isMALE"		-> FuncPrimRef
 	"isFEMALE"		-> FuncPrimRef
@@ -83,7 +83,7 @@ lexical syntax
 	"config"		-> SysObj{cons("Config")}
 
 	
-	 Const			-> ID {reject}
+	 %%Const			-> ID {reject} is the same as constlan?
 	 ConstLan		-> ID {reject}
 	 Bool			-> ID {reject}
 	 SysObj			-> ID {reject}
@@ -267,7 +267,9 @@ exports
 	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
 	
 	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> MainDef{cons("Sequence")}
+	"strategy" "{" Stmt* "}" -> MainDef{cons("Strategy")}	
 	
+	"strategy;"	-> Stmt{cons("StrategyRef")}
 	
 	EvHdlr								 		 -> MainDef
 	
@@ -299,26 +301,43 @@ exports
 	"if" "(" Exp ")" Block 					-> Stmt{cons("If")}
 			
 		
-	ID 										-> OrientRef{cons("OrientRef")}	
+	Orient 										-> OrientRef{cons("OrientRef")}	
+		
+	Orient -> ID{reject}	
 		
 	Stmt -> Instr
-	"goto" SequenceRef ";"							-> Stmt{cons("Goto")}
-	"goto" SequenceRef OrientClause ";"							-> Stmt{cons("GotoOrient")}
-	"orientating" OrientRef 				-> OrientClause{cons("Orientation")}
+	"execute" SequenceRef ";"							-> Stmt{cons("Goto")}
+	"execute" SequenceRef OrientClause ";"							-> Stmt{cons("GotoOrient")}
+	"orienting" OrientRef 				-> OrientClause{cons("Orientation")}
 		
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{cons("Group")}
 	"group" ID							-> GroupDef{cons("Group")}
 	
 	ID 								-> Mod{cons("Mod")}
 	
-	"try" "region" SequenceRef OrientClause? "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{cons("TryRegion")}
+	"try" "region" SequenceRef OrientClause? "including" {MetaFieldRef ","}*  ExcludingClause?  ";" -> Stmt{cons("TryRegion")}
+	
+	"excluding" {MetaFieldRef ","}* -> ExcludingClause{cons("Excluding")}
 	
 	 {Exp ","}* 				-> ByteList {cons("ByteArr")}
-	 ID 		-> MetaFieldRef {cons("MetaFieldRef")}
+	 ID 						-> MetaFieldRef {cons("MetaFieldRef")}
 	 
 	"break" ";"	-> Stmt{cons("Break")}
 	
 	lexical syntax
+	
+	"LEFT_BOTTOM"	-> Orient
+	"LEFT_TOP"	-> Orient
+	
+	"RIGHT_BOTTOM"	-> Orient
+	"RIGHT_TOP"	-> Orient
+	
+	"BOTTOM_LEFT"	-> Orient
+	"BOTTOM_RIGHT"	-> Orient
+	
+	"TOP_LEFT"	-> Orient
+	"TOP_RIGHT"	-> Orient
+
 			
 	"None"	-> MetaPartNoneRef
 	"Packet" -> PacketPrim
@@ -403,6 +422,7 @@ exports
 	"connDest" 	-> PayloadID
 	
 	"restoreID"			-> ModuleMethodRef
+	"restoreSymmetry"	-> ModuleMethodRef
 	"atBorder"			-> ModuleMethodRef
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
@@ -410,9 +430,12 @@ exports
 	"tiltY"				-> ModuleMethodRef
 	"tiltZ"				-> ModuleMethodRef
 	"initMeta"			-> ModuleMethodRef
-	"storeID"			-> ModuleMethodRef
+	"backupID"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
+	
+	"finish" 			-> MetaMethodRef	%% Experimental
+	
 	"release" 			-> RegionMethodRef
 	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
@@ -442,7 +465,7 @@ exports
 	"@" ID "[" Exp "]"								-> ModHolderRef{cons("ModHolderNumRef")}
 	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
-	"@X"											-> ModHolderRef{cons("ModHolderPrimRef")}
+	"@X"											-> ModHolderRef{cons("ModHolderPrimRef"),prefer}
 	
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
@@ -470,10 +493,10 @@ exports
 	BorderName -> ID{reject}
 	
 	lexical syntax
-	"top" 		-> BorderName
-	"bottom"	-> BorderName
-	"left"		-> BorderName
-	"right"		-> BorderName
+	"TOP" 		-> BorderName
+	"BOTTOM"	-> BorderName
+	"LEFT"		-> BorderName
+	"RIGHT"		-> BorderName
 	
 	
 	
@@ -624,7 +647,9 @@ exports
 	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
 	
 	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> MainDef{cons("Sequence")}
+	"strategy" "{" Stmt* "}" -> MainDef{cons("Strategy")}	
 	
+	"strategy;"	-> Stmt{cons("StrategyRef")}
 	
 	EvHdlr								 		 -> MainDef
 	
@@ -656,26 +681,43 @@ exports
 	"if" "(" Exp ")" Block 					-> Stmt{cons("If")}
 			
 		
-	ID 										-> OrientRef{cons("OrientRef")}	
+	Orient 										-> OrientRef{cons("OrientRef")}	
+		
+	Orient -> ID{reject}	
 		
 	Stmt -> Instr
-	"goto" SequenceRef ";"							-> Stmt{cons("Goto")}
-	"goto" SequenceRef OrientClause ";"							-> Stmt{cons("GotoOrient")}
-	"orientating" OrientRef 				-> OrientClause{cons("Orientation")}
+	"execute" SequenceRef ";"							-> Stmt{cons("Goto")}
+	"execute" SequenceRef OrientClause ";"							-> Stmt{cons("GotoOrient")}
+	"orienting" OrientRef 				-> OrientClause{cons("Orientation")}
 		
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{cons("Group")}
 	"group" ID							-> GroupDef{cons("Group")}
 	
 	ID 								-> Mod{cons("Mod")}
 	
-	"try" "region" SequenceRef OrientClause? "from" {MetaFieldRef ","}*  "excluding" {MetaFieldRef ","}*  ";" -> Stmt{cons("TryRegion")}
+	"try" "region" SequenceRef OrientClause? "including" {MetaFieldRef ","}*  ExcludingClause?  ";" -> Stmt{cons("TryRegion")}
+	
+	"excluding" {MetaFieldRef ","}* -> ExcludingClause{cons("Excluding")}
 	
 	 {Exp ","}* 				-> ByteList {cons("ByteArr")}
-	 ID 		-> MetaFieldRef {cons("MetaFieldRef")}
+	 ID 						-> MetaFieldRef {cons("MetaFieldRef")}
 	 
 	"break" ";"	-> Stmt{cons("Break")}
 	
 	lexical syntax
+	
+	"LEFT_BOTTOM"	-> Orient
+	"LEFT_TOP"	-> Orient
+	
+	"RIGHT_BOTTOM"	-> Orient
+	"RIGHT_TOP"	-> Orient
+	
+	"BOTTOM_LEFT"	-> Orient
+	"BOTTOM_RIGHT"	-> Orient
+	
+	"TOP_LEFT"	-> Orient
+	"TOP_RIGHT"	-> Orient
+
 			
 	"None"	-> MetaPartNoneRef
 	"Packet" -> PacketPrim
@@ -760,6 +802,7 @@ exports
 	"connDest" 	-> PayloadID
 	
 	"restoreID"			-> ModuleMethodRef
+	"restoreSymmetry"	-> ModuleMethodRef
 	"atBorder"			-> ModuleMethodRef
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
@@ -767,9 +810,12 @@ exports
 	"tiltY"				-> ModuleMethodRef
 	"tiltZ"				-> ModuleMethodRef
 	"initMeta"			-> ModuleMethodRef
-	"storeID"			-> ModuleMethodRef
+	"backupID"			-> ModuleMethodRef
 	"enable"			-> MetaMethodRef
 	"finish" 			-> RegionMethodRef
+	
+	"finish" 			-> MetaMethodRef	%% Experimental
+	
 	"release" 			-> RegionMethodRef
 	"atPrimaryBorder" 	-> RegionMethodRef
 	"atSecondaryBorder" -> RegionMethodRef
@@ -799,7 +845,7 @@ exports
 	"@" ID "[" Exp "]"								-> ModHolderRef{cons("ModHolderNumRef")}
 	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
-	"@X"											-> ModHolderRef{cons("ModHolderPrimRef")}
+	"@X"											-> ModHolderRef{cons("ModHolderPrimRef"),prefer}
 	
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
@@ -827,10 +873,10 @@ exports
 	BorderName -> ID{reject}
 	
 	lexical syntax
-	"top" 		-> BorderName
-	"bottom"	-> BorderName
-	"left"		-> BorderName
-	"right"		-> BorderName
+	"TOP" 		-> BorderName
+	"BOTTOM"	-> BorderName
+	"LEFT"		-> BorderName
+	"RIGHT"		-> BorderName
 	
 	
 	

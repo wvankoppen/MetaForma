@@ -26,6 +26,9 @@ rules // Other
 constraint-note = fail
 
 
+  // constraint-warning: FuncCall(f,d@args) -> (d,$[Parameters do not match])
+//TODO: make type checking for function calls, by adding types of primitives to the index.
+
  constraint-warning:
  	Assign(v,d@v2) -> (d,$[Type [<print-type>t1] expected, but type [<print-type>t2] given])
  	where

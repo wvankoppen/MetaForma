@@ -118,8 +118,9 @@ rules
      
     index-getclasses(|package) = !Class();index-getcons(|package);assure-class(|Meta()); assure-class(|Region()); assure-class(|Module())
     
-    index-getsequences(|package): path -> [<desugar-all-nbl><collect-one(?Sequence("Choose",_,_,_,_,_))><index-get-all-in-file>path|<filter(not(?Sequence("Choose",_,_,_,_,_)))><index-getcons(|package)>Sequence()]
+    index-getsequences(|package,strategy)=  !Sequence();index-getcons(|package);topdown(try(replace-strategy(|strategy)))
      
+    replace-strategy(|strategy): StrategyRef() -> strategy 
     
     external SRTS-EXT-eq-ignore-annos(|t)	// Make term-based comparison and ignore annotations
          
