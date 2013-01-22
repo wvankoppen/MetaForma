@@ -276,6 +276,7 @@ regular tree grammar
     MainDef                  -> GroupDef
     ModHolderOrSeqRef        -> SequenceRef
     ModHolderOrSeqRef        -> ModHolderRef
+    ColorRef                 -> ColorCust(ColorCust)
     ColorRef                 -> Color(Color)
     VisItem                  -> VisItem(ModHolderOrSeqRef,ColorRef)
     VisGroup                 -> VisGroup(ID,ListStarOfVisItem0)
@@ -346,6 +347,7 @@ regular tree grammar
     FuncPrimRef              -> <string>
     ConstLan                 -> <string>
     Bool                     -> <string>
+    ColorCust                -> <string>
     Color                    -> <string>
     String                   -> <string>
     FLOAT                    -> <string>

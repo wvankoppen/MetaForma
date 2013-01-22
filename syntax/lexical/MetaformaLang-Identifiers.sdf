@@ -28,16 +28,22 @@ lexical syntax
 	"null"			-> ID {reject}
 	 
 	 "red"			-> Color
+	 "orange"		-> Color
+	 "yellow"		-> Color
 	 "blue"			-> Color
 	 "green"		-> Color
-	 "yellow"		-> Color
+	 
 	 "cyan"			-> Color
 	 "white"		-> Color
 	 "black"		-> Color
 	 "gray"			-> Color
-	 "orange"		-> Color
+	 
 	 "magenta"		-> Color
 	 "pink"			-> Color
+	 
+	 %% Unsupported by Java
+	 "purple"		-> ColorCust
+	 "brown"		-> ColorCust
 	
 	"false"			-> Bool
 	"true"			-> Bool

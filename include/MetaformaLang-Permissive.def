@@ -93,16 +93,18 @@ exports
     "when"           -> ID          {reject}
     "null"           -> ID          {reject}
     "red"            -> Color       
+    "orange"         -> Color       
+    "yellow"         -> Color       
     "blue"           -> Color       
     "green"          -> Color       
-    "yellow"         -> Color       
     "cyan"           -> Color       
     "white"          -> Color       
     "black"          -> Color       
     "gray"           -> Color       
-    "orange"         -> Color       
     "magenta"        -> Color       
     "pink"           -> Color       
+    "purple"         -> ColorCust   
+    "brown"          -> ColorCust   
     "false"          -> Bool        
     "true"           -> Bool        
     "MALE"           -> ConstLan    
@@ -248,6 +250,7 @@ exports
     ID "{" VisItem* "}"                                                                           -> VisGroup          {cons("VisGroup")}
     ModHolderOrSeqRef ":" ColorRef ";"                                                            -> VisItem           {cons("VisItem")}
     Color                                                                                         -> ColorRef          {cons("Color")}
+    ColorCust                                                                                     -> ColorRef          {cons("ColorCust")}
     ModHolderRef                                                                                  -> ModHolderOrSeqRef 
     SequenceRef                                                                                   -> ModHolderOrSeqRef 
     GroupDef                                                                                      -> MainDef           
@@ -367,7 +370,6 @@ exports
     "metaPart"          -> ModuleFieldID    
     "assignTime"        -> ConfigFieldID    
     "propagationTime"   -> ConfigFieldID    
-    "id"                -> MetaFieldID      
     "regionID"          -> MetaFieldID      
     "size"              -> MetaFieldID      
     "sizeExtra"         -> MetaFieldID      
@@ -400,6 +402,7 @@ exports
     "retract"           -> FuncActuationRef 
     "retractSet"        -> FuncActuationRef 
     "rotate"            -> FuncActuationRef 
+    "rotateOrigin"      -> FuncActuationRef 
     "stop"              -> FuncActuationRef 
     "rotating"          -> FuncActuationRef 
     "rotateAbsolute"    -> FuncActuationRef 
@@ -481,6 +484,7 @@ exports
     ID "{" VisItem* "}"                                                                           -> VisGroup          {cons("VisGroup")}
     ModHolderOrSeqRef ":" ColorRef ";"                                                            -> VisItem           {cons("VisItem")}
     Color                                                                                         -> ColorRef          {cons("Color")}
+    ColorCust                                                                                     -> ColorRef          {cons("ColorCust")}
     ModHolderRef                                                                                  -> ModHolderOrSeqRef 
     SequenceRef                                                                                   -> ModHolderOrSeqRef 
     GroupDef                                                                                      -> MainDef           
@@ -600,7 +604,6 @@ exports
     "metaPart"          -> ModuleFieldID    
     "assignTime"        -> ConfigFieldID    
     "propagationTime"   -> ConfigFieldID    
-    "id"                -> MetaFieldID      
     "regionID"          -> MetaFieldID      
     "size"              -> MetaFieldID      
     "sizeExtra"         -> MetaFieldID      
@@ -633,6 +636,7 @@ exports
     "retract"           -> FuncActuationRef 
     "retractSet"        -> FuncActuationRef 
     "rotate"            -> FuncActuationRef 
+    "rotateOrigin"      -> FuncActuationRef 
     "stop"              -> FuncActuationRef 
     "rotating"          -> FuncActuationRef 
     "rotateAbsolute"    -> FuncActuationRef 

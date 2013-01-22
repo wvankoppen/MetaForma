@@ -60,6 +60,7 @@
    VisGroup.2:iter-star         -- _1,
    VisItem                      -- _1 KW[":"] _2 KW[";"],
    Color                        -- _1,
+   ColorCust                    -- _1,
    Meta                         -- KW["meta"] KW["{"] _1 _2 _3 KW["}"],
    Meta.1:opt                   -- _1,
    Meta.2:iter-star             -- _1,

@@ -92,6 +92,7 @@ signature
                         : GroupDef -> MainDef
                         : SequenceRef -> ModHolderOrSeqRef
                         : ModHolderRef -> ModHolderOrSeqRef
+    ColorCust           : ColorCust -> ColorRef
     Color               : Color -> ColorRef
     VisItem             : ModHolderOrSeqRef * ColorRef -> VisItem
     VisGroup            : ID * List(VisItem) -> VisGroup
@@ -167,6 +168,7 @@ signature
                         : String -> FuncPrimRef
                         : String -> ConstLan
                         : String -> Bool
+                        : String -> ColorCust
                         : String -> Color
                         : String -> FLOAT
                         : String -> INT

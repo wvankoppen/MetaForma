@@ -138,6 +138,7 @@ where
 	filters' := [NbsFilter("inRegion",Bool("true"))|filters]
 
 desugar: NbsFilter(d@ModHolderRef(m)) -> NbsFilter("in",d)
+desugar: NbsFilter(d@ModHolderPrimRef()) -> NbsFilter("in",d)
 
 
 

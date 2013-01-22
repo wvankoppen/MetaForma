@@ -136,7 +136,7 @@ to-java: SequencePrimRef(n) -> $[SequenceGeneric.[n]]
 
 to-java: BinOp (op,e1,e2) -> $[([<to-java>e1] [<to-java>op] [<to-java>e2])]
 to-java: BoolOp (op,e1,e2) -> $[([<to-java>e1] [<to-java>op] [<to-java>e2])]
-// where <debug>"Compile BinOp"
+ where <debug>"Compile BoolOp"
 
 to-java: AndBit() -> $[ & ]
 to-java: OrBit() -> $[ | ]
@@ -201,6 +201,7 @@ to-java: Assign(v@VarRef(_{uri@[Var()|_]}), e) -> $[[<to-java>v] = [<uri-to-cast
 
 to-let-func = switch id
 		case ?"id":  !"ID"
+		case ?"regionID":  !"RegionIDAtStateBegin"
 		otherwise: <to-upper-first><id>
 	end
 	
@@ -259,7 +260,8 @@ to-java: ByteArr(bytes) -> $[new byte [<bracks>]{[<concat-glue(|",")><map(to-jav
 
 to-java: NbsCount(exp) -> $[[<to-java>exp].size()]
 
-to-java: NbsOp(constraints) -> $[ctrl.nbs()[<concat-strings><map(to-java)>constraints]]
+to-java: NbsOp(constraints) -> $[ctrl.nbs()[<map2str(to-java)>constraints]]
+where <debug>$[Compile NbsOp]
 
 to-java: NbsFilter(name,val) -> $[.nbsFilter[<to-upper-first>name]([<to-java>val])]
 
@@ -286,6 +288,10 @@ to-java: VisItem (_,hemisphere,ref,c) -> $[mfVisual.setColor("[<strip-annos>hemi
 ]
 
 to-java: Color(c) -> $[Color.[c]]
+to-java: ColorCust(c) -> $[Color.decode("[<make-rgb>c]")]
+
+make-rgb: "purple" -> "#7F007F"
+make-rgb: "brown" -> "#7F3F00"
 
 
 

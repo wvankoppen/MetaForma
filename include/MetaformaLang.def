@@ -29,16 +29,22 @@ lexical syntax
 	"null"			-> ID {reject}
 	 
 	 "red"			-> Color
+	 "orange"		-> Color
+	 "yellow"		-> Color
 	 "blue"			-> Color
 	 "green"		-> Color
-	 "yellow"		-> Color
+	 
 	 "cyan"			-> Color
 	 "white"		-> Color
 	 "black"		-> Color
 	 "gray"			-> Color
-	 "orange"		-> Color
+	 
 	 "magenta"		-> Color
 	 "pink"			-> Color
+	 
+	 %% Unsupported by Java
+	 "purple"		-> ColorCust
+	 "brown"		-> ColorCust
 	
 	"false"			-> Bool
 	"true"			-> Bool
@@ -205,7 +211,8 @@ exports
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
 	ModHolderOrSeqRef ":" ColorRef ";" -> VisItem{cons("VisItem")}
     
-    Color -> ColorRef{cons("Color")}
+    Color 				-> ColorRef{cons("Color")}
+    ColorCust 				-> ColorRef{cons("ColorCust")}
     
     ModHolderRef -> ModHolderOrSeqRef
     SequenceRef -> ModHolderOrSeqRef
@@ -401,7 +408,6 @@ exports
 	
 	lexical syntax
 	"id" 		-> ModuleFieldID 
-	%% "id" 		-> MetaFieldID
 	"metaID" 	-> ModuleFieldID
 	"group" 	-> ModuleFieldID
 	"metaPart" 	-> ModuleFieldID
@@ -409,7 +415,7 @@ exports
 	"assignTime"-> ConfigFieldID
 	"propagationTime"-> ConfigFieldID
 	
-	"id" 		-> MetaFieldID
+	%%"id" 		-> MetaFieldID  NO! use module.metaID
 	"regionID" 	-> MetaFieldID
 	"size" 		-> MetaFieldID
 	"sizeExtra" -> MetaFieldID
@@ -449,6 +455,7 @@ exports
 	"retract" 			-> FuncActuationRef
 	"retractSet"		-> FuncActuationRef
 	"rotate" 			-> FuncActuationRef
+	"rotateOrigin"		-> FuncActuationRef
 	"stop" 				-> FuncActuationRef
 	"rotating"			-> FuncActuationRef
 	"rotateAbsolute"	-> FuncActuationRef
@@ -585,7 +592,8 @@ exports
     ID "{" VisItem* "}" 		 -> VisGroup{cons("VisGroup")}
 	ModHolderOrSeqRef ":" ColorRef ";" -> VisItem{cons("VisItem")}
     
-    Color -> ColorRef{cons("Color")}
+    Color 				-> ColorRef{cons("Color")}
+    ColorCust 				-> ColorRef{cons("ColorCust")}
     
     ModHolderRef -> ModHolderOrSeqRef
     SequenceRef -> ModHolderOrSeqRef
@@ -781,7 +789,6 @@ exports
 	
 	lexical syntax
 	"id" 		-> ModuleFieldID 
-	%% "id" 		-> MetaFieldID
 	"metaID" 	-> ModuleFieldID
 	"group" 	-> ModuleFieldID
 	"metaPart" 	-> ModuleFieldID
@@ -789,7 +796,7 @@ exports
 	"assignTime"-> ConfigFieldID
 	"propagationTime"-> ConfigFieldID
 	
-	"id" 		-> MetaFieldID
+	%%"id" 		-> MetaFieldID  NO! use module.metaID
 	"regionID" 	-> MetaFieldID
 	"size" 		-> MetaFieldID
 	"sizeExtra" -> MetaFieldID
@@ -829,6 +836,7 @@ exports
 	"retract" 			-> FuncActuationRef
 	"retractSet"		-> FuncActuationRef
 	"rotate" 			-> FuncActuationRef
+	"rotateOrigin"		-> FuncActuationRef
 	"stop" 				-> FuncActuationRef
 	"rotating"			-> FuncActuationRef
 	"rotateAbsolute"	-> FuncActuationRef

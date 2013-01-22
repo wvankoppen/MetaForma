@@ -29,7 +29,8 @@ exports
     ID "{" VisItem* "}" 		 -> VisGroup{"VisGroup"}
 	ModHolderOrSeqRef ":" ColorRef ";" -> VisItem{"VisItem"}
     
-    Color -> ColorRef{"Color"}
+    Color 				-> ColorRef{"Color"}
+    ColorCust 				-> ColorRef{"ColorCust"}
     
     ModHolderRef -> ModHolderOrSeqRef
     SequenceRef -> ModHolderOrSeqRef
@@ -225,7 +226,6 @@ exports
 	
 	lexical syntax
 	"id" 		-> ModuleFieldID 
-	%% "id" 		-> MetaFieldID
 	"metaID" 	-> ModuleFieldID
 	"group" 	-> ModuleFieldID
 	"metaPart" 	-> ModuleFieldID
@@ -233,7 +233,7 @@ exports
 	"assignTime"-> ConfigFieldID
 	"propagationTime"-> ConfigFieldID
 	
-	"id" 		-> MetaFieldID
+	%%"id" 		-> MetaFieldID  NO! use module.metaID
 	"regionID" 	-> MetaFieldID
 	"size" 		-> MetaFieldID
 	"sizeExtra" -> MetaFieldID
@@ -273,6 +273,7 @@ exports
 	"retract" 			-> FuncActuationRef
 	"retractSet"		-> FuncActuationRef
 	"rotate" 			-> FuncActuationRef
+	"rotateOrigin"		-> FuncActuationRef
 	"stop" 				-> FuncActuationRef
 	"rotating"			-> FuncActuationRef
 	"rotateAbsolute"	-> FuncActuationRef
