@@ -53,7 +53,6 @@ exports
                                                   -> "orienting"     {recover, cons("INSERTION")}
                                                   -> "group"         {recover, cons("INSERTION")}
                                                   -> "excluding"     {recover, cons("INSERTION")}
-                                                  -> "wait"          {recover, cons("INSERTION")}
                                                   -> ";"             {recover, cons("INSERTION")}
                                                   -> "until"         {recover, cons("INSERTION")}
                                                   -> ")"             {recover, cons("INSERTION")}
@@ -310,6 +309,7 @@ exports
     "group" ID "[" {Mod ","}* "]"                                                                 -> GroupDef          {cons("Group")}
     "group" ID                                                                                    -> GroupDef          {cons("Group")}
     ID                                                                                            -> Mod               {cons("Mod")}
+    "wait" "(" Exp ")" Block                                                                      -> Stmt              {cons("Wait")}
     "try" "region" SequenceRef OrientClause? "including" {MetaFieldRef ","}* ExcludingClause? ";" -> Stmt              {cons("TryRegion")}
     "excluding" {MetaFieldRef ","}*                                                               -> ExcludingClause   {cons("Excluding")}
     {Exp ","}*                                                                                    -> ByteList          {cons("ByteArr")}
@@ -544,6 +544,7 @@ exports
     "group" ID "[" {Mod ","}* "]"                                                                 -> GroupDef          {cons("Group")}
     "group" ID                                                                                    -> GroupDef          {cons("Group")}
     ID                                                                                            -> Mod               {cons("Mod")}
+    "wait" "(" Exp ")" Block                                                                      -> Stmt              {cons("Wait")}
     "try" "region" SequenceRef OrientClause? "including" {MetaFieldRef ","}* ExcludingClause? ";" -> Stmt              {cons("TryRegion")}
     "excluding" {MetaFieldRef ","}*                                                               -> ExcludingClause   {cons("Excluding")}
     {Exp ","}*                                                                                    -> ByteList          {cons("ByteArr")}

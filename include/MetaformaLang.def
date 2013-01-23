@@ -322,6 +322,8 @@ exports
 	
 	ID 								-> Mod{cons("Mod")}
 	
+	"wait" "(" Exp ")" Block		-> Stmt{cons("Wait")}
+	
 	"try" "region" SequenceRef OrientClause? "including" {MetaFieldRef ","}*  ExcludingClause?  ";" -> Stmt{cons("TryRegion")}
 	
 	"excluding" {MetaFieldRef ","}* -> ExcludingClause{cons("Excluding")}
@@ -702,6 +704,8 @@ exports
 	"group" ID							-> GroupDef{cons("Group")}
 	
 	ID 								-> Mod{cons("Mod")}
+	
+	"wait" "(" Exp ")" Block		-> Stmt{cons("Wait")}
 	
 	"try" "region" SequenceRef OrientClause? "including" {MetaFieldRef ","}*  ExcludingClause?  ";" -> Stmt{cons("TryRegion")}
 	

@@ -142,6 +142,7 @@
    Group.2:iter-star-sep        -- _1 KW[","],
    Group                        -- KW["group"] _1,
    Mod                          -- _1,
+   Wait                         -- KW["wait"] KW["("] _1 KW[")"] _2,
    TryRegion                    -- KW["try"] KW["region"] _1 _2 KW["including"] _3 _4 KW[";"],
    TryRegion.2:opt              -- _1,
    TryRegion.3:iter-star-sep    -- _1 KW[","],

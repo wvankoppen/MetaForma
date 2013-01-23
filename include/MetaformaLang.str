@@ -49,6 +49,7 @@ signature
     FuncCall            : MethodRef * List(Exp) -> Stmt
     Break               : Stmt
     TryRegion           : SequenceRef * Option(OrientClause) * List(MetaFieldRef) * Option(ExcludingClause) -> Stmt
+    Wait                : Exp * Block -> Stmt
     GotoOrient          : SequenceRef * OrientClause -> Stmt
     Goto                : SequenceRef -> Stmt
     If                  : Exp * Block -> Stmt

@@ -140,6 +140,8 @@ exports
 	
 	ID 								-> Mod{"Mod"}
 	
+	"wait" "(" Exp ")" Block		-> Stmt{"Wait"}
+	
 	"try" "region" SequenceRef OrientClause? "including" {MetaFieldRef ","}*  ExcludingClause?  ";" -> Stmt{"TryRegion"}
 	
 	"excluding" {MetaFieldRef ","}* -> ExcludingClause{"Excluding"}

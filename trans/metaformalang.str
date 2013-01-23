@@ -219,7 +219,7 @@ rules // Utility
        
    generate-java:
 		(selected, position, ast, path, project-path) -> (filename, controller)
-		with
+		where
 			<debug>"Generate direct Java code......";
 			index-setup(|<language>, [project-path], $[[project-path]/[path]]);
 			name-program := <remove-extension><base-filename>path;
@@ -233,6 +233,11 @@ rules // Utility
 			package := <project-name>ast;
 			
 			 
+			if not(<get-strategy>path) then
+			 <debug>"NO STRATEGY FOUND IN FILE - EXIT";
+			 fail
+			end;
+			
 			
 			packets := <index-get-packets(|package)>;
 			packets-all :=  <index-get-packets-names(|package)>;
@@ -249,7 +254,7 @@ rules // Utility
 			<debug>"##############################";
 			<debug>"COMPILE SEQUENCES";
 			
-			seqs := <index-getsequences(|package,<debug(!"STRATEGYY:")><try(list-breakout)><desugar-all-nbl><collect-one(?Strategy(_))><index-get-all-in-file>path)>;
+			seqs := <index-getsequences(|package,<debug(!"STRATEGYY:")><get-strategy>path)>;
 			java-seqs := <map2str(compile)>seqs;
 			
 			<debug>"##############################";
@@ -511,24 +516,24 @@ public class <classname> extends MfController implements ControllerInformationPr
 
 	
 	destination-file := $[[<destination-path(|package,name-program-l)>][filename]];
-	<debug>$[Opening file..  : [destination-file]];
+	// <debug>$[Opening file..  : [destination-file]];
 	handle := <fopen> (destination-file, "w");
-	<debug>$[Filling file..];
+	// <debug>$[Filling file..];
 	<fputs> (controller, handle);
 	fclose;
-	<debug>$[Refreshing file: [filename]];
+	<debug>$[File written: [filename]];
 	<refresh-workspace-file> destination-file
 
 
 head: [x|xs] -> x
 tail: [x|xs] -> xs
 
-makedir = <debug(!"Trying to make dir: ")><id>;
+makedir = //<debug(!"Trying to make dir: ")><id>;
 		if not(<isdir><id>) then
-			<debug(!"Making dir: ")><id>;
+			// <debug(!"Making dir: ")><id>;
 			<mkdir>(<id>) 
-			else
-				<debug(!"Dir exists: ")><id>
+			// else
+				// <debug(!"Dir exists: ")><id>
 		   end
 
 
@@ -536,3 +541,8 @@ makedir = <debug(!"Trying to make dir: ")><id>;
 aterm-name: aterm -> name
 	where  
 	?<id>#(_) => name
+	
+	
+get-strategy: path -> strategy
+where
+	strategy := <desugar-all-nbl><collect-one(?Strategy(_))><index-get-all-in-file>path
