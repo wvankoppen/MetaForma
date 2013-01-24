@@ -41,13 +41,13 @@ folding Default folding definitions
   AssignElem.AssignElem
   Nbs.Nbs
   Stmt.Assign
+  Stmt.Return
   Stmt.TryRegion
   OptExcludingClause1
   ExcludingClause.Excluding
   Stmt.FuncCall
   Stmt.FuncCall
   Stmt.FuncCall
-  FuncDecl.FuncDecl
   MainDef.Module
   MainDef.Region
   OptBorderDecl1
@@ -61,6 +61,7 @@ folding Default folding definitions
   Exp
   EvHdlrSemi.Ifs
   Case.If
+  Stmt
   Instr.Instr
   InstrPost.Wait
   Exp

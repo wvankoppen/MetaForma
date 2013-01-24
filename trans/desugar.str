@@ -71,6 +71,7 @@ where
 // Because we need to match the enum with an object 
 desugar-td: Eq(FieldPrimRef(Module(), "id"), ref) -> FuncCall(MethodRef(FuncCall(MethodRef(Module(),"getID"),[]), "equals"),[ref])
 
+desugar-td: Neq(e1,e2) -> Not(Eq(e1,e2)) // Because of .equals in Java
 
 desugar-td: Instr(d,evts,evsemi,instrs) -> Instr(d,evts,evsemi,instrs,Wait(Consensus()))
   	 

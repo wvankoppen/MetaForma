@@ -124,7 +124,7 @@ exports
 	ID 						-> MetaPart{cons("MetaPart")}
 	INT						-> Exp{cons("Int")}
 	FLOAT					-> Exp{cons("Float")}
-	Const					-> Exp{cons("Const")}
+	%%Const					-> Exp{"Const"}
 	ConstLan				-> Exp{cons("Const")}
 	Bool					-> Exp{cons("Bool")}
 	ModHolderRef			-> Exp
@@ -243,8 +243,8 @@ exports
 	"region"						-> Region{cons("Region")}
 	"config"						-> Config{cons("Config")}
 	
-	"void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
-	Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
+	%% "void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"					-> FuncDecl{"FuncDecl"}
+	Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"	-> FuncDecl{cons("FuncDecl")}
 	
 	Type ID 			-> ParamListElem{cons("Param")}
 	
@@ -299,6 +299,7 @@ exports
 	
 
 	Ref "=" Exp ";" 				-> Stmt{cons("Assign")}
+	 "return" Exp ";"				-> Stmt{cons("Return")}
 
 	Stmt							-> Block{cons("Block")}
 	"{" Stmt* "}" 							-> Block{cons("Block")}
@@ -626,8 +627,8 @@ exports
 	"region"						-> Region{cons("Region")}
 	"config"						-> Config{cons("Config")}
 	
-	"void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"					-> FuncDecl{cons("FuncDecl")}
-	Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "return" Exp ";" "}"	-> FuncDecl{cons("FuncDecl")}
+	%% "void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"					-> FuncDecl{"FuncDecl"}
+	Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"	-> FuncDecl{cons("FuncDecl")}
 	
 	Type ID 			-> ParamListElem{cons("Param")}
 	
@@ -682,6 +683,7 @@ exports
 	
 
 	Ref "=" Exp ";" 				-> Stmt{cons("Assign")}
+	 "return" Exp ";"				-> Stmt{cons("Return")}
 
 	Stmt							-> Block{cons("Block")}
 	"{" Stmt* "}" 							-> Block{cons("Block")}

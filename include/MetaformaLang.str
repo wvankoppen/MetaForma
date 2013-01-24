@@ -54,6 +54,7 @@ signature
     Goto                : SequenceRef -> Stmt
     If                  : Exp * Block -> Stmt
     IfElse              : Exp * Block * Block -> Stmt
+    Return              : Exp -> Stmt
     Assign              : Ref * Exp -> Stmt
     StrategyRef         : Stmt
     Unicast             : PacketRef * AssignList * Nbs -> Stmt
@@ -74,8 +75,7 @@ signature
     VarDecl             : Type * ID * Exp -> VarDecl
     VarDecl             : Type * ID -> VarDecl
     Param               : Type * ID -> ParamListElem
-    FuncDecl            : Type * ID * List(ParamListElem) * List(VarDecl) * List(Stmt) * Exp -> FuncDecl
-    FuncDecl            : ID * List(ParamListElem) * List(VarDecl) * List(Stmt) -> FuncDecl
+    FuncDecl            : Type * ID * List(ParamListElem) * List(VarDecl) * List(Stmt) -> FuncDecl
     Config              : Config
     Region              : Region
     Module              : Module

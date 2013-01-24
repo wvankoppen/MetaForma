@@ -412,19 +412,29 @@ rules
 rules
 
   nam-get-scope-types :
-    FuncDecl(n, _, _, _) -> [Field(), Var()]
+    FuncDecl(t, n, _, _, _) -> [Field(), Var()]
 
   nam-get-definition-keys :
-    FuncDecl(n, _, _, _) -> [n]
+    FuncDecl(t, n, _, _, _) -> [n]
 
   nam-get-definitions :
-    FuncDecl(n, _, _, _) -> [(Method(), [n])]
+    FuncDecl(t, n, _, _, _) -> [(Method(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    FuncDecl(n, _, _, _) -> <FuncDecl(nam-annotate-def(|path__), id, id, id)>
+    FuncDecl(t, n, _, _, _) -> <FuncDecl(id, nam-annotate-def(|path__), id, id, id)>
+
+  adjust-index-def-data(store__|namespace__, path__):
+    FuncDecl(t, n, _, _, _) -> <store__> DefData(
+                                           [namespace__|path__]
+                                         , Type()
+                                         , t
+                                         )
+
+  type-of :
+    FuncDecl(t, n, _, _, _) -> t
 
   nam-unique :
-    FuncDecl(n, _, _, _) -> <id>
+    FuncDecl(t, n, _, _, _) -> <id>
 
 
 rules

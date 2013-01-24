@@ -97,8 +97,8 @@ rules
 	
 	
 	
-	FuncDecl (n,_,_,_): 
-		defines Method n
+	FuncDecl (t,n,_,_,_): 
+		defines Method n of type t
 		scopes Field,Var
 		
 	Unicast(Packet(p),_,_):

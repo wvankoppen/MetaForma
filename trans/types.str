@@ -37,7 +37,7 @@ rules
 	
 	type-of: Packet(n) -> Packet(n)
 
-	type-of: FuncDecl(n,_,_,stats) -> Void()
+	type-of: FuncDecl(t,n,_,_,stats) -> t
 	type-of: FuncCall (r,args) -> <type-of>r 
 	type-of: MethodRef(o,m) -> <type-of><index-lookup>m
 	type-of: FieldRef(o,f) -> <type-of><index-lookup>f

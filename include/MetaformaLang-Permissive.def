@@ -172,7 +172,6 @@ exports
     ID                 -> MetaPart {cons("MetaPart")}
     INT                -> Exp      {cons("Int")}
     FLOAT              -> Exp      {cons("Float")}
-    Const              -> Exp      {cons("Const")}
     ConstLan           -> Exp      {cons("Const")}
     Bool               -> Exp      {cons("Bool")}
     ModHolderRef       -> Exp      
@@ -263,8 +262,7 @@ exports
     "module"                                                                                      -> Module            {cons("Module")}
     "region"                                                                                      -> Region            {cons("Region")}
     "config"                                                                                      -> Config            {cons("Config")}
-    "void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"                                 -> FuncDecl          {cons("FuncDecl")}
-    Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "return" Exp ";" "}"                  -> FuncDecl          {cons("FuncDecl")}
+    Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"                                   -> FuncDecl          {cons("FuncDecl")}
     Type ID                                                                                       -> ParamListElem     {cons("Param")}
     "packet" ID "{" PayloadDecl* "}"                                                              -> MainDef           {cons("PacketDecl")}
     Type ID ";"                                                                                   -> VarDecl           {cons("VarDecl")}
@@ -296,6 +294,7 @@ exports
     Exp                                                                                           -> EventExp          
     "rate" Ref                                                                                    -> Rate              {cons("Rate")}
     Ref "=" Exp ";"                                                                               -> Stmt              {cons("Assign")}
+    "return" Exp ";"                                                                              -> Stmt              {cons("Return")}
     Stmt                                                                                          -> Block             {cons("Block")}
     "{" Stmt* "}"                                                                                 -> Block             {cons("Block")}
     "if" "(" Exp ")" Block "else" Block                                                           -> Stmt              {cons("IfElse")}
@@ -498,8 +497,7 @@ exports
     "module"                                                                                      -> Module            {cons("Module")}
     "region"                                                                                      -> Region            {cons("Region")}
     "config"                                                                                      -> Config            {cons("Config")}
-    "void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"                                 -> FuncDecl          {cons("FuncDecl")}
-    Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "return" Exp ";" "}"                  -> FuncDecl          {cons("FuncDecl")}
+    Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"                                   -> FuncDecl          {cons("FuncDecl")}
     Type ID                                                                                       -> ParamListElem     {cons("Param")}
     "packet" ID "{" PayloadDecl* "}"                                                              -> MainDef           {cons("PacketDecl")}
     Type ID ";"                                                                                   -> VarDecl           {cons("VarDecl")}
@@ -531,6 +529,7 @@ exports
     Exp                                                                                           -> EventExp          
     "rate" Ref                                                                                    -> Rate              {cons("Rate")}
     Ref "=" Exp ";"                                                                               -> Stmt              {cons("Assign")}
+    "return" Exp ";"                                                                              -> Stmt              {cons("Return")}
     Stmt                                                                                          -> Block             {cons("Block")}
     "{" Stmt* "}"                                                                                 -> Block             {cons("Block")}
     "if" "(" Exp ")" Block "else" Block                                                           -> Stmt              {cons("IfElse")}

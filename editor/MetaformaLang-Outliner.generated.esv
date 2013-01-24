@@ -22,7 +22,6 @@ outliner Default outliner
   Stmt.TryRegion
   Stmt.FuncCall
   Stmt.FuncCall
-  FuncDecl.FuncDecl
   MainDef.PacketDecl
   MainDef.Sequence
   EvHdlrSemi.If

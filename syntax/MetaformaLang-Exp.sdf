@@ -28,7 +28,7 @@ exports
 	ID 						-> MetaPart{"MetaPart"}
 	INT						-> Exp{"Int"}
 	FLOAT					-> Exp{"Float"}
-	Const					-> Exp{"Const"}
+	%%Const					-> Exp{"Const"}
 	ConstLan				-> Exp{"Const"}
 	Bool					-> Exp{"Bool"}
 	ModHolderRef			-> Exp

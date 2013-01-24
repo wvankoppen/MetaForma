@@ -234,6 +234,7 @@ regular tree grammar
     Stmt                     -> IfElse(Exp,Block,Block)
     Block                    -> Block(ListStarOfStmt0)
     Block                    -> Block(Stmt)
+    Stmt                     -> Return(Exp)
     Stmt                     -> Assign(Ref,Exp)
     Rate                     -> Rate(Ref)
     EventExp                 -> Exp
@@ -262,8 +263,7 @@ regular tree grammar
     VarDecl                  -> VarDecl(Type,ID)
     MainDef                  -> PacketDecl(ID,ListStarOfPayloadDecl0)
     ParamListElem            -> Param(Type,ID)
-    FuncDecl                 -> FuncDecl(Type,ID,ListStarOfParamListElem0,ListStarOfVarDecl0,ListStarOfStmt0,Exp)
-    FuncDecl                 -> FuncDecl(ID,ListStarOfParamListElem0,ListStarOfVarDecl0,ListStarOfStmt0)
+    FuncDecl                 -> FuncDecl(Type,ID,ListStarOfParamListElem0,ListStarOfVarDecl0,ListStarOfStmt0)
     Config                   -> Config()
     Region                   -> Region()
     Module                   -> Module()
@@ -321,7 +321,6 @@ regular tree grammar
     Exp                      -> ModHolderRef
     Exp                      -> Bool(Bool)
     Exp                      -> Const(ConstLan)
-    Exp                      -> Const(Const)
     Exp                      -> Float(FLOAT)
     Exp                      -> Int(INT)
     MetaPart                 -> MetaPart(ID)

@@ -61,8 +61,8 @@ exports
 	"region"						-> Region{"Region"}
 	"config"						-> Config{"Config"}
 	
-	"void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"					-> FuncDecl{"FuncDecl"}
-	Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "return" Exp ";" "}"	-> FuncDecl{"FuncDecl"}
+	%% "void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"					-> FuncDecl{"FuncDecl"}
+	Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"	-> FuncDecl{"FuncDecl"}
 	
 	Type ID 			-> ParamListElem{"Param"}
 	
@@ -117,6 +117,7 @@ exports
 	
 
 	Ref "=" Exp ";" 				-> Stmt{"Assign"}
+	 "return" Exp ";"				-> Stmt{"Return"}
 
 	Stmt							-> Block{"Block"}
 	"{" Stmt* "}" 							-> Block{"Block"}

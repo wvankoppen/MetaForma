@@ -244,7 +244,7 @@ rules // Utility
 			
 			<debug>"##############################";
 			<debug>"COMPILE PACKETRECEIVES";
-			java-packetreceives := <map2str(compile-packetreceive(|package))>["Symmetry"|packets-all]; // Add symmetry to it as the programmer does not define this packet
+			java-packetreceives := <map2str(compile-packetreceive(|package))>packets-all; // Add symmetry to it as the programmer does not define this packet
 			
 			<debug>"##############################";
 			<debug>"COMPILE PACKETS";
@@ -273,7 +273,6 @@ rules // Utility
 			java-consts := <map2str(to-java-stat)><debug(!"Consts:")><index-getcons(|package)>Constant();
 			
 			<debug>"##############################";
-			debug(!"COMPILE NAMES");
 			names-metapart := <concat-glue(|",")><map(project-name)><index-getcons(|package)>MetaPart();
 			names-sequence := <concat-glue(|",")><filter(not(is-prim-seq))><map(project-name)>seqs;
 			names-group := <concat-glue(|",")><map(project-name)><index-getcons(|package)>Group();
@@ -376,6 +375,22 @@ public class <classname> extends MfController implements ControllerInformationPr
 		}	
 	}	
 			
+	public boolean receivePacket(PacketSymmetry p) {
+		boolean handled = false;
+		if (mfStateMngr.at(p.getState())) {
+			module().fixSymmetry(p.connSource, p.connDest);
+			handled = true;
+		}
+	
+		if (handled) {
+			mfVisual.print(p,"handled Symmetry " + p);	
+		} 
+		else {
+			mfVisual.print(p,"rejected Symmetry " + p);
+		}
+		
+		return handled;
+	}
 	
 	<java-packetreceives>
 	

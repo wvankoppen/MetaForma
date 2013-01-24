@@ -219,11 +219,12 @@ to-java: Assign(FieldRef(obj,field),val) -> $[[<to-java>obj].setVar("[field]",[v
 
  
 
-to-java-stat: FuncDecl (n,params,vars,stats) -> $[ void [n] ([<concat-glue(|",")><map(to-java)>params]) {
+to-java-stat: FuncDecl (t,n,params,vars,stats) -> $[ [<to-java>t] [n] ([<concat-glue(|",")><map(to-java)>params]) {
 	[<map2str(to-java-stat)><conc>(vars,stats)]	
 }
 ]
 
+to-java: Return (e) -> $[return [<to-java>e]]
 
 to-java: Param(t,n) -> $[[<to-java>t] [n]]
 
@@ -254,6 +255,7 @@ to-java: Int() -> $[int]
 to-java: Byte() -> $[byte]
 to-java: Float() -> $[float]
 to-java: Boolean() -> $[boolean]
+to-java: Void() -> $[void]
 
 to-java: ByteArr() -> $[byte[<bracks>]] 
 
