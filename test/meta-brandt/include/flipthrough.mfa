@@ -1,0 +1,69 @@
+package Brandt
+
+group UpLifter [Top,Bottom,Left,Right]
+group Dummy [Left,Right]
+ 
+sequence FlipThrough {
+	int QUART;
+	int HALF;
+	// Vardecls must be moved to #State 0
+	
+	if (orientation matches BOTTOM_RIGHT, LEFT_BOTTOM) {
+		QUART = -90;
+		HALF = -180; 
+	}
+	else {
+		QUART = 90; 
+		HALF = 180;
+	}
+	
+	module.gradientInit();
+	do {
+		module.gradientPropagate();
+	} until (config.propagationTime);
+	
+	do {
+		when {
+			case module.gradPri==1 && module.gradSec==1: module.id = @UpLifter.Left;
+			case module.gradPri==2 && module.gradSec==0: module.id = @UpLifter.Right;
+			case module.gradPri==1 && module.gradSec==0: module.id = @Dummy.Left;
+			case module.gradPri==0 && module.gradSec==0: module.id = @UpLifter.Top;
+			case module.gradPri==2 && module.gradSec==1: module.id = @Dummy.Right;
+			case module.gradPri==3 && module.gradSec==1: module.id = @UpLifter.Bottom;			
+		}
+		module.isRef = module.gradPri==3 && module.gradSec==0;
+	}
+	
+	do  {				 
+		disconnect(@UpLifter.Left,@Dummy.Left);
+		disconnect(@UpLifter.Right,@Dummy.Right);
+		// extendSet(@UpLifter.Left, SOUTH&MALE&EAST);
+		// retractSet(@UpLifter.Right, NORTH&MALE&EAST);
+	} 
+	
+	do  {				
+		rotate(@UpLifter.Left, QUART);
+		rotate(@UpLifter.Right, QUART);
+	} 
+	
+	retractSet(@UpLifter.Top, NORTH);
+	rotate(@UpLifter.Top, HALF);
+	
+	do  {				
+		rotate(@UpLifter.Left, -QUART);
+		rotate(@UpLifter.Right, -QUART);
+	} 
+	
+	do  {				
+		rotate(@UpLifter.Right, -HALF);
+		rotate(@UpLifter.Bottom, HALF);
+	}
+	 
+	module.restoreID();
+	
+	connect(@X, @UpLifter);	
+	
+	module.fixSymmetry(module.isRef);
+		
+	region.finish();	
+}

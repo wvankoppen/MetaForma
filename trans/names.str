@@ -186,44 +186,43 @@ rules
 rules
 
   nam-get-scope-types :
-    Sequence(SequencePrimRef("Main"), _, _, _, _, _) -> [Var(), Instruction(), EventHandler()]
+    Sequence(SequencePrimRef("Main"), _, _, _, _) -> [Var(), Instruction(), EventHandler()]
 
   nam-get-definition-keys :
-    Sequence(SequencePrimRef("Main"), _, _, _, _, _) -> ["Main"]
+    Sequence(SequencePrimRef("Main"), _, _, _, _) -> ["Main"]
 
   nam-get-definitions :
-    Sequence(SequencePrimRef("Main"), _, _, _, _, _) -> [(Sequence(), ["Main"])]
+    Sequence(SequencePrimRef("Main"), _, _, _, _) -> [(Sequence(), ["Main"])]
 
   nam-annotate-names(|paths__, path__):
-    Sequence(SequencePrimRef("Main"), _, _, _, _, _) -> <Sequence(
-                                                           SequencePrimRef(nam-annotate-def(|path__))
-                                                         , id
-                                                         , id
-                                                         , id
-                                                         , id
-                                                         , id
-                                                         )>
+    Sequence(SequencePrimRef("Main"), _, _, _, _) -> <Sequence(
+                                                        SequencePrimRef(nam-annotate-def(|path__))
+                                                      , id
+                                                      , id
+                                                      , id
+                                                      , id
+                                                      )>
 
   nam-unique :
-    Sequence(SequencePrimRef("Main"), _, _, _, _, _) -> <id>
+    Sequence(SequencePrimRef("Main"), _, _, _, _) -> <id>
 
 
 rules
 
   nam-get-scope-types :
-    Sequence(n, _, _, _, _, _) -> [Var(), Instruction(), EventHandler()]
+    Sequence(n, _, _, _, _) -> [Var(), Instruction(), EventHandler()]
 
   nam-get-definition-keys :
-    Sequence(n, _, _, _, _, _) -> [n]
+    Sequence(n, _, _, _, _) -> [n]
 
   nam-get-definitions :
-    Sequence(n, _, _, _, _, _) -> [(Sequence(), [n])]
+    Sequence(n, _, _, _, _) -> [(Sequence(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Sequence(n, _, _, _, _, _) -> <Sequence(nam-annotate-def(|path__), id, id, id, id, id)>
+    Sequence(n, _, _, _, _) -> <Sequence(nam-annotate-def(|path__), id, id, id, id)>
 
   nam-unique :
-    Sequence(n, _, _, _, _, _) -> <id>
+    Sequence(n, _, _, _, _) -> <id>
 
 
 rules

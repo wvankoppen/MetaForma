@@ -1,0 +1,7 @@
+package Brandt
+
+strategy {	
+	try region FlipThrough orienting TOP_RIGHT including Bottom excluding Left, Top;
+	try region FlipOver orienting TOP_RIGHT including Bottom,Left excluding Top;
+	try region FlipThrough orienting RIGHT_TOP including Left excluding Top,Bottom,BottomLeft;
+}

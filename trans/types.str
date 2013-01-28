@@ -29,7 +29,9 @@ rules
 	type-of: FieldPrimRef(Module(), "metaID") -> Byte()
 	type-of: FieldPrimRef(Meta(), "regionID") -> Byte()
 	
-	type-of: PayloadPrimRef(_, _) -> Byte()
+	type-of: PayloadPrimRef(_, "sourceID") -> Mod()
+	type-of: PayloadPrimRef(_, "sourceGroup") -> Group()
+	type-of: PayloadPrimRef(_, <not(<elem>(<id>,["id","group"]))>) -> Byte()
 	
 	type-of: ModHolderRef(_) -> Group()
 	type-of: ModHolderRef(_,_) -> Mod()
@@ -44,6 +46,8 @@ rules
 	type-of: PayloadRef(f) -> <type-of><index-lookup>f
 	
 	
+	type-of: VarDecl(t,n) -> t
+	type-of: Param(t,n) -> t
 	type-of: VarRef(n) ->  <type-of><index-lookup> n
 	
 		 

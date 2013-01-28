@@ -54,22 +54,32 @@ where
 		add-visgroup(|n): VisItem(r,c) -> VisItem(<newname>,n,r,c) 
 
 
-desugar-td: Sequence(n,ehdlrs,ifs,x,e,instrs) -> Sequence(n,ehdlrs,ifs,x,e,instrs''')  
+desugar-td: Sequence(n,ehdlrs,ifs,vars,instrs) -> Sequence(n,ehdlrs,ifs,vars,instrs''')  
 where 
-	<map(try(add-instrblock))>instrs => instrs';
+	if <?[_|_]>vars then
+		instrs-vardecl := [<map(decl2assign)>vars|instrs]
+	else
+		instrs-vardecl := instrs
+	end;
+	<map(try(add-instrblock))>instrs-vardecl => instrs';
+	<debug>instrs';
 	<upto><dec><length>instrs' => nrs;
 	<zip>(nrs,instrs') => instrs'';
-	<map(try(swap-counter(|n)))>instrs'' => instrs'''
+	<map(swap-counter)>instrs'' => instrs'''
 
-	add-instrblock: f -> Instr([],[],[],[f])
+	add-instrblock: term -> Instr([],[],[],term')
 	where
-		not (<eq>(<aterm-name>f,"Instr"))
+		not (<eq>(<aterm-name>term,"Instr"));
+		if <is-list>term then
+			term' := term
+		else
+			term' := [term]
+		end
 
-	swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*,postcon)) -> Instr(c,evts,evsemi,<conc>(vars,instr*),postcon)
-	swap-counter(|state): (c,Instr(evts,evsemi,vars,instr*)) -> Instr(c,evts,evsemi,<conc>(vars,instr*),Wait(Consensus())) 
+	swap-counter: (i,Instr(evts,evsemi,vars,instr*,postcon))	-> Instr(i,evts,evsemi,<conc>(vars,instr*),postcon)
+	swap-counter: (i,Instr(evts,evsemi,vars,instr*)) 			-> Instr(i,evts,evsemi,<conc>(vars,instr*),Wait(Consensus())) 
 
-// Because we need to match the enum with an object 
-desugar-td: Eq(FieldPrimRef(Module(), "id"), ref) -> FuncCall(MethodRef(FuncCall(MethodRef(Module(),"getID"),[]), "equals"),[ref])
+	decl2assign: VarDecl(t,n,v) -> Assign(VarRef(n),v)
 
 desugar-td: Neq(e1,e2) -> Not(Eq(e1,e2)) // Because of .equals in Java
 
@@ -84,7 +94,7 @@ desugar-td: Instr(d,evts,evsemi,instrs) -> Instr(d,evts,evsemi,instrs,Wait(Conse
 
 
 
-
+//TODO: We cant assign a default value, as the declaration will be constantly executed
 desugar: VarDecl(Boolean(),var) -> VarDecl(Boolean(),var,Bool("false"))
 desugar: VarDecl(Byte(),var) -> VarDecl(Byte(),var,Int(0))
 desugar: VarDecl(Int(),var) -> VarDecl(Int(),var,Int(0))
@@ -151,7 +161,7 @@ desugar: NbsFilter(d@ModHolderPrimRef()) -> NbsFilter("in",d)
 desugar-all-nbl = bottomup(try(desugar-nbl))
  
  // desugar-nbl: FieldPrimRef(o,f) -> FieldRef(o,f) NO!
-desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f)
+// desugar-nbl: PayloadPrimRef(o,f) -> FieldRef(o,f) ALSO NO! wrt getters and setters for prims
 desugar-nbl: MethodPrimRef(o,f) -> MethodRef(o,f)
 desugar-nbl: FuncPrimRef(f) -> FuncRef(f)
 desugar-nbl: ModHolderPrimRef() -> ModHolderRef("X")
@@ -160,6 +170,10 @@ desugar-nbl: ModHolderPrimNumRef(i) -> ModHolderNumRef("X",i)
 // desugar-nbl: SequencePrimName(n) -> SequencePrimRef(n)
 
 
+// Because we need to match the enum with an object 
+// We need to do this AFTER type checking!
+desugar-nbl: BoolOp(Eq(),FieldPrimRef(Module(), "id"), e2) -> FuncCall(MethodRef(FuncCall(MethodRef(Module(),"getID"),[]), "equals"),[e2])
+desugar-nbl: BoolOp(Eq(),PayloadPrimRef(p, "sourceID"), e2) -> FuncCall(MethodRef(FuncCall(MethodRef(p,"getSource"),[]), "equals"),[e2])
 
 
 
@@ -200,3 +214,4 @@ signature constructors
 	PrimRefPacket: X * X -> PrimRefPacket
 	FakeClass: X -> FakeClass
 	Class: X * X * X -> Class
+	

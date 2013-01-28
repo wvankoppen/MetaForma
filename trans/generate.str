@@ -157,7 +157,7 @@ to-java: LtEq() -> $[ <= ]
 to-java: Gt() -> $[ > ]
 to-java: GtEq() -> $[ >= ]
 
-to-java: Not(exp) -> $[ ![<to-java>exp] ]
+to-java: Not(exp) -> $[ !([<to-java>exp])]
 
 to-java: Min(i) -> $[-[<to-java>i]]
 
@@ -193,7 +193,7 @@ to-java: FieldPrimRef(obj,f) -> $[[<to-java>obj].get[<to-let-func>f]()]
 
 
 
-to-java: VarDecl(t,n,v) -> $[[<to-java>t] [n]; [<to-java>Assign(VarRef(n),v)]]
+to-java: VarDecl(t,n,v) -> $[[<to-java>t] [n]]
 
 
 // Fieldrefs can be parsed as VarRefs, then we need to extract from URI
@@ -206,18 +206,13 @@ to-let-func = switch id
 		case ?"regionID":  !"RegionIDAtStateBegin"
 		otherwise: <to-upper-first><id>
 	end
-	
+
+to-java: PayloadPrimRef(var,n) ->$[[<to-java>var].get[<to-let-func>n]()]
+to-java: PayloadRef(var,n) ->$[[<to-java>var].[n]]	
 
 
 to-java: Assign(FieldPrimRef(obj,f),val) -> $[[<to-java>obj].set[<to-let-func>f]([<to-java>val])]
-
-to-java: Assign(FieldRef(obj,field),val) -> $[[<to-java>obj].setVar("[field]",[val'])]
- where
-// 	not(<eq>(field,"id"));
-// 	not(<eq>(field,"group"));
- 	<to-java>val => val'
-
- 
+to-java: Assign(FieldRef(obj,field),val) -> $[[<to-java>obj].setVar("[field]",[<to-java>val])]
 
 to-java-stat: FuncDecl (t,n,params,vars,stats) -> $[ [<to-java>t] [n] ([<concat-glue(|",")><map(to-java)>params]) {
 	[<map2str(to-java-stat)><conc>(vars,stats)]	
@@ -225,9 +220,7 @@ to-java-stat: FuncDecl (t,n,params,vars,stats) -> $[ [<to-java>t] [n] ([<concat-
 ]
 
 to-java: Return (e) -> $[return [<to-java>e]]
-
 to-java: Param(t,n) -> $[[<to-java>t] [n]]
-
 	
 to-java: Config() -> $[ctrl.config()]
 to-java: Module() -> $[ctrl.module()]
@@ -242,7 +235,7 @@ to-java: VarRef(n{[Field()|_]}) -> <strip-annos>n
 to-java: VarRef(n{[Constant()|_]}) -> <strip-annos>n
 to-java: VarRef(n{[MetaPart()|_]}) -> $[MetaPart.[<strip-annos>n]]
 
-to-java: PayloadRef(var,n) ->$[[<to-java>var].[n]]
+
 to-java: Par(e) -> $[ ([<to-java>e]) ]
 
 to-java: Const(n) -> $[MfController.[n]]
@@ -256,6 +249,7 @@ to-java: Byte() -> $[byte]
 to-java: Float() -> $[float]
 to-java: Boolean() -> $[boolean]
 to-java: Void() -> $[void]
+to-java: Packet() -> $[PacketBase]
 
 to-java: ByteArr() -> $[byte[<bracks>]] 
 
@@ -274,7 +268,7 @@ to-java: Packet(p) -> $[Packet[p]]
 
 
 to-java-stat: Unicast(p@Packet(packet),AssignList(assigns),dests) -> $[
-	if (ctrl.freqLimit("[packet]",mfConfig.getPropagationRate())) {
+	if (ctrl.freqLimit("[packet][<newname>]",mfConfig.getPropagationRate())) {
 		ctrl.unicast(([p'])new [p'](ctrl)[assigns'],[<to-java>dests]);
 	}]
 where

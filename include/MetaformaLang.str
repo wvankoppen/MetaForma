@@ -84,7 +84,7 @@ signature
     BorderDecl          : List(BorderItem) -> BorderDecl
                         : EvHdlr -> MainDef
     Strategy            : List(Stmt) -> MainDef
-    Sequence            : ID * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(FuncDecl) * List(Instr) -> MainDef
+    Sequence            : ID * List(EvHdlr) * List(EvHdlrSemi) * List(VarDecl) * List(Instr) -> MainDef
     PacketDecl          : ID * List(PayloadDecl) -> MainDef
     ConstDecl           : Type * ID * Exp -> MainDef
     Region              : Option(BorderDecl) * List(FuncDecl) -> MainDef
@@ -125,6 +125,7 @@ signature
     Module              : SysObj
     Meta                : SysObj
     Robot               : SysObj
+    Packet              : Type
     ByteArr             : Type
     Void                : Type
     Float               : Type

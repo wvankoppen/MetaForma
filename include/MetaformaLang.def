@@ -55,14 +55,10 @@ lexical syntax
 	"EAST"			-> ConstLan
 	"NORTH"			-> ConstLan
 	"SOUTH"			-> ConstLan
+	
 	"MAX_BYTE"		-> ConstLan
 	
-	"isMALE"		-> FuncPrimRef
-	"isFEMALE"		-> FuncPrimRef
-	"isWEST"		-> FuncPrimRef
-	"isEAST"		-> FuncPrimRef
-	"isNORTH"		-> FuncPrimRef
-	"isSOUTH"		-> FuncPrimRef
+	"is"			-> FuncPrimRef
 	"min"			-> FuncPrimRef
 	"pow2"			-> FuncPrimRef
 	"mirror"		-> FuncPrimRef
@@ -80,6 +76,7 @@ lexical syntax
 	"float"			-> Type{cons("Float")}
 	"void"			-> Type{cons("Void")}
 	"byte" "[" "]"	-> Type{cons("ByteArr")}
+	"Packet"		-> Type{cons("Packet")}
 	
 	"robot"			-> SysObj{cons("Robot")}
 	"meta"			-> SysObj{cons("Meta")}
@@ -273,7 +270,7 @@ exports
 	"unicast" PacketRef "(" AssignList ")" "to" Nbs  ";" -> Stmt{cons("Unicast")}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
 	
-	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> MainDef{cons("Sequence")}
+	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* Instr* "}" -> MainDef{cons("Sequence")}
 	"strategy" "{" Stmt* "}" -> MainDef{cons("Strategy")}	
 	
 	"strategy;"	-> Stmt{cons("StrategyRef")}
@@ -335,7 +332,6 @@ exports
 	"break" ";"	-> Stmt{cons("Break")}
 	
 	lexical syntax
-	
 	"LEFT_BOTTOM"	-> Orient
 	"LEFT_TOP"	-> Orient
 	
@@ -424,7 +420,8 @@ exports
 	"sizeExtra" -> MetaFieldID
 	%% "absorbed"	-> MetaFieldID
 	
-	"moduleID" 	-> PayloadID
+	"sourceID" 		-> PayloadID 
+	"sourceGroup" 	-> PayloadID
 	"metaID" 	-> PayloadID
 	"regionID" 	-> PayloadID 
 	"connSource"-> PayloadID
@@ -657,7 +654,7 @@ exports
 	"unicast" PacketRef "(" AssignList ")" "to" Nbs  ";" -> Stmt{cons("Unicast")}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
 	
-	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* FuncDecl*  Instr* "}" -> MainDef{cons("Sequence")}
+	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* Instr* "}" -> MainDef{cons("Sequence")}
 	"strategy" "{" Stmt* "}" -> MainDef{cons("Strategy")}	
 	
 	"strategy;"	-> Stmt{cons("StrategyRef")}
@@ -719,7 +716,6 @@ exports
 	"break" ";"	-> Stmt{cons("Break")}
 	
 	lexical syntax
-	
 	"LEFT_BOTTOM"	-> Orient
 	"LEFT_TOP"	-> Orient
 	
@@ -808,7 +804,8 @@ exports
 	"sizeExtra" -> MetaFieldID
 	%% "absorbed"	-> MetaFieldID
 	
-	"moduleID" 	-> PayloadID
+	"sourceID" 		-> PayloadID 
+	"sourceGroup" 	-> PayloadID
 	"metaID" 	-> PayloadID
 	"regionID" 	-> PayloadID 
 	"connSource"-> PayloadID

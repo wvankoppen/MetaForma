@@ -1,0 +1,65 @@
+package Brandt
+ 
+group InsideLifter [Top,Bottom]
+group OutsideLifter [Top,Bottom]
+group Inside
+group Outside
+
+
+sequence FlipOver {
+	
+	int HALF = 180;
+	int QUART = 90;
+	
+	if (!orientation matches TOP_LEFT,TOP_RIGHT,LEFT_TOP,RIGHT_TOP) {
+		QUART = -90;
+		HALF = -180;
+	}
+	
+	// if (mfStateMngr.getState().getOrientation().is(BorderLine.TOP) == mfStateMngr.getState().getOrientation().is(BorderLine.LEFT)) {
+	// 	QUART = 90;
+	// 	HALF = 180;
+	// }
+	// else {
+	// 	QUART = -90;
+	// 	HALF = -180;
+	// }
+	// 
+	module.gradientInit();
+	do {
+		module.gradientPropagate();
+	} until (config.propagationTime);
+
+	do  {
+		when {
+			case module.gradPri < 3 && module.gradSec == 0 || module.gradSec==0 && module.gradPri<3: module.group = @Outside;
+			case module.gradPri > 0 && module.gradSec > 0: module.group = @Inside;
+			case module.gradPri==1 && module.gradSec==3: module.id = @InsideLifter.Top;
+			case module.gradPri==3 && module.gradSec==1: module.id = @InsideLifter.Bottom;
+			case module.gradPri==0 && module.gradSec==2: module.id = @OutsideLifter.Top;
+			case module.gradPri==2 && module.gradSec==0: module.id = @OutsideLifter.Bottom; 
+		}
+		module.isRef = (module.gradPri == 3 && module.gradSec == 0);
+	}
+	
+			
+	
+	disconnect(@Outside, @Inside);
+	disconnect(@OutsideLifter, @Inside);
+	
+	do {
+		rotate(@InsideLifter.Top,HALF);
+		rotate(@InsideLifter.Bottom,-HALF);
+	} 
+	
+	do {
+		rotate(@InsideLifter.Top,HALF);
+		rotate(@InsideLifter.Bottom,-HALF);
+	} 
+	
+	connect(@Outside, @Inside);
+	connect(@OutsideLifter, @Inside);
+		
+	
+	region.finish();
+}

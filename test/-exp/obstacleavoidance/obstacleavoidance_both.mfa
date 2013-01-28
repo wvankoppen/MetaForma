@@ -1,0 +1,92 @@
+package ObstacleavoidanceBoth
+
+debug {
+	visualize {
+		north {
+			@LeftWheel: green;
+			@RightWheel: yellow;
+			@Axis: magenta;
+		}
+		south {
+			Main: black;
+			TurnFourWheeler: white;
+			TurnTwoWheeler: gray;
+			Drive: red;
+		}
+	}
+}
+
+group Axis [Driver,Front,Back]
+group LeftWheel
+group RightWheel
+
+float PROXIMITY = 0.15
+
+byte FORWARD = 1
+byte BACKWARD = -1	
+
+
+meta {	
+	void steer (int degrees) {
+		rotate(@Axis.Front,degrees);
+		rotate(@Axis.Back,-degrees);
+	}
+	
+	void drive (byte dirLeft, byte dirRight) {
+		rotating(@LeftWheel,-dirLeft);
+		rotating(@RightWheel,dirRight);
+	}
+	
+	void halt () {
+		stop(@LeftWheel);
+		stop(@RightWheel);
+	}
+}
+
+sequence Main {
+	do {
+		when (#(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0) {
+			module.group = @LeftWheel;
+		}
+		
+		when (#(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0) {
+			module.group = @RightWheel;
+		} 
+		
+		when ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==0) {
+			module.id = @Axis.Front;
+		}
+		
+		when ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==1) {
+			module.id = @Axis.Back;
+		}
+		 
+		when (#(@Axis) == 2) {
+			module.id = @Axis.Driver;
+		}
+		meta.enable();
+		
+	} until (config.assignTime);
+	 	 
+	goto Drive;
+}	
+
+
+sequence Drive {
+	when (module.group == @Axis && module.proximity() > PROXIMITY) {
+if (module.group == @Axis && #() == 2) {
+meta.size = 3;
+goto TurnTwoWheeler;
+}
+
+if (module.group == @Axis && #() == 3) {
+meta.size = 7;
+goto TurnFourWheeler;
+}
+} 
+	meta.drive(FORWARD,FORWARD);
+}
+
+
+
+

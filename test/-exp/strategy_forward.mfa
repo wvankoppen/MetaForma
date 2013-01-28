@@ -1,0 +1,19 @@
+package Brandt
+
+
+sequence Choose { 
+		// These 3 strategies will move meta-modules in upwards direction
+		
+		try region {
+			include	Top 
+			exclude	TopLeft,Left,Bottom
+			execute	FlipThrough in orientation BOTTOM_RIGHT;
+		}
+			
+			include Right,TopRight 
+			exclude Top
+			execute FlipAlong in orientation BOTTOM_RIGHT;
+			 
+		try region FlipThrough orientating LEFT_BOTTOM from Right excluding Top, TopRight;
+	}	
+}

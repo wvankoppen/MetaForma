@@ -1,0 +1,63 @@
+package Brandt
+group Clover [North,South,West,East]
+
+sequence FlipAlong  {
+	int QUART; 
+	int HALF; 
+	
+	if (orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
+		QUART = -90;
+		HALF = -180; 
+	}
+	else {
+		QUART = 90; 
+		HALF = 180;
+	}
+	
+	
+	module.gradientInit();
+	do {
+		module.gradientPropagate();
+	} until (config.propagationTime);
+
+		
+	do {		
+		if (module.gradPri==3 && module.gradSec==0) module.id = @Clover.West;
+		if (module.gradPri==2 && module.gradSec==0) module.id = @Clover.South;
+		if (module.gradPri==3 && module.gradSec==1) module.id = @Clover.North;
+		if (module.gradPri==2 && module.gradSec==1) module.id = @Clover.East;
+		module.isRef = (module.gradPri == 0 && module.gradSec == 3);
+	}
+			 
+	
+	disconnect(@Clover.West,@Clover.South);
+	rotate(@Clover.East,QUART);
+	rotate(@Clover.North,HALF);
+	rotate(@Clover.East,QUART);
+	connect(@Clover.North,@X);
+	connect(@Clover.West,@X);
+	
+	do {
+		disconnect(@Clover.East,@X);
+		disconnect(@Clover.South,@X);
+	}
+	
+	rotate(@Clover.East,-QUART);
+	rotate(@Clover.North,QUART);
+	rotate(@Clover.East,-QUART);
+	rotate(@Clover.North,QUART);
+	connect(@Clover.South,@Clover.West);
+	
+	module.fixSymmetry(module.isRef);
+	
+	// do {
+	// 	when (receive (Symmetry p)) {
+	// 		module.fixSymmetry (p.connSource,p.connDest);
+	// 	}
+	// 	if (isRef) {
+	// 		unicast Symmetry() to $(inRegion:true);
+	// 	}
+	// }
+	
+	region.finish();
+}

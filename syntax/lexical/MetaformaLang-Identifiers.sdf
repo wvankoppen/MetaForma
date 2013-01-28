@@ -54,14 +54,10 @@ lexical syntax
 	"EAST"			-> ConstLan
 	"NORTH"			-> ConstLan
 	"SOUTH"			-> ConstLan
+	
 	"MAX_BYTE"		-> ConstLan
 	
-	"isMALE"		-> FuncPrimRef
-	"isFEMALE"		-> FuncPrimRef
-	"isWEST"		-> FuncPrimRef
-	"isEAST"		-> FuncPrimRef
-	"isNORTH"		-> FuncPrimRef
-	"isSOUTH"		-> FuncPrimRef
+	"is"			-> FuncPrimRef
 	"min"			-> FuncPrimRef
 	"pow2"			-> FuncPrimRef
 	"mirror"		-> FuncPrimRef
@@ -79,6 +75,7 @@ lexical syntax
 	"float"			-> Type{"Float"}
 	"void"			-> Type{"Void"}
 	"byte" "[" "]"	-> Type{"ByteArr"}
+	"Packet"		-> Type{"Packet"}
 	
 	"robot"			-> SysObj{"Robot"}
 	"meta"			-> SysObj{"Meta"}

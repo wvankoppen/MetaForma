@@ -1,0 +1,53 @@
+package Eight2SnakeCrawl
+
+group Eight
+
+int QUART=90
+int HALF=180
+byte CRAWL_TIME = 10
+
+sequence Main {
+	do {
+		meta.enable();
+		meta.sizeExtra = 7;
+	}
+	
+	goto Eight2Snake;
+}	 
+
+sequence Eight2Snake {
+	retractSet(@Eight[3],MALE&EAST&NORTH | MALE&WEST&SOUTH); 
+	
+	do {
+		rotate(@Eight[0],-HALF);
+		rotate(@Eight[6],-HALF);
+	}
+	
+	goto Crawl;	
+}
+
+sequence Crawl {
+	do {
+		rotating (@Eight[1],1);
+		rotating (@Eight[5],1);	
+	} until (CRAWL_TIME);
+	
+	do {
+		stop(@Eight[1]);
+		stop(@Eight[5]);
+	}
+	
+	do {
+		rotateAbsolute(@Eight[1],0);
+		rotateAbsolute(@Eight[5],0);
+	}
+	goto Snake2Eight;
+}
+
+sequence Snake2Eight {
+	do {
+		rotate(@Eight[0],HALF);
+		rotate(@Eight[6],HALF);
+	}
+	connect(@Eight,@Eight);
+}
