@@ -196,7 +196,7 @@ to-java: FieldPrimRef(obj,f) -> $[[<to-java>obj].get[<to-let-func>f]()]
 to-java: VarDecl(t,n,v) -> $[[<to-java>t] [n]]
 
 
-// Fieldrefs can be parsed as VarRefs, then we need to extract from URI
+// FieldRefs may be parsed as VarRefs, then we need to extract from URI
 to-java: Assign(v@VarRef(_{[Field(),name,obj,package]}), e) -> <to-java>Assign(FieldRef(obj,name),e)
 to-java: Assign(v@VarRef(_{uri@[Var()|_]}), e) -> $[[<to-java>v] = [<uri-to-cast>uri][<to-java>e]]
 
@@ -230,7 +230,7 @@ to-java: Meta() -> $[ctrl.meta()]
 
 
 to-java: VarRef(n{[Unresolved(_)|_]}) -> <debug>"UNRESOLVED VAR!"
-to-java: VarRef(n{[Var()|_]}) -> <strip-annos>n
+to-java: VarRef(n{[Var()|_]}) -> $[[<strip-annos>n]]
 to-java: VarRef(n{[Field()|_]}) -> <strip-annos>n
 to-java: VarRef(n{[Constant()|_]}) -> <strip-annos>n
 to-java: VarRef(n{[MetaPart()|_]}) -> $[MetaPart.[<strip-annos>n]]
@@ -320,3 +320,5 @@ to-java: Border(b) -> $[BorderLine.[<to-upper-first>b]] where <debug>$[Border [b
 
 // +1 because PacketDiscover has 0, and we can't do bitwise or on that
 to-debug: n -> $[pow2([n].getTypeNr() + 1)]
+
+

@@ -91,7 +91,7 @@ exports
 	"unicast" PacketRef "(" AssignList ")" "to" Nbs  ";" -> Stmt{"Unicast"}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{"Receive"}
 	
-	"sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* Instr* "}" -> MainDef{"Sequence"}
+	"sequence" ID "{" EvHdlr* EvHdlrSemi* Instr* "}" -> MainDef{"Sequence"}
 	"strategy" "{" Stmt* "}" -> MainDef{"Strategy"}	
 	
 	"strategy;"	-> Stmt{"StrategyRef"}
@@ -294,6 +294,7 @@ exports
 	"@" ID "." ID									-> ModHolderRef{"ModHolderRef"}
 	"@" ID 											-> ModHolderRef{"ModHolderRef"}
 	"@X"											-> ModHolderRef{"ModHolderPrimRef",prefer}
+	%% "@*"											-> ModHolderRef{"ModHolderAllRef"} FUTURE WORK?
 	
 	"orientation" "matches" {OrientRef ","}* -> Exp{"OrientMatch"}
 	

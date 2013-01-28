@@ -4,17 +4,14 @@ group UpLifter [Top,Bottom,Left,Right]
 group Dummy [Left,Right]
  
 sequence FlipThrough {
-	int QUART;
-	int HALF;
-	// Vardecls must be moved to #State 0
 	
-	if (orientation matches BOTTOM_RIGHT, LEFT_BOTTOM) {
-		QUART = -90;
-		HALF = -180; 
+	if (orientation matches BOTTOM_RIGHT,RIGHT_TOP, LEFT_BOTTOM) {
+		QUART = 90;
+		HALF = 180; 
 	}
 	else {
-		QUART = 90; 
-		HALF = 180;
+		QUART = -90; 
+		HALF = -180;
 	}
 	
 	module.gradientInit();
@@ -46,22 +43,22 @@ sequence FlipThrough {
 		rotate(@UpLifter.Right, QUART);
 	} 
 	
-	retractSet(@UpLifter.Top, NORTH);
-	rotate(@UpLifter.Top, HALF);
+	disconnect(@UpLifter.Left,@Dummy.Right);
+	rotate(@UpLifter.Bottom, HALF);
 	
 	do  {				
-		rotate(@UpLifter.Left, -QUART);
-		rotate(@UpLifter.Right, -QUART);
+		rotate(@UpLifter.Left, QUART);
+		rotate(@UpLifter.Right, QUART);
 	} 
 	
 	do  {				
-		rotate(@UpLifter.Right, -HALF);
-		rotate(@UpLifter.Bottom, HALF);
+		// rotate(@UpLifter.Right, HALF);
+		rotate(@UpLifter.Top, HALF);
 	}
 	 
 	module.restoreID();
 	
-	connect(@X, @UpLifter);	
+	connect(@X, @X);	
 	
 	module.fixSymmetry(module.isRef);
 		

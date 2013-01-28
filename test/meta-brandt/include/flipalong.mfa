@@ -2,16 +2,14 @@ package Brandt
 group Clover [North,South,West,East]
 
 sequence FlipAlong  {
-	int QUART; 
-	int HALF; 
 	
 	if (orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
-		QUART = -90;
-		HALF = -180; 
+		QUART = 90;
+		HALF = 180; 
 	}
 	else {
-		QUART = 90; 
-		HALF = 180;
+		QUART = -90; 
+		HALF = -180;
 	}
 	
 	

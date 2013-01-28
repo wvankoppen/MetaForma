@@ -1,4 +1,5 @@
 /home/wouter/git/MetaformaLang/include/metaformalang.ctree: \
+	/home/wouter/git/MetaformaLang/trans/functions.str \
 	/home/wouter/git/MetaformaLang/trans/nblhacks.str \
 	/home/wouter/git/MetaformaLang/trans/types.str \
 	 \

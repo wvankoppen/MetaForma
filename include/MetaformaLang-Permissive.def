@@ -276,7 +276,7 @@ exports
     {AssignElem ","}*                                                                             -> AssignList        {cons("AssignList")}
     "unicast" PacketRef "(" AssignList ")" "to" Nbs ";"                                           -> Stmt              {cons("Unicast")}
     "receive" "(" PacketVarDecl ")"                                                               -> Receive           {cons("Receive")}
-    "sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* Instr* "}"                                     -> MainDef           {cons("Sequence")}
+    "sequence" ID "{" EvHdlr* EvHdlrSemi* Instr* "}"                                              -> MainDef           {cons("Sequence")}
     "strategy" "{" Stmt* "}"                                                                      -> MainDef           {cons("Strategy")}
     "strategy;"                                                                                   -> Stmt              {cons("StrategyRef")}
     EvHdlr                                                                                        -> MainDef           
@@ -512,7 +512,7 @@ exports
     {AssignElem ","}*                                                                             -> AssignList        {cons("AssignList")}
     "unicast" PacketRef "(" AssignList ")" "to" Nbs ";"                                           -> Stmt              {cons("Unicast")}
     "receive" "(" PacketVarDecl ")"                                                               -> Receive           {cons("Receive")}
-    "sequence" ID "{" EvHdlr* EvHdlrSemi* VarDecl* Instr* "}"                                     -> MainDef           {cons("Sequence")}
+    "sequence" ID "{" EvHdlr* EvHdlrSemi* Instr* "}"                                              -> MainDef           {cons("Sequence")}
     "strategy" "{" Stmt* "}"                                                                      -> MainDef           {cons("Strategy")}
     "strategy;"                                                                                   -> Stmt              {cons("StrategyRef")}
     EvHdlr                                                                                        -> MainDef           

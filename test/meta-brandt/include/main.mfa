@@ -13,6 +13,9 @@ debug {
 	 		@OutsideLifter: cyan;
 	 		@InsideLifter: magenta;
 	 		
+	 		@Outside: blue;
+	 		@Inside: red;
+	 		
 	 		@UpLifter.Top: yellow;
 	 		@UpLifter.Bottom: magenta;
 	 		@UpLifter.Left: green; 
@@ -94,7 +97,7 @@ region {
 }
 
 meta {
- 	part [North, South, West, East];	
+ 	part [North, West, South, East];	
 	// Future work: express meta.Right as Right 
 	byte Top;
 	byte Bottom;
@@ -105,7 +108,6 @@ meta {
 	byte BottomLeft; 
 	byte BottomRight;
 
-	
 
 	void neighborHook (Packet p) {
 		if (p.metaID != module.metaID && module.metaID != 0) {
@@ -138,7 +140,9 @@ module  {
 	boolean isRef;
 	boolean sourcePri;
 	boolean sourceSec;
-	
+	int QUART;
+	int HALF;
+	int EIGHT;
 
 	
 	void gradientPropagate () {		 
@@ -158,7 +162,8 @@ module  {
 		sourceSec = region.atSecondaryBorder();
 		
 		gradPri = MAX_BYTE;
-		gradSec = MAX_BYTE;			
+		gradSec = MAX_BYTE;		
+		module.backupID();	
 	}
  }
 

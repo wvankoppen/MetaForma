@@ -8,23 +8,15 @@ group Outside
 
 sequence FlipOver {
 	
-	int HALF = 180;
-	int QUART = 90;
-	
-	if (!orientation matches TOP_LEFT,TOP_RIGHT,LEFT_TOP,RIGHT_TOP) {
-		QUART = -90;
+	if (orientation matches TOP_LEFT,LEFT_TOP,RIGHT_TOP,TOP_RIGHT) { // checked and correct
 		HALF = -180;
+		QUART = -90;
+	} 
+	else {
+		QUART = 90;
+		HALF = 180;
 	}
 	
-	// if (mfStateMngr.getState().getOrientation().is(BorderLine.TOP) == mfStateMngr.getState().getOrientation().is(BorderLine.LEFT)) {
-	// 	QUART = 90;
-	// 	HALF = 180;
-	// }
-	// else {
-	// 	QUART = -90;
-	// 	HALF = -180;
-	// }
-	// 
 	module.gradientInit();
 	do {
 		module.gradientPropagate();
@@ -32,7 +24,7 @@ sequence FlipOver {
 
 	do  {
 		when {
-			case module.gradPri < 3 && module.gradSec == 0 || module.gradSec==0 && module.gradPri<3: module.group = @Outside;
+			case (module.gradPri < 3 && module.gradSec == 0) || (module.gradPri==0 && module.gradSec<3): module.group = @Outside;
 			case module.gradPri > 0 && module.gradSec > 0: module.group = @Inside;
 			case module.gradPri==1 && module.gradSec==3: module.id = @InsideLifter.Top;
 			case module.gradPri==3 && module.gradSec==1: module.id = @InsideLifter.Bottom;
@@ -43,23 +35,29 @@ sequence FlipOver {
 	}
 	
 			
-	
-	disconnect(@Outside, @Inside);
-	disconnect(@OutsideLifter, @Inside);
+	do {
+		disconnect(@Outside, @Inside);
+		disconnect(@OutsideLifter, @Inside);
+	}
 	
 	do {
-		rotate(@InsideLifter.Top,HALF);
-		rotate(@InsideLifter.Bottom,-HALF);
+		rotate(@InsideLifter.Top,-HALF);
+		rotate(@InsideLifter.Bottom,HALF);
 	} 
 	
 	do {
-		rotate(@InsideLifter.Top,HALF);
-		rotate(@InsideLifter.Bottom,-HALF);
+		rotate(@OutsideLifter.Top,-HALF);
+		rotate(@OutsideLifter.Bottom,HALF);
 	} 
 	
-	connect(@Outside, @Inside);
-	connect(@OutsideLifter, @Inside);
+	// 2 groups in parallel does not work, FIX: commit at the end of state, not instruction
+	// do {
 		
+		connect(@InsideLifter, @Outside);
+		connect(@Outside, @Inside);
+	// }
+		
+	module.fixSymmetry(module.isRef);
 	
 	region.finish();
 }

@@ -11,13 +11,13 @@ byte BACKWARD = 1
 
 
 strategy {
-	goto Drive;
+	execute Drive;
 } 
 
 
 sequence Drive {
 	when (module.id == @Car.Driver && module.proximity() > PROXIMITY) {
-		goto Turn;
+		execute Turn;
 	} 
 	meta.drive(FORWARD,FORWARD);
 }
@@ -35,5 +35,5 @@ sequence Turn {
 		meta.drive (BACKWARD,FORWARD);	
 	} wait(TIME_TURNAROUND);
 	
-	finish();
+	meta.finish();
 }

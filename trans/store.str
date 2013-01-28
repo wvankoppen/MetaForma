@@ -65,12 +65,11 @@ rules
 		term@Class(_{[Class(), name, package]},_) -> <store-results> DefData([Class(), package], Class(), term)
 	
 		
-	// We do not store the Choose sequence, as this one is fetched from the main's file AST. (multiple Choose seqs can be used in one "package")
+	// adjust-index-def-data(store-results|namespace, path): 
+	// 	term@Sequence(SequencePrimRef("Main"){[Sequence(), name, package]},_,_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
+	// 
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Sequence(SequencePrimRef("Main"){[Sequence(), name, package]},_,_,_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
-	
-	adjust-index-def-data(store-results|namespace, path): 
-		term@Sequence(_{[Sequence(), name, package]},_,_,_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
+		term@Sequence(_{[Sequence(), name, package]},_,_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
 			
 		
 	adjust-index-def-data(store-results|namespace, path): 

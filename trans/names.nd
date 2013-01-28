@@ -43,13 +43,7 @@ rules
 	 	defines Group n
 	
 	
-	// Yes! 
-	 Sequence (SequencePrimRef("Main"),_,_,_,_):
-	 	defines Sequence "Main"	
-	 	scopes Var,Instruction,EventHandler
-	
-	// TODO: Make mutually exclusive	
-	Sequence (n,_,_,_,_):
+	Sequence (n,_,_,_):
 		defines Sequence n	
 		scopes Var,Instruction,EventHandler
 		

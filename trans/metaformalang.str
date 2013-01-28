@@ -26,8 +26,9 @@ imports
   libjava-front
   types
   nblhacks
-
-rules // Analysis
+  functions
+  
+rules
   
   destination-path = !$[/home/wouter/git/ussr/src/ussr/samples/atron/simulations/metaforma/gen/];makedir
   destination-path(|p) = !$[[<destination-path>][p]/];makedir
@@ -253,8 +254,7 @@ rules // Utility
 			
 			<debug>"##############################";
 			<debug>"COMPILE SEQUENCES";
-			
-			seqs := <index-getsequences(|package,<debug(!"STRATEGYY:")><get-strategy>path)>;
+			seqs := <index-getsequences(|package,<get-strategy>path)>;
 			java-seqs := <map2str(compile)>seqs;
 			
 			<debug>"##############################";
@@ -273,7 +273,7 @@ rules // Utility
 			java-consts := <map2str(to-java-stat)><debug(!"Consts:")><index-getcons(|package)>Constant();
 			
 			<debug>"##############################";
-			names-metapart := <concat-glue(|",")><map(project-name)><index-getcons(|package)>MetaPart();
+			names-metapart := <concat-glue(|",")><reverse><map(project-name)><index-getcons(|package)>MetaPart(); // We need to reverse as it seems they are stored in reverse order 
 			names-sequence := <concat-glue(|",")><filter(not(is-prim-seq))><map(project-name)>seqs;
 			names-group := <concat-glue(|",")><map(project-name)><index-getcons(|package)>Group();
 			names-mod :=  <map2str(to-java)><index-getcons(|package)>Group();
@@ -305,7 +305,7 @@ import ussr.samples.atron.simulations.metaforma.lib.iface.*;
 public class <classname> extends MfController implements ControllerInformationProvider {
 	
 	<java-consts>
-	
+		
 	@Override
 	public IMetaPart getMetaPart() {
 		return MetaPart.NONE;
@@ -362,7 +362,6 @@ public class <classname> extends MfController implements ControllerInformationPr
 		mfVisual.setMessageFilterPacketBase(<java-packetbase>);
 	}
 
-	
 	public void handleStates() {
 		<java-seqs>	
 	}
@@ -528,8 +527,6 @@ public class <classname> extends MfController implements ControllerInformationPr
 		}
 	} 
 >;
-
-	
 	destination-file := $[[<destination-path(|package,name-program-l)>][filename]];
 	// <debug>$[Opening file..  : [destination-file]];
 	handle := <fopen> (destination-file, "w");
@@ -538,26 +535,3 @@ public class <classname> extends MfController implements ControllerInformationPr
 	fclose;
 	<debug>$[File written: [filename]];
 	<refresh-workspace-file> destination-file
-
-
-head: [x|xs] -> x
-tail: [x|xs] -> xs
-
-makedir = //<debug(!"Trying to make dir: ")><id>;
-		if not(<isdir><id>) then
-			// <debug(!"Making dir: ")><id>;
-			<mkdir>(<id>) 
-			// else
-				// <debug(!"Dir exists: ")><id>
-		   end
-
-
-	
-aterm-name: aterm -> name
-	where  
-	?<id>#(_) => name
-	
-	
-get-strategy: path -> strategy
-where
-	strategy := <desugar-all-nbl><collect-one(?Strategy(_))><index-get-all-in-file>path
