@@ -111,6 +111,16 @@ rules
   nam-annotate-names(|paths__, path__):
     ConstDecl(t, n, v) -> <ConstDecl(id, nam-annotate-def(|path__), id)>
 
+  adjust-index-def-data(store__|namespace__, path__):
+    ConstDecl(t, n, v) -> <store__> DefData(
+                                      [namespace__|path__]
+                                    , Type()
+                                    , t
+                                    )
+
+  type-of :
+    ConstDecl(t, n, v) -> t
+
   nam-unique :
     ConstDecl(t, n, v) -> <id>
 
@@ -674,30 +684,6 @@ rules
 rules
 
   nam-get-uses-keys :
-    VarRef(n) -> [n]
-
-  nam-get-uses :
-    VarRef(n) -> [ (Var(), [n])
-                 , (Field(), [n])
-                 , (MetaPart(), [n])
-                 , (Constant(), [n])
-                 ]
-
-  nam-annotate-names(|paths__, path__):
-    VarRef(n) -> <VarRef(nam-annotate-use(|paths__, Var()))>
-
-  adjust-index-lookup(target__|namespace__, path__, prefix__):
-    VarRef(n) -> [ [Var()|path__]
-                 , [Field()|path__]
-                 , [MetaPart()|path__]
-                 , [Constant()|path__]
-                 ]
-    where <target__> n
-
-
-rules
-
-  nam-get-uses-keys :
     Type(c) -> [c]
 
   nam-get-uses :
@@ -745,18 +731,6 @@ rules
 
   nam-annotate-names(|paths__, path__):
     Module() -> <nam-annotate-use(|paths__, Class())>
-
-
-rules
-
-  nam-get-uses-keys :
-    Region() -> [Region()]
-
-  nam-get-uses :
-    Region() -> [(Class(), [Region()])]
-
-  nam-annotate-names(|paths__, path__):
-    Region() -> <nam-annotate-use(|paths__, Class())>
 
 
 rules

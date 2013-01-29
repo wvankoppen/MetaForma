@@ -82,8 +82,7 @@ where
 
 // A doWait has no event handlers because it is only evaluated once
 to-java-stopcon(|i,java-evsemi,java-stats): Wait(wait) -> 
-$[
-	if (mfStateMngr.doWait([i]))  {
+$[ if (mfStateMngr.doWait([i]))  {
 		[java-evsemi]
 		[java-stats]
 		[java-statemngr-call]
@@ -91,8 +90,8 @@ $[
 where
 	<to-java-stop>wait => java-statemngr-call
 
-to-java-stopcon(|i,java-evsemi,java-stats): Until(wait) -> $[
-	if (mfStateMngr.doUntil([i]))  {
+to-java-stopcon(|i,java-evsemi,java-stats): Until(wait) -> 
+$[	if (mfStateMngr.doUntil([i]))  {
 		[java-evsemi]
 		[java-stats]
 		[java-statemngr-call]
@@ -127,8 +126,8 @@ to-java: OrientMatch(orients) -> $[[<concat-glue(|" || ")><map(orientref)>orient
 orientref: OrientRef(r) -> $[mfStateMngr.getState().getOrientation().equals(Orientation.[r])]
 
 
-to-java: GotoOrient(s,orient) -> $[mfStateMngr.setNextSequence([<to-java>s],[<to-java>orient])]
-to-java: Goto(s) -> $[mfStateMngr.setNextSequence([<to-java>s])]
+to-java: ExecuteOrient(s,orient) -> $[mfStateMngr.setNextSequence([<to-java>s],[<to-java>orient])]
+to-java: Execute(s) -> $[mfStateMngr.setNextSequence([<to-java>s])]
 
 to-java-stat: Strategy(strats) -> <map2str(to-java-stat)>strats
 
@@ -223,15 +222,15 @@ to-java: Return (e) -> $[return [<to-java>e]]
 to-java: Param(t,n) -> $[[<to-java>t] [n]]
 	
 to-java: Config() -> $[ctrl.config()]
-to-java: Module() -> $[ctrl.module()]
+to-java: Module() -> $[module()] // no ctrl. prefix!
 to-java: Region() -> $[ctrl.region()]
-to-java: Meta() -> $[ctrl.meta()]
+to-java: Meta() -> $[meta()]
 
 
 
 to-java: VarRef(n{[Unresolved(_)|_]}) -> <debug>"UNRESOLVED VAR!"
 to-java: VarRef(n{[Var()|_]}) -> $[[<strip-annos>n]]
-to-java: VarRef(n{[Field()|_]}) -> <strip-annos>n
+to-java: VarRef(n{[Field(),name,class,package]}) -> <to-java>FieldRef(class,n)
 to-java: VarRef(n{[Constant()|_]}) -> <strip-annos>n
 to-java: VarRef(n{[MetaPart()|_]}) -> $[MetaPart.[<strip-annos>n]]
 

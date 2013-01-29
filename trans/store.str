@@ -61,8 +61,8 @@ rules
 		term@Class(_{[Class(), name, package]},_,_) -> <store-results> DefData([Class(), package], Class(), term)
 	
 	// For Region class
-	adjust-index-def-data(store-results|namespace, path): 
-		term@Class(_{[Class(), name, package]},_) -> <store-results> DefData([Class(), package], Class(), term)
+	// adjust-index-def-data(store-results|namespace, path): 
+	// 	term@Class(_{[Class(), name, package]},_) -> <store-results> DefData([Class(), package], Class(), term)
 	
 		
 	// adjust-index-def-data(store-results|namespace, path): 
@@ -115,7 +115,7 @@ rules
       
  
      
-    index-getclasses(|package) = !Class();index-getcons(|package);assure-class(|Meta()); assure-class(|Region()); assure-class(|Module())
+    index-getclasses(|package) = !Class();index-getcons(|package);assure-class(|Meta()); assure-class(|Module())
     
     index-getsequences(|package,strategy)=  !Sequence();index-getcons(|package);topdown(try(replace-strategy(|strategy)))
      

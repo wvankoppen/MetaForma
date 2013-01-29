@@ -24,14 +24,14 @@ sequence FlipOver {
 
 	do  {
 		when {
-			case (module.gradPri < 3 && module.gradSec == 0) || (module.gradPri==0 && module.gradSec<3): module.group = @Outside;
-			case module.gradPri > 0 && module.gradSec > 0: module.group = @Inside;
-			case module.gradPri==1 && module.gradSec==3: module.id = @InsideLifter.Top;
-			case module.gradPri==3 && module.gradSec==1: module.id = @InsideLifter.Bottom;
-			case module.gradPri==0 && module.gradSec==2: module.id = @OutsideLifter.Top;
-			case module.gradPri==2 && module.gradSec==0: module.id = @OutsideLifter.Bottom; 
+			case (gradPri < 3 && gradSec == 0) || (gradPri==0 && gradSec<3): module.group = @Outside;
+			case gradPri > 0 && gradSec > 0: module.group = @Inside;
+			case gradPri==1 && gradSec==3: module.id = @InsideLifter.Top;
+			case gradPri==3 && gradSec==1: module.id = @InsideLifter.Bottom;
+			case gradPri==0 && gradSec==2: module.id = @OutsideLifter.Top;
+			case gradPri==2 && gradSec==0: module.id = @OutsideLifter.Bottom; 
 		}
-		module.isRef = (module.gradPri == 3 && module.gradSec == 0);
+		isRef = (gradPri == 3 && gradSec == 0);
 	}
 	
 			
@@ -57,7 +57,7 @@ sequence FlipOver {
 		connect(@Outside, @Inside);
 	// }
 		
-	module.fixSymmetry(module.isRef);
+	module.fixSymmetry(isRef);
 	
 	region.finish();
 }

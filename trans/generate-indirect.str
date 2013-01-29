@@ -111,27 +111,9 @@ strategies
   name2param = not(?"PacketBase"); !"p"	
   	
  
- correct-packet = ?Packet(<id>)
- correct-packet = ?PacketPrim(<id>)
+ correct-packet = ?Packet(<id>) + ?PacketPrim(<id>)
+ 
  	 
-
-
-compile: Class(d@Region(),borderdecl,funcs) -> $[
-	class BagRegion extends RegionCore {
-				
-		public boolean at(BorderLine d) {
-			boolean ret = false;
-			[<to-java>borderdecl]
-			return ret;
-		}
-		
-		[<map2str(to-java)>funcs]
-	}
-]
-where
-	<debug>$[Compile Region class]
-
-
 compile-packetbuild: p@PacketDecl(n,nr,payloads) -> $[		 if (typeNr == [name].getTypeNr()) {
 			[name] p = ([name])new [name](this).deserialize(msg,connector);
 			preprocessPacket(p);
@@ -149,14 +131,31 @@ where <debug(!"Compile borderitems")>items
 
 to-java: None() -> $[]
 
- compile:  Class(id',_,elements) -> $[class Bag[n] extends [n]Core implements I[n]Bag {
+ compile:  Class(name@Module(),borders,elements) -> $[class Bag[n] extends [n]Core implements I[n]Bag {
+	[elements']
+	public boolean atBorder(BorderLine d) {
+ 			boolean ret = false;
+ 			[<to-java>borders]
+ 			return ret;
+ 		}
+	}
+	]
+	where
+		n := <construct2name>name;
+		<debug>$[Compile class [n]];
+		<map2str(to-java-stat)>elements => elements'
+		
+		
+ compile:  Class(name@Meta(),_,elements) -> $[class Bag[n] extends [n]Core implements I[n]Bag {
 	[elements']
 	}
 	]
 	where
-		n := <construct2name>id';
+		n := <construct2name>name;
 		<debug>$[Compile class [n]];
 		<map2str(to-java-stat)>elements => elements'
+
+
 
 
 construct2name: Meta() -> $[Meta]

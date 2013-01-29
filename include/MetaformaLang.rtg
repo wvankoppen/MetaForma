@@ -118,8 +118,6 @@ regular tree grammar
     ListPlusOfFuncDecl0      -> <conc>(ListPlusOfFuncDecl0,ListStarOfFuncDecl0)
     ListPlusOfFuncDecl0      -> <conc>(ListPlusOfFuncDecl0,ListPlusOfFuncDecl0)
     ListPlusOfFuncDecl0      -> <cons>(FuncDecl,ListStarOfFuncDecl0)
-    OptBorderDecl1           -> <some>(BorderDecl)
-    OptBorderDecl1           -> <none>()
     ListStarOfFieldDecl0     -> ListPlusOfFieldDecl0
     ListStarOfFieldDecl0     -> <nil>()
     ListStarOfFieldDecl0     -> <conc>(ListStarOfFieldDecl0,ListStarOfFieldDecl0)
@@ -127,6 +125,8 @@ regular tree grammar
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListStarOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListPlusOfFieldDecl0)
     ListPlusOfFieldDecl0     -> <cons>(FieldDecl,ListStarOfFieldDecl0)
+    OptBorderDecl1           -> <some>(BorderDecl)
+    OptBorderDecl1           -> <none>()
     OptPartDecl1             -> <some>(PartDecl)
     OptPartDecl1             -> <none>()
     ListStarOfVisItem0       -> ListPlusOfVisItem0
@@ -226,8 +226,8 @@ regular tree grammar
     GroupDef                 -> Group(ID)
     GroupDef                 -> Group(ID,ListStarOfMod0)
     OrientClause             -> Orientation(OrientRef)
-    Stmt                     -> GotoOrient(SequenceRef,OrientClause)
-    Stmt                     -> Goto(SequenceRef)
+    Stmt                     -> ExecuteOrient(SequenceRef,OrientClause)
+    Stmt                     -> Execute(SequenceRef)
     Instr                    -> Stmt
     OrientRef                -> OrientRef(Orient)
     Stmt                     -> If(Exp,Block)
@@ -271,8 +271,7 @@ regular tree grammar
     BorderItem               -> BorderItem(Border,Exp)
     BorderDecl               -> BorderDecl(ListStarOfBorderItem0)
     MainDef                  -> ConstDecl(Type,ID,Exp)
-    MainDef                  -> Region(OptBorderDecl1,ListStarOfFuncDecl0)
-    MainDef                  -> Module(ListStarOfFieldDecl0,ListStarOfFuncDecl0)
+    MainDef                  -> Module(OptBorderDecl1,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
     MainDef                  -> Meta(OptPartDecl1,ListStarOfFieldDecl0,ListStarOfFuncDecl0)
     MainDef                  -> GroupDef
     ModHolderOrSeqRef        -> SequenceRef

@@ -185,13 +185,15 @@ imports
 	lexical/MetaformaLang-Identifiers
 
 exports
-	sorts MainDef Stmt Receive Sequence
+	sorts MainDef Stmt Receive Sequence Package
 
   context-free start-symbols
   
     Start
  
   context-free syntax
+  	%% CONTENTCOMPLETE -> MainDef {cons("WaterMonkey")}
+  	
   %% Declaration: In main program space
   %% MainDef: In all program space
   
@@ -221,12 +223,12 @@ exports
 	GroupDef 										-> MainDef
 
 	"meta" "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> MainDef{cons("Meta")}
-	"module" "{" FieldDecl* FuncDecl* "}" 			-> MainDef{cons("Module")}
-	"region" "{" BorderDecl? FuncDecl* "}" 			-> MainDef{cons("Region")}
+	"module" "{" BorderDecl? FieldDecl* FuncDecl* "}" -> MainDef{cons("Module")}
+	%% "region" "{" FuncDecl* "}" 			-> MainDef{"Region"}
 	 
 	Type ID "=" Exp									-> MainDef{cons("ConstDecl")}
 	
-	"borders" "[" BorderItem* "]"					-> BorderDecl{cons("BorderDecl")}
+	"border" "[" BorderItem* "]"					-> BorderDecl{cons("BorderDecl")}
 	
 	Border ":" Exp ";" -> BorderItem{cons("BorderItem")}
 	
@@ -311,8 +313,8 @@ exports
 	Orient -> ID{reject}	
 		
 	Stmt -> Instr
-	"execute" SequenceRef ";"							-> Stmt{cons("Goto")}
-	"execute" SequenceRef OrientClause ";"							-> Stmt{cons("GotoOrient")}
+	"execute" SequenceRef ";"							-> Stmt{cons("Execute")}
+	"execute" SequenceRef OrientClause ";"				-> Stmt{cons("ExecuteOrient")}
 	"orienting" OrientRef 				-> OrientClause{cons("Orientation")}
 		
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{cons("Group")}
@@ -443,8 +445,8 @@ exports
 	"finish" 			-> MetaMethodRef	%% Experimental
 	
 	"release" 			-> RegionMethodRef
-	"atPrimaryBorder" 	-> RegionMethodRef
-	"atSecondaryBorder" -> RegionMethodRef
+	"atPrimaryBorder" 	-> ModuleMethodRef
+	"atSecondaryBorder" -> ModuleMethodRef
 	"assignTime" 		-> ConfigFieldID
 	
 	
@@ -454,12 +456,12 @@ exports
 	"extendSet"			-> FuncActuationRef
 	"retract" 			-> FuncActuationRef
 	"retractSet"		-> FuncActuationRef
+	
 	"rotate" 			-> FuncActuationRef
 	"rotateOrigin"		-> FuncActuationRef
-	"stop" 				-> FuncActuationRef
 	"rotating"			-> FuncActuationRef
 	"rotateAbsolute"	-> FuncActuationRef
-	
+	"stop" 				-> FuncActuationRef
 	
 	
 	lexical syntax
@@ -468,11 +470,12 @@ exports
 	
 	context-free syntax
 
-	"@" "X" "[" Exp "]"								-> ModHolderRef{cons("ModHolderPrimNumRef"),prefer}
+	"@X" "[" Exp "]"								-> ModHolderRef{cons("ModHolderPrimNumRef"),prefer}
 	"@" ID "[" Exp "]"								-> ModHolderRef{cons("ModHolderNumRef")}
 	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
 	"@X"											-> ModHolderRef{cons("ModHolderPrimRef"),prefer}
+	%% "@*"											-> ModHolderRef{"ModHolderAllRef"} FUTURE WORK?
 	
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	
@@ -569,13 +572,15 @@ imports
 	lexical/MetaformaLang-Identifiers
 
 exports
-	sorts MainDef Stmt Receive Sequence
+	sorts MainDef Stmt Receive Sequence Package
 
   context-free start-symbols
   
     Start
  
   context-free syntax
+  	%% CONTENTCOMPLETE -> MainDef {cons("WaterMonkey")}
+  	
   %% Declaration: In main program space
   %% MainDef: In all program space
   
@@ -605,12 +610,12 @@ exports
 	GroupDef 										-> MainDef
 
 	"meta" "{" PartDecl? FieldDecl* FuncDecl* "}" 	-> MainDef{cons("Meta")}
-	"module" "{" FieldDecl* FuncDecl* "}" 			-> MainDef{cons("Module")}
-	"region" "{" BorderDecl? FuncDecl* "}" 			-> MainDef{cons("Region")}
+	"module" "{" BorderDecl? FieldDecl* FuncDecl* "}" -> MainDef{cons("Module")}
+	%% "region" "{" FuncDecl* "}" 			-> MainDef{"Region"}
 	 
 	Type ID "=" Exp									-> MainDef{cons("ConstDecl")}
 	
-	"borders" "[" BorderItem* "]"					-> BorderDecl{cons("BorderDecl")}
+	"border" "[" BorderItem* "]"					-> BorderDecl{cons("BorderDecl")}
 	
 	Border ":" Exp ";" -> BorderItem{cons("BorderItem")}
 	
@@ -695,8 +700,8 @@ exports
 	Orient -> ID{reject}	
 		
 	Stmt -> Instr
-	"execute" SequenceRef ";"							-> Stmt{cons("Goto")}
-	"execute" SequenceRef OrientClause ";"							-> Stmt{cons("GotoOrient")}
+	"execute" SequenceRef ";"							-> Stmt{cons("Execute")}
+	"execute" SequenceRef OrientClause ";"				-> Stmt{cons("ExecuteOrient")}
 	"orienting" OrientRef 				-> OrientClause{cons("Orientation")}
 		
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{cons("Group")}
@@ -827,8 +832,8 @@ exports
 	"finish" 			-> MetaMethodRef	%% Experimental
 	
 	"release" 			-> RegionMethodRef
-	"atPrimaryBorder" 	-> RegionMethodRef
-	"atSecondaryBorder" -> RegionMethodRef
+	"atPrimaryBorder" 	-> ModuleMethodRef
+	"atSecondaryBorder" -> ModuleMethodRef
 	"assignTime" 		-> ConfigFieldID
 	
 	
@@ -838,12 +843,12 @@ exports
 	"extendSet"			-> FuncActuationRef
 	"retract" 			-> FuncActuationRef
 	"retractSet"		-> FuncActuationRef
+	
 	"rotate" 			-> FuncActuationRef
 	"rotateOrigin"		-> FuncActuationRef
-	"stop" 				-> FuncActuationRef
 	"rotating"			-> FuncActuationRef
 	"rotateAbsolute"	-> FuncActuationRef
-	
+	"stop" 				-> FuncActuationRef
 	
 	
 	lexical syntax
@@ -852,11 +857,12 @@ exports
 	
 	context-free syntax
 
-	"@" "X" "[" Exp "]"								-> ModHolderRef{cons("ModHolderPrimNumRef"),prefer}
+	"@X" "[" Exp "]"								-> ModHolderRef{cons("ModHolderPrimNumRef"),prefer}
 	"@" ID "[" Exp "]"								-> ModHolderRef{cons("ModHolderNumRef")}
 	"@" ID "." ID									-> ModHolderRef{cons("ModHolderRef")}
 	"@" ID 											-> ModHolderRef{cons("ModHolderRef")}
 	"@X"											-> ModHolderRef{cons("ModHolderPrimRef"),prefer}
+	%% "@*"											-> ModHolderRef{"ModHolderAllRef"} FUTURE WORK?
 	
 	"orientation" "matches" {OrientRef ","}* -> Exp{cons("OrientMatch")}
 	

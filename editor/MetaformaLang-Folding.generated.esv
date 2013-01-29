@@ -49,7 +49,6 @@ folding Default folding definitions
   Stmt.FuncCall
   Stmt.FuncCall
   MainDef.Module
-  MainDef.Region
   OptBorderDecl1
   BorderDecl.BorderDecl
   BorderItem.BorderItem

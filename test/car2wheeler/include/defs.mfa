@@ -41,7 +41,7 @@ sequence Main {
 		meta.enable();	
 	}
 	
-	goto Choose;
+	execute Choose;
 }	
 
 sequence Choose {

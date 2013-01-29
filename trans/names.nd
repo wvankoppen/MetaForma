@@ -1,8 +1,7 @@
 module names
 
 imports
-	
-	libstratego-lib
+  libstratego-lib
   libstratego-gpp
   libstratego-aterm
   include/MetaformaLang
@@ -30,7 +29,7 @@ rules
 		defines VisItem n
 		
 	ConstDecl(t,n,v):
-		defines Constant n
+		defines Constant n of type t
 		
 	Group(n,_) :
 		defines Group n of type Group()
@@ -147,12 +146,12 @@ rules
 		refers to Payload n	in Packet p
 		where obj has type Packet(p)
 	
-	VarRef(n): 
+	/*VarRef(n): 
 		refers to Var n
 		refers to Field n			
-		// refers to Field n in Class Module()
 		refers to MetaPart n
 		refers to Constant n
+		//refers to Field n in Class Module()*/
 		
 		
 			
@@ -171,7 +170,7 @@ rules
 		
 	Meta(): refers to Class Meta() // refers to ClassFake Meta() DOES NOT WORK??
 	Module(): refers to Class Module() //refers to ClassFake Module()
-	Region(): refers to Class Region() //refers to ClassFake Region()
+	// Region(): refers to Class Region() //refers to ClassFake Region()
 		
 	//  non-unique because we desugar an empty module, meta and region class in the AST, this allows to omit the declaration in hello word program
 	 

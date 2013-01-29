@@ -20,6 +20,7 @@ debug {
 	} 
 }
 
+
 int HALF = 180
 int QUART = 90
 int EIGHT = 45
@@ -86,18 +87,9 @@ when (receive (Gradient p)) {
 	}	
 }
 
-region {
-	borders [
-		LEFT: #(connSource: EAST&MALE)>0; 
-		RIGHT: #(connSource: WEST&MALE)>0;
-		TOP: #(connSource: WEST&FEMALE)>0 && #(connSource: EAST&FEMALE)==0;
-		BOTTOM: #(connSource: NORTH&MALE)==1 && #()==1; // #(connSource: EAST&FEMALE)>0 && #(connSource: WEST&FEMALE)==0;
-	]
-}
-
 meta {
  	part [LeftPart, TopPart, RightPart];	
-	// Future work: express meta.Right as Right 
+ 	 	 
 	byte Top;
 	byte Bottom;
 	byte Left;
@@ -143,7 +135,7 @@ meta {
 			unicast Absorb() to $(inRegion:false);
 			meta.sizeExtra = 1;
 		}
-	}
+	} 
 	
 	boolean isStanding() {
 		return isStanding == 1;
@@ -163,13 +155,18 @@ meta {
  
 
 module  { 
+	border [
+		LEFT: #(connSource: EAST&MALE)>0; 
+		RIGHT: #(connSource: WEST&MALE)>0;
+		TOP: #(connSource: WEST&FEMALE)>0 && #(connSource: EAST&FEMALE)==0;
+		BOTTOM: #(connSource: NORTH&MALE)==1 && #()==1; // #(connSource: EAST&FEMALE)>0 && #(connSource: WEST&FEMALE)==0;
+	]
+	
 	byte gradPri;
 	byte gradSec;
 	boolean isRef;
 	boolean sourcePri;
 	boolean sourceSec;
-	
-
 	
 	void gradientPropagate () {		 
 		if (sourcePri){
@@ -184,8 +181,8 @@ module  {
  		
 
 	void gradientInit() {
-		sourcePri = region.atPrimaryBorder();
-		sourceSec = region.atSecondaryBorder();
+		sourcePri = module.atPrimaryBorder();
+		sourceSec = module.atSecondaryBorder();
 		
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;			

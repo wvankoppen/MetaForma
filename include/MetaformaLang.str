@@ -50,8 +50,8 @@ signature
     Break               : Stmt
     TryRegion           : SequenceRef * Option(OrientClause) * List(MetaFieldRef) * Option(ExcludingClause) -> Stmt
     Wait                : Exp * Block -> Stmt
-    GotoOrient          : SequenceRef * OrientClause -> Stmt
-    Goto                : SequenceRef -> Stmt
+    ExecuteOrient       : SequenceRef * OrientClause -> Stmt
+    Execute             : SequenceRef -> Stmt
     If                  : Exp * Block -> Stmt
     IfElse              : Exp * Block * Block -> Stmt
     Return              : Exp -> Stmt
@@ -87,8 +87,7 @@ signature
     Sequence            : ID * List(EvHdlr) * List(EvHdlrSemi) * List(Instr) -> MainDef
     PacketDecl          : ID * List(PayloadDecl) -> MainDef
     ConstDecl           : Type * ID * Exp -> MainDef
-    Region              : Option(BorderDecl) * List(FuncDecl) -> MainDef
-    Module              : List(FieldDecl) * List(FuncDecl) -> MainDef
+    Module              : Option(BorderDecl) * List(FieldDecl) * List(FuncDecl) -> MainDef
     Meta                : Option(PartDecl) * List(FieldDecl) * List(FuncDecl) -> MainDef
                         : GroupDef -> MainDef
                         : SequenceRef -> ModHolderOrSeqRef

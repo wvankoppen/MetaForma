@@ -30,6 +30,36 @@ imports
         	<target__> mod;
         	Def(u@[_, name|_]) := <index-lookup> group;
         	g := name{u}
+
+
+strategies // Custom VarRef rules
+
+  nam-get-uses-keys :
+    VarRef(n) -> [n]
+
+  nam-get-uses :
+    VarRef(n) -> [ (Var(), [n])
+                 , (Field(), [n])
+                 , (MetaPart(), [n])
+                 , (Constant(), [n])
+                 ]
+
+  nam-annotate-names(|paths__, path__):
+    VarRef(n) -> <VarRef(nam-annotate-use(|paths__, Var()))>
+
+
+  adjust-index-lookup(target__|namespace__, path__, prefix__):
+    VarRef(n) -> <concat> [ [ 
+    						  [Var()|path__]
+                            , [Field()|path__]
+                            , [MetaPart()|path__]
+                            , [Constant()|path__]
+                            , [Field()|[Module(), <last> path__]]
+                            ]
+                          ]
+    where <target__> n
+ 
+ strategies
         	
      // adjust-index-lookup(target__|namespace__, path__, prefix__):
      //    FieldRef(c, f) -> <index-lookup-children(|Field(), prefix__)> g

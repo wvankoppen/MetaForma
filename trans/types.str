@@ -28,6 +28,7 @@ rules
 	type-of: FieldPrimRef(Module(), "group") -> Group()
 	type-of: FieldPrimRef(Module(), "metaID") -> Byte()
 	type-of: FieldPrimRef(Meta(), "regionID") -> Byte()
+	type-of: FieldPrimRef(Meta(), "sizeExtra") -> Byte()
 	
 	type-of: PayloadPrimRef(_, "sourceID") -> Mod()
 	type-of: PayloadPrimRef(_, "sourceGroup") -> Group()

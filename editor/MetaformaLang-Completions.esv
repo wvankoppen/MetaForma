@@ -8,40 +8,56 @@ completions
   //                                                               
   // See the imported file for a brief introduction and examples.  
                                                                    
-
+ 
 completions
                                              
   // Syntax completion:                      
                                              
-  completion template Start : "program " <p> "\n\n" (cursor)  (blank)  
+  completion template Start : "package " <p> "\n\n" (cursor)  (blank)  
                          
+   
+  completion template MainDef : "debug {\n\t" (cursor) "\n}" (blank)                                                              
+  completion template MainDef : "module {\n\t" (cursor) "\n}\n" (blank)  
+  completion template MainDef : "meta {\n\t" (cursor) "\n}\n" 
+  completion template MainDef : "region {\n\t" (cursor) "\n}\n" (blank)
   
-  completion template Debug : "debug {" (cursor) "}" (blank)                                                              
-  completion template MainDef : "module {" (cursor) "}" (blank)  
-  completion template MainDef : "meta {" (cursor) "}" (blank)
-  completion template MainDef : "region {" (cursor) "}" (blank)
+  completion template MainDef : "sequence " <s> " {\n" (cursor) "\n}\n"(blank)
   
-  completion template MainDef : "sequence " <s> " {\n" (cursor) "\n}\n"
-  
-  completion template MainDef : "group " <g> "[" (cursor) "]" (blank)
-  completion template MainDef : "group [" (cursor) "]" (blank)                                            
+  completion template MainDef : "group " <g> "[" (cursor) "]\n" (blank)
+  completion template MainDef : "group [" (cursor) "]\n" (blank)                                            
  
-  completion template MainDef : "packet " <p> " {" (cursor) "}" (blank)
+  completion template MainDef : "packet " <p> " {\n\t" (cursor) "}\n" (blank)
   completion template PayloadDecl : "byte " <b> ";" (cursor) (blank)
   
   completion template PartDecl : "part [" <p> " ];\n" (cursor) (blank)  
 
+  completion template VarDecl : "boolean " <b> ";" (cursor) 
   completion template VarDecl : "byte " <b> ";" (cursor) 
   completion template VarDecl : "int " <i> ";" (cursor) 
   completion template VarDecl : "float " <f> ";" (cursor) 
   
-   
+  completion template FieldDecl : "boolean " <b> ";" (cursor) 
+  completion template FieldDecl : "byte " <b> ";" (cursor) 
+  completion template FieldDecl : "int " <i> ";" (cursor) 
+  completion template FieldDecl : "float " <f> ";" (cursor) 
                                              
 
-completion template Instr : "disconnect ("<e>"," <e> ");"
-completion template Stmt : "if ("<e>") {\n" <s> "\n}"(blank)  
-completion template Stmt : "if ("<e>") {\n" <s1> "\n}\nelse {\n" <s2> "\n}"(blank)  
-completion template Stmt : "disconnect2 ("<e>"," <e> ");"
+  completion template Instr : "disconnect ("<ModuleRef>"," <ModuleRef> ");"
+  completion template Instr : "connect ("<ModuleRef>"," <ModuleRef> ");"
+  completion template Instr : "extend ("<ModuleRef>"," <ConnectorNr> ");"
+  completion template Instr : "extendSet ("<ModuleRef>"," <ConnectorSet> ");"
+  completion template Instr : "retract ("<ModuleRef>"," <ConnectorNr> ");"
+  completion template Instr : "retractSet ("<ModuleRef>"," <ConnectorSet> ");"
+  
+  completion template Instr : "stop ("<ModuleRef>");"
+  completion template Instr : "rotate ("<ModuleRef>","<Degrees>");"
+  completion template Instr : "rotateAbsolute ("<ModuleRef>","<Degrees>");"
+  completion template Instr : "rotating ("<ModuleRef>","<Velocity>");"
+  completion template Instr : "rotateOrigin ("<ModuleRef>");"
+  completion template Instr : "stop ("<ModuleRef>");"
+  
+  completion template Stmt : "if ("<e>") {\n" <s> "\n}"(blank)  
+  completion template Stmt : "if ("<e>") {\n" <s1> "\n}\nelse {\n" <s2> "\n}"(blank)  
 
 completions
   // Semantic (identifier) completion:   

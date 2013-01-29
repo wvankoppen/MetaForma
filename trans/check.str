@@ -15,38 +15,34 @@ imports
   lib/analysis-library-internal.generated
   lib/compilation-library.generated
   lib/nbl-library.generated
-	names
-	desugar
-	types
-	project
-generate
-rules // Other
+  names
+  desugar
+  types
+  project
+  generate
+  functions
+
+rules 
   
   
-constraint-note = fail
+  constraint-note = fail
 
 
   // constraint-warning: FuncCall(f,d@args) -> (d,$[Parameters do not match])
 //TODO: make type checking for function calls, by adding types of primitives to the index.
 
- constraint-warning:
- 	Assign(v,d@v2) -> (d,$[Type [<print-type>t1] expected, but type [<print-type>t2] given])
- 	where
- 		t1 := <type-of>v;
- 		t2 := <type-of>v2;
- 		not (<eq-type>(t1,t2))
  
- constraint-warning:		
- 	d@BoolOp(op,e1,e2) -> (d,$[Type [<print-type>t1] expected, but type [<print-type>t2] given])
- 	where
- 		t1 := <type-of>e1;
- 		t2 := <type-of>e2;
- 		not (<eq-type>(t1,t2)) 
  		
+ 		
+ 	check-type: (t1,t2) -> $[Type [<print-type>t1] expected, but type [<print-type>t2] given]
+ 		where
+ 		not (<eq-type>(t1,t2))
+ 		
+ 	check-type-e: (e1,e2) -> <check-type>(<type-of>e1,<type-of>e2)	
  	
  	eq-type: (t1,t2) -> <id> 
- 	where 
- 		<eq>(t1,t2) <+ <eq>(Int(),t1);<eq>(Byte(),t2) <+ <eq>(Int(),t2);<eq>(Byte(),t1)
+ 	where
+ 		<eq>(t1,t2) + <eq>(Int(),t1);<eq>(Byte(),t2) + <eq>(Int(),t2);<eq>(Byte(),t1)
  		  
  	
  	constraint-warning:
@@ -73,9 +69,26 @@ constraint-note = fail
 	 	 <elem>(<type-of><second>args,[Group(),Mod()]);
 	 	 <eq>(<length>args,2)
 	 	 )
+	 	 
+	 	 
+	 	 constraint-warning:
+ 	Assign(v,d@v2) -> (d,msg)
+ 	where
+ 		<check-type-e>(v,v2) => msg 
+ 
+ constraint-warning:		
+ 	d@BoolOp(op,e1,e2) -> (d,msg)
+ 	where
+ 		<check-type-e>(e1,e2) => msg 
+	 	 
+  constraint-warning: d@ConstDecl (t,n,v) -> (d,msg)
+  where
+  	type-value := <type-of>v;
+  	<check-type>(t,type-value) => msg
+  
+  constraint-warning: d@FuncDecl (t,n,params,vars,stats) -> (e,msg)
+  where
+  	<collect-one(?Return(e))>stats => ret;
+  	<check-type-e>(d,e) => msg
 	
-	first: [x|xs] -> x
-	second: [x,y|xs] -> y
-	third: [x,y,z|xs] -> z
 	
-	 

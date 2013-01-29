@@ -6,7 +6,7 @@ outliner
    Start.Program
    _.Debug // Why does debug work here, whith the same notation as Meta?
    _.ShowPackets
-		PacketRef.Packet
+
 		
    _.Visualize
    		_.VisGroup
@@ -23,19 +23,17 @@ outliner
 	// Receive
 	// Receive._
 	// _.Receive
-		_.PacketVarDecl
+		// _.PacketVarDecl NO, is shown as packet!
 		
-	MainDef._
+	// MainDef._
 	MainDef.Class
 	MainDef.Sequence
 	
 	_.BorderItem
-	Direction._
 	
 	 MainDef.Meta
 	 MainDef.Region
-	// _.Region
-	// _.Module
+	
 		_.MetaPartDecl
 			_.MetaPart
 	
@@ -43,6 +41,9 @@ outliner
 		_.FuncDecl	
 			
 		
-		
-		
-		
+	_.StrategyRef
+	_.Execute	
+	_.ExecuteOrient
+	_.TryRegion
+	_.Group	
+	_.Mod	

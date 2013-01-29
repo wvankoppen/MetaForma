@@ -58,7 +58,7 @@ sequence Main {
 		meta.sizeExtra = 7;
 		meta.enable();	
 	}
-	goto Eight2Car;
+	execute Eight2Car;
 	
 }	
 

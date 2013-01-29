@@ -394,6 +394,11 @@ public class <classname> extends MfController implements ControllerInformationPr
 	<java-packetreceives>
 	
 	<java-classes>
+	
+	class BagRegion extends RegionCore implements IModuleBag {
+	
+	}
+	
 }
 
 	enum Mod  implements IModule,IModEnum{
@@ -535,3 +540,5 @@ public class <classname> extends MfController implements ControllerInformationPr
 	fclose;
 	<debug>$[File written: [filename]];
 	<refresh-workspace-file> destination-file
+	
+	

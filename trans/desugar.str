@@ -77,10 +77,13 @@ where
 	swap-counter: (i,Instr(evts,evsemi,vars,instr*)) 			-> Instr(i,evts,evsemi,<conc>(vars,instr*),Wait(Consensus())) 
 
 	decl2assign: VarDecl(t,n,v) -> Assign(VarRef(n),v)
+
+// If origin tracking fails:
+// <origin-track-forced(FieldRef(Module(),"QUART"))> a 
 	
-	desugar: VarRef("QUART") -> FieldRef(Module(),"QUART") // Only in sequence
-	desugar: VarRef("HALF") -> FieldRef(Module(),"HALF")
-	desugar: VarRef("EIGHT") -> FieldRef(Module(),"EIGHT")
+	// desugar: VarRef(a@"QUART") -> FieldRef(Module(), a) // Only in sequence
+	// desugar: VarRef(a@"HALF") -> FieldRef(Module(), a)
+	// desugar: VarRef(a@"EIGHT") -> FieldRef(Module(), a)
 
 desugar-td: Neq(e1,e2) -> Not(Eq(e1,e2)) // Because of .equals in Java
 
@@ -107,9 +110,9 @@ desugar: If (e,vardecls,stats) -> If(e,<conc>(vardecls,stats))
 desugar: EvHdlr(receive,vars,stats) -> EvHdlr (<newname>,receive,vars,stats)
 desugar: ShowPackets(packets) -> DebugItem (ShowPackets(),packets)
 
-desugar: Region(borders,funcs) -> Class(Region(),borders,funcs)
+// desugar: Region(borders,funcs) -> Class(Region(),borders,funcs)
 desugar: Meta(metaparts,decls,funcs) -> Class(Meta(),metaparts,<conc>(decls,funcs))
-desugar: Module(decls,funcs) -> Class(Module(),(),<conc>(decls,funcs))
+desugar: Module(borders,decls,funcs) -> Class(Module(),borders,<conc>(decls,funcs))
 
  desugar: Block(stats) -> [stats]
  where

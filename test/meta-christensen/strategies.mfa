@@ -120,7 +120,7 @@ sequence GetDown {
 	}
 	
 	do {
-		module.fixSymmetry (module.metaID != meta.regionID && region.at(TOP));
+		module.fixSymmetry (module.metaID != meta.regionID && module.atBorder(TOP));
 	} until(consensus());
 	
 	region.finish();

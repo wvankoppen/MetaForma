@@ -1,6 +1,6 @@
 package Brandt
 group Clover [North,South,West,East]
-
+ 
 sequence FlipAlong  {
 	
 	if (orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
@@ -12,7 +12,6 @@ sequence FlipAlong  {
 		HALF = -180;
 	}
 	
-	
 	module.gradientInit();
 	do {
 		module.gradientPropagate();
@@ -20,11 +19,11 @@ sequence FlipAlong  {
 
 		
 	do {		
-		if (module.gradPri==3 && module.gradSec==0) module.id = @Clover.West;
-		if (module.gradPri==2 && module.gradSec==0) module.id = @Clover.South;
-		if (module.gradPri==3 && module.gradSec==1) module.id = @Clover.North;
-		if (module.gradPri==2 && module.gradSec==1) module.id = @Clover.East;
-		module.isRef = (module.gradPri == 0 && module.gradSec == 3);
+		if (gradPri==3 && gradSec==0) module.id = @Clover.West;
+		if (gradPri==2 && gradSec==0) module.id = @Clover.South;
+		if (gradPri==3 && gradSec==1) module.id = @Clover.North;
+		if (gradPri==2 && gradSec==1) module.id = @Clover.East;
+		isRef = (gradPri == 0 && gradSec == 3);
 	}
 			 
 	
@@ -46,16 +45,7 @@ sequence FlipAlong  {
 	rotate(@Clover.North,QUART);
 	connect(@Clover.South,@Clover.West);
 	
-	module.fixSymmetry(module.isRef);
-	
-	// do {
-	// 	when (receive (Symmetry p)) {
-	// 		module.fixSymmetry (p.connSource,p.connDest);
-	// 	}
-	// 	if (isRef) {
-	// 		unicast Symmetry() to $(inRegion:true);
-	// 	}
-	// }
+	module.fixSymmetry(isRef);
 	
 	region.finish();
 }

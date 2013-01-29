@@ -33,13 +33,9 @@ debug {
 	 		FlipOver: yellow;
 	 		FlipThrough: cyan;
 	 		FlipAlong: magenta;
-	 		 
 	 	} 
 	} 
 }
-
-
-
 
 packet AssignMetaID {
 	byte newID;
@@ -87,14 +83,7 @@ when (receive (Gradient p)) {
 }
 
 
-region {
-	borders [
-		LEFT: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0; 
-		RIGHT: #(connSource: WEST&MALE) == 2 && #(connSource: EAST&SOUTH&MALE) == 0 || #(connSource: EAST&FEMALE) == 2 && #(connSource: WEST&SOUTH&FEMALE) == 0;
-		TOP: #(connSource: WEST&MALE) == 2 && #(connSource: EAST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&SOUTH&FEMALE) == 0;
-		BOTTOM: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&SOUTH&MALE) == 0 || #(connSource: EAST&FEMALE) == 2 && #(connSource: WEST&NORTH&FEMALE) == 0;
-	]
-}
+
 
 meta {
  	part [North, West, South, East];	
@@ -107,7 +96,7 @@ meta {
 	byte TopRight;
 	byte BottomLeft; 
 	byte BottomRight;
-
+	
 
 	void neighborHook (Packet p) {
 		if (p.metaID != module.metaID && module.metaID != 0) {
@@ -135,6 +124,13 @@ meta {
  
 
 module  { 
+	border [
+		LEFT: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0; 
+		RIGHT: #(connSource: WEST&MALE) == 2 && #(connSource: EAST&SOUTH&MALE) == 0 || #(connSource: EAST&FEMALE) == 2 && #(connSource: WEST&SOUTH&FEMALE) == 0;
+		TOP: #(connSource: WEST&MALE) == 2 && #(connSource: EAST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&SOUTH&FEMALE) == 0;
+		BOTTOM: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&SOUTH&MALE) == 0 || #(connSource: EAST&FEMALE) == 2 && #(connSource: WEST&NORTH&FEMALE) == 0;
+	]
+
 	byte gradPri;
 	byte gradSec;
 	boolean isRef;
@@ -158,8 +154,8 @@ module  {
  	
 
 	void gradientInit() {
-		sourcePri = region.atPrimaryBorder();
-		sourceSec = region.atSecondaryBorder();
+		sourcePri = module.atPrimaryBorder();
+		sourceSec = module.atSecondaryBorder();
 		
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;		
