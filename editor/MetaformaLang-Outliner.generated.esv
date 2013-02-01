@@ -19,11 +19,14 @@ outliner Default outliner
   GroupDef.Group
   FuncDecl.FuncDecl
   Stmt.Unicast
+  Case.If
   Stmt.TryRegion
   Stmt.FuncCall
   Stmt.FuncCall
   MainDef.PacketDecl
   MainDef.Sequence
-  EvHdlrSemi.If
-  Case.If
+  EvHdlr.If
   Instr.Instr
+  Instr.Instr
+  MainDef.Main
+  MainDef.Strategy

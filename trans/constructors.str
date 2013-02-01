@@ -59,7 +59,8 @@ signature
 	Class: X * X -> Class
 	PacketDecl: X * X * X -> PacketDecl
 	PayloadRef: X * X -> PayloadRef
-ConstDecl: X * X * X -> ConstDecl
+	ConstDecl: X * X * X -> ConstDecl
+	Strategy: X * X  * X * X -> Strategy
 
 
 	

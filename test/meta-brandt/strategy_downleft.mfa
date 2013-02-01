@@ -1,7 +1,13 @@
 package Brandt
 
-strategy {	
-	try region FlipThrough orienting TOP_RIGHT including Bottom excluding Left, Top;
-	try region FlipOver orienting TOP_RIGHT including Bottom,Left excluding Top;
-	try region FlipThrough orienting RIGHT_TOP including Left excluding Top,Bottom,BottomLeft;
+sequence Strategy {
+	when (receive (Packet p)) {
+		meta.neighborHook (p);
+	}
+	
+	do {	
+		try region FlipThrough(TOP_RIGHT) including Bottom excluding Left, Top;
+		try region FlipOver(TOP_RIGHT) including Bottom,Left excluding Top;
+		try region FlipThrough(RIGHT_TOP) including Left excluding Top,Bottom,BottomLeft;
+	}
 }

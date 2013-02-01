@@ -1,39 +1,24 @@
-package TwhoWheeler
+package TwoWheeler
 
 
-// Algorithmic constants
+// Algorithmic constants 
 float PROXIMITY = 0.15
-float TIME_BACKWARD = 2
-float TIME_TURNAROUND = 2
+float TIME_BACKWARD = 2.0
+float TIME_TURNAROUND = 2.0
 byte FORWARD = -1
 byte BACKWARD = 1	
 
 
-
-strategy {
-	execute Drive;
+sequence Strategy {
+	when (module.id == @Car.Driver && module.proximity() > PROXIMITY) {
+		execute Turn(LEFT); 
+	} 
+	meta.drive(FORWARD,FORWARD); 
 } 
 
-
-sequence Drive {
+sequence Strategy {
 	when (module.id == @Car.Driver && module.proximity() > PROXIMITY) {
-		execute Turn;
+		execute Turn(RIGHT); 
 	} 
-	meta.drive(FORWARD,FORWARD);
-}
-
-
-
-sequence Turn {
-	stop(@Car);
-	
-	do {
-		meta.drive (BACKWARD,BACKWARD);	
-	} wait(TIME_BACKWARD); 
-	
-	do {
-		meta.drive (BACKWARD,FORWARD);	
-	} wait(TIME_TURNAROUND);
-	
-	meta.finish();
-}
+	meta.drive(FORWARD,FORWARD); 
+} 

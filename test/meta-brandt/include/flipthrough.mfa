@@ -6,7 +6,7 @@ group Dummy [Left,Right]
  
 sequence FlipThrough {
 	
-	if (orientation matches BOTTOM_RIGHT,RIGHT_TOP, LEFT_BOTTOM) {
+	if (BOTTOM_RIGHT, RIGHT_TOP, LEFT_BOTTOM) {
 		QUART = 90;
 		HALF = 180; 
 	}
@@ -21,14 +21,12 @@ sequence FlipThrough {
 	} until (config.propagationTime);
 	
 	do {
-		when {
-			case gradPri==1 && gradSec==1: module.id = @UpLifter.Left;
-			case gradPri==2 && gradSec==0: module.id = @UpLifter.Right;
-			case gradPri==1 && gradSec==0: module.id = @Dummy.Left;
-			case gradPri==0 && gradSec==0: module.id = @UpLifter.Top;
-			case gradPri==2 && gradSec==1: module.id = @Dummy.Right;
-			case gradPri==3 && gradSec==1: module.id = @UpLifter.Bottom;			
-		}
+		if (gradPri==1 && gradSec==1) module.id = @UpLifter.Left;
+		if (gradPri==2 && gradSec==0) module.id = @UpLifter.Right;
+		if (gradPri==1 && gradSec==0) module.id = @Dummy.Left;
+		if (gradPri==0 && gradSec==0) module.id = @UpLifter.Top;
+		if (gradPri==2 && gradSec==1) module.id = @Dummy.Right;
+		if (gradPri==3 && gradSec==1) module.id = @UpLifter.Bottom;			
 		isRef = gradPri==3 && gradSec==0;
 	}
 	

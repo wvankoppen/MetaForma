@@ -93,18 +93,20 @@ exports
 	"unicast" PacketRef "(" AssignList ")" "to" Nbs  ";" -> Stmt{"Unicast"}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{"Receive"}
 	
-	"sequence" ID "{" EvHdlr* EvHdlrSemi* Instr* "}" -> MainDef{"Sequence"}
-	"strategy" "{" Stmt* "}" -> MainDef{"Strategy"}	
+	%% For NBL compatibility
+	"sequence" ID "{" EvHdlr* Instr* "}" -> MainDef{"Sequence"}
+	"sequence" Main "{" EvHdlr* Instr* "}" -> MainDef{"Main"} 
+	"sequence" Strategy "{" EvHdlr* Instr* "}" -> MainDef{"Strategy"}
 	
-	"strategy;"	-> Stmt{"StrategyRef"}
+	
 	
 	EvHdlr								 		 -> MainDef
 	
 	"when" "(" Receive ")" "{" VarDecl* Stmt* "}" -> EvHdlr{"EvHdlr"}
 	
 	
-	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" 	-> EvHdlrSemi{"If"}
-	"when" "{"Case* "}" 							-> EvHdlrSemi{"Ifs"}
+	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" 	-> EvHdlr{"If"}
+	"switch" "{"Case* "}" 							-> Stmt{"Ifs"}
 	"case" Exp ":" Stmt* 							-> Case{"If"}
 	
  		
@@ -136,7 +138,7 @@ exports
 	Stmt -> Instr
 	"execute" SequenceRef ";"							-> Stmt{"Execute"}
 	"execute" SequenceRef OrientClause ";"				-> Stmt{"ExecuteOrient"}
-	"orienting" OrientRef 				-> OrientClause{"Orientation"}
+	"(" OrientRef ")" 				-> OrientClause{"Orientation"}
 		
 	"group" ID "[" {Mod ","}* "]" 			-> GroupDef{"Group"}
 	"group" ID							-> GroupDef{"Group"}
@@ -155,6 +157,12 @@ exports
 	"break" ";"	-> Stmt{"Break"}
 	
 	lexical syntax
+		"Main" -> Main
+	"Strategy" -> Strategy
+	
+	"Main" -> ID{reject}
+	"Strategy" -> ID{reject}
+		
 	"LEFT_BOTTOM"	-> Orient
 	"LEFT_TOP"	-> Orient
 	
@@ -166,6 +174,11 @@ exports
 	
 	"TOP_LEFT"	-> Orient
 	"TOP_RIGHT"	-> Orient
+	
+	"TOP"	-> Orient
+	"BOTTOM"	-> Orient
+	"LEFT"	-> Orient
+	"RIGHT"	-> Orient
 
 			
 	"None"	-> MetaPartNoneRef
@@ -180,11 +193,7 @@ exports
 	Exp 			-> ModHolderOrExp
 	ModHolderRef 	-> ModHolderOrExp
 	
-	"wait" "(" StopCondition ")" ";" -> InstrPost {"Wait"}
-	"until" "(" StopCondition ")" ";" -> InstrPost{"Until"}
 	
-	"consensus" "(" ")" 	-> StopCondition {"Consensus"}
-	Exp						-> StopCondition	
 	
 	
 	ID -> FuncRef{"FuncRef"}
@@ -197,7 +206,7 @@ exports
 	
 	ID -> VarRef{"VarRef"}
 	
-	
+	ID -> SequencePrim{reject}
 	
 	SequencePrim						-> SequenceRef{"SequencePrimRef",prefer}
 	ID		 							-> SequenceRef{"SequenceRef"}
@@ -231,6 +240,7 @@ exports
 	lexical syntax
 	"id" 		-> ModuleFieldID 
 	"metaID" 	-> ModuleFieldID
+	"number" 	-> ModuleFieldID
 	"group" 	-> ModuleFieldID
 	"metaPart" 	-> ModuleFieldID
 	
@@ -287,7 +297,7 @@ exports
 	
 	lexical syntax
 	"Main" 									-> SequencePrim
-	"Choose" 								-> SequencePrim
+	"Strategy" 								-> SequencePrim
 	
 	context-free syntax
 
@@ -298,7 +308,7 @@ exports
 	"@X"											-> ModHolderRef{"ModHolderPrimRef",prefer}
 	%% "@*"											-> ModHolderRef{"ModHolderAllRef"} FUTURE WORK?
 	
-	"orientation" "matches" {OrientRef ","}* -> Exp{"OrientMatch"}
+	{OrientRef ","}+ -> Exp{"OrientMatch"}
 	
 	
 	MethodRef	"(" {Exp "," }* ")" ";"  -> Stmt{"FuncCall"}
@@ -314,20 +324,26 @@ exports
 	
 	FuncPrimRef 	-> FuncRef{reject}
 
-	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" InstrPost  -> Instr{"Instr",prefer}
-
-	"do" "{" EvHdlr* EvHdlrSemi* VarDecl* Stmt* "}" -> Instr{"Instr"}
+	"do" "{" EvHdlr* VarDecl* Stmt* "}" InstrPost  -> Instr{"Instr",prefer}
+	"do" "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{"Instr"}
+	"do" InstrPre "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{"Instr"}
 	
+	"wait" "(" Exp ")" -> InstrPre {"Wait"}
+	"wait" "(" StopCondition ")" ";" -> InstrPost {"Wait"}
+	"until" "(" StopCondition ")" ";" -> InstrPost{"Until"}
 	
-	Border -> Exp
-	BorderName -> Border{"Border"}
-	BorderName -> ID{reject}
+	"consensus" "(" ")" 	-> StopCondition {"Consensus"}
+	Exp						-> StopCondition	
 	
-	lexical syntax
-	"TOP" 		-> BorderName
-	"BOTTOM"	-> BorderName
-	"LEFT"		-> BorderName
-	"RIGHT"		-> BorderName
+	%% Border -> Exp
+	 Orient -> Border{"Border"}
+	%% BorderName -> ID{reject}
+	%% 
+	%% lexical syntax
+	%% "TOP" 		-> BorderName
+	%% "BOTTOM"	-> BorderName
+	%% "LEFT"		-> BorderName
+	%% "RIGHT"		-> BorderName
 	
 	
 	

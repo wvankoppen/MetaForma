@@ -1,46 +1,36 @@
 package FourWheeler
 
-strategy {
-	if (meta.type==NONE) {
-		goto AssignCar;
+sequence Strategy {
+	when (module.id == @Axis.Front && module.proximity() > PROXIMITY) {			
+		execute Car2Eight;
 	}
-	
-	if (meta.type==CAR) {
-		goto DriveToEight;
-	}	
-	
-	if (meta.type==EIGHT) {
-		goto Eight2Snake;
+	switch {
+		case meta.type==NONE:	execute AssignCar;	
+		case meta.type==CAR:	execute Drive;
+		case meta.type==EIGHT:	execute Eight2Snake;
 	}
 }
  
 sequence Drive {
-	when (module.id == @Axis.Front && module.proximity() > PROXIMITY) {			
-		goto Car2Eight;
-	} 
-	
-	module.backupID();
-	
-	
-		
 	meta.drive(FORWARD,FORWARD);
 }
-
+ 
 sequence AssignCar {
-	do { 
-		when {
+	
+	do wait (config.assignTime){ 
+		switch {
 			case #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0:								module.group = @LeftWheel;
 			case #(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0:								module.group = @RightWheel;
 			case (#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==0:	module.id = @Axis.Front;
 			case (#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==1:	module.id = @Axis.Back;
 			case #()==2: 																		module.id = @Axis.Driver;				
 		}
-	} until (config.assignTime);
+	} 
+	meta.type = CAR;
 	
-	meta.type=CAR;
-	finish();
+	execute Strategy;
 	
-}
+} // CANNOT BE MOVED TO META FUNC
 
 sequence Car2EightNames {
 	module.restoreID();
@@ -161,7 +151,7 @@ sequence Car2Eight {
 		extend(@Eight[3],4); 
 	}
 	
-	goto Eight2Snake;
+	execute Strategy;
 }
 
 sequence Eight2Snake {
@@ -174,8 +164,8 @@ sequence Eight2Snake {
 		rotate(@Eight[0],-HALF);
 		rotate(@Eight[6],-HALF);
 	}
-	
-	goto Crawl;	
+	meta.type = SNAKE;
+	execute Strategy;
 }
 
 sequence Crawl {

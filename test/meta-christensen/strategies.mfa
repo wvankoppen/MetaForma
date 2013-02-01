@@ -1,22 +1,29 @@
 package Christensen
 
-strategy {	
-	if (!meta.isStanding()) {
-		wait (30) { // needs to be high for parallel walker!
-			try region GetUp orienting BOTTOM_LEFT including Bottom excluding Top,Up;
-		}
+
+sequence Strategy {
+	when (receive (Packet p)) {
+		meta.neighborHook (p);
 	}
-	else {
-		// we cant use Walker.Right to create the region, as it is hanging in the air! --> YES, but do more early
-		if (module.id == @Walker.Right) {
-			if (#(@X,inRegion:false)==2) { // we might need a wait to regain all nbs
-				try region GetDown including Bottom;
-			}
-			if (#(@X,inRegion:false)==3) {
-				execute WalkStep;
+	
+	do {
+		if (!meta.isStanding()) {
+			wait (30) { // needs to be high for parallel walker!
+				region.try (occupied: Bottom, empty: Top,Up) execute GetUp orienting BOTTOM_LEFT
 			}
 		}
-	}
+		else {
+			// we cant use Walker.Right to create the region, as it is hanging in the air! --> YES, but do more early
+			if (module.id == @Walker.Right) {
+				if (#(@X,inRegion:false)==2) { // we might need a wait to regain all nbs
+					region.try (occupied: Bottom) execute GetDown;
+				}
+				if (#(@X,inRegion:false)==3) {
+					execute WalkStep;
+				}
+			}
+		}
+	} until (false);
 }
 
 
@@ -26,15 +33,13 @@ sequence GetUp {
 	
 	do {
 		module.gradientPropagate();
-	}until (config.propagationTime); // DOES THIS WORK, CHECK GRADIENT
+	}until (config.propagationTime);
 	
-	do {
-		when {
-			case module.gradPri==2 && module.gradSec==0: module.id = @Walker.Left;
-			case module.gradPri==3 && module.gradSec==1: module.id = @Walker.Top;
-			case module.gradPri==2 && module.gradSec==2: module.id = @Walker.Right;
-			case module.gradPri==1 && module.gradSec==1: module.id = @Uplifter.Left;
-		}
+	switch {
+		case gradPri==2 && gradSec==0: module.id = @Walker.Left;
+		case gradPri==3 && gradSec==1: module.id = @Walker.Top;
+		case gradPri==2 && gradSec==2: module.id = @Walker.Right;
+		case gradPri==1 && gradSec==1: module.id = @Uplifter.Left;
 	}
 	
 	retractSet(@Uplifter, (NORTH&EAST&FEMALE)|(SOUTH&WEST&FEMALE));
@@ -81,16 +86,12 @@ sequence WalkStep {
 	rotate(@Walker.Right,-HALF);
 	rotate(@Walker.Top, EIGHT);
 	
-	do {
-		if (module.id == @Walker.Left) {
-			module.id = @Walker.Right;
-		}
-		else if (module.id == @Walker.Right) {
-			module.id = @Walker.Left;
-		}
+	if (module.id == @Walker.Left) {
+		module.id = @Walker.Right;
 	}
-	
-	execute Choose;
+	else if (module.id == @Walker.Right) {
+		module.id = @Walker.Left;
+	}
 }
 
 sequence GetDown {

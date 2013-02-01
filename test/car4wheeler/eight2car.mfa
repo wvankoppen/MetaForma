@@ -1,22 +1,22 @@
 package FourWheeler
 
+byte NONE=0
 byte CAR=1
 byte EIGHT=2
+byte SNAKE=3
 
-strategy {
-	if (meta.type == CAR) {
-		if (module.id == @Eight[3] && module.tiltZ() > 50) {
-			goto GetUp;
-		}
-		else {
-			goto Drive;	
-		} 
+sequence Strategy {
+	switch {
+		case meta.type == EIGHT: execute Eight2CarNames;
+		
+		case meta.type == CAR:
+			if (module.id == @Eight[3] && module.tiltZ() > 50) {
+				execute GetUp;
+			}
+			else {
+				execute Drive;
+			} 		
 	}
-	
-	if (meta.type == EIGHT) {
-		goto Eight2CarNames;
-	}
-	
 	
 }
 
@@ -86,8 +86,7 @@ sequence Eight2CarNames {
 	rotate(@Eight[1],90);
 	
 	module.restoreSymmetry();
-	
-	finish();
+	meta.type = CAR;
 }
 
 
@@ -146,7 +145,7 @@ sequence Eight2Car {
 	}
 	rotate(@Eight[1],QUART);
 	
-	finish();
+	execute Strategy;
 }
 
 // 

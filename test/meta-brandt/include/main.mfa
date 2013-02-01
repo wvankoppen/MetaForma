@@ -29,7 +29,7 @@ debug {
 	 	
 	 	south { 
 	 		Main: white;  
-	 		Choose: red;
+	 		Strategy: red;
 	 		FlipOver: yellow;
 	 		FlipThrough: cyan;
 	 		FlipAlong: magenta;
@@ -171,6 +171,15 @@ sequence Main {
 	}
 	 
 	do {	  
+		when ( #(connSource: EAST&MALE, metaPart:None) == 2 && #(connSource: WEST, metaPart:None)==0) {
+			module.metaID = module.number; 
+			module.metaPart = West;
+		}	
+		// When a neighbor receives a packet, it sets its metaPart variable, and thus the above event will no longer trigger. Therefore use 2 events
+		when (module.metaPart == West) {
+			unicast AssignMetaID (newID = module.metaID) to $(connSource: EAST&MALE&NORTH);
+		}
+		
 		when (receive (AssignMetaID p)) {
 			if (module.metaID == 0) {
 				module.metaID = p.newID;
@@ -193,30 +202,11 @@ sequence Main {
 			
 			unicast AssignMetaID (newID = p.newID) to $(connSource: pow2((p.connDest + 4) % 8));
 		}
-		when ( #(connSource: EAST&MALE, metaPart:None) == 2 && #(connSource: WEST, metaPart:None)==0) {
-			module.initMeta(); 
-			module.metaPart = West;
-		}	
-		// When a neighbor receives a packet, it sets its metaPart variable, and thus the above event will no longer trigger. Therefore use 2 events
-		when (module.metaPart == West) {
-			unicast AssignMetaID (newID = module.metaID) to $(connSource: EAST&MALE&NORTH);
-		} 
-		 
-	} until (consensus()); 
+	} until(consensus()); 
 	
 	do { 
 		meta.broadcastMetaNeighbors();
-	}until(config.propagationTime);
-	 
-	execute Choose;	
+	} until(config.propagationTime);
 }
 
-sequence Choose {
-	when (receive (Packet p)) {
-		meta.neighborHook (p);
-	}
-	
-	do {
-		strategy;
-	}until (false);
-}
+

@@ -15,12 +15,12 @@ imports
  // What about the scoping bug? That it has to scope multiple items?
 	
 namespaces
-	Package Group Mod Var Packet Payload Sequence Instruction Class ClassFake Field Method MetaPart DebugItem VisItem Constant EventHandler	
+	Strategy Package Group Mod Var Packet Payload Sequence Instruction Class ClassFake Field Method MetaPart DebugItem VisItem Constant EventHandler	
 rules
 	
 	Package(n,_,_):
 		defines non-unique Package n
-		scopes Group, Packet, Class,ClassFake, Sequence,MetaPart,EventHandler,VisItem,Constant,DebugItem
+		scopes Group, Packet, Class,ClassFake, Sequence,MetaPart,EventHandler,VisItem,Constant,DebugItem,Strategy
 		
 	DebugItem(n,packets):
 		defines DebugItem n
@@ -42,11 +42,26 @@ rules
 	 	defines Group n
 	
 	
-	Sequence (n,_,_,_):
+	Sequence (n,_,_):
+		defines Sequence n	
+		scopes Var,Instruction,EventHandler
+	
+	Main (n,_,_):
 		defines Sequence n	
 		scopes Var,Instruction,EventHandler
 		
-	Instr(i,_,_,_,_):
+	Strategy (n,_,_):
+		defines non-unique Sequence n	
+		scopes Var,Instruction,EventHandler
+		
+// Gohla>: dit is een bug in NBL, een manier hoe je die kan oplossen is door een Strategy te desugaren naar een Strategy met een unieke naam, bijvoorbeeld desugar: Strategy(…) -> Strategy(<new-name>, …) en dan een definitie ervan te maken
+// <Gohla>: Strategy(x, ..) : defines Strategy x en Package(…): scopes Strategy	
+		
+	Strategy(n,_,_,stmts): 
+		defines	Strategy n 		
+		scopes Var,Constant // We need to scope what we want to use, bug in NBL!
+		
+	Instr(i,_,_,_):
 		defines Instruction i
 		scopes EventHandler
 		
@@ -146,15 +161,13 @@ rules
 		refers to Payload n	in Packet p
 		where obj has type Packet(p)
 	
-	/*VarRef(n): 
-		refers to Var n
-		refers to Field n			
-		refers to MetaPart n
-		refers to Constant n
-		//refers to Field n in Class Module()*/
+	// VarRef(n): 
+	// 	refers to Var n
+	// 	refers to Field n			
+	// 	refers to MetaPart n
+	// 	refers to Constant n
 		
-		
-			
+
 		
 	//PrimRefPacket(v,p):
 	//	refers to Payload "connSource"

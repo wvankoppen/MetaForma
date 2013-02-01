@@ -26,6 +26,7 @@ signature
     CurrentFile : ImportAnno
 
   constructors
+    Strategy     : Namespace
     Package      : Namespace
     Group        : Namespace
     Mod          : Namespace
@@ -58,6 +59,7 @@ rules
                         , VisItem()
                         , Constant()
                         , DebugItem()
+                        , Strategy()
                         ]
 
   nam-get-definition-keys :
@@ -196,37 +198,88 @@ rules
 rules
 
   nam-get-scope-types :
-    Sequence(n, _, _, _) -> [Var(), Instruction(), EventHandler()]
+    Sequence(n, _, _) -> [Var(), Instruction(), EventHandler()]
 
   nam-get-definition-keys :
-    Sequence(n, _, _, _) -> [n]
+    Sequence(n, _, _) -> [n]
 
   nam-get-definitions :
-    Sequence(n, _, _, _) -> [(Sequence(), [n])]
+    Sequence(n, _, _) -> [(Sequence(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Sequence(n, _, _, _) -> <Sequence(nam-annotate-def(|path__), id, id, id)>
+    Sequence(n, _, _) -> <Sequence(nam-annotate-def(|path__), id, id)>
 
   nam-unique :
-    Sequence(n, _, _, _) -> <id>
+    Sequence(n, _, _) -> <id>
 
 
 rules
 
   nam-get-scope-types :
-    Instr(i, _, _, _, _) -> [EventHandler()]
+    Main(n, _, _) -> [Var(), Instruction(), EventHandler()]
 
   nam-get-definition-keys :
-    Instr(i, _, _, _, _) -> [i]
+    Main(n, _, _) -> [n]
 
   nam-get-definitions :
-    Instr(i, _, _, _, _) -> [(Instruction(), [i])]
+    Main(n, _, _) -> [(Sequence(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Instr(i, _, _, _, _) -> <Instr(nam-annotate-def(|path__), id, id, id, id)>
+    Main(n, _, _) -> <Main(nam-annotate-def(|path__), id, id)>
 
   nam-unique :
-    Instr(i, _, _, _, _) -> <id>
+    Main(n, _, _) -> <id>
+
+
+rules
+
+  nam-get-scope-types :
+    Strategy(n, _, _) -> [Var(), Instruction(), EventHandler()]
+
+  nam-get-definition-keys :
+    Strategy(n, _, _) -> [n]
+
+  nam-get-definitions :
+    Strategy(n, _, _) -> [(Sequence(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    Strategy(n, _, _) -> <Strategy(nam-annotate-def(|path__), id, id)>
+
+
+rules
+
+  nam-get-scope-types :
+    Strategy(n, _, _, stmts) -> [Var(), Constant()]
+
+  nam-get-definition-keys :
+    Strategy(n, _, _, stmts) -> [n]
+
+  nam-get-definitions :
+    Strategy(n, _, _, stmts) -> [(Strategy(), [n])]
+
+  nam-annotate-names(|paths__, path__):
+    Strategy(n, _, _, stmts) -> <Strategy(nam-annotate-def(|path__), id, id, id)>
+
+  nam-unique :
+    Strategy(n, _, _, stmts) -> <id>
+
+
+rules
+
+  nam-get-scope-types :
+    Instr(i, _, _, _) -> [EventHandler()]
+
+  nam-get-definition-keys :
+    Instr(i, _, _, _) -> [i]
+
+  nam-get-definitions :
+    Instr(i, _, _, _) -> [(Instruction(), [i])]
+
+  nam-annotate-names(|paths__, path__):
+    Instr(i, _, _, _) -> <Instr(nam-annotate-def(|path__), id, id, id)>
+
+  nam-unique :
+    Instr(i, _, _, _) -> <id>
 
 
 rules

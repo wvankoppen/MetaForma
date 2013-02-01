@@ -3,21 +3,21 @@ package Christensen
 debug {
 	show [AssignMetaID,AddNeighbor,MetaVarSync,Gradient,Packet,Discover,Absorb,Region]
 	
-	visualize {  
-	 	north {
-	 		@X: blue;
-	 		@Walker: cyan;
-	 		@Uplifter: white; 
-	 	}
-	 	
-	 	south { 
-	 		Main: red; 
-	 		Choose: yellow;
-	 		GetUp: green;
-	 		WalkStep: brown;
-	 		GetDown: purple; 	 
-	 	} 
-	} 
+	// visualize {  
+	//  	north {
+	//  		@X: blue;
+	//  		@Walker: cyan;
+	//  		@Uplifter: white; 
+	//  	}
+	//  	
+	//  	south { 
+	//  		Main: red; 
+	//  		Choose: yellow;
+	//  		GetUp: green;
+	//  		WalkStep: brown;
+	//  		GetDown: purple; 	 
+	//  	} 
+	// } 
 }
 
 
@@ -196,9 +196,17 @@ sequence Main {
 		meta.neighborHook (p);
 	}
 	
-	
 	 
 	do {	  
+		when (module.metaID == 0 && #(connSource: EAST&MALE&NORTH, metaPart:None)>0 && #(connSource: WEST&MALE&NORTH, metaID:0)==0) {
+			module.metaID = module.number; 
+			module.metaPart = LeftPart;
+		}	
+		// When a neighbor receives a packet, it sets its metaPart variable, and thus the above event will no longer trigger. Therefore use 2 events
+		when (module.metaPart == LeftPart && module.metaID != 0) {
+			unicast AssignMetaID (newID = module.metaID) to $(connSource: EAST&MALE&NORTH);
+		}
+		
 		when (receive (AssignMetaID p)) {
 			byte index;
 						
@@ -211,32 +219,11 @@ sequence Main {
 			else if (p.index == 1) {
 				module.metaPart = RightPart;
 				meta.enable(); 
-				execute Choose;
+				execute Strategy;
 			}
 			
 			unicast AssignMetaID (newID = p.newID,index=index) to $(connSource: pow2(mirror(p.connDest,true)));
 		}
-		when (module.metaID == 0 && #(connSource: EAST&MALE&NORTH, metaPart:None)>0 && #(connSource: WEST&MALE&NORTH, metaID:0)==0) {
-			module.initMeta(); 
-			module.metaPart = LeftPart;
-		}	
-		// When a neighbor receives a packet, it sets its metaPart variable, and thus the above event will no longer trigger. Therefore use 2 events
-		when (module.metaPart == LeftPart && module.metaID != 0) {
-			unicast AssignMetaID (newID = module.metaID) to $(connSource: EAST&MALE&NORTH);
-		} 
-		
 	} until (false); // No consensus here, as the final module will jump to choose when the meta-module is completed  
 	
-}
-
-
-sequence Choose {
-	when (receive (Packet p)) { 
-		// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
-		meta.neighborHook (p);
-	} 
-
-	do {
-		strategy;
-	} until (false);
 }

@@ -25,6 +25,7 @@ rules
 
 	type-of: FieldPrimRef(Module(), "metaPart") -> MetaPart()
 	type-of: FieldPrimRef(Module(), "id") -> Mod()
+	type-of: FieldPrimRef(Module(), "number") -> Byte()
 	type-of: FieldPrimRef(Module(), "group") -> Group()
 	type-of: FieldPrimRef(Module(), "metaID") -> Byte()
 	type-of: FieldPrimRef(Meta(), "regionID") -> Byte()

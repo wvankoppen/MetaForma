@@ -163,7 +163,7 @@ construct2name: Module() -> $[Module]
 construct2name: Region() -> $[Region]
  
  
- compile: Sequence(n,evhdlrs,evsemis,instrs) -> 
+ compile: Sequence(n,evhdlrs,instrs) -> 
 $[if (mfStateMngr.at([seq])) {
 	[java-evts]
 	[java-instrs]
@@ -172,7 +172,7 @@ $[if (mfStateMngr.at([seq])) {
 with
 	// n := <to-java>namedec; 
 	<debug>$[## START COMPILE sequence [n]];
-	<map2str(to-java-stat)>evsemis => java-evts;
+	<map2str(to-java-stat)>evhdlrs => java-evts;
 	<map2str(to-java-instr)>instrs => java-instrs;
 	seq := <to-seq>n;
 	<debug>$[## END COMPILE sequence [n]]

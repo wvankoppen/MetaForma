@@ -24,7 +24,7 @@ sequence FlipOver {
 
 	do  {
 		when {
-			case (gradPri < 3 && gradSec == 0) || (gradPri==0 && gradSec<3): module.group = @Outside;
+			case (gradPri < 2 && gradSec == 0) || (gradPri==0 && gradSec<2): module.group = @Outside;
 			case gradPri > 0 && gradSec > 0: module.group = @Inside;
 			case gradPri==1 && gradSec==3: module.id = @InsideLifter.Top;
 			case gradPri==3 && gradSec==1: module.id = @InsideLifter.Bottom;
