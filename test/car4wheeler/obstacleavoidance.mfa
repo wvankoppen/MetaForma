@@ -29,6 +29,4 @@ sequence Turn {
 	meta.halt();
 	
 	meta.steer(-STEER_DEGREES);
-	
-	execute Strategy;
 }

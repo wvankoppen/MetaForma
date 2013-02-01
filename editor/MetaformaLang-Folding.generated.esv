@@ -66,5 +66,3 @@ folding Default folding definitions
   Instr.Instr
   Instr.Instr
   InstrPre.Wait
-  MainDef.Main
-  MainDef.Strategy

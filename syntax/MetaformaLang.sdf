@@ -95,9 +95,6 @@ exports
 	
 	%% For NBL compatibility
 	"sequence" ID "{" EvHdlr* Instr* "}" -> MainDef{"Sequence"}
-	"sequence" Main "{" EvHdlr* Instr* "}" -> MainDef{"Main"} 
-	"sequence" Strategy "{" EvHdlr* Instr* "}" -> MainDef{"Strategy"}
-	
 	
 	
 	EvHdlr								 		 -> MainDef
@@ -106,8 +103,8 @@ exports
 	
 	
 	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" 	-> EvHdlr{"If"}
-	"switch" "{"Case* "}" 							-> Stmt{"Ifs"}
-	"case" Exp ":" Stmt* 							-> Case{"If"}
+	%%"switch" "{"Case* "}" 							-> Stmt{"Ifs"}
+	%%"case" Exp ":" Stmt* 							-> Case{"If"}
 	
  		
 	ID									-> PacketRef {"Packet"}
@@ -156,12 +153,12 @@ exports
 	 
 	"break" ";"	-> Stmt{"Break"}
 	
-	lexical syntax
-		"Main" -> Main
-	"Strategy" -> Strategy
 	
-	"Main" -> ID{reject}
-	"Strategy" -> ID{reject}
+	lexical syntax
+	"Main" 									-> SequencePrim
+	"Strategy" 								-> SequencePrim
+	
+
 		
 	"LEFT_BOTTOM"	-> Orient
 	"LEFT_TOP"	-> Orient
@@ -206,7 +203,6 @@ exports
 	
 	ID -> VarRef{"VarRef"}
 	
-	ID -> SequencePrim{reject}
 	
 	SequencePrim						-> SequenceRef{"SequencePrimRef",prefer}
 	ID		 							-> SequenceRef{"SequenceRef"}
@@ -295,9 +291,8 @@ exports
 	"stop" 				-> FuncActuationRef
 	
 	
-	lexical syntax
-	"Main" 									-> SequencePrim
-	"Strategy" 								-> SequencePrim
+
+	
 	
 	context-free syntax
 

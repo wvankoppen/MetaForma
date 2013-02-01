@@ -274,9 +274,6 @@ exports
 	
 	%% For NBL compatibility
 	"sequence" ID "{" EvHdlr* Instr* "}" -> MainDef{cons("Sequence")}
-	"sequence" Main "{" EvHdlr* Instr* "}" -> MainDef{cons("Main")} 
-	"sequence" Strategy "{" EvHdlr* Instr* "}" -> MainDef{cons("Strategy")}
-	
 	
 	
 	EvHdlr								 		 -> MainDef
@@ -285,8 +282,8 @@ exports
 	
 	
 	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" 	-> EvHdlr{cons("If")}
-	"switch" "{"Case* "}" 							-> Stmt{cons("Ifs")}
-	"case" Exp ":" Stmt* 							-> Case{cons("If")}
+	%%"switch" "{"Case* "}" 							-> Stmt{"Ifs"}
+	%%"case" Exp ":" Stmt* 							-> Case{"If"}
 	
  		
 	ID									-> PacketRef {cons("Packet")}
@@ -335,12 +332,12 @@ exports
 	 
 	"break" ";"	-> Stmt{cons("Break")}
 	
-	lexical syntax
-		"Main" -> Main
-	"Strategy" -> Strategy
 	
-	"Main" -> ID{reject}
-	"Strategy" -> ID{reject}
+	lexical syntax
+	"Main" 									-> SequencePrim
+	"Strategy" 								-> SequencePrim
+	
+
 		
 	"LEFT_BOTTOM"	-> Orient
 	"LEFT_TOP"	-> Orient
@@ -385,7 +382,6 @@ exports
 	
 	ID -> VarRef{cons("VarRef")}
 	
-	ID -> SequencePrim{reject}
 	
 	SequencePrim						-> SequenceRef{cons("SequencePrimRef"),prefer}
 	ID		 							-> SequenceRef{cons("SequenceRef")}
@@ -474,9 +470,8 @@ exports
 	"stop" 				-> FuncActuationRef
 	
 	
-	lexical syntax
-	"Main" 									-> SequencePrim
-	"Strategy" 								-> SequencePrim
+
+	
 	
 	context-free syntax
 
@@ -659,9 +654,6 @@ exports
 	
 	%% For NBL compatibility
 	"sequence" ID "{" EvHdlr* Instr* "}" -> MainDef{cons("Sequence")}
-	"sequence" Main "{" EvHdlr* Instr* "}" -> MainDef{cons("Main")} 
-	"sequence" Strategy "{" EvHdlr* Instr* "}" -> MainDef{cons("Strategy")}
-	
 	
 	
 	EvHdlr								 		 -> MainDef
@@ -670,8 +662,8 @@ exports
 	
 	
 	"when" "(" EventExp ")" "{" VarDecl* Stmt* "}" 	-> EvHdlr{cons("If")}
-	"switch" "{"Case* "}" 							-> Stmt{cons("Ifs")}
-	"case" Exp ":" Stmt* 							-> Case{cons("If")}
+	%%"switch" "{"Case* "}" 							-> Stmt{"Ifs"}
+	%%"case" Exp ":" Stmt* 							-> Case{"If"}
 	
  		
 	ID									-> PacketRef {cons("Packet")}
@@ -720,12 +712,12 @@ exports
 	 
 	"break" ";"	-> Stmt{cons("Break")}
 	
-	lexical syntax
-		"Main" -> Main
-	"Strategy" -> Strategy
 	
-	"Main" -> ID{reject}
-	"Strategy" -> ID{reject}
+	lexical syntax
+	"Main" 									-> SequencePrim
+	"Strategy" 								-> SequencePrim
+	
+
 		
 	"LEFT_BOTTOM"	-> Orient
 	"LEFT_TOP"	-> Orient
@@ -770,7 +762,6 @@ exports
 	
 	ID -> VarRef{cons("VarRef")}
 	
-	ID -> SequencePrim{reject}
 	
 	SequencePrim						-> SequenceRef{cons("SequencePrimRef"),prefer}
 	ID		 							-> SequenceRef{cons("SequenceRef")}
@@ -859,9 +850,8 @@ exports
 	"stop" 				-> FuncActuationRef
 	
 	
-	lexical syntax
-	"Main" 									-> SequencePrim
-	"Strategy" 								-> SequencePrim
+
+	
 	
 	context-free syntax
 

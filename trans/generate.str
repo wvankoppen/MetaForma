@@ -165,7 +165,7 @@ to-java: Min(i) -> $[-[<to-java>i]]
 // to-java: Block(stats) -> $[[<map2str(to-java-stat)>stats]] blocks are out-desugared 
 
 
-to-java-stat: Ifs(ifs) -> <map2str(to-java-stat)>ifs
+// to-java-stat: Ifs(ifs) -> <map2str(to-java-stat)>ifs
 
 to-java-stat: If(c,stats) -> $[ if ([<to-java>c]) {
 		[<map2str(to-java-stat)>stats]

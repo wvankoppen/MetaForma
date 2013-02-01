@@ -274,13 +274,9 @@ exports
     "unicast" PacketRef "(" AssignList ")" "to" Nbs ";"                                           -> Stmt              {cons("Unicast")}
     "receive" "(" PacketVarDecl ")"                                                               -> Receive           {cons("Receive")}
     "sequence" ID "{" EvHdlr* Instr* "}"                                                          -> MainDef           {cons("Sequence")}
-    "sequence" Main "{" EvHdlr* Instr* "}"                                                        -> MainDef           {cons("Main")}
-    "sequence" Strategy "{" EvHdlr* Instr* "}"                                                    -> MainDef           {cons("Strategy")}
     EvHdlr                                                                                        -> MainDef           
     "when" "(" Receive ")" "{" VarDecl* Stmt* "}"                                                 -> EvHdlr            {cons("EvHdlr")}
     "when" "(" EventExp ")" "{" VarDecl* Stmt* "}"                                                -> EvHdlr            {cons("If")}
-    "switch" "{" Case* "}"                                                                        -> Stmt              {cons("Ifs")}
-    "case" Exp ":" Stmt*                                                                          -> Case              {cons("If")}
     ID                                                                                            -> PacketRef         {cons("Packet")}
     PacketPrim                                                                                    -> PacketRef         {cons("PacketPrim")}
     PacketPrim                                                                                    -> ID                {reject}
@@ -309,10 +305,8 @@ exports
     "break" ";"                                                                                   -> Stmt              {cons("Break")}
 
   lexical syntax
-    "Main"         -> Main            
-    "Strategy"     -> Strategy        
-    "Main"         -> ID              {reject}
-    "Strategy"     -> ID              {reject}
+    "Main"         -> SequencePrim    
+    "Strategy"     -> SequencePrim    
     "LEFT_BOTTOM"  -> Orient          
     "LEFT_TOP"     -> Orient          
     "RIGHT_BOTTOM" -> Orient          
@@ -342,7 +336,6 @@ exports
     Module "." ModuleMethodRef -> MethodRef      {cons("MethodPrimRef")}
     Region "." RegionMethodRef -> MethodRef      {cons("MethodPrimRef")}
     ID                         -> VarRef         {cons("VarRef")}
-    ID                         -> SequencePrim   {reject}
     SequencePrim               -> SequenceRef    {cons("SequencePrimRef"), prefer}
     ID                         -> SequenceRef    {cons("SequenceRef")}
     Meta "." MetaFieldID       -> Ref            {cons("FieldPrimRef")}
@@ -405,10 +398,6 @@ exports
     "rotating"          -> FuncActuationRef 
     "rotateAbsolute"    -> FuncActuationRef 
     "stop"              -> FuncActuationRef 
-
-  lexical syntax
-    "Main"     -> SequencePrim 
-    "Strategy" -> SequencePrim 
 
   context-free syntax
     "@X" "[" Exp "]"                              -> ModHolderRef  {cons("ModHolderPrimNumRef"), prefer}
@@ -513,13 +502,9 @@ exports
     "unicast" PacketRef "(" AssignList ")" "to" Nbs ";"                                           -> Stmt              {cons("Unicast")}
     "receive" "(" PacketVarDecl ")"                                                               -> Receive           {cons("Receive")}
     "sequence" ID "{" EvHdlr* Instr* "}"                                                          -> MainDef           {cons("Sequence")}
-    "sequence" Main "{" EvHdlr* Instr* "}"                                                        -> MainDef           {cons("Main")}
-    "sequence" Strategy "{" EvHdlr* Instr* "}"                                                    -> MainDef           {cons("Strategy")}
     EvHdlr                                                                                        -> MainDef           
     "when" "(" Receive ")" "{" VarDecl* Stmt* "}"                                                 -> EvHdlr            {cons("EvHdlr")}
     "when" "(" EventExp ")" "{" VarDecl* Stmt* "}"                                                -> EvHdlr            {cons("If")}
-    "switch" "{" Case* "}"                                                                        -> Stmt              {cons("Ifs")}
-    "case" Exp ":" Stmt*                                                                          -> Case              {cons("If")}
     ID                                                                                            -> PacketRef         {cons("Packet")}
     PacketPrim                                                                                    -> PacketRef         {cons("PacketPrim")}
     PacketPrim                                                                                    -> ID                {reject}
@@ -548,10 +533,8 @@ exports
     "break" ";"                                                                                   -> Stmt              {cons("Break")}
 
   lexical syntax
-    "Main"         -> Main            
-    "Strategy"     -> Strategy        
-    "Main"         -> ID              {reject}
-    "Strategy"     -> ID              {reject}
+    "Main"         -> SequencePrim    
+    "Strategy"     -> SequencePrim    
     "LEFT_BOTTOM"  -> Orient          
     "LEFT_TOP"     -> Orient          
     "RIGHT_BOTTOM" -> Orient          
@@ -581,7 +564,6 @@ exports
     Module "." ModuleMethodRef -> MethodRef      {cons("MethodPrimRef")}
     Region "." RegionMethodRef -> MethodRef      {cons("MethodPrimRef")}
     ID                         -> VarRef         {cons("VarRef")}
-    ID                         -> SequencePrim   {reject}
     SequencePrim               -> SequenceRef    {cons("SequencePrimRef"), prefer}
     ID                         -> SequenceRef    {cons("SequenceRef")}
     Meta "." MetaFieldID       -> Ref            {cons("FieldPrimRef")}
@@ -644,10 +626,6 @@ exports
     "rotating"          -> FuncActuationRef 
     "rotateAbsolute"    -> FuncActuationRef 
     "stop"              -> FuncActuationRef 
-
-  lexical syntax
-    "Main"     -> SequencePrim 
-    "Strategy" -> SequencePrim 
 
   context-free syntax
     "@X" "[" Exp "]"                              -> ModHolderRef  {cons("ModHolderPrimNumRef"), prefer}

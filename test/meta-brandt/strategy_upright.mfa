@@ -1,0 +1,22 @@
+package Brandt
+
+// the orientation means where the primary and secondary gradients start, respectively.
+// It results in a initial and second meta-module push, e.g.: TOP_RIGHT means: first a push from the top, then a push from the right, it must travel along existing meta-modules. It will move the meta-module to bottomleft.  
+
+// sequence Strategy {
+// 	when (receive (Packet p)) {
+// 		meta.neighborHook (p);
+// 	}
+// 	
+// 	do {	
+// 		// try region FlipThrough orienting BOTTOM_LEFT including Top excluding Right, Bottom,TopRight;
+// 		region.try (occupied: Top,Right free: Bottom) execute FlipOver orienting LEFT_BOTTOM  
+// 		
+// 		
+// 		try region FlipOver orienting TOP_RIGHT including Left,Bottom excluding Top;
+// 		
+// 		try region FlipOver orienting BOTTOM_RIGHT including Top,Left excluding Bottom;
+// 		try region FlipOver orienting LEFT_TOP including Bottom,Right excluding Top;
+// 		// try region FlipThrough orienting LEFT_BOTTOM including Right excluding Bottom,Top,TopRight;
+// 	} until (false);
+// }

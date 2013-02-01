@@ -60,7 +60,9 @@ signature
 	PacketDecl: X * X * X -> PacketDecl
 	PayloadRef: X * X -> PayloadRef
 	ConstDecl: X * X * X -> ConstDecl
-	Strategy: X * X  * X * X -> Strategy
+	Strategy: X -> Strategy
+	Main: X -> Main
+	Plain: X -> Plain
 
 
 	

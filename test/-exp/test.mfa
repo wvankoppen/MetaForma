@@ -1,0 +1,17 @@
+package p  
+
+byte MYCONST = 1
+
+
+module {
+	byte v;
+}
+
+
+sequence fg {
+	module.v = MYCONST;
+}
+
+strategy {
+	module.v = MYCONST;
+}

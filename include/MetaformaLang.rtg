@@ -55,13 +55,6 @@ regular tree grammar
     ListPlusOfMod0           -> <conc>(ListPlusOfMod0,ListStarOfMod0)
     ListPlusOfMod0           -> <conc>(ListPlusOfMod0,ListPlusOfMod0)
     ListPlusOfMod0           -> <cons>(Mod,ListStarOfMod0)
-    ListStarOfCase0          -> ListPlusOfCase0
-    ListStarOfCase0          -> <nil>()
-    ListStarOfCase0          -> <conc>(ListStarOfCase0,ListStarOfCase0)
-    ListPlusOfCase0          -> <conc>(ListStarOfCase0,ListPlusOfCase0)
-    ListPlusOfCase0          -> <conc>(ListPlusOfCase0,ListStarOfCase0)
-    ListPlusOfCase0          -> <conc>(ListPlusOfCase0,ListPlusOfCase0)
-    ListPlusOfCase0          -> <cons>(Case,ListStarOfCase0)
     ListStarOfInstr0         -> ListPlusOfInstr0
     ListStarOfInstr0         -> <nil>()
     ListStarOfInstr0         -> <conc>(ListStarOfInstr0,ListStarOfInstr0)
@@ -234,13 +227,9 @@ regular tree grammar
     EventExp                 -> Exp
     PacketRef                -> PacketPrim(PacketPrim)
     PacketRef                -> Packet(ID)
-    Case                     -> If(Exp,ListStarOfStmt0)
-    Stmt                     -> Ifs(ListStarOfCase0)
     EvHdlr                   -> If(EventExp,ListStarOfVarDecl0,ListStarOfStmt0)
     EvHdlr                   -> EvHdlr(Receive,ListStarOfVarDecl0,ListStarOfStmt0)
     MainDef                  -> EvHdlr
-    MainDef                  -> Strategy(Strategy,ListStarOfEvHdlr0,ListStarOfInstr0)
-    MainDef                  -> Main(Main,ListStarOfEvHdlr0,ListStarOfInstr0)
     MainDef                  -> Sequence(ID,ListStarOfEvHdlr0,ListStarOfInstr0)
     Receive                  -> Receive(PacketVarDecl)
     Stmt                     -> Unicast(PacketRef,AssignList,Nbs)
@@ -278,7 +267,6 @@ regular tree grammar
     ShowPackets              -> ShowPackets(ListStarOfPacketRef0)
     Debug                    -> Debug(OptShowPackets0,OptVisualize0)
     Start                    -> Package(ID,OptDebug0,ListStarOfMainDef0)
-    SequencePrim             -> <string>
     FuncActuationRef         -> <string>
     RegionMethodRef          -> <string>
     MetaMethodRef            -> <string>
@@ -290,8 +278,7 @@ regular tree grammar
     PacketPrim               -> <string>
     MetaPartNoneRef          -> <string>
     Orient                   -> <string>
-    Strategy                 -> <string>
-    Main                     -> <string>
+    SequencePrim             -> <string>
     Exp                      -> OrBit(Exp,Exp)
     Exp                      -> AndBit(Exp,Exp)
     Exp                      -> Or(Exp,Exp)

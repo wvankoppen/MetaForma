@@ -26,13 +26,10 @@ meta {
 }
   
 sequence Main {	
-	
-	do wait (config.assignTime) {
-		switch {
-			case #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0:	module.id = @Car.LeftWheel;
-			case #(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0:	module.id = @Car.RightWheel;
-			case #()==2: 											module.id = @Car.Driver;	
-		}
+	do wait(config.assignTime) {
+		if ( #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0 )	module.id = @Car.LeftWheel;
+		if ( #(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0 )	module.id = @Car.RightWheel;
+		if ( #()==2) 											module.id = @Car.Driver;	
 	}
 	
 	do {
@@ -40,7 +37,6 @@ sequence Main {
 		meta.enable();	
 	}
 	
-	execute Strategy;
 }	
 
 

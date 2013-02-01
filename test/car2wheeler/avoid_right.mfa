@@ -1,0 +1,8 @@
+package TwoWheeler
+
+sequence Strategy {
+	when (module.id == @Car.Driver && module.proximity() > PROXIMITY) {
+		execute Turn(RIGHT); 
+	} 
+	meta.drive(FORWARD,FORWARD); 
+} 

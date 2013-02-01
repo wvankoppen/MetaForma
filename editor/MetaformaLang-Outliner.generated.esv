@@ -19,7 +19,6 @@ outliner Default outliner
   GroupDef.Group
   FuncDecl.FuncDecl
   Stmt.Unicast
-  Case.If
   Stmt.TryRegion
   Stmt.FuncCall
   Stmt.FuncCall
@@ -28,5 +27,3 @@ outliner Default outliner
   EvHdlr.If
   Instr.Instr
   Instr.Instr
-  MainDef.Main
-  MainDef.Strategy

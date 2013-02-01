@@ -41,7 +41,6 @@ signature
                         : Exp -> EventExp
     PacketPrim          : PacketPrim -> PacketRef
     Packet              : ID -> PacketRef
-    If                  : Exp * List(Stmt) -> Case
     If                  : EventExp * List(VarDecl) * List(Stmt) -> EvHdlr
     EvHdlr              : Receive * List(VarDecl) * List(Stmt) -> EvHdlr
     Receive             : PacketVarDecl -> Receive
@@ -57,7 +56,6 @@ signature
     IfElse              : Exp * Block * Block -> Stmt
     Return              : Exp -> Stmt
     Assign              : Ref * Exp -> Stmt
-    Ifs                 : List(Case) -> Stmt
     Unicast             : PacketRef * AssignList * Nbs -> Stmt
     AssignList          : List(AssignElem) -> AssignList
     AssignElem          : PayloadRef * Exp -> AssignElem
@@ -84,8 +82,6 @@ signature
     BorderItem          : Border * Exp -> BorderItem
     BorderDecl          : List(BorderItem) -> BorderDecl
                         : EvHdlr -> MainDef
-    Strategy            : Strategy * List(EvHdlr) * List(Instr) -> MainDef
-    Main                : Main * List(EvHdlr) * List(Instr) -> MainDef
     Sequence            : ID * List(EvHdlr) * List(Instr) -> MainDef
     PacketDecl          : ID * List(PayloadDecl) -> MainDef
     ConstDecl           : Type * ID * Exp -> MainDef
@@ -102,7 +98,6 @@ signature
     ShowPackets         : List(PacketRef) -> ShowPackets
     Debug               : Option(ShowPackets) * Option(Visualize) -> Debug
     Package             : ID * Option(Debug) * List(MainDef) -> Start
-                        : String -> SequencePrim
                         : String -> FuncActuationRef
                         : String -> RegionMethodRef
                         : String -> MetaMethodRef
@@ -114,8 +109,7 @@ signature
                         : String -> PacketPrim
                         : String -> MetaPartNoneRef
                         : String -> Orient
-                        : String -> Strategy
-                        : String -> Main
+                        : String -> SequencePrim
     MetaPart            : ID -> MetaPart
     NbsFilter           : ModHolderRef -> NbsFilter
     NbsFilter           : NbsFilterKey * Exp -> NbsFilter

@@ -55,9 +55,9 @@ where
 		add-visgroup(|n): VisItem(r,c) -> VisItem(<newname>,n,r,c) 
 
 
-desugar-td: Sequence(n,ehdlrs,instrs) -> Sequence(n,ehdlrs,instrs''')  
+desugar-td: Sequence(n,ehdlrs,instrs) -> Sequence(n-cons,ehdlrs,instrs''')  
 where
-	//<topdown(try(varref2fieldref))> 
+	n-cons := <seqname + seqnamePrim>n;
 	<map(try(add-instrblock))>instrs => instrs';
 	// <debug>instrs';
 	<upto><dec><length>instrs' => nrs;
@@ -75,6 +75,10 @@ where
 
 	swap-counter: (i,Instr(evts,vars,instr*,postcon))	-> Instr(i,evts,<conc>(vars,instr*),postcon)
 	swap-counter: (i,Instr(evts,vars,instr*)) 			-> Instr(i,evts,<conc>(vars,instr*),Wait(Consensus())) 
+
+	seqnamePrim: n@"Main" -> Main(n)	// To make NBL rules mutually excl. 
+	seqnamePrim: n@"Strategy" -> Strategy(n)
+	seqname: n -> Plain(n) where not (<seqnamePrim>n)
 
 	decl2assign: VarDecl(t,n,v) -> Assign(VarRef(n),v)
 
@@ -176,8 +180,6 @@ desugar-nbl: ModHolderPrimNumRef(i) -> ModHolderNumRef("X",i)
 // We need to do this AFTER type checking!
 desugar-nbl: BoolOp(Eq(),FieldPrimRef(Module(), "id"), e2) -> FuncCall(MethodRef(FuncCall(MethodRef(Module(),"getID"),[]), "equals"),[e2])
 desugar-nbl: BoolOp(Eq(),PayloadPrimRef(p, "sourceID"), e2) -> FuncCall(MethodRef(FuncCall(MethodRef(p,"getSource"),[]), "equals"),[e2])
-
-
 
  
 // move to generate phase.

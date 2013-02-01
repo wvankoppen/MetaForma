@@ -60,16 +60,13 @@ rules
 	adjust-index-def-data(store-results|namespace, path): 
 		term@Class(_{[Class(), name, package]},_,_) -> <store-results> DefData([Class(), package], Class(), term)
 	
-	// For Region class
-	// adjust-index-def-data(store-results|namespace, path): 
-	// 	term@Class(_{[Class(), name, package]},_) -> <store-results> DefData([Class(), package], Class(), term)
 	
 		
-	// adjust-index-def-data(store-results|namespace, path): 
-	// 	term@Sequence(SequencePrimRef("Main"){[Sequence(), name, package]},_,_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
-	// 
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Sequence(_{[Sequence(), name, package]},_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
+		term@Sequence(Main(_{[Sequence(), name, package]}),_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
+	
+	adjust-index-def-data(store-results|namespace, path): 
+		term@Sequence(Plain(_{[Sequence(), name, package]}),_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
 			
 		
 	adjust-index-def-data(store-results|namespace, path): 
@@ -123,7 +120,7 @@ rules
     external SRTS-EXT-eq-ignore-annos(|t)	// Make term-based comparison and ignore annotations
          
     assure-class(|c): classes -> cls'
-    where
+    where 
     	if <fetch-elem(?Class(<SRTS-EXT-eq-ignore-annos(|c)>,_,_))> classes then
     		cls' := classes
     	else
@@ -141,10 +138,10 @@ rules
     	type-string := <id>
     
 
-get-strategy: path -> strategy
-where
-	strat := <collect-one(?Sequence("Strategy",_,_))><index-get-all-in-file>path;
-	strategy := <desugar-all-nbl>strat
+	get-strategy: path -> strategy
+	where
+		strat := <collect-one(?Sequence(Strategy(_),_,_))><index-get-all-in-file>path;
+		strategy := <desugar-all-nbl>strat
 
 	index-getdebugitems(|package) = <try(list-breakout)><index-getcons(|package)>DebugItem()
 

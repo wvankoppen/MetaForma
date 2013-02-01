@@ -1,6 +1,5 @@
 package Christensen
 
-
 sequence Strategy {
 	when (receive (Packet p)) {
 		meta.neighborHook (p);
@@ -9,14 +8,14 @@ sequence Strategy {
 	do {
 		if (!meta.isStanding()) {
 			wait (30) { // needs to be high for parallel walker!
-				region.try (occupied: Bottom, empty: Top,Up) execute GetUp orienting BOTTOM_LEFT
+				try region GetUp (BOTTOM_LEFT) including Bottom excluding Top,Up;
 			}
 		}
 		else {
 			// we cant use Walker.Right to create the region, as it is hanging in the air! --> YES, but do more early
 			if (module.id == @Walker.Right) {
 				if (#(@X,inRegion:false)==2) { // we might need a wait to regain all nbs
-					region.try (occupied: Bottom) execute GetDown;
+					try region GetDown including Bottom;
 				}
 				if (#(@X,inRegion:false)==3) {
 					execute WalkStep;
@@ -35,11 +34,11 @@ sequence GetUp {
 		module.gradientPropagate();
 	}until (config.propagationTime);
 	
-	switch {
-		case gradPri==2 && gradSec==0: module.id = @Walker.Left;
-		case gradPri==3 && gradSec==1: module.id = @Walker.Top;
-		case gradPri==2 && gradSec==2: module.id = @Walker.Right;
-		case gradPri==1 && gradSec==1: module.id = @Uplifter.Left;
+	do {
+		if (gradPri==2 && gradSec==0) module.id = @Walker.Left;
+		if (gradPri==3 && gradSec==1) module.id = @Walker.Top;
+		if (gradPri==2 && gradSec==2) module.id = @Walker.Right;
+		if (gradPri==1 && gradSec==1) module.id = @Uplifter.Left;
 	}
 	
 	retractSet(@Uplifter, (NORTH&EAST&FEMALE)|(SOUTH&WEST&FEMALE));

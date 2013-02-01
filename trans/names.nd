@@ -15,12 +15,12 @@ imports
  // What about the scoping bug? That it has to scope multiple items?
 	
 namespaces
-	Strategy Package Group Mod Var Packet Payload Sequence Instruction Class ClassFake Field Method MetaPart DebugItem VisItem Constant EventHandler	
+	Package Group Mod Var Packet Payload Sequence Instruction Class ClassFake Field Method MetaPart DebugItem VisItem Constant EventHandler	
 rules
 	
 	Package(n,_,_):
 		defines non-unique Package n
-		scopes Group, Packet, Class,ClassFake, Sequence,MetaPart,EventHandler,VisItem,Constant,DebugItem,Strategy
+		scopes Group, Packet, Class,ClassFake, Sequence,MetaPart,EventHandler,VisItem,Constant,DebugItem
 		
 	DebugItem(n,packets):
 		defines DebugItem n
@@ -42,24 +42,20 @@ rules
 	 	defines Group n
 	
 	
-	Sequence (n,_,_):
+	Sequence (Plain(n),_,_):
 		defines Sequence n	
 		scopes Var,Instruction,EventHandler
 	
-	Main (n,_,_):
-		defines Sequence n	
+	Sequence (Main(n),_,_):
+		defines Sequence n
 		scopes Var,Instruction,EventHandler
 		
-	Strategy (n,_,_):
+	Sequence (Strategy(n),_,_):
 		defines non-unique Sequence n	
-		scopes Var,Instruction,EventHandler
+		scopes Var,Instruction,EventHandler // We need to scope what we want to use, bug in NBL!
 		
 // Gohla>: dit is een bug in NBL, een manier hoe je die kan oplossen is door een Strategy te desugaren naar een Strategy met een unieke naam, bijvoorbeeld desugar: Strategy(…) -> Strategy(<new-name>, …) en dan een definitie ervan te maken
 // <Gohla>: Strategy(x, ..) : defines Strategy x en Package(…): scopes Strategy	
-		
-	Strategy(n,_,_,stmts): 
-		defines	Strategy n 		
-		scopes Var,Constant // We need to scope what we want to use, bug in NBL!
 		
 	Instr(i,_,_,_):
 		defines Instruction i
@@ -69,7 +65,7 @@ rules
 	SequenceRef(n):
 		refers to Sequence n	
 	
-	// Yes!	
+	// Yes! ??????????????????	
 	 SequencePrimRef(n):
 	 	refers to Sequence n
 		

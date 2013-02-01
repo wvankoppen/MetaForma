@@ -143,16 +143,18 @@ to-java: None() -> $[]
 	where
 		n := <construct2name>name;
 		<debug>$[Compile class [n]];
-		<map2str(to-java-stat)>elements => elements'
+		<map2str(to-java-stat)>elements => elements';
+		<debug>$[Done with class [n]]
 		
-		
- compile:  Class(name@Meta(),_,elements) -> $[class Bag[n] extends [n]Core implements I[n]Bag {
+ compile:  Class(name,_,elements) -> $[class Bag[n] extends [n]Core implements I[n]Bag {
 	[elements']
 	}
 	]
 	where
+		// <SRTS-EXT-eq-ignore-annos(|Meta())>name; // It seems to clash with URI?
+		<debug>$[Compile class Meta];
+		<debug>name;
 		n := <construct2name>name;
-		<debug>$[Compile class [n]];
 		<map2str(to-java-stat)>elements => elements'
 
 
@@ -163,14 +165,14 @@ construct2name: Module() -> $[Module]
 construct2name: Region() -> $[Region]
  
  
- compile: Sequence(n,evhdlrs,instrs) -> 
+ compile: Sequence(namedec,evhdlrs,instrs) -> 
 $[if (mfStateMngr.at([seq])) {
 	[java-evts]
 	[java-instrs]
 }
 ]
 with
-	// n := <to-java>namedec; 
+	<?<id>#(n)>namedec; 
 	<debug>$[## START COMPILE sequence [n]];
 	<map2str(to-java-stat)>evhdlrs => java-evts;
 	<map2str(to-java-instr)>instrs => java-instrs;
