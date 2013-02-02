@@ -6,9 +6,9 @@ signature
     Border              : Orient -> Border
                         : Exp -> StopCondition
     Consensus           : StopCondition
-    Until               : StopCondition -> InstrPost
-    Wait                : StopCondition -> InstrPost
-    Wait                : Exp -> InstrPre
+    Until               : StopCondition -> PostCon
+    Wait                : StopCondition -> PostCon
+    Wait                : Exp -> PreCon
     FuncPrimRef         : FuncPrimRef -> FuncPrimRef2
     ModHolderPrimRef    : ModHolderRef
     ModHolderRef        : ID -> ModHolderRef
@@ -31,9 +31,7 @@ signature
     Group               : ID -> GroupDef
     Group               : ID * List(Mod) -> GroupDef
     Orientation         : OrientRef -> OrientClause
-    Instr               : InstrPre * List(EvHdlr) * List(VarDecl) * List(Stmt) -> Instr
-    Instr               : List(EvHdlr) * List(VarDecl) * List(Stmt) -> Instr
-    Instr               : List(EvHdlr) * List(VarDecl) * List(Stmt) * InstrPost -> Instr
+    Instr               : Option(PreCon) * List(EvHdlr) * List(VarDecl) * List(Stmt) * Option(PostCon) -> Instr
                         : Stmt -> Instr
     OrientRef           : Orient -> OrientRef
     Block               : List(Stmt) -> Block

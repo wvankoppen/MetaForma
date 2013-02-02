@@ -1,17 +1,16 @@
 package FourWheeler
 
-byte STEER_DEGREES = 12 
-
+byte STEER_DEGREES = 13
 
 
 sequence Strategy {
 	when (module.id == @Axis.Front && module.proximity() > PROXIMITY) {
-		execute Turn (LEFT);
+		execute Turn (RIGHT);
 	} 
 	
-	do wait(config.assignTime) { 
+	do {  
 		meta.createCar();
-	} 
+	} until(config.assignTime);
 		
 	meta.drive(FORWARD,FORWARD);
 }
@@ -20,13 +19,24 @@ sequence Strategy {
 
 sequence Turn {	
 	meta.halt(); 
-	meta.steer(STEER_DEGREES);
+	
+	do {
+		meta.drive (BACKWARD,BACKWARD);	
+	} wait(TIME_BACKWARD*0.25);
+	
+	do {
+		if (LEFT) meta.steer(STEER_DEGREES);
+		if (RIGHT) meta.steer(-STEER_DEGREES);
+	}
 		
 	do {
 		meta.drive (BACKWARD,BACKWARD);	
-	} wait(TIME_BACKWARD);
+	} wait(TIME_BACKWARD*0.75);
 	
 	meta.halt();
 	
-	meta.steer(-STEER_DEGREES);
+	do {
+		if (LEFT) meta.steer(-STEER_DEGREES);
+		if (RIGHT) meta.steer(STEER_DEGREES);
+	}
 }

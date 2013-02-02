@@ -49,11 +49,11 @@ exports
                                                   -> "sequence"      {recover, cons("INSERTION")}
                                                   -> "when"          {recover, cons("INSERTION")}
                                                   -> "rate"          {recover, cons("INSERTION")}
+                                                  -> "}"             {recover, cons("INSERTION")}
                                                   -> "group"         {recover, cons("INSERTION")}
                                                   -> "excluding"     {recover, cons("INSERTION")}
                                                   -> "]"             {recover, cons("INSERTION")}
                                                   -> ","             {recover, cons("INSERTION")}
-                                                  -> "}"             {recover, cons("INSERTION")}
                                                   -> "do"            {recover, cons("INSERTION")}
                                                   -> ";"             {recover, cons("INSERTION")}
                                                   -> "until"         {recover, cons("INSERTION")}
@@ -400,30 +400,28 @@ exports
     "stop"              -> FuncActuationRef 
 
   context-free syntax
-    "@X" "[" Exp "]"                              -> ModHolderRef  {cons("ModHolderPrimNumRef"), prefer}
-    "@" ID "[" Exp "]"                            -> ModHolderRef  {cons("ModHolderNumRef")}
-    "@" ID "." ID                                 -> ModHolderRef  {cons("ModHolderRef")}
-    "@" ID                                        -> ModHolderRef  {cons("ModHolderRef")}
-    "@X"                                          -> ModHolderRef  {cons("ModHolderPrimRef"), prefer}
-    {OrientRef ","}+                              -> Exp           {cons("OrientMatch")}
-    MethodRef "(" {Exp ","}* ")" ";"              -> Stmt          {cons("FuncCall")}
-    MethodRef "(" {Exp ","}* ")"                  -> Exp           {cons("FuncCall")}
-    FuncRef "(" {Exp ","}* ")" ";"                -> Stmt          {cons("FuncCall")}
-    FuncRef "(" {Exp ","}* ")"                    -> Exp           {cons("FuncCall")}
-    FuncPrimRef2 "(" {Exp ","}* ")" ";"           -> Stmt          {cons("FuncCall")}
-    FuncPrimRef2 "(" {Exp ","}* ")"               -> Exp           {cons("FuncCall")}
-    FuncPrimRef                                   -> FuncPrimRef2  {cons("FuncPrimRef")}
-    FuncActuationRef                              -> FuncRef       {cons("FuncActuationRef")}
-    FuncPrimRef                                   -> FuncRef       {reject}
-    "do" "{" EvHdlr* VarDecl* Stmt* "}" InstrPost -> Instr         {cons("Instr"), prefer}
-    "do" "{" EvHdlr* VarDecl* Stmt* "}"           -> Instr         {cons("Instr")}
-    "do" InstrPre "{" EvHdlr* VarDecl* Stmt* "}"  -> Instr         {cons("Instr")}
-    "wait" "(" Exp ")"                            -> InstrPre      {cons("Wait")}
-    "wait" "(" StopCondition ")" ";"              -> InstrPost     {cons("Wait")}
-    "until" "(" StopCondition ")" ";"             -> InstrPost     {cons("Until")}
-    "consensus" "(" ")"                           -> StopCondition {cons("Consensus")}
-    Exp                                           -> StopCondition 
-    Orient                                        -> Border        {cons("Border")}
+    "@X" "[" Exp "]"                                     -> ModHolderRef  {cons("ModHolderPrimNumRef"), prefer}
+    "@" ID "[" Exp "]"                                   -> ModHolderRef  {cons("ModHolderNumRef")}
+    "@" ID "." ID                                        -> ModHolderRef  {cons("ModHolderRef")}
+    "@" ID                                               -> ModHolderRef  {cons("ModHolderRef")}
+    "@X"                                                 -> ModHolderRef  {cons("ModHolderPrimRef"), prefer}
+    {OrientRef ","}+                                     -> Exp           {cons("OrientMatch")}
+    MethodRef "(" {Exp ","}* ")" ";"                     -> Stmt          {cons("FuncCall")}
+    MethodRef "(" {Exp ","}* ")"                         -> Exp           {cons("FuncCall")}
+    FuncRef "(" {Exp ","}* ")" ";"                       -> Stmt          {cons("FuncCall")}
+    FuncRef "(" {Exp ","}* ")"                           -> Exp           {cons("FuncCall")}
+    FuncPrimRef2 "(" {Exp ","}* ")" ";"                  -> Stmt          {cons("FuncCall")}
+    FuncPrimRef2 "(" {Exp ","}* ")"                      -> Exp           {cons("FuncCall")}
+    FuncPrimRef                                          -> FuncPrimRef2  {cons("FuncPrimRef")}
+    FuncActuationRef                                     -> FuncRef       {cons("FuncActuationRef")}
+    FuncPrimRef                                          -> FuncRef       {reject}
+    "do" PreCon? "{" EvHdlr* VarDecl* Stmt* "}" PostCon? -> Instr         {cons("Instr")}
+    "wait" "(" Exp ")"                                   -> PreCon        {cons("Wait")}
+    "wait" "(" StopCondition ")" ";"                     -> PostCon       {cons("Wait")}
+    "until" "(" StopCondition ")" ";"                    -> PostCon       {cons("Until")}
+    "consensus" "(" ")"                                  -> StopCondition {cons("Consensus")}
+    Exp                                                  -> StopCondition 
+    Orient                                               -> Border        {cons("Border")}
 
 module Common
 imports MetaformaLang
@@ -628,27 +626,25 @@ exports
     "stop"              -> FuncActuationRef 
 
   context-free syntax
-    "@X" "[" Exp "]"                              -> ModHolderRef  {cons("ModHolderPrimNumRef"), prefer}
-    "@" ID "[" Exp "]"                            -> ModHolderRef  {cons("ModHolderNumRef")}
-    "@" ID "." ID                                 -> ModHolderRef  {cons("ModHolderRef")}
-    "@" ID                                        -> ModHolderRef  {cons("ModHolderRef")}
-    "@X"                                          -> ModHolderRef  {cons("ModHolderPrimRef"), prefer}
-    {OrientRef ","}+                              -> Exp           {cons("OrientMatch")}
-    MethodRef "(" {Exp ","}* ")" ";"              -> Stmt          {cons("FuncCall")}
-    MethodRef "(" {Exp ","}* ")"                  -> Exp           {cons("FuncCall")}
-    FuncRef "(" {Exp ","}* ")" ";"                -> Stmt          {cons("FuncCall")}
-    FuncRef "(" {Exp ","}* ")"                    -> Exp           {cons("FuncCall")}
-    FuncPrimRef2 "(" {Exp ","}* ")" ";"           -> Stmt          {cons("FuncCall")}
-    FuncPrimRef2 "(" {Exp ","}* ")"               -> Exp           {cons("FuncCall")}
-    FuncPrimRef                                   -> FuncPrimRef2  {cons("FuncPrimRef")}
-    FuncActuationRef                              -> FuncRef       {cons("FuncActuationRef")}
-    FuncPrimRef                                   -> FuncRef       {reject}
-    "do" "{" EvHdlr* VarDecl* Stmt* "}" InstrPost -> Instr         {cons("Instr"), prefer}
-    "do" "{" EvHdlr* VarDecl* Stmt* "}"           -> Instr         {cons("Instr")}
-    "do" InstrPre "{" EvHdlr* VarDecl* Stmt* "}"  -> Instr         {cons("Instr")}
-    "wait" "(" Exp ")"                            -> InstrPre      {cons("Wait")}
-    "wait" "(" StopCondition ")" ";"              -> InstrPost     {cons("Wait")}
-    "until" "(" StopCondition ")" ";"             -> InstrPost     {cons("Until")}
-    "consensus" "(" ")"                           -> StopCondition {cons("Consensus")}
-    Exp                                           -> StopCondition 
-    Orient                                        -> Border        {cons("Border")}
+    "@X" "[" Exp "]"                                     -> ModHolderRef  {cons("ModHolderPrimNumRef"), prefer}
+    "@" ID "[" Exp "]"                                   -> ModHolderRef  {cons("ModHolderNumRef")}
+    "@" ID "." ID                                        -> ModHolderRef  {cons("ModHolderRef")}
+    "@" ID                                               -> ModHolderRef  {cons("ModHolderRef")}
+    "@X"                                                 -> ModHolderRef  {cons("ModHolderPrimRef"), prefer}
+    {OrientRef ","}+                                     -> Exp           {cons("OrientMatch")}
+    MethodRef "(" {Exp ","}* ")" ";"                     -> Stmt          {cons("FuncCall")}
+    MethodRef "(" {Exp ","}* ")"                         -> Exp           {cons("FuncCall")}
+    FuncRef "(" {Exp ","}* ")" ";"                       -> Stmt          {cons("FuncCall")}
+    FuncRef "(" {Exp ","}* ")"                           -> Exp           {cons("FuncCall")}
+    FuncPrimRef2 "(" {Exp ","}* ")" ";"                  -> Stmt          {cons("FuncCall")}
+    FuncPrimRef2 "(" {Exp ","}* ")"                      -> Exp           {cons("FuncCall")}
+    FuncPrimRef                                          -> FuncPrimRef2  {cons("FuncPrimRef")}
+    FuncActuationRef                                     -> FuncRef       {cons("FuncActuationRef")}
+    FuncPrimRef                                          -> FuncRef       {reject}
+    "do" PreCon? "{" EvHdlr* VarDecl* Stmt* "}" PostCon? -> Instr         {cons("Instr")}
+    "wait" "(" Exp ")"                                   -> PreCon        {cons("Wait")}
+    "wait" "(" StopCondition ")" ";"                     -> PostCon       {cons("Wait")}
+    "until" "(" StopCondition ")" ";"                    -> PostCon       {cons("Until")}
+    "consensus" "(" ")"                                  -> StopCondition {cons("Consensus")}
+    Exp                                                  -> StopCondition 
+    Orient                                               -> Border        {cons("Border")}

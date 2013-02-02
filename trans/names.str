@@ -259,19 +259,19 @@ rules
 rules
 
   nam-get-scope-types :
-    Instr(i, _, _, _) -> [EventHandler()]
+    Instr(i, _, _, _, _) -> [EventHandler()]
 
   nam-get-definition-keys :
-    Instr(i, _, _, _) -> [i]
+    Instr(i, _, _, _, _) -> [i]
 
   nam-get-definitions :
-    Instr(i, _, _, _) -> [(Instruction(), [i])]
+    Instr(i, _, _, _, _) -> [(Instruction(), [i])]
 
   nam-annotate-names(|paths__, path__):
-    Instr(i, _, _, _) -> <Instr(nam-annotate-def(|path__), id, id, id)>
+    Instr(i, _, _, _, _) -> <Instr(nam-annotate-def(|path__), id, id, id, id)>
 
   nam-unique :
-    Instr(i, _, _, _) -> <id>
+    Instr(i, _, _, _, _) -> <id>
 
 
 rules

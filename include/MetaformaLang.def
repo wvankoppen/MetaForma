@@ -498,13 +498,11 @@ exports
 	
 	FuncPrimRef 	-> FuncRef{reject}
 
-	"do" "{" EvHdlr* VarDecl* Stmt* "}" InstrPost  -> Instr{cons("Instr"),prefer}
-	"do" "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
-	"do" InstrPre "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
+	"do" PreCon? "{" EvHdlr* VarDecl* Stmt* "}" PostCon?  -> Instr{cons("Instr")}
 	
-	"wait" "(" Exp ")" -> InstrPre {cons("Wait")}
-	"wait" "(" StopCondition ")" ";" -> InstrPost {cons("Wait")}
-	"until" "(" StopCondition ")" ";" -> InstrPost{cons("Until")}
+	"wait" "(" Exp ")" -> PreCon {cons("Wait")}
+	"wait" "(" StopCondition ")" ";" -> PostCon {cons("Wait")}
+	"until" "(" StopCondition ")" ";" -> PostCon{cons("Until")}
 	
 	"consensus" "(" ")" 	-> StopCondition {cons("Consensus")}
 	Exp						-> StopCondition	
@@ -878,13 +876,11 @@ exports
 	
 	FuncPrimRef 	-> FuncRef{reject}
 
-	"do" "{" EvHdlr* VarDecl* Stmt* "}" InstrPost  -> Instr{cons("Instr"),prefer}
-	"do" "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
-	"do" InstrPre "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{cons("Instr")}
+	"do" PreCon? "{" EvHdlr* VarDecl* Stmt* "}" PostCon?  -> Instr{cons("Instr")}
 	
-	"wait" "(" Exp ")" -> InstrPre {cons("Wait")}
-	"wait" "(" StopCondition ")" ";" -> InstrPost {cons("Wait")}
-	"until" "(" StopCondition ")" ";" -> InstrPost{cons("Until")}
+	"wait" "(" Exp ")" -> PreCon {cons("Wait")}
+	"wait" "(" StopCondition ")" ";" -> PostCon {cons("Wait")}
+	"until" "(" StopCondition ")" ";" -> PostCon{cons("Until")}
 	
 	"consensus" "(" ")" 	-> StopCondition {cons("Consensus")}
 	Exp						-> StopCondition	

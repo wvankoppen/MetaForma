@@ -6,21 +6,22 @@ byte EIGHT=2
 byte SNAKE=3
 
 sequence Strategy {
-	switch {
-		case meta.type == EIGHT: execute Eight2CarNames;
+	do {
+		if (meta.type == NONE) execute Eight2CarNames;
 		
-		case meta.type == CAR:
+		if (meta.type == CAR) {
 			if (module.id == @Eight[3] && module.tiltZ() > 50) {
 				execute GetUp;
 			}
 			else {
 				execute Drive;
 			} 		
+		}
 	}
 	
 }
 
-
+// Using names is easier for building robots with random orientation!
 sequence Eight2CarNames {
 	do {
 		when (receive(Symmetry p)) {
@@ -86,67 +87,14 @@ sequence Eight2CarNames {
 	rotate(@Eight[1],90);
 	
 	module.restoreSymmetry();
-	meta.type = CAR;
-}
-
-
-
-sequence Eight2Car {
-	module.gradientInit();
 	
 	do {
-		module.gradientPropagate();
-	}	until (config.propagationTime);
-	
-	module.gradientAssignEight();
-	
-	do {retract(@Eight[0],0);
-		retract(@Eight[3],4); 
-	}
-	
-	do {	
-		rotate(@Eight[3],-QUART);
-		rotate(@Eight[4],-QUART);
-	}
-	
-	extend(@Eight[4],6);
-	
-	do {rotate(@Eight[1],-QUART);
-		retract(@Eight[6],2);}
-	
-	do {rotate(@Eight[4],QUART);
-		rotate(@Eight[6],QUART); }
-	
-	extend(@Eight[0],0);
-	retract(@Eight[6],6);
-	
-	do {rotate(@Eight[0],-QUART);
-		rotate(@Eight[1],QUART);
-	}
-	
-	rotate(@Eight[0],QUART);
-	
-	do {extend(@Eight[5],4);
-		extend(@Eight[2],4);
-		extend(@Eight[1],4);
-	}
-	
-	retract(@Eight[4],6);
-	retract(@Eight[3],6);
-	
-	do {rotate(@Eight[1],QUART);
-		rotate(@Eight[3],QUART);
-	}
-	
-	extend(@Eight[1],6);
-	
-	do {retract(@Eight[3],0);
-		retract(@Eight[3],2);
-	}
-	rotate(@Eight[1],QUART);
-	
-	execute Strategy;
+		meta.createCarAfterSnake();
+	} until(config.assignTime);
 }
+
+
+
 
 // 
 // sequence Eight2CarRevisted {

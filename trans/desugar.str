@@ -21,11 +21,6 @@ desugar-all = topdown(try(desugar-prepare));bottomup(try(desugar-td));innermost(
 
 desugar-prepare= fail
 
-// This needs to be done BEFORE inserting instruction blocks! 
-// EDIT: NO!
-// desugar-td: Strategy (n,evhdlrs,tryregions) -> Sequence(n,evhdlrs,[],[],[], [Instr(0,[],[],tryregions,Until(Bool("false")))])
-
-
 desugar-td: TryRegion(n,o,incs,None()) -> TryRegion(n,o,incs,Some(Excluding([]))) 
 
 desugar-td: Package(n,debug,decls) -> Package(n,debug,decls')
@@ -40,9 +35,7 @@ where
 	assignlist' := <map(add-payload(|<strip-annos>p))>assignlist
 	
 	add-payload(|packet): AssignElem(PayloadRef(f),exp) -> AssignElem(PayloadRef(Packet(packet),f),exp)
-
-
-// desugar-td: Case(exp,stat) -> If (exp,[stat])	
+	
 
 desugar-td: Visualize (groups) -> Visualize (items)
 where
@@ -55,16 +48,24 @@ where
 		add-visgroup(|n): VisItem(r,c) -> VisItem(<newname>,n,r,c) 
 
 
+
+ // if <?"Strategy">m then
+	//  	instrs' := instrs
+	//  else
+	// 	instrs' := <conc> (instrs,[Execute(SequencePrimRef("Strategy"))]) 	
+	//  end;	
+
+
 desugar-td: Sequence(n,ehdlrs,instrs) -> Sequence(n-cons,ehdlrs,instrs''')  
 where
 	n-cons := <seqname + seqnamePrim>n;
-	<map(try(add-instrblock))>instrs => instrs';
-	// <debug>instrs';
+
+	instrs' := <map(try(add-instrblock))><conc> (instrs,[Execute(SequencePrimRef("Strategy"))]);
 	<upto><dec><length>instrs' => nrs;
 	<zip>(nrs,instrs') => instrs'';
 	<map(swap-counter)>instrs'' => instrs'''
 
-	add-instrblock: term -> Instr([],[],[],term')
+	add-instrblock: term -> Instr(None(),[],[],term',Wait(Consensus()))
 	where
 		not (<eq>(<aterm-name>term,"Instr"));
 		if <is-list>term then
@@ -73,8 +74,7 @@ where
 			term' := [term]
 		end
 
-	swap-counter: (i,Instr(evts,vars,instr*,postcon))	-> Instr(i,evts,<conc>(vars,instr*),postcon)
-	swap-counter: (i,Instr(evts,vars,instr*)) 			-> Instr(i,evts,<conc>(vars,instr*),Wait(Consensus())) 
+	swap-counter: (i,Instr(precon,evts,vars,instr*,postcon))	-> Instr(i,precon,evts,<conc>(vars,instr*),postcon)	 
 
 	seqnamePrim: n@"Main" -> Main(n)	// To make NBL rules mutually excl. 
 	seqnamePrim: n@"Strategy" -> Strategy(n)
@@ -85,19 +85,21 @@ where
 // If origin tracking fails:
 // <origin-track-forced(FieldRef(Module(),"QUART"))> a 
 	
-	// desugar: VarRef(a@"QUART") -> FieldRef(Module(), a) // Only in sequence
-	// desugar: VarRef(a@"HALF") -> FieldRef(Module(), a)
-	// desugar: VarRef(a@"EIGHT") -> FieldRef(Module(), a)
 
 desugar-td: Neq(e1,e2) -> Not(Eq(e1,e2)) // Because of .equals in Java
 
-desugar-td: Instr(d,evts,instrs) -> Instr(d,evts,instrs,Wait(Consensus()))
-  	 
-// desugar-td: Connect(_,m1,m2,inRegion) -> FuncCall(MethodRef(Actuation(),"connect"),[m1,m2,inRegion])
-// desugar-td: Disconnect(_,m1,m2,inRegion) -> FuncCall(MethodRef(Actuation(),"disconnect"),[m1,m2,inRegion])
-// desugar-td: Rotate(_,m1,deg) -> FuncCall(MethodRef(Actuation(),"rotate"),[m1,deg])
-// desugar-td: RotateCont(_,m1,v) -> FuncCall(MethodRef(Actuation(),"rotate_continuous"),[m1,v])
-// desugar-td: Stop(_,m1) -> FuncCall(MethodRef(Actuation(),"stop"),[m1])
+desugar-prepare: Instr(precon,evts,vars,instrs,postcon) -> 	Instr(precon',evts,vars,instrs,postcon')
+where
+	if <?Some(x)>precon then
+		precon' := x
+	else
+		precon' := None()
+	end;
+	if <?Some(y)>postcon then
+		postcon' := y
+	else
+		postcon' := Wait(Consensus())
+	end
 
 
 // Needs to be done prior to desugar sequences ????NOT SURE
@@ -154,8 +156,10 @@ where
 	<eq>(<length><filter(?NbsFilter("inRegion",_))>filters,0);
 	filters' := [NbsFilter("inRegion",Bool("true"))|filters]
 
-desugar: NbsFilter(d@ModHolderRef(m)) -> NbsFilter("in",d)
-desugar: NbsFilter(d@ModHolderPrimRef()) -> NbsFilter("in",d)
+desugar: NbsFilter(d) -> NbsFilter("in",d)
+where 
+	<?ModHolderRef(_)>d + <?ModHolderPrimRef()>d 
+
 
 
 
@@ -181,34 +185,7 @@ desugar-nbl: ModHolderPrimNumRef(i) -> ModHolderNumRef("X",i)
 desugar-nbl: BoolOp(Eq(),FieldPrimRef(Module(), "id"), e2) -> FuncCall(MethodRef(FuncCall(MethodRef(Module(),"getID"),[]), "equals"),[e2])
 desugar-nbl: BoolOp(Eq(),PayloadPrimRef(p, "sourceID"), e2) -> FuncCall(MethodRef(FuncCall(MethodRef(p,"getSource"),[]), "equals"),[e2])
 
- 
-// move to generate phase.
-// desugar: FuncCall(MethodRef(Module(), "fixSymmetry"), [v]) -> 
-// Instr(
-//   [ EvHdlr(
-//       Receive(PacketVarDecl(Packet("Symmetry"), "p"))
-//     , []
-//     , [ FuncCall(
-//           MethodRef(Module(), "fixSymmetry")
-//         , [FieldRef(VarRef("p"), "connSource"), FieldRef(VarRef("p"), "connDest")]
-//         )
-//       ]
-//     )
-//   ]
-// , []
-// , []
-// , [ If(
-//       v
-//     , [ Unicast(
-//           Packet("Symmetry")
-//         , AssignList([])
-//         , NbsOp([NbsFilter("inRegion", Bool("true"))])
-//         )
-//       ]
-//     )
-//   ]
-// , Until(Consensus())
-// )
+
 
 signature constructors
 	ShowPackets: ShowPackets

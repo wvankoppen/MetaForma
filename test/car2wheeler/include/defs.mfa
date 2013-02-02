@@ -14,7 +14,7 @@ debug {
 		}
 	}
 }
-
+ 
 // Define identification for the Car
 group Car [LeftWheel,RightWheel,Driver]
 
@@ -26,17 +26,16 @@ meta {
 }
   
 sequence Main {	
-	do wait(config.assignTime) {
-		if ( #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0 )	module.id = @Car.LeftWheel;
-		if ( #(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0 )	module.id = @Car.RightWheel;
-		if ( #()==2) 											module.id = @Car.Driver;	
-	}
-	
 	do {
 		meta.sizeExtra = 3;
 		meta.enable();	
-	}
+	}  	
 	
+	do wait(config.assignTime) {
+		if ( #(connDest:WEST)==1 )	module.id = @Car.LeftWheel;
+		if ( #(connDest:EAST)==1 )	module.id = @Car.RightWheel;
+		if ( #()==2) 				module.id = @Car.Driver;	
+	}
 }	
 
 

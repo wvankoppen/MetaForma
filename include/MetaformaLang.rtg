@@ -2,6 +2,8 @@
 regular tree grammar
   start Start
   productions
+    OptPostCon1              -> <some>(PostCon)
+    OptPostCon1              -> <none>()
     ListStarOfStmt0          -> ListPlusOfStmt0
     ListStarOfStmt0          -> <nil>()
     ListStarOfStmt0          -> <conc>(ListStarOfStmt0,ListStarOfStmt0)
@@ -23,6 +25,8 @@ regular tree grammar
     ListPlusOfEvHdlr0        -> <conc>(ListPlusOfEvHdlr0,ListStarOfEvHdlr0)
     ListPlusOfEvHdlr0        -> <conc>(ListPlusOfEvHdlr0,ListPlusOfEvHdlr0)
     ListPlusOfEvHdlr0        -> <cons>(EvHdlr,ListStarOfEvHdlr0)
+    OptPreCon1               -> <some>(PreCon)
+    OptPreCon1               -> <none>()
     ListStarOfExp0           -> ListPlusOfExp0
     ListStarOfExp0           -> <nil>()
     ListStarOfExp0           -> <conc>(ListStarOfExp0,ListStarOfExp0)
@@ -166,12 +170,10 @@ regular tree grammar
     Border                   -> Border(Orient)
     StopCondition            -> Exp
     StopCondition            -> Consensus()
-    InstrPost                -> Until(StopCondition)
-    InstrPost                -> Wait(StopCondition)
-    InstrPre                 -> Wait(Exp)
-    Instr                    -> Instr(InstrPre,ListStarOfEvHdlr0,ListStarOfVarDecl0,ListStarOfStmt0)
-    Instr                    -> Instr(ListStarOfEvHdlr0,ListStarOfVarDecl0,ListStarOfStmt0)
-    Instr                    -> Instr(ListStarOfEvHdlr0,ListStarOfVarDecl0,ListStarOfStmt0,InstrPost)
+    PostCon                  -> Until(StopCondition)
+    PostCon                  -> Wait(StopCondition)
+    PreCon                   -> Wait(Exp)
+    Instr                    -> Instr(OptPreCon1,ListStarOfEvHdlr0,ListStarOfVarDecl0,ListStarOfStmt0,OptPostCon1)
     FuncRef                  -> FuncActuationRef(FuncActuationRef)
     FuncPrimRef2             -> FuncPrimRef(FuncPrimRef)
     Exp                      -> FuncCall(FuncPrimRef2,ListStarOfExp0)

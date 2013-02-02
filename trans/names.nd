@@ -57,7 +57,7 @@ rules
 // Gohla>: dit is een bug in NBL, een manier hoe je die kan oplossen is door een Strategy te desugaren naar een Strategy met een unieke naam, bijvoorbeeld desugar: Strategy(…) -> Strategy(<new-name>, …) en dan een definitie ervan te maken
 // <Gohla>: Strategy(x, ..) : defines Strategy x en Package(…): scopes Strategy	
 		
-	Instr(i,_,_,_):
+	Instr(i,_,_,_,_):
 		defines Instruction i
 		scopes EventHandler
 		

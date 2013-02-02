@@ -319,13 +319,11 @@ exports
 	
 	FuncPrimRef 	-> FuncRef{reject}
 
-	"do" "{" EvHdlr* VarDecl* Stmt* "}" InstrPost  -> Instr{"Instr",prefer}
-	"do" "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{"Instr"}
-	"do" InstrPre "{" EvHdlr* VarDecl* Stmt* "}" -> Instr{"Instr"}
+	"do" PreCon? "{" EvHdlr* VarDecl* Stmt* "}" PostCon?  -> Instr{"Instr"}
 	
-	"wait" "(" Exp ")" -> InstrPre {"Wait"}
-	"wait" "(" StopCondition ")" ";" -> InstrPost {"Wait"}
-	"until" "(" StopCondition ")" ";" -> InstrPost{"Until"}
+	"wait" "(" Exp ")" -> PreCon {"Wait"}
+	"wait" "(" StopCondition ")" ";" -> PostCon {"Wait"}
+	"until" "(" StopCondition ")" ";" -> PostCon{"Until"}
 	
 	"consensus" "(" ")" 	-> StopCondition {"Consensus"}
 	Exp						-> StopCondition	

@@ -22,6 +22,7 @@ imports
  metaformalang
  store
  project
+ functions
  
 strategies
 	bracks = !"[]"
@@ -172,7 +173,7 @@ $[if (mfStateMngr.at([seq])) {
 }
 ]
 with
-	<?<id>#(n)>namedec; 
+	<aterm-content>namedec => n; 
 	<debug>$[## START COMPILE sequence [n]];
 	<map2str(to-java-stat)>evhdlrs => java-evts;
 	<map2str(to-java-instr)>instrs => java-instrs;
@@ -203,7 +204,7 @@ with
   
   // OOPS: Constructors not supported in URI!!!!
   is-prim-seq = ?"Main"
-  is-prim-seq = ?"Choose" 
+  is-prim-seq = ?"Strategy" 
   
   to-seq: seq -> $[SequenceGeneric.[seq]] where is-prim-seq
   to-seq: seq -> $[Sequence.[seq]]  where not(is-prim-seq)

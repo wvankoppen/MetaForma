@@ -90,11 +90,21 @@ meta {
 	}
 	
 	void createCar () {
-		if (module.tiltZ() > 50 && #(connSource:MALE)>=2 && #()==3)			module.id = @Axis.Front;
-		if (module.tiltZ() > 50 && #(connSource:FEMALE)>=2 && #()==3)		module.id = @Axis.Back;
-		if (module.tiltZ() < 40 && #(connDest:MALE&EAST|FEMALE&WEST)==1)	module.group = @LeftWheel;
-		if (module.tiltZ() < 40 && #(connDest:FEMALE&EAST|MALE&WEST)==1)	module.group = @RightWheel;
-		if (#(@Axis)==2) 													module.id = @Axis.Driver;
+		if (module.tiltZ() > 50 && #(connSource:MALE)>=2 && #()==3) module.id = @Axis.Front;
+		if (module.tiltZ() > 50 && #(connSource:FEMALE)>=2 && #()==3) module.id = @Axis.Back;
+		if (module.tiltZ() < 40 && #(connDest:MALE&EAST|FEMALE&WEST)==1) module.group = @LeftWheel;
+		if (module.tiltZ() < 40 && #(connDest:FEMALE&EAST|MALE&WEST)==1) module.group = @RightWheel;
+		if (#(@Axis)==2) module.id = @Axis.Driver;
+		meta.type=CAR;
+	}
+			
+	void createCarAfterSnake () {
+		if (#()==3 && #(connSource:SOUTH&FEMALE)==2)		module.id = @Axis.Front;
+		if (#()==3 && #(connSource:SOUTH&MALE)==2)			module.id = @Axis.Back;
+		if (#()==1 && #(connDest:WEST&FEMALE|EAST&MALE)==1)	module.group = @LeftWheel;
+		if (#()==1 && #(connDest:WEST&MALE|EAST&FEMALE)==1)	module.group = @RightWheel;
+		if (#(@Axis)==2) 									module.id = @Axis.Driver;
+		
 		meta.type=CAR;
 		// case #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0:								module.group = @LeftWheel;
 			// case #(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0:								module.group = @RightWheel;
@@ -115,12 +125,10 @@ when (receive (Gradient p)) {
 
   
 sequence Main {	
-	
 	do {
 		meta.sizeExtra = 7;
 		meta.enable();	
 	}
-	
 }
 
 

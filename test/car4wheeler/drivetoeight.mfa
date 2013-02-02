@@ -4,10 +4,10 @@ sequence Strategy {
 	when (module.id == @Axis.Front && module.proximity() > PROXIMITY) {			
 		execute Car2Eight;
 	}
-	switch {
-		case meta.type==NONE:	execute AssignCar;	
-		case meta.type==CAR:	execute Drive;
-		case meta.type==EIGHT:	execute Eight2Snake;
+	do {
+		if (meta.type==NONE)	execute AssignCar;	
+		if (meta.type==CAR)		execute Drive;
+		if (meta.type==EIGHT)	execute Eight2Snake;
 	}
 }
  
@@ -18,13 +18,11 @@ sequence Drive {
 sequence AssignCar {
 	
 	do wait (config.assignTime){ 
-		switch {
-			case #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0:								module.group = @LeftWheel;
-			case #(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0:								module.group = @RightWheel;
-			case (#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==0:	module.id = @Axis.Front;
-			case (#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==1:	module.id = @Axis.Back;
-			case #()==2: 																		module.id = @Axis.Driver;				
-		}
+		if (#(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0)								module.group = @LeftWheel;
+		if (#(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0)								module.group = @RightWheel;
+		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==0)	module.id = @Axis.Front;
+		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==1)	module.id = @Axis.Back;
+		if (#()==2) 																		module.id = @Axis.Driver;				
 	} 
 	meta.type = CAR;
 	

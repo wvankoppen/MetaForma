@@ -114,7 +114,7 @@ rules
      
     index-getclasses(|package) = !Class();index-getcons(|package);assure-class(|Meta()); assure-class(|Module())
     
-    index-getsequences(|package,strategy)=  !Sequence();index-getcons(|package)
+    index-getsequences(|package,strategy)=  !Sequence();index-getcons(|package);![strategy|<id>]
      
     
     external SRTS-EXT-eq-ignore-annos(|t)	// Make term-based comparison and ignore annotations

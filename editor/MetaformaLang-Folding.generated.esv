@@ -60,9 +60,9 @@ folding Default folding definitions
   Exp
   Stmt
   Instr.Instr
-  InstrPost.Wait
+  OptPreCon1
+  PreCon.Wait
+  OptPostCon1
+  PostCon.Wait
   Exp
-  InstrPost.Until
-  Instr.Instr
-  Instr.Instr
-  InstrPre.Wait
+  PostCon.Until

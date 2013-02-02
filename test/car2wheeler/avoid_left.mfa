@@ -7,4 +7,3 @@ sequence Strategy {
 	} 
 	meta.drive(FORWARD,FORWARD); 
 } 
-Instruction start 0:Wait(FieldPrimRef(Config,"assignTime"))
