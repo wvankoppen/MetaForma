@@ -3,7 +3,7 @@ module MetaformaLang
 signature
   constructors
                         : String -> STRING
-    Border              : Orient -> Border
+    Border              : BorderName -> Border
                         : Exp -> StopCondition
     Consensus           : StopCondition
     Until               : StopCondition -> PostCon
@@ -16,6 +16,8 @@ signature
     ModHolderNumRef     : ID * Exp -> ModHolderRef
     ModHolderPrimNumRef : Exp -> ModHolderRef
                         : VarRef -> PacketVarRef
+    BorderArg           : Orient * OrientPrimSec -> BorderArg
+    BorderArg           : Border -> BorderArg
     SequenceRef         : ID -> SequenceRef
     SequencePrimRef     : SequencePrim -> SequenceRef
     VarRef              : ID -> VarRef
@@ -33,7 +35,7 @@ signature
     Orientation         : OrientRef -> OrientClause
     Instr               : Option(PreCon) * List(EvHdlr) * List(VarDecl) * List(Stmt) * Option(PostCon) -> Instr
                         : Stmt -> Instr
-    OrientRef           : Orient -> OrientRef
+    OrientRef           : OrientName -> OrientRef
     Block               : List(Stmt) -> Block
     Block               : Stmt -> Block
                         : Exp -> EventExp
@@ -67,8 +69,8 @@ signature
     VarRef              : ID -> Ref
     MetaPartDecl        : List(MetaPart) -> PartDecl
     PacketVarDecl       : PacketRef * ID -> PacketVarDecl
-    PayloadDecl         : Type * ID -> PayloadDecl
     FieldDecl           : Type * ID -> FieldDecl
+    FieldDeclList       : Type * List(ID) -> FieldDecl
     VarDecl             : Type * ID * Exp -> VarDecl
     VarDecl             : Type * ID -> VarDecl
     Param               : Type * ID -> ParamListElem
@@ -77,11 +79,12 @@ signature
     Region              : Region
     Module              : Module
     Meta                : Meta
+    Orient              : Orient
     BorderItem          : Border * Exp -> BorderItem
     BorderDecl          : List(BorderItem) -> BorderDecl
                         : EvHdlr -> MainDef
     Sequence            : ID * List(EvHdlr) * List(Instr) -> MainDef
-    PacketDecl          : ID * List(PayloadDecl) -> MainDef
+    PacketDecl          : ID * List(FieldDecl) -> MainDef
     ConstDecl           : Type * ID * Exp -> MainDef
     Module              : Option(BorderDecl) * List(FieldDecl) * List(FuncDecl) -> MainDef
     Meta                : Option(PartDecl) * List(FieldDecl) * List(FuncDecl) -> MainDef
@@ -104,9 +107,12 @@ signature
                         : String -> MetaFieldID
                         : String -> ConfigFieldID
                         : String -> ModuleFieldID
+                        : String -> OrientPrimSec
+                        : String -> AtBorder
                         : String -> PacketPrim
                         : String -> MetaPartNoneRef
-                        : String -> Orient
+                        : String -> BorderName
+                        : String -> OrientName
                         : String -> SequencePrim
     MetaPart            : ID -> MetaPart
     NbsFilter           : ModHolderRef -> NbsFilter
@@ -130,6 +136,7 @@ signature
     FuncCall            : FuncRef * List(Exp) -> Exp
     FuncCall            : MethodRef * List(Exp) -> Exp
     OrientMatch         : List(OrientRef) -> Exp
+    ModuleBorderCheck   : Module * AtBorder * BorderArg -> Exp
     MetaPartNoneRef     : MetaPartNoneRef -> Exp
     OrBit               : Exp * Exp -> Exp
     AndBit              : Exp * Exp -> Exp

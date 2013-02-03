@@ -12,7 +12,8 @@ colorer
 	Type     : 127 0 85 bold
 	// Obj     : 0 128 0      
 	ConstLan	: brown 
-	Orient : brown
+	OrientName : brown
+	BorderName : brown
 	FuncPrimRef : brown
 	
 	ModHolderRef: darkyellow
@@ -22,16 +23,19 @@ colorer
 	MetaFieldID : darkgreen
 	ConfigFieldID : darkgreen
 	MetaMethodRef : darkgreen
+	OrientPrimSec : darkgreen
 	RegionMethodRef : darkgreen
 	PayloadID : darkgreen
 	Bool: darkblue
 	
+	AtBorder : darkgreen
 	
 	// The sysobj is overridden by the keyword style!
 	Module : darkblue
 	Meta : darkblue
 	Region : darkblue
 	Config : darkblue
+	Orient : darkblue
 	
 	
 	

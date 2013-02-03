@@ -114,7 +114,7 @@ exports
 	"inRegion" 				-> NbsFilterKey
 	"metaID" 				-> NbsFilterKey
 	"connDest" 				-> NbsFilterKey
-	"connSource"			-> NbsFilterKey
+	"connSrc"			-> NbsFilterKey
 	
 	 context-free syntax
 	
@@ -237,25 +237,30 @@ exports
 	%% "top" 		-> Direction{"BorderTop"} 
 	%% "bottom" 	-> Direction{"BorderBottom"}  
 	
+	"orient" 						-> Orient{cons("Orient")}
 	"meta" 							-> Meta{cons("Meta")}
 	"module"						-> Module{cons("Module")}
 	"region"						-> Region{cons("Region")}
 	"config"						-> Config{cons("Config")}
 	
-	%% "void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"					-> FuncDecl{"FuncDecl"}
+	
 	Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"	-> FuncDecl{cons("FuncDecl")}
 	
 	Type ID 			-> ParamListElem{cons("Param")}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> MainDef{cons("PacketDecl")}
+	"packet" ID "{" FieldDecl* "}" 					-> MainDef{cons("PacketDecl")}
 	
 	Type ID ";" 				-> VarDecl{cons("VarDecl")}
 	Type ID "=" Exp ";"			-> VarDecl{cons("VarDecl")}
+	
+	
+	
+	Type {ID ","}+ ";" 			-> FieldDecl{cons("FieldDeclList"),prefer}
 	Type ID ";" 				-> FieldDecl{cons("FieldDecl")}
-	Type ID ";" 				-> PayloadDecl{cons("PayloadDecl")}
+
 	PacketRef ID 				-> PacketVarDecl{cons("PacketVarDecl")}
 
-	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
+	"parts" "[" {MetaPart ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
 	ID 									-> MetaPart{cons("MetaPart")}
 	
 	
@@ -307,9 +312,9 @@ exports
 	"if" "(" Exp ")" Block 					-> Stmt{cons("If")}
 			
 		
-	Orient 										-> OrientRef{cons("OrientRef")}	
+	OrientName 										-> OrientRef{cons("OrientRef")}	
 		
-	Orient -> ID{reject}	
+	OrientName -> ID{reject}	
 		
 	Stmt -> Instr
 	"execute" SequenceRef ";"							-> Stmt{cons("Execute")}
@@ -339,22 +344,24 @@ exports
 	
 
 		
-	"LEFT_BOTTOM"	-> Orient
-	"LEFT_TOP"	-> Orient
+	"LEFT_BOTTOM"	-> OrientName
+	"LEFT_TOP"	-> OrientName
 	
-	"RIGHT_BOTTOM"	-> Orient
-	"RIGHT_TOP"	-> Orient
+	"RIGHT_BOTTOM"	-> OrientName
+	"RIGHT_TOP"	-> OrientName
 	
-	"BOTTOM_LEFT"	-> Orient
-	"BOTTOM_RIGHT"	-> Orient
+	"BOTTOM_LEFT"	-> OrientName
+	"BOTTOM_RIGHT"	-> OrientName
 	
-	"TOP_LEFT"	-> Orient
-	"TOP_RIGHT"	-> Orient
+	"TOP_LEFT"	-> OrientName
+	"TOP_RIGHT"	-> OrientName
 	
-	"TOP"	-> Orient
-	"BOTTOM"	-> Orient
-	"LEFT"	-> Orient
-	"RIGHT"	-> Orient
+	BorderName -> OrientName
+	
+	"TOP"	-> BorderName
+	"BOTTOM"-> BorderName
+	"LEFT"	-> BorderName
+	"RIGHT"	-> BorderName
 
 			
 	"None"	-> MetaPartNoneRef
@@ -393,6 +400,10 @@ exports
 	%% Oops: Constructors in de URI are not supported!
 
 	
+	Module "." AtBorder "(" BorderArg ")" 				-> Exp {cons("ModuleBorderCheck"),prefer}
+	Border 							-> BorderArg {cons("BorderArg")}
+	Orient "." OrientPrimSec		-> BorderArg {cons("BorderArg")}
+	
 	
 	Meta "." MetaFieldID 			-> Ref{cons("FieldPrimRef")}
 	Module "." ModuleFieldID 		-> Ref{cons("FieldPrimRef")}
@@ -413,6 +424,9 @@ exports
 	ConfigFieldID	-> ID{reject}
 	
 	lexical syntax
+	"atBorder"  -> AtBorder 		%% For coloring
+	"primary"	-> OrientPrimSec
+	"secondary"	-> OrientPrimSec
 	"id" 		-> ModuleFieldID 
 	"metaID" 	-> ModuleFieldID
 	"number" 	-> ModuleFieldID
@@ -426,18 +440,22 @@ exports
 	"regionID" 	-> MetaFieldID
 	"size" 		-> MetaFieldID
 	"sizeExtra" -> MetaFieldID
-	%% "absorbed"	-> MetaFieldID
 	
 	"sourceID" 		-> PayloadID 
 	"sourceGroup" 	-> PayloadID
 	"metaID" 	-> PayloadID
 	"regionID" 	-> PayloadID 
-	"connSource"-> PayloadID
+	"connSrc"-> PayloadID
 	"connDest" 	-> PayloadID
+	
+	
 	
 	"restoreID"			-> ModuleMethodRef
 	"restoreSymmetry"	-> ModuleMethodRef
-	"atBorder"			-> ModuleMethodRef
+	
+	"atBorderPrimary"	-> ModuleMethodRef
+	"atBorderSecondary"	-> ModuleMethodRef
+	
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
 	"tiltX"				-> ModuleMethodRef
@@ -451,8 +469,6 @@ exports
 	"finish" 			-> MetaMethodRef	%% Experimental
 	
 	"release" 			-> RegionMethodRef
-	"atPrimaryBorder" 	-> ModuleMethodRef
-	"atSecondaryBorder" -> ModuleMethodRef
 	"assignTime" 		-> ConfigFieldID
 	
 	
@@ -507,8 +523,8 @@ exports
 	"consensus" "(" ")" 	-> StopCondition {cons("Consensus")}
 	Exp						-> StopCondition	
 	
-	%% Border -> Exp
-	 Orient -> Border{cons("Border")}
+
+	 BorderName -> Border{cons("Border")}
 
 module Common
 imports MetaformaLang
@@ -615,25 +631,30 @@ exports
 	%% "top" 		-> Direction{"BorderTop"} 
 	%% "bottom" 	-> Direction{"BorderBottom"}  
 	
+	"orient" 						-> Orient{cons("Orient")}
 	"meta" 							-> Meta{cons("Meta")}
 	"module"						-> Module{cons("Module")}
 	"region"						-> Region{cons("Region")}
 	"config"						-> Config{cons("Config")}
 	
-	%% "void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"					-> FuncDecl{"FuncDecl"}
+	
 	Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"	-> FuncDecl{cons("FuncDecl")}
 	
 	Type ID 			-> ParamListElem{cons("Param")}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> MainDef{cons("PacketDecl")}
+	"packet" ID "{" FieldDecl* "}" 					-> MainDef{cons("PacketDecl")}
 	
 	Type ID ";" 				-> VarDecl{cons("VarDecl")}
 	Type ID "=" Exp ";"			-> VarDecl{cons("VarDecl")}
+	
+	
+	
+	Type {ID ","}+ ";" 			-> FieldDecl{cons("FieldDeclList"),prefer}
 	Type ID ";" 				-> FieldDecl{cons("FieldDecl")}
-	Type ID ";" 				-> PayloadDecl{cons("PayloadDecl")}
+
 	PacketRef ID 				-> PacketVarDecl{cons("PacketVarDecl")}
 
-	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
+	"parts" "[" {MetaPart ","}* "]" ";" -> PartDecl{cons("MetaPartDecl")}
 	ID 									-> MetaPart{cons("MetaPart")}
 	
 	
@@ -685,9 +706,9 @@ exports
 	"if" "(" Exp ")" Block 					-> Stmt{cons("If")}
 			
 		
-	Orient 										-> OrientRef{cons("OrientRef")}	
+	OrientName 										-> OrientRef{cons("OrientRef")}	
 		
-	Orient -> ID{reject}	
+	OrientName -> ID{reject}	
 		
 	Stmt -> Instr
 	"execute" SequenceRef ";"							-> Stmt{cons("Execute")}
@@ -717,22 +738,24 @@ exports
 	
 
 		
-	"LEFT_BOTTOM"	-> Orient
-	"LEFT_TOP"	-> Orient
+	"LEFT_BOTTOM"	-> OrientName
+	"LEFT_TOP"	-> OrientName
 	
-	"RIGHT_BOTTOM"	-> Orient
-	"RIGHT_TOP"	-> Orient
+	"RIGHT_BOTTOM"	-> OrientName
+	"RIGHT_TOP"	-> OrientName
 	
-	"BOTTOM_LEFT"	-> Orient
-	"BOTTOM_RIGHT"	-> Orient
+	"BOTTOM_LEFT"	-> OrientName
+	"BOTTOM_RIGHT"	-> OrientName
 	
-	"TOP_LEFT"	-> Orient
-	"TOP_RIGHT"	-> Orient
+	"TOP_LEFT"	-> OrientName
+	"TOP_RIGHT"	-> OrientName
 	
-	"TOP"	-> Orient
-	"BOTTOM"	-> Orient
-	"LEFT"	-> Orient
-	"RIGHT"	-> Orient
+	BorderName -> OrientName
+	
+	"TOP"	-> BorderName
+	"BOTTOM"-> BorderName
+	"LEFT"	-> BorderName
+	"RIGHT"	-> BorderName
 
 			
 	"None"	-> MetaPartNoneRef
@@ -771,6 +794,10 @@ exports
 	%% Oops: Constructors in de URI are not supported!
 
 	
+	Module "." AtBorder "(" BorderArg ")" 				-> Exp {cons("ModuleBorderCheck"),prefer}
+	Border 							-> BorderArg {cons("BorderArg")}
+	Orient "." OrientPrimSec		-> BorderArg {cons("BorderArg")}
+	
 	
 	Meta "." MetaFieldID 			-> Ref{cons("FieldPrimRef")}
 	Module "." ModuleFieldID 		-> Ref{cons("FieldPrimRef")}
@@ -791,6 +818,9 @@ exports
 	ConfigFieldID	-> ID{reject}
 	
 	lexical syntax
+	"atBorder"  -> AtBorder 		%% For coloring
+	"primary"	-> OrientPrimSec
+	"secondary"	-> OrientPrimSec
 	"id" 		-> ModuleFieldID 
 	"metaID" 	-> ModuleFieldID
 	"number" 	-> ModuleFieldID
@@ -804,18 +834,22 @@ exports
 	"regionID" 	-> MetaFieldID
 	"size" 		-> MetaFieldID
 	"sizeExtra" -> MetaFieldID
-	%% "absorbed"	-> MetaFieldID
 	
 	"sourceID" 		-> PayloadID 
 	"sourceGroup" 	-> PayloadID
 	"metaID" 	-> PayloadID
 	"regionID" 	-> PayloadID 
-	"connSource"-> PayloadID
+	"connSrc"-> PayloadID
 	"connDest" 	-> PayloadID
+	
+	
 	
 	"restoreID"			-> ModuleMethodRef
 	"restoreSymmetry"	-> ModuleMethodRef
-	"atBorder"			-> ModuleMethodRef
+	
+	"atBorderPrimary"	-> ModuleMethodRef
+	"atBorderSecondary"	-> ModuleMethodRef
+	
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
 	"tiltX"				-> ModuleMethodRef
@@ -829,8 +863,6 @@ exports
 	"finish" 			-> MetaMethodRef	%% Experimental
 	
 	"release" 			-> RegionMethodRef
-	"atPrimaryBorder" 	-> ModuleMethodRef
-	"atSecondaryBorder" -> ModuleMethodRef
 	"assignTime" 		-> ConfigFieldID
 	
 	
@@ -885,5 +917,5 @@ exports
 	"consensus" "(" ")" 	-> StopCondition {cons("Consensus")}
 	Exp						-> StopCondition	
 	
-	%% Border -> Exp
-	 Orient -> Border{cons("Border")}
+
+	 BorderName -> Border{cons("Border")}

@@ -164,10 +164,7 @@ rules
 	// 	refers to Constant n
 		
 
-		
-	//PrimRefPacket(v,p):
-	//	refers to Payload "connSource"
-		
+			
 	Type(c): refers to Class c
 		
 	FieldRef(c,n):

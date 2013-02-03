@@ -80,13 +80,20 @@ regular tree grammar
     ListPlusOfMetaPart0      -> <conc>(ListPlusOfMetaPart0,ListStarOfMetaPart0)
     ListPlusOfMetaPart0      -> <conc>(ListPlusOfMetaPart0,ListPlusOfMetaPart0)
     ListPlusOfMetaPart0      -> <cons>(MetaPart,ListStarOfMetaPart0)
-    ListStarOfPayloadDecl0   -> ListPlusOfPayloadDecl0
-    ListStarOfPayloadDecl0   -> <nil>()
-    ListStarOfPayloadDecl0   -> <conc>(ListStarOfPayloadDecl0,ListStarOfPayloadDecl0)
-    ListPlusOfPayloadDecl0   -> <conc>(ListStarOfPayloadDecl0,ListPlusOfPayloadDecl0)
-    ListPlusOfPayloadDecl0   -> <conc>(ListPlusOfPayloadDecl0,ListStarOfPayloadDecl0)
-    ListPlusOfPayloadDecl0   -> <conc>(ListPlusOfPayloadDecl0,ListPlusOfPayloadDecl0)
-    ListPlusOfPayloadDecl0   -> <cons>(PayloadDecl,ListStarOfPayloadDecl0)
+    ListStarOfID0            -> ListPlusOfID0
+    ListStarOfID0            -> <nil>()
+    ListStarOfID0            -> <conc>(ListStarOfID0,ListStarOfID0)
+    ListPlusOfID0            -> <conc>(ListStarOfID0,ListPlusOfID0)
+    ListPlusOfID0            -> <conc>(ListPlusOfID0,ListStarOfID0)
+    ListPlusOfID0            -> <conc>(ListPlusOfID0,ListPlusOfID0)
+    ListPlusOfID0            -> <cons>(ID,ListStarOfID0)
+    ListStarOfFieldDecl0     -> ListPlusOfFieldDecl0
+    ListStarOfFieldDecl0     -> <nil>()
+    ListStarOfFieldDecl0     -> <conc>(ListStarOfFieldDecl0,ListStarOfFieldDecl0)
+    ListPlusOfFieldDecl0     -> <conc>(ListStarOfFieldDecl0,ListPlusOfFieldDecl0)
+    ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListStarOfFieldDecl0)
+    ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListPlusOfFieldDecl0)
+    ListPlusOfFieldDecl0     -> <cons>(FieldDecl,ListStarOfFieldDecl0)
     ListStarOfParamListElem0 -> ListPlusOfParamListElem0
     ListStarOfParamListElem0 -> <nil>()
     ListStarOfParamListElem0 -> <conc>(ListStarOfParamListElem0,ListStarOfParamListElem0)
@@ -108,13 +115,6 @@ regular tree grammar
     ListPlusOfFuncDecl0      -> <conc>(ListPlusOfFuncDecl0,ListStarOfFuncDecl0)
     ListPlusOfFuncDecl0      -> <conc>(ListPlusOfFuncDecl0,ListPlusOfFuncDecl0)
     ListPlusOfFuncDecl0      -> <cons>(FuncDecl,ListStarOfFuncDecl0)
-    ListStarOfFieldDecl0     -> ListPlusOfFieldDecl0
-    ListStarOfFieldDecl0     -> <nil>()
-    ListStarOfFieldDecl0     -> <conc>(ListStarOfFieldDecl0,ListStarOfFieldDecl0)
-    ListPlusOfFieldDecl0     -> <conc>(ListStarOfFieldDecl0,ListPlusOfFieldDecl0)
-    ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListStarOfFieldDecl0)
-    ListPlusOfFieldDecl0     -> <conc>(ListPlusOfFieldDecl0,ListPlusOfFieldDecl0)
-    ListPlusOfFieldDecl0     -> <cons>(FieldDecl,ListStarOfFieldDecl0)
     OptBorderDecl0           -> <some>(BorderDecl)
     OptBorderDecl0           -> <none>()
     OptPartDecl0             -> <some>(PartDecl)
@@ -167,7 +167,7 @@ regular tree grammar
     BackSlashChar            -> <string>
     StringChar               -> <string>
     STRING                   -> <string>
-    Border                   -> Border(Orient)
+    Border                   -> Border(BorderName)
     StopCondition            -> Exp
     StopCondition            -> Consensus()
     PostCon                  -> Until(StopCondition)
@@ -195,6 +195,9 @@ regular tree grammar
     Ref                      -> FieldPrimRef(Config,ConfigFieldID)
     Ref                      -> FieldPrimRef(Module,ModuleFieldID)
     Ref                      -> FieldPrimRef(Meta,MetaFieldID)
+    BorderArg                -> BorderArg(Orient,OrientPrimSec)
+    BorderArg                -> BorderArg(Border)
+    Exp                      -> ModuleBorderCheck(Module,AtBorder,BorderArg)
     SequenceRef              -> SequenceRef(ID)
     SequenceRef              -> SequencePrimRef(SequencePrim)
     VarRef                   -> VarRef(ID)
@@ -218,7 +221,7 @@ regular tree grammar
     Stmt                     -> ExecuteOrient(SequenceRef,OrientClause)
     Stmt                     -> Execute(SequenceRef)
     Instr                    -> Stmt
-    OrientRef                -> OrientRef(Orient)
+    OrientRef                -> OrientRef(OrientName)
     Stmt                     -> If(Exp,Block)
     Stmt                     -> IfElse(Exp,Block,Block)
     Block                    -> Block(ListStarOfStmt0)
@@ -242,17 +245,18 @@ regular tree grammar
     Exp                      -> MetaPartNoneRef(MetaPartNoneRef)
     PartDecl                 -> MetaPartDecl(ListStarOfMetaPart0)
     PacketVarDecl            -> PacketVarDecl(PacketRef,ID)
-    PayloadDecl              -> PayloadDecl(Type,ID)
     FieldDecl                -> FieldDecl(Type,ID)
+    FieldDecl                -> FieldDeclList(Type,ListPlusOfID0)
     VarDecl                  -> VarDecl(Type,ID,Exp)
     VarDecl                  -> VarDecl(Type,ID)
-    MainDef                  -> PacketDecl(ID,ListStarOfPayloadDecl0)
+    MainDef                  -> PacketDecl(ID,ListStarOfFieldDecl0)
     ParamListElem            -> Param(Type,ID)
     FuncDecl                 -> FuncDecl(Type,ID,ListStarOfParamListElem0,ListStarOfVarDecl0,ListStarOfStmt0)
     Config                   -> Config()
     Region                   -> Region()
     Module                   -> Module()
     Meta                     -> Meta()
+    Orient                   -> Orient()
     BorderItem               -> BorderItem(Border,Exp)
     BorderDecl               -> BorderDecl(ListStarOfBorderItem0)
     MainDef                  -> ConstDecl(Type,ID,Exp)
@@ -277,9 +281,12 @@ regular tree grammar
     MetaFieldID              -> <string>
     ConfigFieldID            -> <string>
     ModuleFieldID            -> <string>
+    OrientPrimSec            -> <string>
+    AtBorder                 -> <string>
     PacketPrim               -> <string>
     MetaPartNoneRef          -> <string>
-    Orient                   -> <string>
+    BorderName               -> <string>
+    OrientName               -> <string>
     SequencePrim             -> <string>
     Exp                      -> OrBit(Exp,Exp)
     Exp                      -> AndBit(Exp,Exp)

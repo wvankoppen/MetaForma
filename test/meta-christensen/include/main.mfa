@@ -3,21 +3,21 @@ package Christensen
 debug {
 	show [AssignMetaID,AddNeighbor,MetaVarSync,Gradient,Packet,Discover,Absorb,Region]
 	
-	// visualize {  
-	//  	north {
-	//  		@X: blue;
-	//  		@Walker: cyan;
-	//  		@Uplifter: white; 
-	//  	}
-	//  	
-	//  	south { 
-	//  		Main: red; 
-	//  		Choose: yellow;
-	//  		GetUp: green;
-	//  		WalkStep: brown;
-	//  		GetDown: purple; 	 
-	//  	} 
-	// } 
+	visualize {  
+	 	north {
+	 		@X: blue;
+	 		@Walker: cyan;
+	 		@Uplifter: white; 
+	 	}
+	 	
+	 	south { 
+	 		Main: black; 
+	 		Strategy: red;
+	 		GetUp: green;
+	 		WalkStep: brown;
+	 		GetDown: purple; 	 
+	 	} 
+	} 
 }
 
 
@@ -26,28 +26,26 @@ int QUART = 90
 int EIGHT = 45
 
 int DELAY_GETUP = 5
+byte LYING = 0
+byte STANDING = 1
 
 group Walker[Left,Top,Right]
 group Uplifter[Left]
 
+
 packet AssignMetaID {
-	byte newID;
-	byte index;
+	byte newID, index;
 }
   
 packet AddNeighbor {
-	byte first;
-	byte second;
+	byte first, second;
 }
 
 packet Gradient {
-	byte pri;
-	byte sec;
+	byte pri, sec;
 } 
 
-packet Absorb {
-	
-}
+packet Absorb {}
 
 when (receive (AddNeighbor p)) {
 	if (p.metaID != 0) {
@@ -88,44 +86,16 @@ when (receive (Gradient p)) {
 }
 
 meta {
- 	part [LeftPart, TopPart, RightPart];	
+ 	parts [LeftPart, TopPart, RightPart];	
  	 	 
-	byte Top;
-	byte Bottom;
-	byte Left;
-	byte Right;
-	byte TopLeft;
-	byte TopRight;
-	byte BottomLeft; 
-	byte BottomRight;
-	byte Up;
-
-	byte isStanding;
+	byte Top,Bottom,Left,Right, TopLeft,TopRight,BottomLeft,BottomRight, Up;
+	byte type;
 
 	void neighborHook (Packet p) {
 		if (p.metaID != module.metaID && module.metaID != 0 && p.metaID != 0 && p.sourceGroup != @Walker) { // Walker not needs to be compromised
-			if (!isStanding() || (module.id != @Walker.Left)) { // && isWEST(p.connSource)
-				if (module.metaPart == TopPart) {
-					Top = p.metaID;
-				}
-				
-				if (module.metaPart == RightPart) {
-					Bottom = p.metaID;
-				}
-				
-				if (module.metaPart == LeftPart) {
-					if (is(NORTH,p.connDest)) {
-						Left = p.metaID;
-					}
-					else {
-						if (is(WEST,p.connDest)) {
-							BottomLeft = p.metaID;
-						}
-						else {
-							Bottom = p.metaID;
-						}
-					}
-				}
+			if (meta.type==LYING || (module.id != @Walker.Left)) {
+				if (module.metaPart == TopPart) 	Top = p.metaID;		
+				if (module.metaPart == RightPart)	Bottom = p.metaID;
 			}
 		}
 	}
@@ -136,53 +106,32 @@ meta {
 			meta.sizeExtra = 1;
 		}
 	} 
-	
-	boolean isStanding() {
-		return isStanding == 1;
-	}
-	
-	void setStanding (boolean standing) {
-		if (standing) {
-			isStanding = 1;
-		}
-		else {
-			isStanding = 0;
-		}
-	}
- 	
+	 	
  }
 
  
 
 module  { 
 	border [
-		LEFT: #(connSource: EAST&MALE)>0; 
-		RIGHT: #(connSource: WEST&MALE)>0;
-		TOP: #(connSource: WEST&FEMALE)>0 && #(connSource: EAST&FEMALE)==0;
-		BOTTOM: #(connSource: NORTH&MALE)==1 && #()==1; // #(connSource: EAST&FEMALE)>0 && #(connSource: WEST&FEMALE)==0;
+		LEFT: #(connSrc: EAST&MALE)>0; 
+		RIGHT: #(connSrc: WEST&MALE)>0;
+		TOP: #(connSrc: WEST&FEMALE)>0 && #(connSrc: EAST&FEMALE)==0;
+		BOTTOM: #(connSrc: NORTH&MALE)==1 && #()==1; // #(connSrc: EAST&FEMALE)>0 && #(connSrc: WEST&FEMALE)==0;
 	]
 	
-	byte gradPri;
-	byte gradSec;
+	boolean sourcePri, sourceSec;
+	byte gradPri, gradSec;
 	boolean isRef;
-	boolean sourcePri;
-	boolean sourceSec;
 	
 	void gradientPropagate () {		 
-		if (sourcePri){
-			gradPri = 0;
-		} 
-		
-		if (sourceSec) {
-			gradSec = 0;
-		}
-		  unicast Gradient(pri=gradPri, sec=gradSec) to $();
-	}
- 		
+		if (sourcePri) gradPri = 0; 
+		if (sourceSec) gradSec = 0;
+		unicast Gradient(pri=gradPri, sec=gradSec) to $();
+	} 		
 
 	void gradientInit() {
-		sourcePri = module.atPrimaryBorder();
-		sourceSec = module.atSecondaryBorder();
+		sourcePri = module.atBorder(orient.primary);
+		sourceSec = module.atBorder(orient.secondary);
 		
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;			
@@ -191,25 +140,22 @@ module  {
 
   
 sequence Main {
- 	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
 	when (receive (Packet p)) {
 		meta.neighborHook (p);
 	}
-	
 	 
-	do {	  
-		when (module.metaID == 0 && #(connSource: EAST&MALE&NORTH, metaPart:None)>0 && #(connSource: WEST&MALE&NORTH, metaID:0)==0) {
+	do {  
+		when (module.metaID == 0 && #(connSrc: EAST&MALE&NORTH, metaPart:None)>0 && #(connSrc: WEST&MALE&NORTH, metaID:0)==0) {
 			module.metaID = module.number; 
 			module.metaPart = LeftPart;
 		}	
 		// When a neighbor receives a packet, it sets its metaPart variable, and thus the above event will no longer trigger. Therefore use 2 events
 		when (module.metaPart == LeftPart && module.metaID != 0) {
-			unicast AssignMetaID (newID = module.metaID) to $(connSource: EAST&MALE&NORTH);
+			unicast AssignMetaID (newID = module.metaID) to $(connSrc: EAST&MALE&NORTH);
 		}
 		
 		when (receive (AssignMetaID p)) {
 			byte index;
-						
 			module.metaID = p.newID;
 				
 			if (p.index == 0) {
@@ -221,9 +167,7 @@ sequence Main {
 				meta.enable(); 
 				execute Strategy;
 			}
-			
-			unicast AssignMetaID (newID = p.newID,index=index) to $(connSource: pow2(mirror(p.connDest,true)));
+			unicast AssignMetaID (newID = p.newID,index=index) to $(connSrc: pow2(mirror(p.connDest,true)));
 		}
-	} until (false); // No consensus here, as the final module will jump to choose when the meta-module is completed  
-	
+	} until (false); // No consensus here, as the final module will jump to Strategy when the meta-module is completed  
 }

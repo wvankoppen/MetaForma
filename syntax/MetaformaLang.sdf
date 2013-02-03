@@ -58,25 +58,30 @@ exports
 	%% "top" 		-> Direction{"BorderTop"} 
 	%% "bottom" 	-> Direction{"BorderBottom"}  
 	
+	"orient" 						-> Orient{"Orient"}
 	"meta" 							-> Meta{"Meta"}
 	"module"						-> Module{"Module"}
 	"region"						-> Region{"Region"}
 	"config"						-> Config{"Config"}
 	
-	%% "void" ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"					-> FuncDecl{"FuncDecl"}
+	
 	Type ID "(" {ParamListElem ","}* ")" "{" VarDecl* Stmt* "}"	-> FuncDecl{"FuncDecl"}
 	
 	Type ID 			-> ParamListElem{"Param"}
 	
-	"packet" ID "{" PayloadDecl* "}" 					-> MainDef{"PacketDecl"}
+	"packet" ID "{" FieldDecl* "}" 					-> MainDef{"PacketDecl"}
 	
 	Type ID ";" 				-> VarDecl{"VarDecl"}
 	Type ID "=" Exp ";"			-> VarDecl{"VarDecl"}
+	
+	
+	
+	Type {ID ","}+ ";" 			-> FieldDecl{"FieldDeclList",prefer}
 	Type ID ";" 				-> FieldDecl{"FieldDecl"}
-	Type ID ";" 				-> PayloadDecl{"PayloadDecl"}
+
 	PacketRef ID 				-> PacketVarDecl{"PacketVarDecl"}
 
-	"part" "[" {MetaPart ","}* "]" ";" -> PartDecl{"MetaPartDecl"}
+	"parts" "[" {MetaPart ","}* "]" ";" -> PartDecl{"MetaPartDecl"}
 	ID 									-> MetaPart{"MetaPart"}
 	
 	
@@ -128,9 +133,9 @@ exports
 	"if" "(" Exp ")" Block 					-> Stmt{"If"}
 			
 		
-	Orient 										-> OrientRef{"OrientRef"}	
+	OrientName 										-> OrientRef{"OrientRef"}	
 		
-	Orient -> ID{reject}	
+	OrientName -> ID{reject}	
 		
 	Stmt -> Instr
 	"execute" SequenceRef ";"							-> Stmt{"Execute"}
@@ -160,22 +165,24 @@ exports
 	
 
 		
-	"LEFT_BOTTOM"	-> Orient
-	"LEFT_TOP"	-> Orient
+	"LEFT_BOTTOM"	-> OrientName
+	"LEFT_TOP"	-> OrientName
 	
-	"RIGHT_BOTTOM"	-> Orient
-	"RIGHT_TOP"	-> Orient
+	"RIGHT_BOTTOM"	-> OrientName
+	"RIGHT_TOP"	-> OrientName
 	
-	"BOTTOM_LEFT"	-> Orient
-	"BOTTOM_RIGHT"	-> Orient
+	"BOTTOM_LEFT"	-> OrientName
+	"BOTTOM_RIGHT"	-> OrientName
 	
-	"TOP_LEFT"	-> Orient
-	"TOP_RIGHT"	-> Orient
+	"TOP_LEFT"	-> OrientName
+	"TOP_RIGHT"	-> OrientName
 	
-	"TOP"	-> Orient
-	"BOTTOM"	-> Orient
-	"LEFT"	-> Orient
-	"RIGHT"	-> Orient
+	BorderName -> OrientName
+	
+	"TOP"	-> BorderName
+	"BOTTOM"-> BorderName
+	"LEFT"	-> BorderName
+	"RIGHT"	-> BorderName
 
 			
 	"None"	-> MetaPartNoneRef
@@ -214,6 +221,10 @@ exports
 	%% Oops: Constructors in de URI are not supported!
 
 	
+	Module "." AtBorder "(" BorderArg ")" 				-> Exp {"ModuleBorderCheck",prefer}
+	Border 							-> BorderArg {"BorderArg"}
+	Orient "." OrientPrimSec		-> BorderArg {"BorderArg"}
+	
 	
 	Meta "." MetaFieldID 			-> Ref{"FieldPrimRef"}
 	Module "." ModuleFieldID 		-> Ref{"FieldPrimRef"}
@@ -234,6 +245,9 @@ exports
 	ConfigFieldID	-> ID{reject}
 	
 	lexical syntax
+	"atBorder"  -> AtBorder 		%% For coloring
+	"primary"	-> OrientPrimSec
+	"secondary"	-> OrientPrimSec
 	"id" 		-> ModuleFieldID 
 	"metaID" 	-> ModuleFieldID
 	"number" 	-> ModuleFieldID
@@ -247,18 +261,22 @@ exports
 	"regionID" 	-> MetaFieldID
 	"size" 		-> MetaFieldID
 	"sizeExtra" -> MetaFieldID
-	%% "absorbed"	-> MetaFieldID
 	
 	"sourceID" 		-> PayloadID 
 	"sourceGroup" 	-> PayloadID
 	"metaID" 	-> PayloadID
 	"regionID" 	-> PayloadID 
-	"connSource"-> PayloadID
+	"connSrc"-> PayloadID
 	"connDest" 	-> PayloadID
+	
+	
 	
 	"restoreID"			-> ModuleMethodRef
 	"restoreSymmetry"	-> ModuleMethodRef
-	"atBorder"			-> ModuleMethodRef
+	
+	"atBorderPrimary"	-> ModuleMethodRef
+	"atBorderSecondary"	-> ModuleMethodRef
+	
 	"fixSymmetry"		-> ModuleMethodRef
 	"proximity"			-> ModuleMethodRef
 	"tiltX"				-> ModuleMethodRef
@@ -272,8 +290,6 @@ exports
 	"finish" 			-> MetaMethodRef	%% Experimental
 	
 	"release" 			-> RegionMethodRef
-	"atPrimaryBorder" 	-> ModuleMethodRef
-	"atSecondaryBorder" -> ModuleMethodRef
 	"assignTime" 		-> ConfigFieldID
 	
 	
@@ -328,8 +344,8 @@ exports
 	"consensus" "(" ")" 	-> StopCondition {"Consensus"}
 	Exp						-> StopCondition	
 	
-	%% Border -> Exp
-	 Orient -> Border{"Border"}
+
+	 BorderName -> Border{"Border"}
 	%% BorderName -> ID{reject}
 	%% 
 	%% lexical syntax

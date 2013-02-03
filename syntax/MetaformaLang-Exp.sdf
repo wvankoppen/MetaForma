@@ -21,7 +21,7 @@ exports
 	"inRegion" 				-> NbsFilterKey
 	"metaID" 				-> NbsFilterKey
 	"connDest" 				-> NbsFilterKey
-	"connSource"			-> NbsFilterKey
+	"connSrc"			-> NbsFilterKey
 	
 	 context-free syntax
 	

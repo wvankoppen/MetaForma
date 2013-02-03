@@ -6,7 +6,7 @@ sequence Strategy {
 	}
 	
 	do {
-		if (!meta.isStanding()) {
+		if (meta.type==LYING) {
 			wait (30) { // needs to be high for parallel walker!
 				try region GetUp (BOTTOM_LEFT) including Bottom excluding Top,Up;
 			}
@@ -42,13 +42,9 @@ sequence GetUp {
 	}
 	
 	retractSet(@Uplifter, (NORTH&EAST&FEMALE)|(SOUTH&WEST&FEMALE));
-		
 	rotate(@Walker.Right,QUART);
 	rotate(@Uplifter.Left,QUART);
-	
-	
 	connect(@Walker.Left,@X);
-		
 	disconnect(@Walker.Right,@Uplifter);
 		
 	do {
@@ -63,11 +59,9 @@ sequence GetUp {
 	
 	rotate(@Walker.Left,HALF);
 	rotate(@Walker.Top,EIGHT);
-	
-	
-	
+		
 	if(module.metaID == meta.regionID) {
-		meta.isStanding = 1;
+		meta.type = STANDING;
 		region.release();
 	}
 	else {
@@ -79,7 +73,6 @@ sequence GetUp {
 
 sequence WalkStep {
 	connect(@Walker.Right, @X);
-		
 	disconnect(@Walker.Left, @X,true); // Also other regions
 	rotate(@Walker.Top,-EIGHT);
 	rotate(@Walker.Right,-HALF);
@@ -100,11 +93,9 @@ sequence GetDown {
 	
 	retractSet(@Uplifter.Left, SOUTH&FEMALE);
 	connect(@Walker.Right,@Uplifter.Left);
-	
 	disconnect(@Walker.Left,@X,true);
-
-	rotate(@Uplifter.Left,QUART);
 	rotate(@Walker.Right,QUART);
+	rotate(@Uplifter.Left,QUART);
 		
 	connect(@Walker.Left,@Uplifter.Left);
 	disconnect(@Walker.Right,@Uplifter.Left);

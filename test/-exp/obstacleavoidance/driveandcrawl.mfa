@@ -10,16 +10,16 @@ debug {
 		south {
 			Main: black;
 			Turn: gray;
-			Drive: red;
+			Strategy: red;
 		}
 	}
 }
 
 // Algorithmic constants
 float PROXIMITY = 0.15
-float TIME_BACKWARD = 2
-float TIME_TURNAROUND = 2
-float TIME_CRAWL = 5
+float TIME_BACKWARD = 2.0
+float TIME_TURNAROUND = 2.0
+float TIME_CRAWL = 5.0
 
 byte STEER_DEGREES = 15
 
@@ -82,17 +82,15 @@ sequence Snake2Eight {
 
 sequence Drive {
 	when (module.id == @Axis.Driver && module.proximity() > PROXIMITY) {
-		goto Car2Eight;
+		execute Car2Eight;
 	} 
 	
 	do { 
-		when {
-			case #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0:								module.group = @LeftWheel;
-			case #(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0:								module.group = @RightWheel;
-			case (#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==0:	module.id = @Axis.Front;
-			case (#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==1:	module.id = @Axis.Back;
-			case #()==2: 																		module.id = @Axis.Driver;	
-		}
+		if (#(connSrc:SOUTH&EAST&FEMALE, connDest:EAST)>0)								module.group = @LeftWheel;
+		if (#(connSrc:SOUTH&EAST&FEMALE, connDest:WEST)>0)								module.group = @RightWheel;
+		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSrc: NORTH&EAST&FEMALE)==0)	module.id = @Axis.Front;
+		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSrc: NORTH&EAST&FEMALE)==1)	module.id = @Axis.Back;
+		if (#()==2) 																		module.id = @Axis.Driver;	
 	} until (config.assignTime);
 	
 	meta.drive(FORWARD,FORWARD);
@@ -114,7 +112,6 @@ sequence Crawl {
 		rotateAbsolute(@Eight[1],0); 
 		rotateAbsolute(@Eight[5],0);
 	}
-	goto Snake2Eight;
 }
 
  
@@ -130,7 +127,6 @@ sequence Turn {
 	
 	meta.steer(-STEER_DEGREES);
 	
-	goto Drive;
 }
 
 sequence Eight2Car {
@@ -175,8 +171,6 @@ sequence Eight2Car {
 		retract(@Eight[3],2);
 	}
 	rotate(@Eight[1],QUART);
-	
-	goto Drive;
 }
 
 sequence Car2Eight {
@@ -226,7 +220,6 @@ sequence Car2Eight {
 		extend(@Eight[3],4); 
 	}
 	
-	goto Eight2Snake;
 }
 
 

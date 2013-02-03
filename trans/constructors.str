@@ -63,6 +63,7 @@ signature
 	Strategy: X -> Strategy
 	Main: X -> Main
 	Plain: X -> Plain
+	PayloadDecl: t * n -> PayloadDecl
 
 
 	

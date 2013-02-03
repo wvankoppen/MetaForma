@@ -59,7 +59,6 @@ where
 desugar-td: Sequence(n,ehdlrs,instrs) -> Sequence(n-cons,ehdlrs,instrs''')  
 where
 	n-cons := <seqname + seqnamePrim>n;
-
 	instrs' := <map(try(add-instrblock))><conc> (instrs,[Execute(SequencePrimRef("Strategy"))]);
 	<upto><dec><length>instrs' => nrs;
 	<zip>(nrs,instrs') => instrs'';
@@ -101,24 +100,38 @@ where
 		postcon' := Wait(Consensus())
 	end
 
+desugar-prepare: FieldDeclList(t,names) -> Block(decls)
+where
+	decls := <map(add-type-field(|t))>names
+	add-type-field(|t): n ->	FieldDecl(t,n)
+
+
+desugar-prepare: PacketDecl(n,fields) -> PacketDecl(n,payloads) 
+where
+	payloads := <flatten-list><map(field2payload)>fields
+
+	field2payload: FieldDecl(t,n) -> PayloadDecl(t,n)
+	field2payload: FieldDeclList(t,names) -> <map(add-type-payload(|t))>names
+		add-type-payload(|t): n ->	PayloadDecl(t,n)
+
 
 // Needs to be done prior to desugar sequences ????NOT SURE
-desugar-td: VarDecl(Boolean(),var) -> VarDecl(Boolean(),var,Bool("false"))
-desugar-td: VarDecl(Byte(),var) -> VarDecl(Byte(),var,Int(0))
-desugar-td: VarDecl(Int(),var) -> VarDecl(Int(),var,Int(0))
-// desugar: FuncCall(FuncActuationRef(f), args) -> FuncCall(MethodRef(Actuation(),f),args)
-// desugar-td: Connect("connect",ref1,ref2) -> Connect("connect",ref1,ref2,Bool("false"))
-// desugar-td: Disconnect("disconnect",ref1,ref2) -> Disconnect("disconnect",ref1,ref2,Bool("false")) 
+
+desugar-td: VarDecl(t,n) -> VarDecl(t,n,<var-init>t)
+
+	var-init: Byte() -> Int("0")
+	var-init: Boolean() -> Bool("false")
+	var-init: Float() -> Float("0")
+	var-init: Int() -> Int("0") 
 
 // Desugar the vardecls out of an event
-desugar: If (e,vardecls,stats) -> If(e,<conc>(vardecls,stats))
+desugar-td: If (e,vardecls,stats) -> If(e,<conc>(vardecls,stats))
 
-desugar: EvHdlr(receive,vars,stats) -> EvHdlr (<newname>,receive,vars,stats)
-desugar: ShowPackets(packets) -> DebugItem (ShowPackets(),packets)
+desugar-td: EvHdlr(receive,vars,stats) -> EvHdlr (<newname>,receive,vars,stats)
+desugar-td: ShowPackets(packets) -> DebugItem (ShowPackets(),packets)
 
-// desugar: Region(borders,funcs) -> Class(Region(),borders,funcs)
-desugar: Meta(metaparts,decls,funcs) -> Class(Meta(),metaparts,<conc>(decls,funcs))
-desugar: Module(borders,decls,funcs) -> Class(Module(),borders,<conc>(decls,funcs))
+desugar-td: Meta(metaparts,decls,funcs) -> Class(Meta(),metaparts,<conc>(<flatten-list>/*Get rid of FieldDeclList*/decls,funcs))
+desugar-td: Module(borders,decls,funcs) -> Class(Module(),borders,<conc>(<flatten-list>/*Get rid of FieldDeclList*/decls,funcs))
 
  desugar: Block(stats) -> [stats]
  where

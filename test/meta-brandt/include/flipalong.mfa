@@ -2,8 +2,7 @@ package Brandt
 group Clover [North,South,West,East]
  
 sequence FlipAlong  {
-	
-	if (orientation matches TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
+	if (TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
 		QUART = 90;
 		HALF = 180; 
 	}
@@ -25,7 +24,6 @@ sequence FlipAlong  {
 		if (gradPri==2 && gradSec==1) module.id = @Clover.East;
 		isRef = (gradPri == 0 && gradSec == 3);
 	}
-			 
 	
 	disconnect(@Clover.West,@Clover.South);
 	rotate(@Clover.East,QUART);
@@ -46,6 +44,5 @@ sequence FlipAlong  {
 	connect(@Clover.South,@Clover.West);
 	
 	module.fixSymmetry(isRef);
-	
 	region.finish();
 }

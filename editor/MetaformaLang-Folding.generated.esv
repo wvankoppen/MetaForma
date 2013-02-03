@@ -34,6 +34,7 @@ folding Default folding definitions
   MainDef.Meta
   OptPartDecl0
   PartDecl.MetaPartDecl
+  FieldDecl.FieldDeclList
   FuncDecl.FuncDecl
   VarDecl.VarDecl
   Stmt.Unicast

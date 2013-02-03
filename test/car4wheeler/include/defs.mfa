@@ -52,8 +52,8 @@ module {
  	
 
 	void gradientInit() {
-		sourcePri = #(connSource: MALE&WEST)==2 && #()==2;
-		sourceSec = #(connSource: FEMALE&EAST)==2 && #()==2;
+		sourcePri = #(connSrc: MALE&WEST)==2 && #()==2;
+		sourceSec = #(connSrc: FEMALE&EAST)==2 && #()==2;
 		
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;			
@@ -90,11 +90,11 @@ meta {
 	}
 	
 	void createCar () {
-		if (module.tiltZ() > 50 && #(connSource:MALE)>=2 && #()==3) module.id = @Axis.Front;
-		if (module.tiltZ() > 50 && #(connSource:FEMALE)>=2 && #()==3) module.id = @Axis.Back;
-		if (module.tiltZ() < 40 && #(connDest:MALE&EAST|FEMALE&WEST)==1) module.group = @LeftWheel;
-		if (module.tiltZ() < 40 && #(connDest:FEMALE&EAST|MALE&WEST)==1) module.group = @RightWheel;
-		if (#(@Axis)==2) module.id = @Axis.Driver;
+		if (module.tiltZ() > 50 && #(connSource:MALE)>=2 && #()==3) 		module.id = @Axis.Front;
+		if (module.tiltZ() > 50 && #(connSource:FEMALE)>=2 && #()==3) 		module.id = @Axis.Back;
+		if (module.tiltZ() < 40 && #(connDest:MALE&EAST|FEMALE&WEST)==1) 	module.group = @LeftWheel;
+		if (module.tiltZ() < 40 && #(connDest:FEMALE&EAST|MALE&WEST)==1) 	module.group = @RightWheel;
+		if (#(@Axis)==2) 													module.id = @Axis.Driver;
 		meta.type=CAR;
 	}
 			

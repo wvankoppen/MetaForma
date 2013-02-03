@@ -25,7 +25,7 @@ sequence Strategy {
 sequence Eight2CarNames {
 	do {
 		when (receive(Symmetry p)) {
-			module.fixSymmetry(p.connSource,p.connDest);
+			module.fixSymmetry(p.connSrc,p.connDest);
 		}
 		module.fixSymmetry(module.id == @X[0]);
 	} until(consensus());

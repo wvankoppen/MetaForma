@@ -7,8 +7,7 @@ group Outside
 
 
 sequence FlipOver {
-	
-	if (orientation matches TOP_LEFT,LEFT_TOP,RIGHT_TOP,TOP_RIGHT) { // checked and correct
+	if (TOP_LEFT,LEFT_TOP,RIGHT_TOP,TOP_RIGHT) { // checked and correct
 		HALF = -180;
 		QUART = -90;
 	} 
@@ -23,41 +22,33 @@ sequence FlipOver {
 	} until (config.propagationTime);
 
 	do  {
-		when {
-			case (gradPri < 2 && gradSec == 0) || (gradPri==0 && gradSec<2): module.group = @Outside;
-			case gradPri > 0 && gradSec > 0: module.group = @Inside;
-			case gradPri==1 && gradSec==3: module.id = @InsideLifter.Top;
-			case gradPri==3 && gradSec==1: module.id = @InsideLifter.Bottom;
-			case gradPri==0 && gradSec==2: module.id = @OutsideLifter.Top;
-			case gradPri==2 && gradSec==0: module.id = @OutsideLifter.Bottom; 
-		}
-		isRef = (gradPri == 3 && gradSec == 0);
+		if( (gradPri < 2 && gradSec == 0) || (gradPri==0 && gradSec<2)) module.group = @Outside;
+		if( gradPri > 0 && gradSec > 0) module.group = @Inside;
+		if( gradPri==1 && gradSec==3) module.id = @InsideLifter.Top;
+		if( gradPri==3 && gradSec==1) module.id = @InsideLifter.Bottom;
+		if( gradPri==0 && gradSec==2) module.id = @OutsideLifter.Top;
+		if( gradPri==2 && gradSec==0) module.id = @OutsideLifter.Bottom; 
+		isRef = (gradPri==3 && gradSec==0);
 	}
 	
-			
 	do {
 		disconnect(@Outside, @Inside);
 		disconnect(@OutsideLifter, @Inside);
 	}
-	
 	do {
 		rotate(@InsideLifter.Top,-HALF);
 		rotate(@InsideLifter.Bottom,HALF);
 	} 
-	
 	do {
 		rotate(@OutsideLifter.Top,-HALF);
 		rotate(@OutsideLifter.Bottom,HALF);
 	} 
-	
 	// 2 groups in parallel does not work, FIX: commit at the end of state, not instruction
 	// do {
-		
-		connect(@InsideLifter, @Outside);
-		connect(@Outside, @Inside);
+	connect(@InsideLifter, @Outside);
+	connect(@Outside, @Inside);
 	// }
 		
 	module.fixSymmetry(isRef);
-	
 	region.finish();
 }

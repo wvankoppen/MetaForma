@@ -65,6 +65,7 @@ rules
 	type-of: NbsCount(_) -> Byte()
 	type-of: Int(i) -> Int()
 	
+	type-of: Min(i) -> <type-of>i
 	type-of: Not(_) -> Boolean()
 	type-of: Bool(_) -> Boolean()
 	type-of: MetaPartNoneRef(_) -> MetaPart()

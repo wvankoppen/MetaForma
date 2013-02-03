@@ -16,10 +16,10 @@ debug {
 	 		@Outside: blue;
 	 		@Inside: red;
 	 		
-	 		@UpLifter.Top: yellow;
-	 		@UpLifter.Bottom: magenta;
-	 		@UpLifter.Left: green; 
-	 		@UpLifter.Right: yellow;
+	 		@Uplifter.Top: yellow;
+	 		@Uplifter.Bottom: magenta;
+	 		@Uplifter.Left: green; 
+	 		@Uplifter.Right: yellow;
 	 		
 	 		@Dummy.Left: white;
 	 		@Dummy.Right: black;
@@ -40,16 +40,13 @@ debug {
 packet AssignMetaID {
 	byte newID;
 }
-  
 
 packet AddNeighbor {
-	byte first;
-	byte second;
+	byte first, second;
 }
 
 packet Gradient {
-	byte pri;
-	byte sec;
+	byte pri, sec;
 } 
 
 when (receive (AddNeighbor p)) {
@@ -82,36 +79,16 @@ when (receive (Gradient p)) {
 	}	
 }
 
-
-
-
 meta {
- 	part [North, West, South, East];	
-	// Future work: express meta.Right as Right 
-	byte Top;
-	byte Bottom;
-	byte Left;
-	byte Right;
-	byte TopLeft;
-	byte TopRight;
-	byte BottomLeft; 
-	byte BottomRight;
-	
+ 	parts [North, West, South, East];	
+	byte Top,Bottom,Left,Right, TopLeft,TopRight,BottomLeft,BottomRight;
 
 	void neighborHook (Packet p) {
 		if (p.metaID != module.metaID && module.metaID != 0) {
-			if (p.connDest == 5 || p.connDest == 6) {
-				meta.Right = p.metaID;
-			}
-		 	if (p.connDest == 2 || p.connDest == 7) {
-		 		meta.Top = p.metaID;
-		 	}
-			if (p.connDest == 0 || p.connDest == 3) {
-				meta.Left = p.metaID;
-			}
-			if (p.connDest == 1 || p.connDest == 4) {
-				meta.Bottom = p.metaID;
-			}
+			if (p.connDest == 5 || p.connDest == 6) meta.Right = p.metaID;
+		 	if (p.connDest == 2 || p.connDest == 7) meta.Top = p.metaID;
+			if (p.connDest == 0 || p.connDest == 3) meta.Left = p.metaID;
+			if (p.connDest == 1 || p.connDest == 4) meta.Bottom = p.metaID;
 		}
 	}
  		
@@ -125,37 +102,27 @@ meta {
 
 module  { 
 	border [
-		LEFT: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&NORTH&FEMALE) == 0; 
-		RIGHT: #(connSource: WEST&MALE) == 2 && #(connSource: EAST&SOUTH&MALE) == 0 || #(connSource: EAST&FEMALE) == 2 && #(connSource: WEST&SOUTH&FEMALE) == 0;
-		TOP: #(connSource: WEST&MALE) == 2 && #(connSource: EAST&NORTH&MALE) == 0 || #(connSource: WEST&FEMALE) == 2 && #(connSource: EAST&SOUTH&FEMALE) == 0;
-		BOTTOM: #(connSource: EAST&MALE) == 2 && #(connSource: WEST&SOUTH&MALE) == 0 || #(connSource: EAST&FEMALE) == 2 && #(connSource: WEST&NORTH&FEMALE) == 0;
+		LEFT: #(connSrc: EAST&MALE) == 2 && #(connSrc: WEST&NORTH&MALE) == 0 || #(connSrc: WEST&FEMALE) == 2 && #(connSrc: EAST&NORTH&FEMALE) == 0; 
+		RIGHT: #(connSrc: WEST&MALE) == 2 && #(connSrc: EAST&SOUTH&MALE) == 0 || #(connSrc: EAST&FEMALE) == 2 && #(connSrc: WEST&SOUTH&FEMALE) == 0;
+		TOP: #(connSrc: WEST&MALE) == 2 && #(connSrc: EAST&NORTH&MALE) == 0 || #(connSrc: WEST&FEMALE) == 2 && #(connSrc: EAST&SOUTH&FEMALE) == 0;
+		BOTTOM: #(connSrc: EAST&MALE) == 2 && #(connSrc: WEST&SOUTH&MALE) == 0 || #(connSrc: EAST&FEMALE) == 2 && #(connSrc: WEST&NORTH&FEMALE) == 0;
 	]
 
-	byte gradPri;
-	byte gradSec;
+	byte gradPri, gradSec;
+	boolean sourcePri, sourceSec;
 	boolean isRef;
-	boolean sourcePri;
-	boolean sourceSec;
-	int QUART;
-	int HALF;
-	int EIGHT;
-
+	
+	int QUART, HALF, EIGHT;
 	
 	void gradientPropagate () {		 
-		if (sourcePri){
-			gradPri = 0;
-		} 
-		
-		if (sourceSec) {
-			gradSec = 0;
-		}
-		 unicast Gradient(pri=gradPri, sec=gradSec) to $();
-	}
- 	
+		if (sourcePri) gradPri = 0; 
+		if (sourceSec) gradSec = 0;
+		unicast Gradient(pri=gradPri, sec=gradSec) to $();
+	} 	
 
 	void gradientInit() {
-		sourcePri = module.atPrimaryBorder();
-		sourceSec = module.atSecondaryBorder();
+		sourcePri = module.atBorder(orient.primary);
+		sourceSec = module.atBorder(orient.secondary);
 		
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;		
@@ -165,42 +132,37 @@ module  {
 
   
 sequence Main {
- 	// During a sequence we should not add meta neighbors as the connector numbers can be swapped! So only do this at DEFAULT or INIT operation state
 	when (receive (Packet p)) {
 		meta.neighborHook (p);
 	}
 	 
 	do {	  
-		when ( #(connSource: EAST&MALE, metaPart:None) == 2 && #(connSource: WEST, metaPart:None)==0) {
+		when ( #(connSrc: EAST&MALE, metaPart:None) == 2 && #(connSrc: WEST, metaPart:None)==0) {
 			module.metaID = module.number; 
 			module.metaPart = West;
 		}	
 		// When a neighbor receives a packet, it sets its metaPart variable, and thus the above event will no longer trigger. Therefore use 2 events
 		when (module.metaPart == West) {
-			unicast AssignMetaID (newID = module.metaID) to $(connSource: EAST&MALE&NORTH);
+			unicast AssignMetaID (newID = module.metaID) to $(connSrc: EAST&MALE&NORTH);
 		}
 		
 		when (receive (AssignMetaID p)) {
 			if (module.metaID == 0) {
 				module.metaID = p.newID;
 				
-				if (is(MALE,p.connDest) && module.metaPart == None) {
+				if (is(MALE,p.connDest) && module.metaPart == None) 
 					module.metaPart = East; 
-				}
-				else if (is(WEST,p.connDest) && module.metaPart == None) {
+				else if (is(WEST,p.connDest) && module.metaPart == None) 
 					module.metaPart = North;
-				}
-				else if (is(EAST,p.connDest) && module.metaPart == None) {
+				else if (is(EAST,p.connDest) && module.metaPart == None) 
 					module.metaPart = South;
-				}
 			}
 			
 			if (module.metaPart == West) {
 				meta.enable();
 				break; 
 			} 
-			
-			unicast AssignMetaID (newID = p.newID) to $(connSource: pow2((p.connDest + 4) % 8));
+			unicast AssignMetaID (newID = p.newID) to $(connSrc: pow2((p.connDest + 4) % 8));
 		}
 	} until(consensus()); 
 	
@@ -208,5 +170,3 @@ sequence Main {
 		meta.broadcastMetaNeighbors();
 	} until(config.propagationTime);
 }
-
-
