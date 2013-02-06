@@ -19,8 +19,7 @@ imports
 	desugar
 	project
 	
-	signature constructors
-		Type: X * X -> Type
+		
 	
 rules
 	
@@ -63,7 +62,7 @@ rules
 	
 		
 	adjust-index-def-data(store-results|namespace, path): 
-		term@Sequence(Main(_{[Sequence(), name, package]}),_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
+		term@Sequence(Init(_{[Sequence(), name, package]}),_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
 	
 	adjust-index-def-data(store-results|namespace, path): 
 		term@Sequence(Plain(_{[Sequence(), name, package]}),_,_) -> <store-results> DefData([Sequence(), package], Sequence(), term)
@@ -144,15 +143,5 @@ rules
 		strategy := <desugar-all-nbl>strat
 
 	index-getdebugitems(|package) = <try(list-breakout)><index-getcons(|package)>DebugItem()
-
- //    testdata=![
- //    	Class(
-	// 	     Meta(){[Class(), Meta(), "ObstacleavoidanceTwoWheeler"]}
-	// 	   , None()
-	// 	   , []
- //   )
- //   
- //   
- // ]   
     
     

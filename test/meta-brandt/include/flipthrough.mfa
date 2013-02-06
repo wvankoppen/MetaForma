@@ -2,7 +2,6 @@ package Brandt
 
 group Uplifter [Top,Bottom,Left,Right]
 group Dummy [Left,Right]
-
  
 sequence FlipThrough {
 	if (BOTTOM_RIGHT, RIGHT_TOP, LEFT_BOTTOM) {

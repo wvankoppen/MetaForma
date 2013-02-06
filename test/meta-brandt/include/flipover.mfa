@@ -5,7 +5,6 @@ group OutsideLifter [Top,Bottom]
 group Inside
 group Outside
 
-
 sequence FlipOver {
 	if (TOP_LEFT,LEFT_TOP,RIGHT_TOP,TOP_RIGHT) { // checked and correct
 		HALF = -180;

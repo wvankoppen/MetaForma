@@ -28,7 +28,7 @@ sequence AssignCar {
 	
 	execute Strategy;
 	
-} // CANNOT BE MOVED TO META FUNC
+} // CANNOT BE MOVED TO META FUNC 
 
 sequence Car2EightNames {
 	module.restoreID();

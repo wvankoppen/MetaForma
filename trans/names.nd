@@ -46,7 +46,7 @@ rules
 		defines Sequence n	
 		scopes Var,Instruction,EventHandler
 	
-	Sequence (Main(n),_,_):
+	Sequence (Init(n),_,_):
 		defines Sequence n
 		scopes Var,Instruction,EventHandler
 		
@@ -59,7 +59,7 @@ rules
 		
 	Instr(i,_,_,_,_):
 		defines Instruction i
-		scopes EventHandler
+		scopes EventHandler,Var
 		
 
 	SequenceRef(n):
@@ -157,7 +157,7 @@ rules
 		refers to Payload n	in Packet p
 		where obj has type Packet(p)
 	
-	// VarRef(n): 
+	// Ref(n): 
 	// 	refers to Var n
 	// 	refers to Field n			
 	// 	refers to MetaPart n
@@ -173,9 +173,10 @@ rules
 		// refers to Class c
 	
 	
-		
-	Meta(): refers to Class Meta() // refers to ClassFake Meta() DOES NOT WORK??
-	Module(): refers to Class Module() //refers to ClassFake Module()
+		// refers to ClassFake Meta() DOES NOT WORK??
+	Meta(): refers to Class Meta() 
+	Module(): refers to Class Module() 
+	//refers to ClassFake Module()
 	// Region(): refers to Class Region() //refers to ClassFake Region()
 		
 	//  non-unique because we desugar an empty module, meta and region class in the AST, this allows to omit the declaration in hello word program

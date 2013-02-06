@@ -59,6 +59,7 @@ lexical syntax
 	
 	"is"			-> FuncPrimRef
 	"min"			-> FuncPrimRef
+	"max"			-> FuncPrimRef
 	"pow2"			-> FuncPrimRef
 	"mirror"		-> FuncPrimRef
 	

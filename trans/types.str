@@ -50,7 +50,7 @@ rules
 	
 	type-of: VarDecl(t,n) -> t
 	type-of: Param(t,n) -> t
-	type-of: VarRef(n) ->  <type-of><index-lookup> n
+	type-of: Ref(n) ->  <type-of><index-lookup> n
 	
 		 
 	type-of: Meta() -> Class("meta")

@@ -218,23 +218,23 @@ rules
 rules
 
   nam-get-scope-types :
-    Sequence(Main(n), _, _) -> [Var(), Instruction(), EventHandler()]
+    Sequence(Init(n), _, _) -> [Var(), Instruction(), EventHandler()]
 
   nam-get-definition-keys :
-    Sequence(Main(n), _, _) -> [n]
+    Sequence(Init(n), _, _) -> [n]
 
   nam-get-definitions :
-    Sequence(Main(n), _, _) -> [(Sequence(), [n])]
+    Sequence(Init(n), _, _) -> [(Sequence(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Sequence(Main(n), _, _) -> <Sequence(
-                                  Main(nam-annotate-def(|path__))
+    Sequence(Init(n), _, _) -> <Sequence(
+                                  Init(nam-annotate-def(|path__))
                                 , id
                                 , id
                                 )>
 
   nam-unique :
-    Sequence(Main(n), _, _) -> <id>
+    Sequence(Init(n), _, _) -> <id>
 
 
 rules
@@ -259,7 +259,7 @@ rules
 rules
 
   nam-get-scope-types :
-    Instr(i, _, _, _, _) -> [EventHandler()]
+    Instr(i, _, _, _, _) -> [EventHandler(), Var()]
 
   nam-get-definition-keys :
     Instr(i, _, _, _, _) -> [i]

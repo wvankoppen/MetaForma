@@ -4,17 +4,17 @@ debug {
 	show [Discover,Packet,Symmetry, Consensus]
 	
 	visualize {
-		north {
+		north [
 			@LeftWheel: green;
 			@RightWheel: yellow;
 			@Axis: magenta;
-		}
-		south {
-			Main: black;
+		]
+		south [
+			Init: black;
 			Car2Eight: gray;
 			Drive: red;
 			Turn: black;
-		}
+		]
 	} 
 	
 }
@@ -40,14 +40,9 @@ module {
 	boolean sourceSec;
 	
 	void gradientPropagate () {		 
-		if (sourcePri){
-			gradPri = 0;
-		} 
-		
-		if (sourceSec) {
-			gradSec = 0;
-		}
-		  unicast Gradient(pri=gradPri, sec=gradSec) to $();
+		if (sourcePri)	gradPri = 0;
+		if (sourceSec) 	gradSec = 0;
+		unicast Gradient(pri=gradPri, sec=gradSec) to $();
 	}
  	
 
@@ -61,9 +56,8 @@ module {
 	
 	void gradientAssignEight () {
 		byte nr = (gradPri/2)*3;
-		if (gradSec%2==0) {
+		if (gradSec%2==0) 	
 			nr = nr + gradSec/2 + 1;
-		}
 		
 		module.id = @Eight[nr];
 		module.backupID();
@@ -90,8 +84,8 @@ meta {
 	}
 	
 	void createCar () {
-		if (module.tiltZ() > 50 && #(connSource:MALE)>=2 && #()==3) 		module.id = @Axis.Front;
-		if (module.tiltZ() > 50 && #(connSource:FEMALE)>=2 && #()==3) 		module.id = @Axis.Back;
+		if (module.tiltZ() > 50 && #(connSrc:MALE)>=2 && #()==3) 			module.id = @Axis.Front;
+		if (module.tiltZ() > 50 && #(connSrc:FEMALE)>=2 && #()==3) 			module.id = @Axis.Back;
 		if (module.tiltZ() < 40 && #(connDest:MALE&EAST|FEMALE&WEST)==1) 	module.group = @LeftWheel;
 		if (module.tiltZ() < 40 && #(connDest:FEMALE&EAST|MALE&WEST)==1) 	module.group = @RightWheel;
 		if (#(@Axis)==2) 													module.id = @Axis.Driver;
@@ -99,8 +93,8 @@ meta {
 	}
 			
 	void createCarAfterSnake () {
-		if (#()==3 && #(connSource:SOUTH&FEMALE)==2)		module.id = @Axis.Front;
-		if (#()==3 && #(connSource:SOUTH&MALE)==2)			module.id = @Axis.Back;
+		if (#()==3 && #(connSrc:SOUTH&FEMALE)==2)			module.id = @Axis.Front;
+		if (#()==3 && #(connSrc:SOUTH&MALE)==2)				module.id = @Axis.Back;
 		if (#()==1 && #(connDest:WEST&FEMALE|EAST&MALE)==1)	module.group = @LeftWheel;
 		if (#()==1 && #(connDest:WEST&MALE|EAST&FEMALE)==1)	module.group = @RightWheel;
 		if (#(@Axis)==2) 									module.id = @Axis.Driver;
@@ -124,9 +118,9 @@ when (receive (Gradient p)) {
 }
 
   
-sequence Main {	
+sequence Init {	
 	do {
-		meta.sizeExtra = 7;
+		meta.sizeExtra = 7+1-4+4*5;
 		meta.enable();	
 	}
 }

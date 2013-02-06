@@ -188,9 +188,9 @@ to-java: FieldPrimRef(obj,f) -> $[[<to-java>obj].get[<to-let-func>f]()]
 to-java: VarDecl(t,n,v) -> $[[<to-java>t] [n]; [n]=([<to-java>t])[<to-java>v];]
 
 
-// FieldRefs may be parsed as VarRefs, then we need to extract from URI
-to-java: Assign(v@VarRef(_{[Field(),name,obj,package]}), e) -> <to-java>Assign(FieldRef(obj,name),e)
-to-java: Assign(v@VarRef(_{uri@[Var()|_]}), e) -> $[[<to-java>v] = [<uri-to-cast>uri][<to-java>e]]
+// FieldRefs may be parsed as Refs, then we need to extract from URI
+to-java: Assign(v@Ref(_{[Field(),name,obj,package]}), e) -> <to-java>Assign(FieldRef(obj,name),e)
+to-java: Assign(v@Ref(_{uri@[Var()|_]}), e) -> $[[<to-java>v] = [<uri-to-cast>uri][<to-java>e]]
 
 
 to-let-func = switch id
@@ -221,11 +221,11 @@ to-java: Meta() -> $[meta()]
 
 
 
-to-java: VarRef(n{[Unresolved(_)|_]}) -> <debug>"UNRESOLVED VAR!"
-to-java: VarRef(n{[Var()|_]}) -> $[[<strip-annos>n]]
-to-java: VarRef(n{[Field(),name,class,package]}) -> <to-java>FieldRef(class,n)
-to-java: VarRef(n{[Constant()|_]}) -> <strip-annos>n
-to-java: VarRef(n{[MetaPart()|_]}) -> $[MetaPart.[<strip-annos>n]]
+to-java: Ref(n{[Unresolved(_)|_]}) -> <debug>"UNRESOLVED VAR!"
+to-java: Ref(n{[Var()|_]}) -> $[[<strip-annos>n]]
+to-java: Ref(n{[Field(),name,class,package]}) -> <to-java>FieldRef(class,n)
+to-java: Ref(n{[Constant()|_]}) -> <strip-annos>n
+to-java: Ref(n{[MetaPart()|_]}) -> $[MetaPart.[<strip-annos>n]]
 
 
 to-java: Par(e) -> $[ ([<to-java>e]) ]

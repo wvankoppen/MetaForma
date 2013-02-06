@@ -2,16 +2,16 @@ package TwoWheeler
 
 debug {
 	visualize { 
-		north {
+		north [
 			@Car.LeftWheel: green;
 			@Car.RightWheel: yellow;
 			@Car.Driver: magenta;
-		}
-		south {
-			Main: black;
+		]
+		south [
+			Init: black;
 			Turn: gray;
 			Strategy: red;
-		}
+		]
 	}
 }
 
@@ -25,7 +25,7 @@ meta {
 	} 
 }
   
-sequence Main {	
+sequence Init {	
 	do {
 		meta.sizeExtra = 3;
 		meta.enable();	

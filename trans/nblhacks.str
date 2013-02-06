@@ -32,24 +32,24 @@ imports
         	g := name{u}
 
 
-strategies // Custom VarRef rules
+strategies // Custom Ref rules
 
   nam-get-uses-keys :
-    VarRef(n) -> [n]
+    Ref(n) -> [n]
 
   nam-get-uses :
-    VarRef(n) -> [ (Var(), [n])
+    Ref(n) -> [ (Var(), [n])
                  , (Field(), [n])
                  , (MetaPart(), [n])
                  , (Constant(), [n])
                  ]
 
   nam-annotate-names(|paths__, path__):
-    VarRef(n) -> <VarRef(nam-annotate-use(|paths__, Var()))>
+    Ref(n) -> <Ref(nam-annotate-use(|paths__, Var()))>
 
 
   adjust-index-lookup(target__|namespace__, path__, prefix__):
-    VarRef(n) -> <concat> [ [ 
+    Ref(n) -> <concat> [ [ 
     						  [Var()|path__]
                             , [Field()|path__]
                             , [MetaPart()|path__]

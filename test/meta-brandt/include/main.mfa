@@ -4,7 +4,7 @@ debug {
 	show [Packet,AddNeighbor]
 	
 	visualize {  
-	 	north {
+	 	north [
 	 		@Clover.North: white;
 	 		@Clover.South: black;
 	 		@Clover.West: yellow; 
@@ -25,15 +25,15 @@ debug {
 	 		@Dummy.Right: black;
 	 		 
 	 		@X: blue;
-	 	}
+	 	]
 	 	
-	 	south { 
-	 		Main: white;  
+	 	south [ 
+	 		Init: white;  
 	 		Strategy: red;
 	 		FlipOver: yellow;
 	 		FlipThrough: cyan;
 	 		FlipAlong: magenta;
-	 	} 
+	 	]
 	} 
 }
 
@@ -117,7 +117,7 @@ module  {
 	void gradientPropagate () {		 
 		if (sourcePri) gradPri = 0; 
 		if (sourceSec) gradSec = 0;
-		unicast Gradient(pri=gradPri, sec=gradSec) to $();
+		unicast Gradient(pri=gradPri, sec=gradSec);
 	} 	
 
 	void gradientInit() {
@@ -131,7 +131,7 @@ module  {
  }
 
   
-sequence Main {
+sequence Init {
 	when (receive (Packet p)) {
 		meta.neighborHook (p);
 	}

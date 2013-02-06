@@ -61,9 +61,10 @@ signature
 	PayloadRef: X * X -> PayloadRef
 	ConstDecl: X * X * X -> ConstDecl
 	Strategy: X -> Strategy
-	Main: X -> Main
+	Init: X -> Main
 	Plain: X -> Plain
 	PayloadDecl: t * n -> PayloadDecl
+	Type: X * X -> Type
 
 
 	

@@ -273,6 +273,7 @@ rules // Utility
 			java-consts := <map2str(to-java-stat)><debug(!"Consts:")><index-getcons(|package)>Constant();
 			
 			<debug>"##############################";
+			debug(!"COMPILE ENUMS");
 			names-metapart := <concat-glue(|",")><reverse><map(project-name)><index-getcons(|package)>MetaPart(); // We need to reverse as it seems they are stored in reverse order 
 			names-sequence := <concat-glue(|",")><filter(not(is-prim-seq))><map(project-name)>seqs;
 			names-group := <concat-glue(|",")><map(project-name)><index-getcons(|package)>Group();

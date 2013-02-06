@@ -3,7 +3,6 @@ module MetaformaLang
 signature
   constructors
                         : String -> STRING
-    Border              : BorderName -> Border
                         : Exp -> StopCondition
     Consensus           : StopCondition
     Until               : StopCondition -> PostCon
@@ -15,12 +14,12 @@ signature
     ModHolderRef        : ID * ID -> ModHolderRef
     ModHolderNumRef     : ID * Exp -> ModHolderRef
     ModHolderPrimNumRef : Exp -> ModHolderRef
+    Ref                 : ID -> VarRef
                         : VarRef -> PacketVarRef
     BorderArg           : Orient * OrientPrimSec -> BorderArg
     BorderArg           : Border -> BorderArg
     SequenceRef         : ID -> SequenceRef
     SequencePrimRef     : SequencePrim -> SequenceRef
-    VarRef              : ID -> VarRef
     MethodPrimRef       : Region * RegionMethodRef -> MethodRef
     MethodPrimRef       : Module * ModuleMethodRef -> MethodRef
     MethodPrimRef       : Meta * MetaMethodRef -> MethodRef
@@ -29,21 +28,18 @@ signature
     FuncRef             : ID -> FuncRef
     MetaFieldRef        : ID -> MetaFieldRef
     Excluding           : List(MetaFieldRef) -> ExcludingClause
-    Mod                 : ID -> Mod
-    Group               : ID -> GroupDef
-    Group               : ID * List(Mod) -> GroupDef
     Orientation         : OrientRef -> OrientClause
     Instr               : Option(PreCon) * List(EvHdlr) * List(VarDecl) * List(Stmt) * Option(PostCon) -> Instr
                         : Stmt -> Instr
     OrientRef           : OrientName -> OrientRef
     Block               : List(Stmt) -> Block
     Block               : Stmt -> Block
-                        : Exp -> EventExp
     PacketPrim          : PacketPrim -> PacketRef
     Packet              : ID -> PacketRef
-    If                  : EventExp * List(VarDecl) * List(Stmt) -> EvHdlr
+    If                  : Exp * List(VarDecl) * List(Stmt) -> EvHdlr
     EvHdlr              : Receive * List(VarDecl) * List(Stmt) -> EvHdlr
     Receive             : PacketVarDecl -> Receive
+    NbsClause           : Nbs -> NbsClause
     FuncCall            : FuncPrimRef2 * List(Exp) -> Stmt
     FuncCall            : FuncRef * List(Exp) -> Stmt
     FuncCall            : MethodRef * List(Exp) -> Stmt
@@ -56,7 +52,7 @@ signature
     IfElse              : Exp * Block * Block -> Stmt
     Return              : Exp -> Stmt
     Assign              : Ref * Exp -> Stmt
-    Unicast             : PacketRef * AssignList * Nbs -> Stmt
+    Unicast             : PacketRef * AssignList * Option(NbsClause) -> Stmt
     AssignList          : List(AssignElem) -> AssignList
     AssignElem          : PayloadRef * Exp -> AssignElem
     PayloadRef          : ID -> PayloadRef
@@ -66,7 +62,7 @@ signature
     FieldPrimRef        : Config * ConfigFieldID -> Ref
     FieldPrimRef        : Module * ModuleFieldID -> Ref
     FieldPrimRef        : Meta * MetaFieldID -> Ref
-    VarRef              : ID -> Ref
+    Ref                 : ID -> Ref
     MetaPartDecl        : List(MetaPart) -> PartDecl
     PacketVarDecl       : PacketRef * ID -> PacketVarDecl
     FieldDecl           : Type * ID -> FieldDecl
@@ -80,8 +76,12 @@ signature
     Module              : Module
     Meta                : Meta
     Orient              : Orient
+    Border              : BorderName -> Border
     BorderItem          : Border * Exp -> BorderItem
     BorderDecl          : List(BorderItem) -> BorderDecl
+    Mod                 : ID -> Mod
+    Group               : ID -> GroupDef
+    Group               : ID * List(Mod) -> GroupDef
                         : EvHdlr -> MainDef
     Sequence            : ID * List(EvHdlr) * List(Instr) -> MainDef
     PacketDecl          : ID * List(FieldDecl) -> MainDef
