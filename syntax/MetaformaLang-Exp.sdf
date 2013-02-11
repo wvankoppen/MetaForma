@@ -20,8 +20,8 @@ exports
 	"connected" 			-> NbsFilterKey
 	"inRegion" 				-> NbsFilterKey
 	"metaID" 				-> NbsFilterKey
-	"connDest" 				-> NbsFilterKey
-	"connSrc"				-> NbsFilterKey
+	"connNb" 				-> NbsFilterKey
+	"connOwn"				-> NbsFilterKey
 	
 	 context-free syntax
 	

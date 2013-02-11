@@ -65,6 +65,6 @@ signature
 	Plain: X -> Plain
 	PayloadDecl: t * n -> PayloadDecl
 	Type: X * X -> Type
-
+	TryRegion: X * X * X * X -> TryRegion
 
 	

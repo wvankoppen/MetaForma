@@ -63,7 +63,8 @@ rules
 	type-of: Def(uri) ->  <index-get-data(|Type())> Def(uri)
 	
 	type-of: NbsCount(_) -> Byte()
-	type-of: Int(i) -> Int()
+	type-of: Int(i) -> Int()	where <gt>(i,127)
+	type-of: Int(i) -> Byte()	where <lt>(i,128)
 	
 	type-of: Min(i) -> <type-of>i
 	type-of: Not(_) -> Boolean()

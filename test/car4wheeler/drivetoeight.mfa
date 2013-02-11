@@ -18,16 +18,13 @@ sequence Drive {
 sequence AssignCar {
 	
 	do wait (config.assignTime){ 
-		if (#(connSrc:SOUTH&EAST&FEMALE, connDest:EAST)>0)								module.group = @LeftWheel;
-		if (#(connSrc:SOUTH&EAST&FEMALE, connDest:WEST)>0)								module.group = @RightWheel;
-		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSrc: NORTH&EAST&FEMALE)==0)	module.id = @Axis.Front;
-		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSrc: NORTH&EAST&FEMALE)==1)	module.id = @Axis.Back;
+		if (#(connOwn:SOUTH&EAST&FEMALE, connNb:EAST)>0)								module.group = @LeftWheel;
+		if (#(connOwn:SOUTH&EAST&FEMALE, connNb:WEST)>0)								module.group = @RightWheel;
+		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connOwn: NORTH&EAST&FEMALE)==0)	module.id = @Axis.Front;
+		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connOwn: NORTH&EAST&FEMALE)==1)	module.id = @Axis.Back;
 		if (#()==2) 																		module.id = @Axis.Driver;				
 	} 
-	meta.type = CAR;
-	
-	execute Strategy;
-	
+	meta.type = CAR;	
 } // CANNOT BE MOVED TO META FUNC 
 
 sequence Car2EightNames {
@@ -149,7 +146,6 @@ sequence Car2Eight {
 		extend(@Eight[3],4); 
 	}
 	
-	execute Strategy;
 }
 
 sequence Eight2Snake {
@@ -163,7 +159,6 @@ sequence Eight2Snake {
 		rotate(@Eight[6],-HALF);
 	}
 	meta.type = SNAKE;
-	execute Strategy;
 }
 
 sequence Crawl {

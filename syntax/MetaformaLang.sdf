@@ -38,7 +38,7 @@ exports
 	"module" "{" BorderDecl? FieldDecl* FuncDecl* "}" 	-> MainDef{"Module"}
 	 
 	Type ID "=" Exp									-> MainDef{"ConstDecl"}
-	"border" "[" BorderItem* "]"					-> BorderDecl{"BorderDecl"}
+	"borders" "[" BorderItem* "]" ";"				-> BorderDecl{"BorderDecl"}
 	Border ":" Exp ";" 								-> BorderItem{"BorderItem"}
 	BorderName 										-> Border{"Border"}
 	
@@ -63,6 +63,7 @@ exports
 	PacketRef ID 				-> PacketVarDecl{"PacketVarDecl"}
 
 	"parts" "[" {MetaPart ","}+ "]" ";" -> PartDecl{"MetaPartDecl"}
+	"parts" INT ";" 					-> PartDecl{"MetaSize"}
 	ID 									-> MetaPart{"MetaPart"}
 	
 	"None" 								-> ID{reject}
@@ -75,7 +76,7 @@ exports
 	PayloadRef "=" Exp					-> AssignElem{"AssignElem"}
 	{AssignElem ","}*					-> AssignList{"AssignList"} 
 	
-	"unicast" PacketRef "(" AssignList ")" NbsClause?  ";" -> Stmt{"Unicast"}
+	"send" PacketRef "(" AssignList ")" NbsClause?  ";" -> Stmt{"Send"}
 	"to" Nbs	-> NbsClause{"NbsClause"}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{"Receive"}
 	
@@ -111,7 +112,12 @@ exports
 	
 	"wait" "(" Exp ")" Block		-> Stmt{"Wait"}
 	
-	"try" "region" SequenceRef OrientClause? "including" {MetaFieldRef ","}*  ExcludingClause?  ";" -> Stmt{"TryRegion"}
+	"try" Region SequenceRef OrientClause? "including" {MetaFieldRef ","}*  ExcludingClause?  ";" -> Stmt{"TryRegion"}
+	"disable" Region ";"			-> Stmt{"RegionDisable"}
+	"disable" Meta ";"			-> Stmt{"MetaDisable"}
+	
+	"enable" Meta ";"			-> Stmt{"MetaEnable"}
+	
 	"excluding" {MetaFieldRef ","}* -> ExcludingClause{"Excluding"}
 	
 	 {Exp ","}* 				-> ByteList {"ByteArr"}
@@ -125,9 +131,9 @@ exports
 	ID -> FuncRef{"FuncRef"}
 	
 	SysObj "." ID 					-> MethodRef{"MethodRef"}
-	Meta "." MetaMethodRef 		-> MethodRef{"MethodPrimRef"}
+%%	Meta "." MetaMethodRef 		-> MethodRef{"MethodPrimRef"}
 	Module "." ModuleMethodRef 		-> MethodRef{"MethodPrimRef"}
-	Region "." RegionMethodRef 		-> MethodRef{"MethodPrimRef"}
+%%	Region "." RegionMethodRef 		-> MethodRef{"MethodPrimRef"}
 	
 	
 	
@@ -153,9 +159,7 @@ exports
 	 
 	ModuleFieldID 	-> ID{reject}
 	MetaFieldID  	-> ID{reject}
-	MetaMethodRef  	-> ID{reject}
 	ModuleMethodRef -> ID{reject}
-	RegionMethodRef -> ID{reject}
 	PayloadID 		-> ID{reject}
 	ConfigFieldID	-> ID{reject}
 	
@@ -206,8 +210,8 @@ exports
 	"sourceGroup" 	-> PayloadID
 	"metaID" 		-> PayloadID
 	"regionID" 		-> PayloadID 
-	"connSrc"		-> PayloadID
-	"connDest" 		-> PayloadID
+	"connOwn"		-> PayloadID
+	"connNb" 		-> PayloadID
 	
 	
 	"restoreID"			-> ModuleMethodRef
@@ -218,14 +222,10 @@ exports
 	"tiltX"				-> ModuleMethodRef
 	"tiltY"				-> ModuleMethodRef
 	"tiltZ"				-> ModuleMethodRef
-	"initMeta"			-> ModuleMethodRef
 	"backupID"			-> ModuleMethodRef
-	"enable"			-> MetaMethodRef
-	"finish" 			-> RegionMethodRef
 	
-	"finish" 			-> MetaMethodRef	%% Experimental
 	
-	"release" 			-> RegionMethodRef
+	
 	"assignTime" 		-> ConfigFieldID
 	
 	

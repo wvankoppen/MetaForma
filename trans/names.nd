@@ -105,7 +105,7 @@ rules
 		defines Method n of type t
 		scopes Field,Var
 		
-	Unicast(Packet(p),_,_):
+	Send(Packet(p),_,_):
 		refers to Packet p
 		
 	

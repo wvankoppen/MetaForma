@@ -5,9 +5,13 @@ sequence Strategy {
 		meta.neighborHook (p);
 	}
 	
+	do {
+		meta.broadcastNeighbors();
+	}until(config.propagationTime);
+	
 	do {	
 		try region FlipThrough(TOP_RIGHT) including Bottom excluding Left, Top;
 		try region FlipOver(TOP_RIGHT) including Bottom,Left excluding Top;
 		try region FlipThrough(RIGHT_TOP) including Left excluding Top,Bottom,BottomLeft;
-	}
+	}until (false);
 }

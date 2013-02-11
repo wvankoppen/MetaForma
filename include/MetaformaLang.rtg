@@ -202,9 +202,7 @@ regular tree grammar
     Exp                      -> ModuleBorderCheck(Module,AtBorder,BorderArg)
     SequenceRef              -> SequenceRef(ID)
     SequenceRef              -> SequencePrimRef(SequencePrim)
-    MethodRef                -> MethodPrimRef(Region,RegionMethodRef)
     MethodRef                -> MethodPrimRef(Module,ModuleMethodRef)
-    MethodRef                -> MethodPrimRef(Meta,MetaMethodRef)
     MethodRef                -> MethodRef(SysObj,ID)
     FuncRef                  -> FuncRef(ID)
     ModHolderOrExp           -> ModHolderRef
@@ -213,7 +211,10 @@ regular tree grammar
     MetaFieldRef             -> MetaFieldRef(ID)
     ByteList                 -> ByteArr(ListStarOfExp0)
     ExcludingClause          -> Excluding(ListStarOfMetaFieldRef0)
-    Stmt                     -> TryRegion(SequenceRef,OptOrientClause0,ListStarOfMetaFieldRef0,OptExcludingClause1)
+    Stmt                     -> MetaEnable(Meta)
+    Stmt                     -> MetaDisable(Meta)
+    Stmt                     -> RegionDisable(Region)
+    Stmt                     -> TryRegion(Region,SequenceRef,OptOrientClause0,ListStarOfMetaFieldRef0,OptExcludingClause1)
     Stmt                     -> Wait(Exp,Block)
     OrientClause             -> Orientation(OrientRef)
     Stmt                     -> ExecuteOrient(SequenceRef,OrientClause)
@@ -234,12 +235,13 @@ regular tree grammar
     MainDef                  -> Sequence(ID,ListStarOfEvHdlr0,ListStarOfInstr0)
     Receive                  -> Receive(PacketVarDecl)
     NbsClause                -> NbsClause(Nbs)
-    Stmt                     -> Unicast(PacketRef,AssignList,OptNbsClause1)
+    Stmt                     -> Send(PacketRef,AssignList,OptNbsClause1)
     AssignList               -> AssignList(ListStarOfAssignElem0)
     AssignElem               -> AssignElem(PayloadRef,Exp)
     PayloadRef               -> PayloadRef(ID)
     Ref                      -> Ref(ID)
     Exp                      -> MetaPartNoneRef(MetaPartNoneRef)
+    PartDecl                 -> MetaSize(INT)
     PartDecl                 -> MetaPartDecl(ListPlusOfMetaPart0)
     PacketVarDecl            -> PacketVarDecl(PacketRef,ID)
     FieldDecl                -> FieldDecl(Type,ID)
@@ -275,8 +277,6 @@ regular tree grammar
     Debug                    -> Debug(OptShowPackets1,OptVisualize1)
     Start                    -> Package(ID,OptDebug0,ListStarOfMainDef0)
     FuncActuationRef         -> <string>
-    RegionMethodRef          -> <string>
-    MetaMethodRef            -> <string>
     ModuleMethodRef          -> <string>
     PayloadID                -> <string>
     MetaFieldID              -> <string>

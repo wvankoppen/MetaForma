@@ -114,8 +114,8 @@ exports
 	"connected" 			-> NbsFilterKey
 	"inRegion" 				-> NbsFilterKey
 	"metaID" 				-> NbsFilterKey
-	"connDest" 				-> NbsFilterKey
-	"connSrc"				-> NbsFilterKey
+	"connNb" 				-> NbsFilterKey
+	"connOwn"				-> NbsFilterKey
 	
 	 context-free syntax
 	
@@ -218,7 +218,7 @@ exports
 	"module" "{" BorderDecl? FieldDecl* FuncDecl* "}" 	-> MainDef{cons("Module")}
 	 
 	Type ID "=" Exp									-> MainDef{cons("ConstDecl")}
-	"border" "[" BorderItem* "]"					-> BorderDecl{cons("BorderDecl")}
+	"borders" "[" BorderItem* "]" ";"				-> BorderDecl{cons("BorderDecl")}
 	Border ":" Exp ";" 								-> BorderItem{cons("BorderItem")}
 	BorderName 										-> Border{cons("Border")}
 	
@@ -243,6 +243,7 @@ exports
 	PacketRef ID 				-> PacketVarDecl{cons("PacketVarDecl")}
 
 	"parts" "[" {MetaPart ","}+ "]" ";" -> PartDecl{cons("MetaPartDecl")}
+	"parts" INT ";" 					-> PartDecl{cons("MetaSize")}
 	ID 									-> MetaPart{cons("MetaPart")}
 	
 	"None" 								-> ID{reject}
@@ -255,7 +256,7 @@ exports
 	PayloadRef "=" Exp					-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*					-> AssignList{cons("AssignList")} 
 	
-	"unicast" PacketRef "(" AssignList ")" NbsClause?  ";" -> Stmt{cons("Unicast")}
+	"send" PacketRef "(" AssignList ")" NbsClause?  ";" -> Stmt{cons("Send")}
 	"to" Nbs	-> NbsClause{cons("NbsClause")}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
 	
@@ -291,7 +292,12 @@ exports
 	
 	"wait" "(" Exp ")" Block		-> Stmt{cons("Wait")}
 	
-	"try" "region" SequenceRef OrientClause? "including" {MetaFieldRef ","}*  ExcludingClause?  ";" -> Stmt{cons("TryRegion")}
+	"try" Region SequenceRef OrientClause? "including" {MetaFieldRef ","}*  ExcludingClause?  ";" -> Stmt{cons("TryRegion")}
+	"disable" Region ";"			-> Stmt{cons("RegionDisable")}
+	"disable" Meta ";"			-> Stmt{cons("MetaDisable")}
+	
+	"enable" Meta ";"			-> Stmt{cons("MetaEnable")}
+	
 	"excluding" {MetaFieldRef ","}* -> ExcludingClause{cons("Excluding")}
 	
 	 {Exp ","}* 				-> ByteList {cons("ByteArr")}
@@ -305,9 +311,9 @@ exports
 	ID -> FuncRef{cons("FuncRef")}
 	
 	SysObj "." ID 					-> MethodRef{cons("MethodRef")}
-	Meta "." MetaMethodRef 		-> MethodRef{cons("MethodPrimRef")}
+%%	Meta "." MetaMethodRef 		-> MethodRef{"MethodPrimRef"}
 	Module "." ModuleMethodRef 		-> MethodRef{cons("MethodPrimRef")}
-	Region "." RegionMethodRef 		-> MethodRef{cons("MethodPrimRef")}
+%%	Region "." RegionMethodRef 		-> MethodRef{"MethodPrimRef"}
 	
 	
 	
@@ -333,9 +339,7 @@ exports
 	 
 	ModuleFieldID 	-> ID{reject}
 	MetaFieldID  	-> ID{reject}
-	MetaMethodRef  	-> ID{reject}
 	ModuleMethodRef -> ID{reject}
-	RegionMethodRef -> ID{reject}
 	PayloadID 		-> ID{reject}
 	ConfigFieldID	-> ID{reject}
 	
@@ -386,8 +390,8 @@ exports
 	"sourceGroup" 	-> PayloadID
 	"metaID" 		-> PayloadID
 	"regionID" 		-> PayloadID 
-	"connSrc"		-> PayloadID
-	"connDest" 		-> PayloadID
+	"connOwn"		-> PayloadID
+	"connNb" 		-> PayloadID
 	
 	
 	"restoreID"			-> ModuleMethodRef
@@ -398,14 +402,10 @@ exports
 	"tiltX"				-> ModuleMethodRef
 	"tiltY"				-> ModuleMethodRef
 	"tiltZ"				-> ModuleMethodRef
-	"initMeta"			-> ModuleMethodRef
 	"backupID"			-> ModuleMethodRef
-	"enable"			-> MetaMethodRef
-	"finish" 			-> RegionMethodRef
 	
-	"finish" 			-> MetaMethodRef	%% Experimental
 	
-	"release" 			-> RegionMethodRef
+	
 	"assignTime" 		-> ConfigFieldID
 	
 	
@@ -544,7 +544,7 @@ exports
 	"module" "{" BorderDecl? FieldDecl* FuncDecl* "}" 	-> MainDef{cons("Module")}
 	 
 	Type ID "=" Exp									-> MainDef{cons("ConstDecl")}
-	"border" "[" BorderItem* "]"					-> BorderDecl{cons("BorderDecl")}
+	"borders" "[" BorderItem* "]" ";"				-> BorderDecl{cons("BorderDecl")}
 	Border ":" Exp ";" 								-> BorderItem{cons("BorderItem")}
 	BorderName 										-> Border{cons("Border")}
 	
@@ -569,6 +569,7 @@ exports
 	PacketRef ID 				-> PacketVarDecl{cons("PacketVarDecl")}
 
 	"parts" "[" {MetaPart ","}+ "]" ";" -> PartDecl{cons("MetaPartDecl")}
+	"parts" INT ";" 					-> PartDecl{cons("MetaSize")}
 	ID 									-> MetaPart{cons("MetaPart")}
 	
 	"None" 								-> ID{reject}
@@ -581,7 +582,7 @@ exports
 	PayloadRef "=" Exp					-> AssignElem{cons("AssignElem")}
 	{AssignElem ","}*					-> AssignList{cons("AssignList")} 
 	
-	"unicast" PacketRef "(" AssignList ")" NbsClause?  ";" -> Stmt{cons("Unicast")}
+	"send" PacketRef "(" AssignList ")" NbsClause?  ";" -> Stmt{cons("Send")}
 	"to" Nbs	-> NbsClause{cons("NbsClause")}
 	"receive" "(" PacketVarDecl ")" 	-> Receive{cons("Receive")}
 	
@@ -617,7 +618,12 @@ exports
 	
 	"wait" "(" Exp ")" Block		-> Stmt{cons("Wait")}
 	
-	"try" "region" SequenceRef OrientClause? "including" {MetaFieldRef ","}*  ExcludingClause?  ";" -> Stmt{cons("TryRegion")}
+	"try" Region SequenceRef OrientClause? "including" {MetaFieldRef ","}*  ExcludingClause?  ";" -> Stmt{cons("TryRegion")}
+	"disable" Region ";"			-> Stmt{cons("RegionDisable")}
+	"disable" Meta ";"			-> Stmt{cons("MetaDisable")}
+	
+	"enable" Meta ";"			-> Stmt{cons("MetaEnable")}
+	
 	"excluding" {MetaFieldRef ","}* -> ExcludingClause{cons("Excluding")}
 	
 	 {Exp ","}* 				-> ByteList {cons("ByteArr")}
@@ -631,9 +637,9 @@ exports
 	ID -> FuncRef{cons("FuncRef")}
 	
 	SysObj "." ID 					-> MethodRef{cons("MethodRef")}
-	Meta "." MetaMethodRef 		-> MethodRef{cons("MethodPrimRef")}
+%%	Meta "." MetaMethodRef 		-> MethodRef{"MethodPrimRef"}
 	Module "." ModuleMethodRef 		-> MethodRef{cons("MethodPrimRef")}
-	Region "." RegionMethodRef 		-> MethodRef{cons("MethodPrimRef")}
+%%	Region "." RegionMethodRef 		-> MethodRef{"MethodPrimRef"}
 	
 	
 	
@@ -659,9 +665,7 @@ exports
 	 
 	ModuleFieldID 	-> ID{reject}
 	MetaFieldID  	-> ID{reject}
-	MetaMethodRef  	-> ID{reject}
 	ModuleMethodRef -> ID{reject}
-	RegionMethodRef -> ID{reject}
 	PayloadID 		-> ID{reject}
 	ConfigFieldID	-> ID{reject}
 	
@@ -712,8 +716,8 @@ exports
 	"sourceGroup" 	-> PayloadID
 	"metaID" 		-> PayloadID
 	"regionID" 		-> PayloadID 
-	"connSrc"		-> PayloadID
-	"connDest" 		-> PayloadID
+	"connOwn"		-> PayloadID
+	"connNb" 		-> PayloadID
 	
 	
 	"restoreID"			-> ModuleMethodRef
@@ -724,14 +728,10 @@ exports
 	"tiltX"				-> ModuleMethodRef
 	"tiltY"				-> ModuleMethodRef
 	"tiltZ"				-> ModuleMethodRef
-	"initMeta"			-> ModuleMethodRef
 	"backupID"			-> ModuleMethodRef
-	"enable"			-> MetaMethodRef
-	"finish" 			-> RegionMethodRef
 	
-	"finish" 			-> MetaMethodRef	%% Experimental
 	
-	"release" 			-> RegionMethodRef
+	
 	"assignTime" 		-> ConfigFieldID
 	
 	

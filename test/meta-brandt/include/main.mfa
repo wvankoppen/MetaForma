@@ -38,7 +38,7 @@ debug {
 }
 
 packet AssignMetaID {
-	byte newID;
+	byte newID,counter;
 }
 
 packet AddNeighbor {
@@ -85,39 +85,38 @@ meta {
 
 	void neighborHook (Packet p) {
 		if (p.metaID != module.metaID && module.metaID != 0) {
-			if (p.connDest == 5 || p.connDest == 6) meta.Right = p.metaID;
-		 	if (p.connDest == 2 || p.connDest == 7) meta.Top = p.metaID;
-			if (p.connDest == 0 || p.connDest == 3) meta.Left = p.metaID;
-			if (p.connDest == 1 || p.connDest == 4) meta.Bottom = p.metaID;
+			if (p.connNb==5 || p.connNb==6) meta.Right = p.metaID;
+		 	if (p.connNb==2 || p.connNb==7) meta.Top = p.metaID;
+			if (p.connNb==0 || p.connNb==3) meta.Left = p.metaID;
+			if (p.connNb==1 || p.connNb==4) meta.Bottom = p.metaID;
 		}
 	}
  		
-	void broadcastMetaNeighbors () {
-		unicast AddNeighbor(first=Left, second=Right) to $(metaID: [Top, Bottom], inRegion:false);
-		unicast AddNeighbor(first=Top, second=Bottom) to $(metaID: [Left, Right], inRegion:false);
+	void broadcastNeighbors () {
+		send AddNeighbor(first=Left, second=Right) to $(metaID: [Top, Bottom], inRegion:false);
+		send AddNeighbor(first=Top, second=Bottom) to $(metaID: [Left, Right], inRegion:false);
 	}
  }
 
  
 
 module  { 
-	border [
-		LEFT: #(connSrc: EAST&MALE) == 2 && #(connSrc: WEST&NORTH&MALE) == 0 || #(connSrc: WEST&FEMALE) == 2 && #(connSrc: EAST&NORTH&FEMALE) == 0; 
-		RIGHT: #(connSrc: WEST&MALE) == 2 && #(connSrc: EAST&SOUTH&MALE) == 0 || #(connSrc: EAST&FEMALE) == 2 && #(connSrc: WEST&SOUTH&FEMALE) == 0;
-		TOP: #(connSrc: WEST&MALE) == 2 && #(connSrc: EAST&NORTH&MALE) == 0 || #(connSrc: WEST&FEMALE) == 2 && #(connSrc: EAST&SOUTH&FEMALE) == 0;
-		BOTTOM: #(connSrc: EAST&MALE) == 2 && #(connSrc: WEST&SOUTH&MALE) == 0 || #(connSrc: EAST&FEMALE) == 2 && #(connSrc: WEST&NORTH&FEMALE) == 0;
-	]
+	borders [
+		LEFT: #(connOwn: EAST&MALE) == 2 && #(connOwn: WEST&NORTH&MALE) == 0 || #(connOwn: WEST&FEMALE) == 2 && #(connOwn: EAST&NORTH&FEMALE) == 0; 
+		RIGHT: #(connOwn: WEST&MALE) == 2 && #(connOwn: EAST&SOUTH&MALE) == 0 || #(connOwn: EAST&FEMALE) == 2 && #(connOwn: WEST&SOUTH&FEMALE) == 0;
+		TOP: #(connOwn: WEST&MALE) == 2 && #(connOwn: EAST&NORTH&MALE) == 0 || #(connOwn: WEST&FEMALE) == 2 && #(connOwn: EAST&SOUTH&FEMALE) == 0;
+		BOTTOM: #(connOwn: EAST&MALE) == 2 && #(connOwn: WEST&SOUTH&MALE) == 0 || #(connOwn: EAST&FEMALE) == 2 && #(connOwn: WEST&NORTH&FEMALE) == 0;
+	];
 
 	byte gradPri, gradSec;
 	boolean sourcePri, sourceSec;
 	boolean isRef;
-	
 	int QUART, HALF, EIGHT;
 	
 	void gradientPropagate () {		 
-		if (sourcePri) gradPri = 0; 
-		if (sourceSec) gradSec = 0;
-		unicast Gradient(pri=gradPri, sec=gradSec);
+		if (sourcePri) gradPri=0; 
+		if (sourceSec) gradSec=0;
+		send Gradient(pri=gradPri, sec=gradSec);
 	} 	
 
 	void gradientInit() {
@@ -137,32 +136,28 @@ sequence Init {
 	}
 	 
 	do {	  
-		when ( #(connSrc: EAST&MALE, metaPart:None) == 2 && #(connSrc: WEST, metaPart:None)==0) {
+		when ( #(connOwn: EAST&MALE, metaPart:None) == 2 && #(connOwn: WEST, metaPart:None)==0) {
 			module.metaID = module.number; 
 			module.metaPart = West;
 		}	
 		// When a neighbor receives a packet, it sets its metaPart variable, and thus the above event will no longer trigger. Therefore use 2 events
 		when (module.metaPart == West) {
-			unicast AssignMetaID (newID = module.metaID) to $(connSrc: EAST&MALE&NORTH);
+			send AssignMetaID (newID = module.metaID) to $(connOwn: EAST&MALE&NORTH);
 		}
 		
 		when (receive (AssignMetaID p)) {
 			if (module.metaID == 0) {
 				module.metaID = p.newID;
 				
-				if (is(MALE,p.connDest) && module.metaPart == None) 
-					module.metaPart = East; 
-				else if (is(WEST,p.connDest) && module.metaPart == None) 
-					module.metaPart = North;
-				else if (is(EAST,p.connDest) && module.metaPart == None) 
-					module.metaPart = South;
+				if (p.counter==0) module.metaPart = North;
+				if (p.counter==1) module.metaPart = East;
+				if (p.counter==2) module.metaPart = South;
 			}
-			
-			if (module.metaPart == West) {
-				meta.enable();
+			if (p.counter==3) {
+				enable meta;
 				break; 
 			} 
-			unicast AssignMetaID (newID = p.newID) to $(connSrc: pow2((p.connDest + 4) % 8));
+			send AssignMetaID (newID=p.newID, counter=p.counter+1) to $(connOwn: pow2((p.connNb+4) % 8));
 		}
 	} until(consensus()); 
 	

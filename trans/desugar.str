@@ -17,7 +17,10 @@ rules
  
 desugar-all = topdown(try(desugar))
 
-desugar: TryRegion(n,o,incs,None()) -> TryRegion(n,o,incs,Some(Excluding([]))) 
+desugar: TryRegion(_,seq,orient,incs,excl) -> TryRegion(seq,orient,incs,excl') 
+where
+	excl' := <try(\None() -> Some(Excluding([]))\)>excl
+
 
 desugar: Package(n,debug,decls) -> Package(n,debug,decls')
 where
@@ -26,7 +29,7 @@ where
 // Add fake declarations because not in every package we use the declaration, only the primitives
 
 
-desugar: Unicast(Packet(p),AssignList(assignlist),nbsop) -> Unicast(Packet(p),AssignList(assignlist'),nbsop')
+desugar: Send(Packet(p),AssignList(assignlist),nbsop) -> Send(Packet(p),AssignList(assignlist'),nbsop')
 where
 	nbsop' := <(\None() -> NbsOp([])\ <+ \Some(NbsClause(c)) -> c\)>nbsop;
 	assignlist' :=  <map(add-payload(|<strip-annos>p))>assignlist
@@ -167,11 +170,12 @@ where
 	<?ModHolderRef(_)>d + <?ModHolderPrimRef()>d 
 
 
+desugar: MetaEnable(_) -> FuncCall(MethodRef(Meta(), "enable"), [])
+desugar: MetaDisable(_) -> FuncCall(MethodRef(Region(), "destroy"), [])
+desugar: RegionDisable(_) -> FuncCall(MethodRef(Region(), "disable"), [])
 
 
-
-
-
+desugar: MetaSize(i) -> MetaPartDecl(<map(\x -> MetaPart($[x[x]])\)><upto><dec><string-to-int>i) // If the programmer does not define meta-parts, create some dummy ones
 
 
 desugar-all-nbl = bottomup(try(desugar-nbl))

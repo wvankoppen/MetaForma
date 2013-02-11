@@ -5,7 +5,7 @@ debug {
 		north [
 			@Car.LeftWheel: green;
 			@Car.RightWheel: yellow;
-			@Car.Driver: magenta;
+			@Axis.Front: magenta;
 		]
 		south [
 			Init: black;
@@ -16,25 +16,24 @@ debug {
 }
 
 // Define identification for the Car
-group Car [LeftWheel,RightWheel,Driver]
+group Car [LeftWheel,RightWheel]
+group Axis [Front]
 
 meta {
-	void drive (byte dirLeft, byte dirRight) {
+	parts 3;
+	void drive (float dirLeft, float dirRight) {
 		rotating(@Car.LeftWheel,-dirLeft); 
 		rotating(@Car.RightWheel,dirRight);
 	} 
 }
   
 sequence Init {	
-	do {
-		meta.sizeExtra = 3;
-		meta.enable();	
-	}  	
+	enable meta;
 	
 	do {
-		if (#(connDest:WEST)==1)	module.id = @Car.LeftWheel;
-		if (#(connDest:EAST)==1)	module.id = @Car.RightWheel;
-		if (#()==2) 				module.id = @Car.Driver;	
+		if (#(connNb:WEST)==1)	module.id = @Car.LeftWheel;
+		if (#(connNb:EAST)==1)	module.id = @Car.RightWheel;
+		if (#()==2) 			module.id = @Axis.Front;
 	}until (config.assignTime);
 }	
 

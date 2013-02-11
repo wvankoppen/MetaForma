@@ -86,10 +86,10 @@ sequence Drive {
 	} 
 	
 	do { 
-		if (#(connSrc:SOUTH&EAST&FEMALE, connDest:EAST)>0)								module.group = @LeftWheel;
-		if (#(connSrc:SOUTH&EAST&FEMALE, connDest:WEST)>0)								module.group = @RightWheel;
-		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSrc: NORTH&EAST&FEMALE)==0)	module.id = @Axis.Front;
-		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSrc: NORTH&EAST&FEMALE)==1)	module.id = @Axis.Back;
+		if (#(connOwn:SOUTH&EAST&FEMALE, connNb:EAST)>0)								module.group = @LeftWheel;
+		if (#(connOwn:SOUTH&EAST&FEMALE, connNb:WEST)>0)								module.group = @RightWheel;
+		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connOwn: NORTH&EAST&FEMALE)==0)	module.id = @Axis.Front;
+		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connOwn: NORTH&EAST&FEMALE)==1)	module.id = @Axis.Back;
 		if (#()==2) 																		module.id = @Axis.Driver;	
 	} until (config.assignTime);
 	

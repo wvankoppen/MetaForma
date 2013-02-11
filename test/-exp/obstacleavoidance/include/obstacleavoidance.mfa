@@ -35,8 +35,8 @@ meta {
 sequence Main {	
 	do { 
 		when {
-			case #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0:	module.id = @Car.LeftWheel;
-			case #(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0:	module.id = @Car.RightWheel;
+			case #(connSource:SOUTH&EAST&FEMALE, connNb:EAST)>0:	module.id = @Car.LeftWheel;
+			case #(connSource:SOUTH&EAST&FEMALE, connNb:WEST)>0:	module.id = @Car.RightWheel;
 			case #()==2: 											module.id = @Car.Driver;	
 		}
 	} until (config.assignTime);

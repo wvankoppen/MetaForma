@@ -49,5 +49,5 @@ sequence FlipOver {
 	// }
 		
 	module.fixSymmetry(isRef);
-	region.finish();
+	disable meta;
 }

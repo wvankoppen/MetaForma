@@ -44,5 +44,5 @@ sequence FlipAlong  {
 	connect(@Clover.South,@Clover.West);
 	
 	module.fixSymmetry(isRef);
-	region.finish();
+	disable meta;
 }

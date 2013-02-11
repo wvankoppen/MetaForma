@@ -37,7 +37,7 @@ folding Default folding definitions
   FieldDecl.FieldDeclList
   FuncDecl.FuncDecl
   VarDecl.VarDecl
-  Stmt.Unicast
+  Stmt.Send
   AssignList.AssignList
   AssignElem.AssignElem
   OptNbsClause1

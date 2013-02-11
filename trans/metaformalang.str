@@ -318,33 +318,33 @@ public class <classname> extends MfController implements ControllerInformationPr
 	}
 
 	@Override
-	public BagModule module() {
+	public GenModule module() {
 		return module;
 
 	}
 	
 	@Override
-	public BagMeta meta() {
+	public GenMeta meta() {
 		return meta;
 	}
 	
 	@Override
-	public BagRegion region() {
+	public GenRegion region() {
 		return region;
 	}
 	
-	private BagModule module;
-	private BagMeta meta; 
-	private BagRegion region;
+	private GenModule module;
+	private GenMeta meta; 
+	private GenRegion region;
 	
 	private <classname> ctrl;
 	
 
 	public void init() {		
 		ctrl = this;
-		module = new BagModule();
-		meta = new BagMeta();
-		region = new BagRegion();
+		module = new GenModule();
+		meta = new GenMeta();
+		region = new GenRegion();
 		
 		module.setController(this);
 		meta.setController(this);
@@ -378,7 +378,7 @@ public class <classname> extends MfController implements ControllerInformationPr
 	public boolean receivePacket(PacketSymmetry p) {
 		boolean handled = false;
 		if (mfStateMngr.at(p.getState())) {
-			module().fixSymmetry(p.connSource, p.connDest);
+			module().fixSymmetry(p.connOwn, p.connNb);
 			handled = true;
 		}
 	
@@ -396,7 +396,7 @@ public class <classname> extends MfController implements ControllerInformationPr
 	
 	<java-classes>
 	
-	class BagRegion extends RegionCore implements IModuleBag {
+	class GenRegion extends RegionCore implements IModuleGen {
 	
 	}
 	

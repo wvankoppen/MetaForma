@@ -2,13 +2,13 @@ package FourWheeler
 
 byte STEER_DEGREES = 13
 float TIME_BACKWARD = 15.0
-float PROXIMITY_TRIGGER = 0.05 //0.15
-float FORWARD = -0.4
-float BACKWARD = 0.4	
+float PROX_TRIGGER = 0.15
+float FORWARD = 0.4
+float BACKWARD = -0.4	
 
 
 sequence Strategy {
-	when (module.id == @Axis.Front && module.proximity() > PROXIMITY_TRIGGER) {
+	when (module.id == @Axis.Front && module.proximity() > PROX_TRIGGER) {
 		execute Turn (RIGHT);
 	} 
 	

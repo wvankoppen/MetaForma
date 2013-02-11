@@ -8,111 +8,97 @@ sequence Strategy {
 	do {
 		if (meta.type==LYING) {
 			wait (30) { // needs to be high for parallel walker!
-				try region GetUp (BOTTOM_LEFT) including Bottom excluding Top,Up;
+				try region LiftUp (TOP_LEFT) including Bottom excluding Top,Up;
 			}
 		}
 		else {
 			// we cant use Walker.Right to create the region, as it is hanging in the air! --> YES, but do more early
 			if (module.id == @Walker.Right) {
-				if (#(@X,inRegion:false)==2) { // we might need a wait to regain all nbs
-					try region GetDown including Bottom;
-				}
-				if (#(@X,inRegion:false)==3) {
+				if (#(@X,inRegion:false)==2) 
+					try region LiftDown including Bottom;
+				if (#(@X,inRegion:false)==3) 
 					execute WalkStep;
-				}
 			}
 		}
 	} until (false);
 }
 
 
-sequence GetUp {
+sequence LiftUp {
 	module.backupID();
 	module.gradientInit();
-	
 	do {
 		module.gradientPropagate();
 	}until (config.propagationTime);
 	
 	do {
-		if (gradPri==2 && gradSec==0) module.id = @Walker.Left;
-		if (gradPri==3 && gradSec==1) module.id = @Walker.Top;
-		if (gradPri==2 && gradSec==2) module.id = @Walker.Right;
-		if (gradPri==1 && gradSec==1) module.id = @Uplifter.Left;
+		if (gradPri==2 && gradSec==2) module.id = @Walker.Left;
+		if (gradPri==3 && gradSec==1) module.id = @Walker.Middle;
+		if (gradPri==2 && gradSec==0) module.id = @Walker.Right;
+		if (gradPri==1 && gradSec==1) module.id = @Uplifter.Main;
+		if (gradPri==0 && gradSec==0) module.id = @Uplifter.Help;
 	}
-	
-	retractSet(@Uplifter, (NORTH&EAST&FEMALE)|(SOUTH&WEST&FEMALE));
-	rotate(@Walker.Right,QUART);
-	rotate(@Uplifter.Left,QUART);
-	connect(@Walker.Left,@X);
-	disconnect(@Walker.Right,@Uplifter);
-		
 	do {
-		rotateOrigin(@Uplifter.Left);
+		disconnect(@Uplifter.Main, @Uplifter.Help);
+		disconnect(@Uplifter.Main, @Walker.Left);
+	}
+	rotate(@Walker.Right,QUART);
+	rotate(@Uplifter.Main,QUART);
+	connect(@Walker.Left,@X,true); // @X is active region
+	disconnect(@Walker.Right,@Uplifter);
+	do {
+		rotateOrigin(@Uplifter.Main);
 		rotateOrigin(@Walker.Right);
 	}		
-	
 	do {
-		connect(@Uplifter.Left,@X);
-		rotate(@Walker.Top,-EIGHT);
+		connect(@Uplifter.Main,@X);
+		rotate(@Walker.Middle,-EIGHT);
 	}
-	
 	rotate(@Walker.Left,HALF);
-	rotate(@Walker.Top,EIGHT);
-		
+	rotate(@Walker.Middle,EIGHT);
 	if(module.metaID == meta.regionID) {
 		meta.type = STANDING;
-		region.release();
+		disable region; // We need to get rid of the region
 	}
 	else {
-		// we need to get rid of the state counter AND the meta neighbors!
-		region.finish();
 		module.restoreID();
+		disable meta; // We need to get rid of everything
 	}
 }
 
 sequence WalkStep {
 	connect(@Walker.Right, @X);
-	disconnect(@Walker.Left, @X,true); // Also other regions
-	rotate(@Walker.Top,-EIGHT);
+	disconnect(@Walker.Left, @X,true); // Also disconnect to other regions
+	rotate(@Walker.Middle,-EIGHT);
 	rotate(@Walker.Right,-HALF);
-	rotate(@Walker.Top, EIGHT);
-	
-	if (module.id == @Walker.Left) {
-		module.id = @Walker.Right;
-	}
-	else if (module.id == @Walker.Right) {
-		module.id = @Walker.Left;
-	}
+	rotate(@Walker.Middle, EIGHT);
+	if (module.id == @Walker.Left)		module.id = @Walker.Right;
+	else if (module.id == @Walker.Right)module.id = @Walker.Left;
 }
 
-sequence GetDown {
+sequence LiftDown {
 	do {
 		meta.absorb();
 	}until(consensus());
 	
-	retractSet(@Uplifter.Left, SOUTH&FEMALE);
-	connect(@Walker.Right,@Uplifter.Left);
+	retractSet(@Uplifter.Main, SOUTH&FEMALE);
+	connect(@Walker.Right,@Uplifter.Main);
 	disconnect(@Walker.Left,@X,true);
 	rotate(@Walker.Right,QUART);
-	rotate(@Uplifter.Left,QUART);
-		
-	connect(@Walker.Left,@Uplifter.Left);
-	disconnect(@Walker.Right,@Uplifter.Left);
-	
+	rotate(@Uplifter.Main,QUART);
+	connect(@Walker.Left,@Uplifter.Main);
+	disconnect(@Walker.Right,@Uplifter.Main);
 	do {
-		rotateOrigin(@Uplifter.Left);
+		rotateOrigin(@Uplifter.Main);
 		rotateOrigin(@Walker.Right);
 	}
-	
 	do {
-		connect(@Walker.Right,@Uplifter.Left);
-		connect(@Uplifter.Left,@X);
+		connect(@Walker.Right,@Uplifter.Main);
+		connect(@Uplifter.Main,@X);
 	}
-	
 	do {
 		module.fixSymmetry (module.metaID != meta.regionID && module.atBorder(TOP));
 	} until(consensus());
 	
-	region.finish();
+	disable meta;
 }

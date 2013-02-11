@@ -3,7 +3,7 @@ module MetaformaLang-Outliner
 // imports MetaformaLang-Outliner.generated
 
 outliner
-   Start.Program
+   _.Package
    _.Debug // Why does debug work here, whith the same notation as Meta?
    _.ShowPackets
 

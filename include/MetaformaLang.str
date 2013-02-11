@@ -20,9 +20,7 @@ signature
     BorderArg           : Border -> BorderArg
     SequenceRef         : ID -> SequenceRef
     SequencePrimRef     : SequencePrim -> SequenceRef
-    MethodPrimRef       : Region * RegionMethodRef -> MethodRef
     MethodPrimRef       : Module * ModuleMethodRef -> MethodRef
-    MethodPrimRef       : Meta * MetaMethodRef -> MethodRef
     MethodRef           : SysObj * ID -> MethodRef
     FuncActuationRef    : FuncActuationRef -> FuncRef
     FuncRef             : ID -> FuncRef
@@ -44,7 +42,10 @@ signature
     FuncCall            : FuncRef * List(Exp) -> Stmt
     FuncCall            : MethodRef * List(Exp) -> Stmt
     Break               : Stmt
-    TryRegion           : SequenceRef * Option(OrientClause) * List(MetaFieldRef) * Option(ExcludingClause) -> Stmt
+    MetaEnable          : Meta -> Stmt
+    MetaDisable         : Meta -> Stmt
+    RegionDisable       : Region -> Stmt
+    TryRegion           : Region * SequenceRef * Option(OrientClause) * List(MetaFieldRef) * Option(ExcludingClause) -> Stmt
     Wait                : Exp * Block -> Stmt
     ExecuteOrient       : SequenceRef * OrientClause -> Stmt
     Execute             : SequenceRef -> Stmt
@@ -52,7 +53,7 @@ signature
     IfElse              : Exp * Block * Block -> Stmt
     Return              : Exp -> Stmt
     Assign              : Ref * Exp -> Stmt
-    Unicast             : PacketRef * AssignList * Option(NbsClause) -> Stmt
+    Send                : PacketRef * AssignList * Option(NbsClause) -> Stmt
     AssignList          : List(AssignElem) -> AssignList
     AssignElem          : PayloadRef * Exp -> AssignElem
     PayloadRef          : ID -> PayloadRef
@@ -63,6 +64,7 @@ signature
     FieldPrimRef        : Module * ModuleFieldID -> Ref
     FieldPrimRef        : Meta * MetaFieldID -> Ref
     Ref                 : ID -> Ref
+    MetaSize            : INT -> PartDecl
     MetaPartDecl        : List(MetaPart) -> PartDecl
     PacketVarDecl       : PacketRef * ID -> PacketVarDecl
     FieldDecl           : Type * ID -> FieldDecl
@@ -100,8 +102,6 @@ signature
     Debug               : Option(ShowPackets) * Option(Visualize) -> Debug
     Package             : ID * Option(Debug) * List(MainDef) -> Start
                         : String -> FuncActuationRef
-                        : String -> RegionMethodRef
-                        : String -> MetaMethodRef
                         : String -> ModuleMethodRef
                         : String -> PayloadID
                         : String -> MetaFieldID

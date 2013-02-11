@@ -17,8 +17,9 @@ outliner Default outliner
   Exp.FuncCall
   Exp.FuncCall
   GroupDef.Group
+  MainDef.Meta
   FuncDecl.FuncDecl
-  Stmt.Unicast
+  Stmt.Send
   Stmt.TryRegion
   Stmt.FuncCall
   Stmt.FuncCall

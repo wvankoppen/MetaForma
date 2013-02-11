@@ -45,11 +45,11 @@ meta {
 
 sequence Main {
 	do {
-		when (#(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0) {
+		when (#(connSource:SOUTH&EAST&FEMALE, connNb:EAST)>0) {
 			module.group = @LeftWheel;
 		}
 		
-		when (#(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0) {
+		when (#(connSource:SOUTH&EAST&FEMALE, connNb:WEST)>0) {
 			module.group = @RightWheel;
 		} 
 		

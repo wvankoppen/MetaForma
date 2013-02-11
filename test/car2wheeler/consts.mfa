@@ -1,7 +1,7 @@
 package TwoWheeler
 
 // Algorithmic constants 
-float PROXIMITY_TRIGGER = 0.15
+float PROX_TRIGGER = 0.10
 float TIME_BACKWARD = 5.0
 float TIME_TURNAROUND = 3.0
 

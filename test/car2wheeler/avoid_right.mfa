@@ -1,7 +1,7 @@
 package TwoWheeler
 
 sequence Strategy {
-	when (module.id == @Car.Driver && module.proximity() > PROXIMITY_TRIGGER) {
+	when (module.id == @Axis.Front && module.proximity() > PROX_TRIGGER) {
 		execute Turn(RIGHT); 
 	} 
 	meta.drive(FORWARD,FORWARD); 

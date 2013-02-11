@@ -132,7 +132,7 @@ where <debug(!"Compile borderitems")>items
 
 to-java: None() -> $[]
 
- compile:  Class(name@Module(),borders,elements) -> $[class Bag[n] extends [n]Core implements I[n]Bag {
+ compile:  Class(name@Module(),borders,elements) -> $[class Gen[n] extends [n]Core implements I[n]Gen {
 	[elements']
 	public boolean atBorder(BorderLine d) {
  			boolean ret = false;
@@ -147,7 +147,7 @@ to-java: None() -> $[]
 		<map2str(to-java-stat)>elements => elements';
 		<debug>$[Done with class [n]]
 		
- compile:  Class(name,_,elements) -> $[class Bag[n] extends [n]Core implements I[n]Bag {
+ compile:  Class(name,_,elements) -> $[class Gen[n] extends [n]Core implements I[n]Gen {
 	[elements']
 	}
 	]
@@ -174,10 +174,10 @@ $[if (mfStateMngr.at([seq])) {
 ]
 with
 	<aterm-content>namedec => n; 
+	seq := <to-seq>n;
 	<debug>$[## START COMPILE sequence [n]];
 	<map2str(to-java-stat)>evhdlrs => java-evts;
-	<map2str(to-java-instr)>instrs => java-instrs;
-	seq := <to-seq>n;
+	<map2str(to-java-instr(|seq))>instrs => java-instrs;
 	<debug>$[## END COMPILE sequence [n]]
  
 
@@ -203,8 +203,8 @@ with
   to-java: [_,name,i,seq,p] -> $[new State([<to-seq>seq],[i])]
   
   // OOPS: Constructors not supported in URI!!!!
-  is-prim-seq = ?"Main"
-  is-prim-seq = ?"Strategy" 
+  is-prim-seq = ?"Init" + ?"Strategy"
+  
   
   to-seq: seq -> $[SequenceGeneric.[seq]] where is-prim-seq
   to-seq: seq -> $[Sequence.[seq]]  where not(is-prim-seq)

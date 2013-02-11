@@ -59,7 +59,7 @@ where <debug>$[Compile methodref [n]]
 
 to-java: Break() -> $[mfStateMngr.nextInstruction()]
 
-to-java-instr: Instr(i,precon,evhdlrs,stat*,postcon) -> $[ 
+to-java-instr(|seq): Instr(i,precon,evhdlrs,stat*,postcon) -> $[ /* [seq]: instr [i] */
 	[instr] 
 	] 
 where
@@ -79,7 +79,7 @@ to-java-stat: EvHdlr(name,receive,vardecl,instr) -> "" where <debug(!"Java EV hd
 to-java-instr-stats(|i,java): (precon,postcon) -> 
 $[ if (mfStateMngr.do[wait-or-until]([i]))  {
 	[content]
-	}]
+}]
 where
 	wait-or-until := <aterm-name>postcon;
 	java-all := <conc-strings>(java,<to-java-post><aterm-content>postcon);
@@ -259,7 +259,7 @@ to-java: NbsFilter(name,val) -> $[.nbsFilter[<to-upper-first>name]([<to-java>val
 to-java: Packet(p) -> $[Packet[p]]
 
 
-to-java-stat: Unicast(p@Packet(packet),AssignList(assigns),dests) -> $[
+to-java-stat: Send(p@Packet(packet),AssignList(assigns),dests) -> $[
 	if (ctrl.freqLimit("[packet][<newname>]",mfConfig.getPropagationRate())) {
 		ctrl.unicast(([p'])new [p'](ctrl)[assigns'],[<to-java>dests]);
 	}]
@@ -269,7 +269,7 @@ where
 
 
 // to-java: AssignElem(var,val) -> $[.setVar("[<to-java>var]",[<to-java>val])]
-to-java: AssignElem(PayloadRef(Packet(_),var),val) -> $[.setVar("[var]",[<to-java>val])]
+to-java: AssignElem(PayloadRef(Packet(_),var),val) -> $[.setVar("[var]",(byte)[<to-java>val])] // We have to assume that val fits inside a byte
 
 
 

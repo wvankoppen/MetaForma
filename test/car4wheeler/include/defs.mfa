@@ -10,13 +10,12 @@ debug {
 			@Axis: magenta;
 		]
 		south [
-			Init: black;
+			Init: white;
 			Car2Eight: gray;
-			Drive: red;
+			Strategy: red;
 			Turn: black;
 		]
 	} 
-	
 }
 
 
@@ -28,27 +27,22 @@ group Eight
 
  
 packet Gradient {
-	byte pri;
-	byte sec;
+	byte pri,sec;
 } 
  
 module {
-	byte gradPri;
-	byte gradSec;
-	
-	boolean sourcePri;
-	boolean sourceSec;
+	byte gradPri,gradSec;	
+	boolean sourcePri,sourceSec;
 	
 	void gradientPropagate () {		 
 		if (sourcePri)	gradPri = 0;
 		if (sourceSec) 	gradSec = 0;
-		unicast Gradient(pri=gradPri, sec=gradSec) to $();
+		send Gradient(pri=gradPri, sec=gradSec) to $();
 	}
  	
-
 	void gradientInit() {
-		sourcePri = #(connSrc: MALE&WEST)==2 && #()==2;
-		sourceSec = #(connSrc: FEMALE&EAST)==2 && #()==2;
+		sourcePri = #(connOwn: MALE&WEST)==2 && #()==2;
+		sourceSec = #(connOwn: FEMALE&EAST)==2 && #()==2;
 		
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;			
@@ -56,16 +50,23 @@ module {
 	
 	void gradientAssignEight () {
 		byte nr = (gradPri/2)*3;
-		if (gradSec%2==0) 	
-			nr = nr + gradSec/2 + 1;
+		if (gradSec%2==0) nr = nr+gradSec/2 + 1;
 		
 		module.id = @Eight[nr];
 		module.backupID();
 	}
-} 
 
+	boolean standing() {
+		return module.tiltZ() < 40;
+	}
+	
+	boolean lying() {
+		return module.tiltZ() > 50;
+	}
+}
 
 meta {
+	parts 7;
 	byte type;
 		
 	void steer (int degrees) {
@@ -84,24 +85,24 @@ meta {
 	}
 	
 	void createCar () {
-		if (module.tiltZ() > 50 && #(connSrc:MALE)>=2 && #()==3) 			module.id = @Axis.Front;
-		if (module.tiltZ() > 50 && #(connSrc:FEMALE)>=2 && #()==3) 			module.id = @Axis.Back;
-		if (module.tiltZ() < 40 && #(connDest:MALE&EAST|FEMALE&WEST)==1) 	module.group = @LeftWheel;
-		if (module.tiltZ() < 40 && #(connDest:FEMALE&EAST|MALE&WEST)==1) 	module.group = @RightWheel;
+		if (module.lying() && #(connOwn:NORTH&WEST)==1 && #()==3) 			module.id = @Axis.Front;
+		if (module.lying() && #(connOwn:NORTH&EAST)==1 && #()==3) 			module.id = @Axis.Back;
+		if (module.standing() && #(connNb:MALE&EAST|FEMALE&WEST)==1) 	module.group = @LeftWheel;
+		if (module.standing() && #(connNb:FEMALE&EAST|MALE&WEST)==1) 	module.group = @RightWheel;
 		if (#(@Axis)==2) 													module.id = @Axis.Driver;
 		meta.type=CAR;
 	}
 			
 	void createCarAfterSnake () {
-		if (#()==3 && #(connSrc:SOUTH&FEMALE)==2)			module.id = @Axis.Front;
-		if (#()==3 && #(connSrc:SOUTH&MALE)==2)				module.id = @Axis.Back;
-		if (#()==1 && #(connDest:WEST&FEMALE|EAST&MALE)==1)	module.group = @LeftWheel;
-		if (#()==1 && #(connDest:WEST&MALE|EAST&FEMALE)==1)	module.group = @RightWheel;
+		if (#()==3 && #(connOwn:SOUTH&FEMALE)==2)			module.id = @Axis.Front;
+		if (#()==3 && #(connOwn:SOUTH&MALE)==2)				module.id = @Axis.Back;
+		if (#()==1 && #(connNb:WEST&FEMALE|EAST&MALE)==1)	module.group = @LeftWheel;
+		if (#()==1 && #(connNb:WEST&MALE|EAST&FEMALE)==1)	module.group = @RightWheel;
 		if (#(@Axis)==2) 									module.id = @Axis.Driver;
 		
 		meta.type=CAR;
-		// case #(connSource:SOUTH&EAST&FEMALE, connDest:EAST)>0:								module.group = @LeftWheel;
-			// case #(connSource:SOUTH&EAST&FEMALE, connDest:WEST)>0:								module.group = @RightWheel;
+		// case #(connSource:SOUTH&EAST&FEMALE, connNb:EAST)>0:								module.group = @LeftWheel;
+			// case #(connSource:SOUTH&EAST&FEMALE, connNb:WEST)>0:								module.group = @RightWheel;
 			// case (#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==0:	module.id = @Axis.Front;
 			// case (#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==1:	module.id = @Axis.Back;
 			// case #()==2: 																		module.id = @Axis.Driver;
@@ -119,10 +120,7 @@ when (receive (Gradient p)) {
 
   
 sequence Init {	
-	do {
-		meta.sizeExtra = 7+1-4+4*5;
-		meta.enable();	
-	}
+	enable meta;	
 }
 
 
