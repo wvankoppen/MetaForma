@@ -1,7 +1,7 @@
 package FourWheeler
  
 debug {
-	show [Discover,Packet,Symmetry, Consensus]
+	// show [Discover,Packet,Symmetry, Consensus]
 	
 	visualize {
 		north [
@@ -87,8 +87,8 @@ meta {
 	void createCar () {
 		if (module.lying() && #(connOwn:NORTH&WEST)==1 && #()==3) 			module.id = @Axis.Front;
 		if (module.lying() && #(connOwn:NORTH&EAST)==1 && #()==3) 			module.id = @Axis.Back;
-		if (module.standing() && #(connNb:MALE&EAST|FEMALE&WEST)==1) 	module.group = @LeftWheel;
-		if (module.standing() && #(connNb:FEMALE&EAST|MALE&WEST)==1) 	module.group = @RightWheel;
+		if (module.standing() && #(connNb:MALE&EAST|FEMALE&WEST)==1 && #()==1) 	module.group = @LeftWheel; // We need the && #()==1
+		if (module.standing() && #(connNb:FEMALE&EAST|MALE&WEST)==1 && #()==1) 	module.group = @RightWheel;
 		if (#(@Axis)==2) 													module.id = @Axis.Driver;
 		meta.type=CAR;
 	}
@@ -120,7 +120,10 @@ when (receive (Gradient p)) {
 
   
 sequence Init {	
-	enable meta;	
+	enable meta;
+	do {
+		meta.createCar();
+	} until(config.assignTime);	
 }
 
 

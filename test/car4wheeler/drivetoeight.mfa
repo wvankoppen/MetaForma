@@ -1,7 +1,7 @@
 package FourWheeler
 
 sequence Strategy {
-	when (module.id == @Axis.Front && module.proximity() > PROXIMITY_TRIGGER) {			
+	when (module.id == @Axis.Front && module.proximity() > PROX_TRIGGER) {			
 		execute Car2Eight;
 	}
 	do {

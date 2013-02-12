@@ -83,8 +83,6 @@ strategies
 		
   swap-index: (index,fieldname) -> $[[fieldname] = payload$[$[index]$]$;]	
 	
-	
- 
  
 	 
  compile-packetreceive(|namespace): packet-name -> $[
@@ -157,8 +155,6 @@ to-java: None() -> $[]
 		<debug>name;
 		n := <construct2name>name;
 		<map2str(to-java-stat)>elements => elements'
-
-
 
 
 construct2name: Meta() -> $[Meta]

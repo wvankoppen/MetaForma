@@ -162,6 +162,6 @@ sequence Init {
 	} until(consensus()); 
 	
 	do { 
-		meta.broadcastMetaNeighbors();
+		meta.broadcastNeighbors();
 	} until(config.propagationTime);
 }

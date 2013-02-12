@@ -31,8 +31,8 @@ sequence Init {
 	enable meta;
 	
 	do {
-		if (#(connNb:WEST)==1)	module.id = @Car.LeftWheel;
-		if (#(connNb:EAST)==1)	module.id = @Car.RightWheel;
+		if (#(connOwn:MALE&EAST)==1)	module.id = @Car.LeftWheel;
+		if (#(connOwn:MALE&WEST)==1)	module.id = @Car.RightWheel;
 		if (#()==2) 			module.id = @Axis.Front;
 	}until (config.assignTime);
 }	

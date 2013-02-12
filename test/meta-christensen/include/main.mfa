@@ -9,7 +9,6 @@ debug {
 	 		@Walker: cyan;
 	 		@Uplifter: white; 
 	 	]
-	 	
 	 	south [ 
 	 		Init: white; 
 	 		Strategy: red;
@@ -122,9 +121,8 @@ sequence Init {
 		when (receive (AssignMetaID p)) {
 			module.metaID = p.newID;
 				
-			if (p.counter == 0) {
+			if (p.counter == 0) 
 				module.metaPart = MiddlePart; 
-			}
 			else if (p.counter == 1) {
 				module.metaPart = RightPart;
 				enable meta;

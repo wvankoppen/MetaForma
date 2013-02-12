@@ -2,7 +2,7 @@ package FourWheeler
 
 byte STEER_DEGREES = 13
 float TIME_BACKWARD = 15.0
-float PROX_TRIGGER = 0.15
+float PROX_TRIGGER = 0.10
 float FORWARD = 0.4
 float BACKWARD = -0.4	
 
@@ -12,10 +12,6 @@ sequence Strategy {
 		execute Turn (RIGHT);
 	} 
 	
-	do {  
-		meta.createCar();
-	} until(config.assignTime);
-		
 	meta.drive(FORWARD,FORWARD);
 }
 

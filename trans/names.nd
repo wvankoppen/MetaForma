@@ -50,8 +50,8 @@ rules
 		defines Sequence n
 		scopes Var,Instruction,EventHandler
 		
-	Sequence (Strategy(n),_,_):
-		defines non-unique Sequence n	
+	Sequence (Strategy(_,n),_,_):
+		defines unique Sequence n // Must be unique, otherwise instructions are not unique any more!	
 		scopes Var,Instruction,EventHandler // We need to scope what we want to use, bug in NBL!
 		
 // Gohla>: dit is een bug in NBL, een manier hoe je die kan oplossen is door een Strategy te desugaren naar een Strategy met een unieke naam, bijvoorbeeld desugar: Strategy(…) -> Strategy(<new-name>, …) en dan een definitie ervan te maken
@@ -65,9 +65,10 @@ rules
 	SequenceRef(n):
 		refers to Sequence n	
 	
-	// Yes! ??????????????????	
-	 SequencePrimRef(n):
-	 	refers to Sequence n
+	// Yes! Written in manual rules.	
+	 //SequencePrimRef(n):
+	  //	refers to Sequence n
+	  //	refers to Sequence "test"
 		
 	PacketDecl (n,_):
 		defines Packet n of type Packet(n)

@@ -1,9 +1,9 @@
 package Brandt
- 
-
-strategy  {
-	// These 3 strategies will move meta-modules in upwards direction
-	try region FlipThrough orienting BOTTOM_RIGHT including Top excluding TopLeft,Left,Right,Bottom,BottomLeft,BottomRight;
-	try region FlipAlong orienting BOTTOM_RIGHT including Right,TopRight excluding Top;
-	try region FlipThrough orienting LEFT_BOTTOM including Right excluding Top, TopRight;
-}
+// 
+//  
+// 
+// 	// These 3 strategies will move meta-modules in upwards direction
+// 	try region FlipThrough orienting BOTTOM_RIGHT including Top excluding TopLeft,Left,Right,Bottom,BottomLeft,BottomRight;
+// 	try region FlipAlong orienting BOTTOM_RIGHT including Right,TopRight excluding Top;
+// 	try region FlipThrough orienting LEFT_BOTTOM including Right excluding Top, TopRight;
+// 

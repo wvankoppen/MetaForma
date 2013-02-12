@@ -79,6 +79,7 @@ to-java-stat: EvHdlr(name,receive,vardecl,instr) -> "" where <debug(!"Java EV hd
 to-java-instr-stats(|i,java): (precon,postcon) -> 
 $[ if (mfStateMngr.do[wait-or-until]([i]))  {
 	[content]
+	mfStateMngr.postState();
 }]
 where
 	wait-or-until := <aterm-name>postcon;
@@ -91,7 +92,7 @@ add-precon(|java): Wait(e) -> $[if (mfStateMngr.preCon([<to-java>e])){
 		}]
 
 
-to-java-post: Consensus() -> $[mfStateMngr.postState();]
+to-java-post: Consensus() -> $[] // Change: we always include "mfStateMngr.postState();" in the state from now on, so moved to other place!
 
 to-java-post: e -> $[mfStateMngr.spend([e']);] 
 	where
@@ -122,11 +123,8 @@ to-java: Orientation(o) -> <to-java>o
 to-java: ExecuteOrient(s,orient) -> $[mfStateMngr.setNextSequence([<to-java>s],[<to-java>orient])]
 to-java: Execute(s) -> $[mfStateMngr.setNextSequence([<to-java>s])]
 
-// to-java-stat: Strategy(strats) -> <map2str(to-java-stat)>strats
 
-to-java: SequenceRef(n) -> $[Sequence.[n]] 
-to-java: SequencePrimRef(n) -> $[SequenceGeneric.[n]]  
-
+to-java: SequenceRef(n) -> <to-seq>n 
 
 to-java: BinOp (op,e1,e2) -> $[([<to-java>e1] [<to-java>op] [<to-java>e2])]
 to-java: BoolOp (op,e1,e2) -> $[([<to-java>e1] [<to-java>op] [<to-java>e2])]
@@ -219,14 +217,11 @@ to-java: Module() -> $[module()] // no ctrl. prefix!
 to-java: Region() -> $[ctrl.region()]
 to-java: Meta() -> $[meta()]
 
-
-
 to-java: Ref(n{[Unresolved(_)|_]}) -> <debug>"UNRESOLVED VAR!"
 to-java: Ref(n{[Var()|_]}) -> $[[<strip-annos>n]]
 to-java: Ref(n{[Field(),name,class,package]}) -> <to-java>FieldRef(class,n)
 to-java: Ref(n{[Constant()|_]}) -> <strip-annos>n
 to-java: Ref(n{[MetaPart()|_]}) -> $[MetaPart.[<strip-annos>n]]
-
 
 to-java: Par(e) -> $[ ([<to-java>e]) ]
 

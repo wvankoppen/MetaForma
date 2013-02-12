@@ -368,6 +368,7 @@ public class <classname> extends MfController implements ControllerInformationPr
 	}
 	
 	public void makePacket(byte[] msg, byte connector) {
+		@SuppressWarnings("unused")
 		byte typeNr = PacketBase.getType(msg);
 		<java-packetbuilds>
 		{

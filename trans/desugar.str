@@ -67,7 +67,7 @@ where
 
 desugar: Sequence(n,evts,ins*) -> Sequence(<wrap>n,evts,ins4*)  
 where
-	ins2*  := <conc> (ins*,[Execute(SequencePrimRef("Strategy"))]);
+	ins2* := <conc> (ins*,[Execute(SequencePrimRef("Strategy"))]);
 	ins3*  := <map(try(add-instr);try(uni-instr))>ins2*;
 	nrs    := <upto><dec><length>ins3*;  // nrs = [0,1,2,..,n-1]
 	ins4*  := <map(swap-counter)><zip>(nrs,ins3*) // number each instruction
@@ -83,8 +83,8 @@ where
 	swap-counter: (i,Instr(precon,evt*,var*,instr*,postcon)) -> Instr(i,precon,evt*,<conc>(var*,instr*),postcon)	 
 
 	wrap = switch id
- 			case ?"Init": 		!Init("Init")	
- 			case ?"Strategy": 	!Strategy("Strategy")
+ 			case ?n@"Init": 		!Init(n)	
+ 			case ?n@"Strategy": 	!Strategy(n,<newname>)// to store it unique (we have to store it)
  			otherwise: 			!Plain(<id>)
  		   end
  		 		
@@ -170,9 +170,9 @@ where
 	<?ModHolderRef(_)>d + <?ModHolderPrimRef()>d 
 
 
-desugar: MetaEnable(_) -> FuncCall(MethodRef(Meta(), "enable"), [])
-desugar: MetaDisable(_) -> FuncCall(MethodRef(Region(), "destroy"), [])
-desugar: RegionDisable(_) -> FuncCall(MethodRef(Region(), "disable"), [])
+desugar: MetaEnable(_) -> FuncCall(MethodPrimRef(Meta(), "enable"), [])
+desugar: MetaDisable(_) -> FuncCall(MethodPrimRef(Region(), "destroy"), [])
+desugar: RegionDisable(_) -> FuncCall(MethodPrimRef(Region(), "disable"), [])
 
 
 desugar: MetaSize(i) -> MetaPartDecl(<map(\x -> MetaPart($[x[x]])\)><upto><dec><string-to-int>i) // If the programmer does not define meta-parts, create some dummy ones
@@ -187,8 +187,8 @@ desugar-nbl: FuncPrimRef(f) -> FuncRef(f)
 desugar-nbl: ModHolderPrimRef() -> ModHolderRef("X")
 desugar-nbl: ModHolderPrimNumRef(i) -> ModHolderNumRef("X",i)
 //   desugar-nbl: SequenceName(n) -> SequenceRef(n)
-// desugar-nbl: SequencePrimName(n) -> SequencePrimRef(n)
-
+desugar-nbl: SequencePrimRef(n) -> SequenceRef(n)	// We have to distinguish manually in the generate phase anyway, as NBL does not support constructors in URI
+desugar-nbl: Strategy(n,_) -> Strategy(n) 
 
 // Because we need to match the enum with an object 
 // We need to do this AFTER type checking!
@@ -197,12 +197,5 @@ desugar-nbl: BoolOp(Eq(),PayloadPrimRef(p, "sourceID"), e2) -> FuncCall(MethodRe
 
 
 
-signature constructors
-	ShowPackets: ShowPackets
-	DebugItem: X * X -> DebugItem
-	EvHdlr : X * X * X * X * X -> EvHdlr
-	VisItem : X * X * X * X -> VisItem
-	PrimRefPacket: X * X -> PrimRefPacket
-	FakeClass: X -> FakeClass
-	Class: X * X * X -> Class
+
 	

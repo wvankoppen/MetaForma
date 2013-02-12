@@ -344,7 +344,7 @@ exports
 	ConfigFieldID	-> ID{reject}
 	
 	lexical syntax
-	"Init" 									-> SequencePrim
+	%% "Init" 									-> SequencePrim
 	"Strategy" 								-> SequencePrim
 
 	"LEFT_BOTTOM"	-> OrientName
@@ -670,7 +670,7 @@ exports
 	ConfigFieldID	-> ID{reject}
 	
 	lexical syntax
-	"Init" 									-> SequencePrim
+	%% "Init" 									-> SequencePrim
 	"Strategy" 								-> SequencePrim
 
 	"LEFT_BOTTOM"	-> OrientName

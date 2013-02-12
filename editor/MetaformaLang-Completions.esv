@@ -27,7 +27,6 @@ completions
   completion template MainDef : "group [" (cursor) "]\n" (blank)                                            
  
   completion template MainDef : "packet " <p> " {\n\t" (cursor) "}\n" (blank)
-  completion template PayloadDecl : "byte " <b> ";" (cursor) (blank)
   
   completion template PartDecl : "part [" <p> " ];\n" (cursor) (blank)  
 

@@ -43,8 +43,6 @@ signature
 	Lt	: Exp
 	LtEq	: Exp
 	Group: Group * Group -> Group
-	MetaClass : MetaClass
-	ModuleClass : ModuleClass
 	VisItem: X * X * X * X -> VisItem
 	Actuation : Actuation
 	Def: X * X * X * X -> Def
@@ -60,11 +58,20 @@ signature
 	PacketDecl: X * X * X -> PacketDecl
 	PayloadRef: X * X -> PayloadRef
 	ConstDecl: X * X * X -> ConstDecl
+	Strategy: X * X -> Strategy
 	Strategy: X -> Strategy
 	Init: X -> Main
 	Plain: X -> Plain
 	PayloadDecl: t * n -> PayloadDecl
 	Type: X * X -> Type
 	TryRegion: X * X * X * X -> TryRegion
+	
+	
+	ShowPackets: ShowPackets
+	DebugItem: X * X -> DebugItem
+
+	PrimRefPacket: X * X -> PrimRefPacket
+	FakeClass: X -> FakeClass
+	Class: X * X * X -> Class
 
 	

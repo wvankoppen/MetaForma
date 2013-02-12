@@ -60,6 +60,32 @@ strategies // Custom Ref rules
     where <target__> n
  
  strategies
+ 	// Reference resolving for Strategies switched off!
+//  nam-get-uses-keys :
+//     SequencePrimRef(n) -> [n]
+//     where not ("Strategy" := n)
+// 
+//   nam-get-uses :
+//     SequencePrimRef(n) -> [(Sequence(), [n])]
+//     where not ("Strategy" := n)
+// 
+//   nam-annotate-names(|paths__, path__):
+//     SequencePrimRef(n) -> <SequencePrimRef(nam-annotate-use(|paths__, Sequence()))>
+//     where not ("Strategy" := n)
+//     
+//   adjust-index-lookup(target__|namespace__, path__, prefix__):
+//     SequencePrimRef(n) -> [Def([Sequence()|path__])]
+//     where 
+//     	<target__> n;
+//     	<debug(!"XXX")>n;
+//     	if "Strategy" := n then
+//     		strategy* := <debug(!"RET")><index-get-children(|Sequence(), "Strategy")> Def([Package(), <last> path__])
+//     	else
+//     		strategy* := []
+//     	end
+
+
+	strategies
         	
      // adjust-index-lookup(target__|namespace__, path__, prefix__):
      //    FieldRef(c, f) -> <index-lookup-children(|Field(), prefix__)> g
@@ -71,13 +97,7 @@ strategies // Custom Ref rules
      //    	<debug>$[g found: [g]]
         	
         	
-    
-   to-upper-first: str -> <conc-strings>(<implode-string>[<to-upper>head],<implode-string>tail)
-where
-	<explode-string> str => [head|tail]
-	
-	
-	
+    	
 	
   // adjust-index-lookup(target__|namespace__, path__, prefix__):
   //   Module() -> <concat> [ [[Class()|path__]]

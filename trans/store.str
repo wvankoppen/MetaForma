@@ -139,7 +139,7 @@ rules
 
 	get-strategy: path -> strategy
 	where
-		strat := <collect-one(?Sequence(Strategy(_),_,_))><index-get-all-in-file>path;
+		strat := <collect-one(?Sequence(Strategy(_,_),_,_))><index-get-all-in-file>path;
 		strategy := <desugar-all-nbl>strat
 
 	index-getdebugitems(|package) = <try(list-breakout)><index-getcons(|package)>DebugItem()

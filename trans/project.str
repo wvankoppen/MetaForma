@@ -22,6 +22,7 @@ imports
 rules
 	project-name: Package(n,_,_) -> <strip-annos>n
 	project-name: Sequence(namedec,_,_) -> <project-name>namedec
+		project-name: Strategy (n,_) -> n
 		project-name: Strategy (n) -> n
 		project-name: Init (n) -> n
 		project-name: Plain (n) -> n

@@ -240,20 +240,23 @@ rules
 rules
 
   nam-get-scope-types :
-    Sequence(Strategy(n), _, _) -> [Var(), Instruction(), EventHandler()]
+    Sequence(Strategy(_, n), _, _) -> [Var(), Instruction(), EventHandler()]
 
   nam-get-definition-keys :
-    Sequence(Strategy(n), _, _) -> [n]
+    Sequence(Strategy(_, n), _, _) -> [n]
 
   nam-get-definitions :
-    Sequence(Strategy(n), _, _) -> [(Sequence(), [n])]
+    Sequence(Strategy(_, n), _, _) -> [(Sequence(), [n])]
 
   nam-annotate-names(|paths__, path__):
-    Sequence(Strategy(n), _, _) -> <Sequence(
-                                      Strategy(nam-annotate-def(|path__))
-                                    , id
-                                    , id
-                                    )>
+    Sequence(Strategy(_, n), _, _) -> <Sequence(
+                                         Strategy(id, nam-annotate-def(|path__))
+                                       , id
+                                       , id
+                                       )>
+
+  nam-unique :
+    Sequence(Strategy(_, n), _, _) -> <id>
 
 
 rules
@@ -284,18 +287,6 @@ rules
 
   nam-annotate-names(|paths__, path__):
     SequenceRef(n) -> <SequenceRef(nam-annotate-use(|paths__, Sequence()))>
-
-
-rules
-
-  nam-get-uses-keys :
-    SequencePrimRef(n) -> [n]
-
-  nam-get-uses :
-    SequencePrimRef(n) -> [(Sequence(), [n])]
-
-  nam-annotate-names(|paths__, path__):
-    SequencePrimRef(n) -> <SequencePrimRef(nam-annotate-use(|paths__, Sequence()))>
 
 
 rules

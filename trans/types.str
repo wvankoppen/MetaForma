@@ -31,6 +31,8 @@ rules
 	type-of: FieldPrimRef(Meta(), "regionID") -> Byte()
 	type-of: FieldPrimRef(Meta(), "sizeExtra") -> Byte()
 	
+	type-of: MethodPrimRef(Module(), "proximity") -> Float()
+	
 	type-of: PayloadPrimRef(_, "sourceID") -> Mod()
 	type-of: PayloadPrimRef(_, "sourceGroup") -> Group()
 	type-of: PayloadPrimRef(_, <not(<elem>(<id>,["id","group"]))>) -> Byte()
