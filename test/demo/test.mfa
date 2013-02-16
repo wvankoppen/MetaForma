@@ -1,0 +1,48 @@
+package Demo
+
+packet Notify {
+	byte myval;
+}
+
+
+
+sequence Strategy {
+	when (true) {
+		execute X;
+	}
+	
+	do {
+		if(true) {
+			execute X;	
+		}
+		if(true) {
+			execute Y;	
+		}
+	}
+	
+	do {
+		module.id = meta.regionID;
+	}
+	
+	do {
+		
+	}
+}
+
+sequence X {
+	when (true) {
+		execute Y;
+	}
+	
+	do {
+		
+	}
+	
+	
+}
+
+sequence Y {
+	
+	
+	
+}

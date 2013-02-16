@@ -62,6 +62,7 @@ lexical syntax
 	"max"			-> FuncPrimRef
 	"pow2"			-> FuncPrimRef
 	"mirror"		-> FuncPrimRef
+	"deflect"		-> FuncPrimRef
 	
 	FuncActuationRef	-> ID {reject}
 	

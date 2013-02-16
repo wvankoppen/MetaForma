@@ -1,0 +1,38 @@
+package P
+
+module {
+	byte A,B,C,D;
+}
+
+packet Spread {
+	byte val;
+} 
+ 
+when (receive (Packet p)) 
+ 
+sequence Strategy {
+	
+	
+	A = module.number;
+	
+	do wait (config.assignTime) {
+		
+	}
+	
+	do {
+		
+	} wait (config.assignTime);
+	
+	do {
+		when (receive (Spread p)) {
+			val = max(p.val,val);
+		}
+		send Spread(val=val);
+	} until(config.propagationTime);	
+	
+	do wait(5){
+		
+	}
+}
+
+

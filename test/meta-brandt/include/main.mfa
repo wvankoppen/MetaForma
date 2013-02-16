@@ -157,7 +157,7 @@ sequence Init {
 				enable meta;
 				break; 
 			} 
-			send AssignMetaID (newID=p.newID, counter=p.counter+1) to $(connOwn: pow2((p.connNb+4) % 8));
+			send AssignMetaID (newID=p.newID, counter=p.counter+1) to $(connOwn: pow2(deflect(p.connOwn)));
 		}
 	} until(consensus()); 
 	

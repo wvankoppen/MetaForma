@@ -84,7 +84,7 @@ where
 
 	wrap = switch id
  			case ?n@"Init": 		!Init(n)	
- 			case ?n@"Strategy": 	!Strategy(n,<newname>)// to store it unique (we have to store it)
+ 			case ?n@"Strategy": 	!Strategy(n,$[[n] [<newname>]])// to store it unique (we have to store it)
  			otherwise: 			!Plain(<id>)
  		   end
  		 		

@@ -36,6 +36,10 @@ rules
  	where
  		not (<collect-one(?Init(_))><index-getsequences(|p,None())>)	
  		
+ 	constraint-warning: decl@Package(p,d,decls) -> (decl,$[Missing parts declaration in meta class])
+ 	where
+ 		not (<collect-one(?MetaPart(_))><index-getclasses(|p)>)
+ 		
  	check-type: (t1,t2) -> $[Type [<print-type>t1] expected, but type [<print-type>t2] given]
  		where
  		not (<eq-type>(t1,t2))

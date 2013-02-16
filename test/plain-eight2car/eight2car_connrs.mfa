@@ -1,0 +1,57 @@
+package Eight2Car
+
+debug {
+	show[Discover]
+}
+
+int QUART=90
+byte CAR=1
+
+sequence Strategy {
+	if (meta.type != CAR) {	
+		execute Eight2CarConnNrs;
+	}
+}
+
+sequence Eight2CarConnNrs {
+	do {retract(@Eight[0],0);
+		retract(@Eight[3],4); }
+	
+	rotate(@Eight[3],-QUART);
+	rotate(@Eight[4],-QUART);
+	extend(@Eight[4],6);
+	
+	do {rotate(@Eight[1],-QUART);
+		retract(@Eight[6],2);}
+	
+	do {rotate(@Eight[4],QUART);
+		rotate(@Eight[6],QUART); }
+	
+	extend(@Eight[0],0);
+	retract(@Eight[6],6);
+	
+	do {rotate(@Eight[0],-QUART);
+		rotate(@Eight[1],QUART);
+	}
+	
+	rotate(@Eight[0],QUART);
+	
+	do {extend(@Eight[5],4);
+		extend(@Eight[2],4);
+		extend(@Eight[1],4);
+	}
+	
+	retract(@Eight[4],6);
+	retract(@Eight[3],6);
+	
+	do {rotate(@Eight[1],QUART);
+		rotate(@Eight[3],QUART);
+	}
+	
+	extend(@Eight[1],6);
+	
+	retractSet(@Eight[3],NORTH&MALE);
+	
+	rotate(@Eight[1],QUART);
+	meta.type = CAR;
+}

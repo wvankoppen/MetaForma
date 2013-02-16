@@ -379,7 +379,7 @@ public class <classname> extends MfController implements ControllerInformationPr
 	public boolean receivePacket(PacketSymmetry p) {
 		boolean handled = false;
 		if (mfStateMngr.at(p.getState())) {
-			module().fixSymmetry(p.connOwn, p.connNb);
+			module().fixSymmetry(p.connNb, p.connOwn); // First the connNb, from the payload!
 			handled = true;
 		}
 	

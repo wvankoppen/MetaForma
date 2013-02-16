@@ -1,0 +1,16 @@
+package TwoWheeler
+
+sequence Turn {
+	stop(@Car); 
+
+	do {
+		meta.drive (BACKWARD,BACKWARD);	
+	} wait(TIME_BACKWARD); 
+
+	do {
+		if (LEFT) meta.drive (BACKWARD,FORWARD);
+		if (RIGHT) meta.drive (FORWARD,BACKWARD);
+	} wait(TIME_TURNAROUND);
+	
+	stop(@Car); // Stop all the wheels, before jumping back to Strategy
+}

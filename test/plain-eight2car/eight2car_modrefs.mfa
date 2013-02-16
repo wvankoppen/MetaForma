@@ -1,0 +1,63 @@
+package Eight2Car
+
+group Eight
+
+sequence Init{
+	enable meta;
+}
+
+meta{
+	parts 7;
+	byte type;
+}
+
+sequence Strategy {		
+	execute Eight2CarModRefs;
+}
+
+sequence Eight2CarModRefs {
+	do{	disconnect(@Eight[0],@Eight[2]);
+		disconnect(@Eight[3],@Eight[4]);
+	}
+	rotate(@Eight[3],-90);
+	rotate(@Eight[4],-90);
+	connect(@Eight[4],@Eight[3]);
+	
+	do{	rotate(@Eight[1],-90);
+		disconnect(@Eight[6],@Eight[5]);
+	}
+	
+	do{	rotate(@Eight[4],90);
+		rotate(@Eight[6],90);
+	}
+	
+	connect(@Eight[0],@Eight[6]);
+	disconnect(@Eight[6],@Eight[4]);
+	
+	do{	rotate(@Eight[0],-90);
+		rotate(@Eight[1],90);
+	}
+	
+	rotate(@Eight[0],90);
+	
+	do{	connect(@Eight[5],@Eight[6]);
+		connect(@Eight[2],@Eight[6]);
+		connect(@Eight[1],@Eight[4]);
+	}
+	
+	disconnect(@Eight[4],@Eight[3]);
+	disconnect(@Eight[3],@Eight[1]);
+	
+	do{	rotate(@Eight[1],90);
+		rotate(@Eight[3],90);
+	}
+	
+	connect(@Eight[1],@Eight[3]);
+	
+	do{	disconnect(@Eight[3],@Eight[5]);
+		disconnect(@Eight[3],@Eight[2]);
+	}
+	
+	rotate(@Eight[1],90);
+	meta.type = CAR;
+}

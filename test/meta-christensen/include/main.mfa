@@ -68,8 +68,8 @@ meta {
 	void neighborHook (Packet p) {
 		if (p.metaID != module.metaID && module.metaID != 0 && p.metaID != 0 && p.sourceGroup != @Walker) { // Walker not needs to be compromised
 			if (meta.type==LYING || (module.id != @Walker.Left)) {
-				if (module.metaPart == MiddlePart) 	Top = p.metaID;		
-				if (module.metaPart == RightPart)	Bottom = p.metaID;
+				if (module.metaPart == MiddlePart) 	Bottom = p.metaID;		
+				if (module.metaPart == RightPart)	Top = p.metaID;
 			}
 		}
 	}
@@ -91,20 +91,16 @@ module  {
 		BOTTOM: #(connOwn: EAST&FEMALE)>0 && #(connOwn: WEST&FEMALE)==0;
 	];
 	
-	boolean sourcePri, sourceSec;
 	byte gradPri, gradSec;
 	boolean isRef;
 	
 	void gradientPropagate () {		 
-		if (sourcePri) gradPri = 0; 
-		if (sourceSec) gradSec = 0;
+		if (module.atBorder(orient.primary)) gradPri = 0; 
+		if (module.atBorder(orient.secondary)) gradSec = 0;
 		send Gradient(pri=gradPri, sec=gradSec);
 	} 		
 
-	void gradientInit() {
-		sourcePri = module.atBorder(orient.primary);
-		sourceSec = module.atBorder(orient.secondary);
-		
+	void gradientInit() {		
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;			
 	}
@@ -113,7 +109,7 @@ module  {
   
 sequence Init {
 	do {  
-		when (#(connOwn: EAST&MALE&NORTH)>0 && #()==2) {
+		when (#(connOwn: EAST&MALE&NORTH,connected:true)>0 && #()>=2) { // Walker.Left might still be present
 			module.metaID = module.number; 
 			module.metaPart = LeftPart;
 			send AssignMetaID (newID=module.metaID) to $(connOwn: EAST&MALE&SOUTH);

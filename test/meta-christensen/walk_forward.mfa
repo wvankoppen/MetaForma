@@ -8,14 +8,14 @@ sequence Strategy {
 	do {
 		if (meta.type==LYING) {
 			wait (30) { // needs to be high for parallel walker!
-				try region LiftUp (TOP_LEFT) including Bottom excluding Top,Up;
+				try region LiftUp (TOP_LEFT) including Top excluding Bottom,Up;
 			}
 		}
 		else {
 			// we cant use Walker.Right to create the region, as it is hanging in the air! --> YES, but do more early
 			if (module.id == @Walker.Right) {
 				if (#(@X,inRegion:false)==2) 
-					try region LiftDown including Bottom;
+					try region LiftDown including Top;
 				if (#(@X,inRegion:false)==3) 
 					execute WalkStep;
 			}
@@ -51,7 +51,7 @@ sequence LiftUp {
 		rotateOrigin(@Walker.Right);
 	}		
 	do {
-		connect(@Uplifter.Main,@X);
+		connect(@Uplifter.Main,@Uplifter.Help);
 		rotate(@Walker.Middle,-EIGHT);
 	}
 	rotate(@Walker.Left,HALF);
@@ -81,7 +81,7 @@ sequence LiftDown {
 		meta.absorb();
 	}until(consensus());
 	
-	retractSet(@Uplifter.Main, SOUTH&FEMALE);
+	retractSet(@Uplifter.Main, NORTH&FEMALE);
 	connect(@Walker.Right,@Uplifter.Main);
 	disconnect(@Walker.Left,@X,true);
 	rotate(@Walker.Right,QUART);
@@ -97,7 +97,7 @@ sequence LiftDown {
 		connect(@Uplifter.Main,@X);
 	}
 	do {
-		module.fixSymmetry (module.metaID != meta.regionID && module.atBorder(TOP));
+		module.fixSymmetry (module.metaID != meta.regionID && module.atBorder(BOTTOM));
 	} until(consensus());
 	
 	disable meta;

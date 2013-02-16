@@ -201,9 +201,15 @@ with
   // OOPS: Constructors not supported in URI!!!!
   is-prim-seq = ?"Init" + ?"Strategy"
   
+  filter-strategy = debug;split-at-space;debug;first
   
-  to-seq: seq -> $[SequenceGeneric.[seq]] where is-prim-seq
-  to-seq: seq -> $[Sequence.[seq]]  where not(is-prim-seq)
+  to-seq = filter-strategy;
+  			if is-prim-seq then 
+  				!$[SequenceGeneric.[<id>]]
+  			else
+  				!$[Sequence.[<id>]]
+  			end
+
   
   
   
