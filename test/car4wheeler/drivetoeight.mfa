@@ -5,9 +5,6 @@ debug {
 }
 
 sequence Strategy {
-	when (module.id == @Axis.Front && module.proximity() > PROX_TRIGGER) {			
-		execute Car2Eight;
-	}
 	do {
 		if (meta.type==NONE)	execute AssignCar;	
 		if (meta.type==CAR)		execute Drive;
@@ -16,23 +13,35 @@ sequence Strategy {
 }
  
 sequence Drive {
-	meta.drive(FORWARD,FORWARD);
+	when (module.id == @Axis.Front && module.proximity() > PROX_TRIGGER) {			
+		execute Car2EightModRefs;
+	}
+	
+	do {
+		meta.drive(FORWARD,FORWARD);
+	} wait (false);
 }
  
 sequence AssignCar {
-	
-	do wait (config.assignTime){ 
+	module.storeID();
+	do { 
 		if (#(connOwn:SOUTH&EAST&FEMALE, connNb:EAST)>0)								module.group = @LeftWheel;
 		if (#(connOwn:SOUTH&EAST&FEMALE, connNb:WEST)>0)								module.group = @RightWheel;
 		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connOwn: NORTH&EAST&FEMALE)==0)	module.id = @Axis.Front;
 		if ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connOwn: NORTH&EAST&FEMALE)==1)	module.id = @Axis.Back;
-		if (#()==2) 																		module.id = @Axis.Driver;				
-	} 
+		if (#()==2) 																	module.id = @Axis.Driver;				
+	} until (config.assignTime);
 	meta.type = CAR;	
 } // CANNOT BE MOVED TO META FUNC 
 
-sequence Car2EightNames {
+sequence Car2EightModRefs {
+	do {
+		stop(@LeftWheel);
+		stop(@RightWheel);
+	}
 	module.restoreID();
+	
+	
 	rotate(@Eight[1],-90);
 	do{	connect(@Eight[3],@Eight[5]);
 		connect(@Eight[3],@Eight[2]);
@@ -100,8 +109,11 @@ sequence Car2EightNames {
 }
 
 // check whether this is proper reverse!
-sequence Car2Eight {
-	
+sequence Car2EightConNrs {
+	do {
+		stop(@LeftWheel);
+		stop(@LeftWheel);
+	}
 	module.restoreID();
 	
 	rotate(@Eight[1],-QUART); 

@@ -1,6 +1,8 @@
 package Brandt
 group Clover [North,South,West,East]
  
+// Orientation: first, direction to move TO, following the modules, second, direction to push FROM 
+ 
 sequence FlipAlong  {
 	if (TOP_LEFT, RIGHT_TOP, BOTTOM_RIGHT, RIGHT_BOTTOM) {
 		QUART = 90;
@@ -15,7 +17,6 @@ sequence FlipAlong  {
 	do {
 		module.gradientPropagate();
 	} until (config.propagationTime);
-
 		
 	do {		
 		if (gradPri==3 && gradSec==0) module.id = @Clover.West;

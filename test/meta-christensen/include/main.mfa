@@ -1,7 +1,7 @@
 package Christensen
 
 debug {
-	show [AssignMetaID,MetaVarSync,Gradient,Packet,Discover,Absorb,Region]
+	show [AssignMetaID,MetaVarSync,Gradient,Packet,Discover,Absorb,Region,Symmetry]
 	
 	visualize {  
 	 	north [
@@ -46,7 +46,7 @@ packet Absorb {}
 when (receive (Absorb p)) {
 	if (module.metaID == 0) {
 		module.metaID = p.metaID;
-		module.backupID();
+		module.storeID();
 		module.id = @Uplifter.Main; 
 	}
 }

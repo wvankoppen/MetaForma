@@ -7,7 +7,7 @@ byte SNAKE=3
 
 sequence Strategy {
 	do {
-		if (meta.type == NONE) execute Eight2CarNames;
+		if (meta.type == NONE) execute Eight2CarModRefs;
 		
 		if (meta.type == CAR) {
 			if (module.id == @Eight[3] && module.tiltZ() > 50) {
@@ -22,13 +22,8 @@ sequence Strategy {
 }
 
 // Using names is easier for building robots with random orientation!
-sequence Eight2CarNames {
-	do {
-		when (receive(Symmetry p)) {
-			module.fixSymmetry(p.connOwn,p.connNb);
-		}
-		module.fixSymmetry(module.id == @X[0]);
-	} until(consensus());
+sequence Eight2CarModRefs {
+	module.fixSymmetry(module.id == @X[0]);
 	
 	module.gradientInit();
 	
@@ -36,9 +31,7 @@ sequence Eight2CarNames {
 		module.gradientPropagate();
 	}	until (config.propagationTime);
 	
-	module.gradientAssignEight();
-	
-	
+	module.gradientAssignEight();	
 	
 	do{	disconnect(@Eight[0],@Eight[2]);
 		disconnect(@Eight[3],@Eight[4]);

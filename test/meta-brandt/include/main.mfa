@@ -1,7 +1,7 @@
 package Brandt
  
 debug {
-	show [Packet,AddNeighbor]
+	show [AddNeighbor, Discover, MetaVarSync, Consensus,Symmetry]
 	
 	visualize {  
 	 	north [
@@ -36,6 +36,8 @@ debug {
 	 	]
 	} 
 }
+
+byte TIME_META_DISCOVER=7 // Needs to be higher than 5, as crucial meta-neightbor might not have been fully initialized earlier
 
 packet AssignMetaID {
 	byte newID,counter;
@@ -84,15 +86,16 @@ meta {
 	byte Top,Bottom,Left,Right, TopLeft,TopRight,BottomLeft,BottomRight;
 
 	void neighborHook (Packet p) {
-		if (p.metaID != module.metaID && module.metaID != 0) {
-			if (p.connNb==5 || p.connNb==6) meta.Right = p.metaID;
-		 	if (p.connNb==2 || p.connNb==7) meta.Top = p.metaID;
-			if (p.connNb==0 || p.connNb==3) meta.Left = p.metaID;
-			if (p.connNb==1 || p.connNb==4) meta.Bottom = p.metaID;
+		if (p.metaID != module.metaID && module.metaID != 0 && p.metaID != 0) { // also check for p.metaID != 0, as when nb is at init state (thus metaID==0) it is better to keep old value
+			if ((p.connOwn==5 || p.connOwn==6) && meta.Right != p.metaID) {meta.Right = p.metaID;broadcastNeighbors();} 
+		 	if ((p.connOwn==2 || p.connOwn==7) && meta.Top != p.metaID) {meta.Top = p.metaID;broadcastNeighbors();} 
+			if ((p.connOwn==0 || p.connOwn==3) && meta.Left != p.metaID) {meta.Left = p.metaID;broadcastNeighbors();} 
+			if ((p.connOwn==1 || p.connOwn==4) && meta.Bottom != p.metaID) {meta.Bottom = p.metaID;broadcastNeighbors();} 
 		}
 	}
  		
 	void broadcastNeighbors () {
+		module.discover(); // we need to do this explicitly here!
 		send AddNeighbor(first=Left, second=Right) to $(metaID: [Top, Bottom], inRegion:false);
 		send AddNeighbor(first=Top, second=Bottom) to $(metaID: [Left, Right], inRegion:false);
 	}
@@ -125,16 +128,12 @@ module  {
 		
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;		
-		module.backupID();	
+		module.storeID();	
 	}
  }
 
   
 sequence Init {
-	when (receive (Packet p)) {
-		meta.neighborHook (p);
-	}
-	 
 	do {	  
 		when ( #(connOwn: EAST&MALE, metaPart:None) == 2 && #(connOwn: WEST, metaPart:None)==0) {
 			module.metaID = module.number; 
@@ -160,8 +159,4 @@ sequence Init {
 			send AssignMetaID (newID=p.newID, counter=p.counter+1) to $(connOwn: pow2(deflect(p.connOwn)));
 		}
 	} until(consensus()); 
-	
-	do { 
-		meta.broadcastNeighbors();
-	} until(config.propagationTime);
 }

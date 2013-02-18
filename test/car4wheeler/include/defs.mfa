@@ -11,9 +11,9 @@ debug {
 		]
 		south [
 			Init: white;
-			Car2Eight: gray;
+			Car2EightModRefs: brown;
 			Strategy: red;
-			Turn: black;
+			Turn: gray;
 		]
 	} 
 }
@@ -53,7 +53,7 @@ module {
 		if (gradSec%2==0) nr = nr+gradSec/2 + 1;
 		
 		module.id = @Eight[nr];
-		module.backupID();
+		module.storeID();
 	}
 
 	boolean standing() {
@@ -121,9 +121,6 @@ when (receive (Gradient p)) {
   
 sequence Init {	
 	enable meta;
-	do {
-		meta.createCar();
-	} until(config.assignTime);	
 }
 
 

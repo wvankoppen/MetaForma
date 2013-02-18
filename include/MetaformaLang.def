@@ -403,7 +403,7 @@ exports
 	"tiltX"				-> ModuleMethodRef
 	"tiltY"				-> ModuleMethodRef
 	"tiltZ"				-> ModuleMethodRef
-	"backupID"			-> ModuleMethodRef
+	"storeID"			-> ModuleMethodRef
 	
 	
 	
@@ -729,7 +729,7 @@ exports
 	"tiltX"				-> ModuleMethodRef
 	"tiltY"				-> ModuleMethodRef
 	"tiltZ"				-> ModuleMethodRef
-	"backupID"			-> ModuleMethodRef
+	"storeID"			-> ModuleMethodRef
 	
 	
 	

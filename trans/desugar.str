@@ -68,9 +68,10 @@ where
 desugar: Sequence(n,evts,ins*) -> Sequence(<wrap>n,evts,ins4*)  
 where
 	ins2* := <conc> (ins*,[Execute(SequencePrimRef("Strategy"))]);
-	ins3*  := <map(try(add-instr);try(uni-instr))>ins2*;
+	ins3*  := <map(try(symm-instr);try(add-instr);try(uni-instr))>ins2*;
 	nrs    := <upto><dec><length>ins3*;  // nrs = [0,1,2,..,n-1]
 	ins4*  := <map(swap-counter)><zip>(nrs,ins3*) // number each instruction
+	
 
 	add-instr: term -> Instr(None(),[],[],[term],None())
 	where not (<eq>(<aterm-name>term,"Instr"))
@@ -87,7 +88,10 @@ where
  			case ?n@"Strategy": 	!Strategy(n,$[[n] [<newname>]])// to store it unique (we have to store it)
  			otherwise: 			!Plain(<id>)
  		   end
- 		 		
+ 	
+ 	symm-instr: d@FuncCall(MethodPrimRef(Module(), "fixSymmetry"), _) 
+ 	->
+ 	Instr(None(), [], [], [d], Some(Until(Consensus()))) 		
 	
 	
 	// decl2assign: VarDecl(t,n,v) -> Assign(VarRef(n),v)

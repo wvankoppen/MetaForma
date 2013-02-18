@@ -11,8 +11,9 @@ sequence Strategy {
 	when (module.id == @Axis.Front && module.proximity() > PROX_TRIGGER) {
 		execute Turn (RIGHT);
 	} 
-	
-	meta.drive(FORWARD,FORWARD);
+	do {
+		meta.drive(FORWARD,FORWARD);
+	} until (false);
 }
 
 

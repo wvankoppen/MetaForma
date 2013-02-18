@@ -4,14 +4,14 @@ sequence Strategy {
 	when (receive (Packet p)) {
 		meta.neighborHook (p);
 	}
-	
+		
 	do {
 		meta.broadcastNeighbors();
-	}until(config.propagationTime);
+	}until(TIME_META_DISCOVER);
 	do {	
-		// These 3 strategies will move meta-modules in upwards direction
+		// Move meta-modules in forward direction
 		try region FlipThrough(BOTTOM_RIGHT) including Top excluding TopLeft,Left,Right,Bottom,BottomLeft,BottomRight;
-		try region FlipAlong(BOTTOM_RIGHT) including Right,TopRight excluding Top;
+		try region FlipAlong(RIGHT_BOTTOM) including Right,TopRight excluding Top;
 		try region FlipThrough(LEFT_BOTTOM) including Right excluding Top, TopRight;
 	}until (false);
 }

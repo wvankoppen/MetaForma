@@ -47,7 +47,7 @@ sequence FlipThrough {
 	}
 	 
 	module.restoreID();
-	connect(@X, @X);	
+	connect(@X, @X);
 	module.fixSymmetry(isRef);
 	disable meta;
 }

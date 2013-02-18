@@ -22,9 +22,9 @@ folding Default folding definitions
   
   Start.Package
   Debug.Debug
-  OptShowPackets0
+  OptShowPackets1
   ShowPackets.ShowPackets
-  OptVisualize0
+  OptVisualize1
   Visualize.Visualize
   VisGroup.VisGroup
   VisItem.VisItem
@@ -32,7 +32,7 @@ folding Default folding definitions
   Exp.OrientMatch
   GroupDef.Group
   MainDef.Meta
-  OptPartDecl0
+  OptPartDecl1
   PartDecl.MetaPartDecl
   FieldDecl.FieldDeclList
   FuncDecl.FuncDecl
@@ -40,19 +40,19 @@ folding Default folding definitions
   Stmt.Send
   AssignList.AssignList
   AssignElem.AssignElem
-  OptNbsClause0
+  OptNbsClause1
   NbsClause.NbsClause
   Nbs.Nbs
   Stmt.Assign
   Stmt.Return
   Stmt.TryRegion
-  OptExcludingClause0
+  OptExcludingClause1
   ExcludingClause.Excluding
   Stmt.FuncCall
   Stmt.FuncCall
   Stmt.FuncCall
   MainDef.Module
-  OptBorderDecl0
+  OptBorderDecl1
   BorderDecl.BorderDecl
   BorderItem.BorderItem
   MainDef.ConstDecl
@@ -62,9 +62,9 @@ folding Default folding definitions
   EvHdlr.If
   Stmt
   Instr.Instr
-  OptPreCon1
+  OptPreCon0
   PreCon.Wait
-  OptPostCon1
+  OptPostCon0
   PostCon.Wait
   Exp
   PostCon.Until

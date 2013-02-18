@@ -25,7 +25,7 @@ sequence Strategy {
 
 
 sequence LiftUp {
-	module.backupID();
+	module.storeID();
 	module.gradientInit();
 	do {
 		module.gradientPropagate();
@@ -96,9 +96,8 @@ sequence LiftDown {
 		connect(@Walker.Right,@Uplifter.Main);
 		connect(@Uplifter.Main,@X);
 	}
-	do {
-		module.fixSymmetry (module.metaID != meta.regionID && module.atBorder(BOTTOM));
-	} until(consensus());
+	
+	module.fixSymmetry (module.metaID != meta.regionID && module.atBorder(BOTTOM));
 	
 	disable meta;
 }

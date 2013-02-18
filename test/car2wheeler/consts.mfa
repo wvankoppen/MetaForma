@@ -1,9 +1,9 @@
 package TwoWheeler
 
 // Algorithmic constants 
-float PROX_TRIGGER = 0.10 // must be lower than 0.15!
+float PROX_TRIGGER = 0.15 // must be lower than 0.1! and even 0.05???
 float TIME_BACKWARD = 5.0
-float TIME_TURNAROUND = 3.0
+float TIME_TURNAROUND = 2.0
 
 float FORWARD = 1.0	
 float BACKWARD = -1.0

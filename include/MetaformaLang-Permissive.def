@@ -382,7 +382,7 @@ exports
     "tiltX"           -> ModuleMethodRef  
     "tiltY"           -> ModuleMethodRef  
     "tiltZ"           -> ModuleMethodRef  
-    "backupID"        -> ModuleMethodRef  
+    "storeID"         -> ModuleMethodRef  
     "assignTime"      -> ConfigFieldID    
     "connect"         -> FuncActuationRef 
     "disconnect"      -> FuncActuationRef 
@@ -602,7 +602,7 @@ exports
     "tiltX"           -> ModuleMethodRef  
     "tiltY"           -> ModuleMethodRef  
     "tiltZ"           -> ModuleMethodRef  
-    "backupID"        -> ModuleMethodRef  
+    "storeID"         -> ModuleMethodRef  
     "assignTime"      -> ConfigFieldID    
     "connect"         -> FuncActuationRef 
     "disconnect"      -> FuncActuationRef 
