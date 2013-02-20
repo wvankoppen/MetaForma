@@ -395,6 +395,7 @@ exports
 	"connNb" 		-> PayloadID
 	
 	
+	"discover"			-> ModuleMethodRef
 	"restoreID"			-> ModuleMethodRef
 	"restoreSymmetry"	-> ModuleMethodRef
 		
@@ -721,6 +722,7 @@ exports
 	"connNb" 		-> PayloadID
 	
 	
+	"discover"			-> ModuleMethodRef
 	"restoreID"			-> ModuleMethodRef
 	"restoreSymmetry"	-> ModuleMethodRef
 		

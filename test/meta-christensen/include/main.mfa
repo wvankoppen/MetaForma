@@ -68,8 +68,10 @@ meta {
 	void neighborHook (Packet p) {
 		if (p.metaID != module.metaID && module.metaID != 0 && p.metaID != 0 && p.sourceGroup != @Walker) { // Walker not needs to be compromised
 			if (meta.type==LYING || (module.id != @Walker.Left)) {
-				if (module.metaPart == MiddlePart) 	Bottom = p.metaID;		
-				if (module.metaPart == RightPart)	Top = p.metaID;
+				if (module.metaPart == MiddlePart) 	
+					Bottom = p.metaID;		
+				else // Can happen on both LeftPart and RightPart 
+					Top = p.metaID;
 			}
 		}
 	}
@@ -104,12 +106,12 @@ module  {
 		gradPri = MAX_BYTE;
 		gradSec = MAX_BYTE;			
 	}
- }
+}
 
   
 sequence Init {
 	do {  
-		when (#(connOwn: EAST&MALE&NORTH,connected:true)>0 && #()>=2) { // Walker.Left might still be present
+		when (#(connOwn: EAST&MALE&SOUTH,connected:true)>0 && #()>=2) { // Walker.Left might still be present
 			module.metaID = module.number; 
 			module.metaPart = LeftPart;
 			send AssignMetaID (newID=module.metaID) to $(connOwn: EAST&MALE&SOUTH);

@@ -7,7 +7,7 @@ sequence Strategy {
 		
 	do {
 		meta.broadcastNeighbors();
-	}until(TIME_META_DISCOVER);
+	}until(config.propagationTime);
 	do {	
 		// Move meta-modules in forward direction
 		try region FlipThrough(BOTTOM_RIGHT) including Top excluding TopLeft,Left,Right,Bottom,BottomLeft,BottomRight;

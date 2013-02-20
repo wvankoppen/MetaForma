@@ -4,7 +4,7 @@ group Uplifter [Top,Bottom,Left,Right]
 group Dummy [Left,Right]
  
 sequence FlipThrough {
-	if (BOTTOM_RIGHT, RIGHT_TOP, LEFT_BOTTOM) {
+	if (BOTTOM_RIGHT, RIGHT_TOP, LEFT_BOTTOM, TOP_RIGHT) { // TOP_RIGHT?
 		QUART = 90;
 		HALF = 180; 
 	}
@@ -41,10 +41,8 @@ sequence FlipThrough {
 		rotate(@Uplifter.Left, QUART);
 		rotate(@Uplifter.Right, QUART);
 	} 
-	do  {				
-		// rotate(@Uplifter.Right, HALF);
-		rotate(@Uplifter.Top, HALF);
-	}
+	rotate(@Uplifter.Top, HALF);
+
 	 
 	module.restoreID();
 	connect(@X, @X);

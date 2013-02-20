@@ -375,6 +375,7 @@ exports
     "regionID"        -> PayloadID        
     "connOwn"         -> PayloadID        
     "connNb"          -> PayloadID        
+    "discover"        -> ModuleMethodRef  
     "restoreID"       -> ModuleMethodRef  
     "restoreSymmetry" -> ModuleMethodRef  
     "fixSymmetry"     -> ModuleMethodRef  
@@ -595,6 +596,7 @@ exports
     "regionID"        -> PayloadID        
     "connOwn"         -> PayloadID        
     "connNb"          -> PayloadID        
+    "discover"        -> ModuleMethodRef  
     "restoreID"       -> ModuleMethodRef  
     "restoreSymmetry" -> ModuleMethodRef  
     "fixSymmetry"     -> ModuleMethodRef  
