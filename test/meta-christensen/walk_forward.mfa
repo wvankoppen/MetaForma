@@ -6,8 +6,8 @@ sequence Strategy {
 	}
 	
 	do {
-		if (meta.type==LYING) {
-			wait (20) { // needs to be high for parallel walker!
+		if (meta.type==WALKER) {
+			wait (25) { // 20 = too low, needs to be high for parallel walker!
 				try region LiftUp (TOP_LEFT) including Top excluding Bottom,Up;
 			}
 		}
@@ -35,40 +35,40 @@ sequence LiftUp {
 		if (gradPri==2 && gradSec==2) module.id = @Walker.Left;
 		if (gradPri==3 && gradSec==1) module.id = @Walker.Middle;
 		if (gradPri==2 && gradSec==0) module.id = @Walker.Right;
-		if (gradPri==1 && gradSec==1) module.id = @Uplifter.Main;
-		if (gradPri==0 && gradSec==0) module.id = @Uplifter.Help;
+		if (gradPri==1 && gradSec==1) module.id = @Lifter.Main;
+		if (gradPri==0 && gradSec==0) module.id = @Lifter.Help;
 	}
 	do {
-		disconnect(@Uplifter.Main, @Uplifter.Help);
-		disconnect(@Uplifter.Main, @Walker.Left);
+		disconnect(@Lifter.Main, @Lifter.Help);
+		disconnect(@Lifter.Main, @Walker.Left);
 	}
 	rotate(@Walker.Right,QUART);
-	rotate(@Uplifter.Main,QUART);
-	connect(@Walker.Left,@X,true); // @X is active region
-	disconnect(@Walker.Right,@Uplifter);
+	rotate(@Lifter.Main,QUART);
+	connect(@Walker.Left,@X,true);  // Also connect to modules in other region
+	disconnect(@Walker.Right,@Lifter);
 	do {
-		rotateOrigin(@Uplifter.Main);
+		rotateOrigin(@Lifter.Main);
 		rotateOrigin(@Walker.Right);
 	}		
 	do {
-		connect(@Uplifter.Main,@Uplifter.Help);
+		connect(@Lifter.Main,@Lifter.Help);
 		rotate(@Walker.Middle,-EIGHT);
 	}
 	rotate(@Walker.Left,HALF);
 	rotate(@Walker.Middle,EIGHT);
 	if(module.metaID == meta.regionID) {
-		meta.type = STANDING;
-		disable region; // We need to get rid of the region
+		meta.type = SCAFFOLD;
+		disable region; // We need keep the meta-module
 	}
 	else {
 		module.restoreID();
-		disable meta; // We need to get rid of everything
+		disable meta; // Also disable the meta walker
 	}
 }
 
 sequence WalkStep {
 	connect(@Walker.Right, @X);
-	disconnect(@Walker.Left, @X,true); // Also disconnect to other regions
+	disconnect(@Walker.Left, @X,true); // Also disconnect modules in other region
 	rotate(@Walker.Middle,-EIGHT);
 	rotate(@Walker.Right,-HALF);
 	rotate(@Walker.Middle, EIGHT);
@@ -81,25 +81,24 @@ sequence LiftDown {
 		meta.absorb();
 	}until(consensus());
 	
-	
 	do {
-		connect(@Walker.Right,@Uplifter.Main);
-		retractSet(@Uplifter.Main, NORTH&FEMALE);	
+		connect(@Walker.Right,@Lifter.Main);
+		retractSet(@Lifter.Main, NORTH&FEMALE);	
 	}
 	
-	disconnect(@Walker.Left,@X,true);
-	rotate(@Uplifter.Main,QUART);
+	disconnect(@Walker.Left,@X,true);  // Also disconnect modules in other region
+	rotate(@Lifter.Main,QUART);
 	rotate(@Walker.Right,QUART);
 	
-	connect(@Walker.Left,@Uplifter.Main);
-	disconnect(@Walker.Right,@Uplifter.Main);
+	connect(@Walker.Left,@Lifter.Main);
+	disconnect(@Walker.Right,@Lifter.Main);
 	do {
-		rotateOrigin(@Uplifter.Main);
+		rotateOrigin(@Lifter.Main);
 		rotateOrigin(@Walker.Right);
 	}
 	do {
-		connect(@Walker.Right,@Uplifter.Main);
-		connect(@Uplifter.Main,@X);
+		connect(@Walker.Right,@Lifter.Main);
+		connect(@Lifter.Main,@X);
 	}
 	
 	module.fixSymmetry (module.metaID != meta.regionID && module.atBorder(BOTTOM));

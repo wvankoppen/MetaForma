@@ -10,21 +10,14 @@ sequence Strategy {
 		if (meta.type == NONE) execute Eight2CarModRefs;
 		
 		if (meta.type == CAR) {
-			if (module.id == @Eight[3] && module.tiltZ() > 50) {
-				execute GetUp;
-			}
-			else {
-				execute Drive;
-			} 		
+			execute Drive;
 		}
 	}
-	
 }
 
 // Using names is easier for building robots with random orientation!
 sequence Eight2CarModRefs {
 	module.fixSymmetry(module.id == @X[0]);
-	
 	module.gradientInit();
 	
 	do {

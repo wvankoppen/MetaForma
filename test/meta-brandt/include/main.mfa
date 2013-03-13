@@ -1,7 +1,7 @@
 package Brandt
  
 debug {
-	show [AddNeighbor, Discover, MetaVarSync, Consensus,Symmetry]
+	show [AddNeighbor, Discover, MetaVarSync, Consensus,Symmetry,Packet,AssignMetaID]
 	
 	visualize {  
 	 	north [
@@ -16,10 +16,10 @@ debug {
 	 		@Outside: blue;
 	 		@Inside: red;
 	 		
-	 		@Uplifter.Top: yellow;
-	 		@Uplifter.Bottom: magenta;
-	 		@Uplifter.Left: green; 
-	 		@Uplifter.Right: yellow;
+	 		@Lifter.Top: yellow;
+	 		@Lifter.Bottom: magenta;
+	 		@Lifter.Left: green; 
+	 		@Lifter.Right: brown;
 	 		
 	 		@Dummy.Left: white;
 	 		@Dummy.Right: black;
@@ -36,8 +36,6 @@ debug {
 	 	]
 	} 
 }
-
-byte TIME_META_DISCOVER=7 // Needs to be higher than 5, as crucial meta-neightbor might not have been fully initialized earlier
 
 packet AssignMetaID {
 	byte newID,counter;
@@ -85,8 +83,8 @@ meta {
  	parts [North, West, South, East];	
 	byte Top,Bottom,Left,Right, TopLeft,TopRight,BottomLeft,BottomRight;
 
-	void neighborHook (Packet p) {
-		if (p.metaID != module.metaID && module.metaID != 0 && p.metaID != 0) { // also check for p.metaID != 0, as when nb is at init state (thus metaID==0) it is better to keep old value
+	void neighborHook (Packet p) { // added p.connected == false
+		if (#(in: p.sourceID,connected:true,inRegion:false) == 1 && p.metaID != module.metaID && module.metaID != 0 && p.metaID != 0) { // also check for p.metaID != 0, as when nb is at init state (thus metaID==0) it is better to keep old value
 			if ((p.connOwn==5 || p.connOwn==6) && meta.Right != p.metaID) {meta.Right = p.metaID;broadcastNeighbors();} 
 		 	if ((p.connOwn==2 || p.connOwn==7) && meta.Top != p.metaID) {meta.Top = p.metaID;broadcastNeighbors();} 
 			if ((p.connOwn==0 || p.connOwn==3) && meta.Left != p.metaID) {meta.Left = p.metaID;broadcastNeighbors();} 
@@ -135,7 +133,7 @@ module  {
   
 sequence Init {
 	do {	  
-		when ( #(connOwn: EAST&MALE, metaPart:None) == 2 && #(connOwn: WEST, metaPart:None)==0) {
+		when (module.metaID == 0 && #(connOwn: EAST&MALE, metaPart:None) == 2 && #(connOwn: WEST, metaPart:None)==0) {
 			module.metaID = module.number; 
 			module.metaPart = West;
 		}	
@@ -147,16 +145,15 @@ sequence Init {
 		when (receive (AssignMetaID p)) {
 			if (module.metaID == 0) {
 				module.metaID = p.newID;
-				
 				if (p.counter==0) module.metaPart = North;
 				if (p.counter==1) module.metaPart = East;
 				if (p.counter==2) module.metaPart = South;
 			}
 			if (p.counter==3) {
 				enable meta;
-				break; 
+				execute Strategy;
 			} 
 			send AssignMetaID (newID=p.newID, counter=p.counter+1) to $(connOwn: pow2(deflect(p.connOwn)));
 		}
-	} until(consensus()); 
+	} until(false); 
 }

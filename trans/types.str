@@ -35,7 +35,10 @@ rules
 	
 	type-of: PayloadPrimRef(_, "sourceID") -> Mod()
 	type-of: PayloadPrimRef(_, "sourceGroup") -> Group()
-	type-of: PayloadPrimRef(_, <not(<elem>(<id>,["id","group"]))>) -> Byte()
+	type-of: PayloadPrimRef(_, <elem>(<id>,["id","group","connected"])) -> Byte()
+	type-of: PayloadPrimRef(_, "connected") -> Boolean()
+	
+	
 	
 	type-of: ModHolderRef(_) -> Group()
 	type-of: ModHolderRef(_,_) -> Mod()

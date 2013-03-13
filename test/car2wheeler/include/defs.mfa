@@ -3,9 +3,9 @@ package TwoWheeler
 debug {
 	visualize { 
 		north [
-			@Car.LeftWheel: green;
-			@Car.RightWheel: yellow;
-			@Axis.Front: magenta;
+			@Wheel.Left: green;
+			@Wheel.Right: yellow;
+			@Axle.Front: magenta;
 		]
 		south [
 			Init: black;
@@ -16,14 +16,14 @@ debug {
 }
 
 // Define identification for the Car
-group Car [LeftWheel,RightWheel]
-group Axis [Front]
+group Wheel [Left,Right]
+group Axle [Front]
 
 meta {
 	parts 3;
 	void drive (float dirLeft, float dirRight) {
-		rotating(@Car.LeftWheel,-dirLeft); 
-		rotating(@Car.RightWheel,dirRight);
+		rotating(@Wheel.Left,-dirLeft); 
+		rotating(@Wheel.Right,dirRight);
 	} 
 }
   
@@ -31,9 +31,9 @@ sequence Init {
 	enable meta;
 	
 	do {
-		if (#(connOwn:MALE&EAST)==1)	module.id = @Car.LeftWheel;
-		if (#(connOwn:MALE&WEST)==1)	module.id = @Car.RightWheel;
-		if (#()==2) 			module.id = @Axis.Front;
+		if (#(connOwn:MALE&EAST)==1)	module.id = @Wheel.Left;
+		if (#(connOwn:MALE&WEST)==1)	module.id = @Wheel.Right;
+		if (#()==2) 			module.id = @Axle.Front;
 	}until (config.assignTime);
 }	
 

@@ -5,7 +5,7 @@ debug {
 		north {
 			@LeftWheel: green;
 			@RightWheel: yellow;
-			@Axis: magenta;
+			@Axle: magenta;
 		}
 		south {
 			Main: black;
@@ -16,7 +16,7 @@ debug {
 	}
 }
 
-group Axis [Driver,Front,Back]
+group Axle [Driver,Front,Back]
 group LeftWheel
 group RightWheel
 
@@ -28,8 +28,8 @@ byte BACKWARD = -1
 
 meta {	
 	void steer (int degrees) {
-		rotate(@Axis.Front,degrees);
-		rotate(@Axis.Back,-degrees);
+		rotate(@Axle.Front,degrees);
+		rotate(@Axle.Back,-degrees);
 	}
 	
 	void drive (byte dirLeft, byte dirRight) {
@@ -54,15 +54,15 @@ sequence Main {
 		} 
 		
 		when ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==0) {
-			module.id = @Axis.Front;
+			module.id = @Axle.Front;
 		}
 		
 		when ((#(@RightWheel)>0 || #(@LeftWheel)>0) && #(connSource: NORTH&EAST&FEMALE)==1) {
-			module.id = @Axis.Back;
+			module.id = @Axle.Back;
 		}
 		 
-		when (#(@Axis) == 2) {
-			module.id = @Axis.Driver;
+		when (#(@Axle) == 2) {
+			module.id = @Axle.Driver;
 		}
 		meta.enable();
 		
@@ -73,13 +73,13 @@ sequence Main {
 
 
 sequence Drive {
-	when (module.group == @Axis && module.proximity() > PROXIMITY) {
-if (module.group == @Axis && #() == 2) {
+	when (module.group == @Axle && module.proximity() > PROXIMITY) {
+if (module.group == @Axle && #() == 2) {
 meta.size = 3;
 goto TurnTwoWheeler;
 }
 
-if (module.group == @Axis && #() == 3) {
+if (module.group == @Axle && #() == 3) {
 meta.size = 7;
 goto TurnFourWheeler;
 }

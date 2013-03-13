@@ -63,13 +63,13 @@ to-java-instr(|seq): Instr(i,precon,evhdlrs,stat*,postcon) -> $[ /* [seq]: instr
 	[instr] 
 	] 
 where
-	<debug(!$[Instruction start [i]: ])>evhdlrs;
+	<debug(!$[SeqAction start [i]: ])>evhdlrs;
 	<map2str(to-java-stat)>evhdlrs => java-evhdlrs;
-	<debug(!$[Instruction stats [i]:])>stat*;
+	<debug(!$[SeqAction stats [i]:])>stat*;
 	<map2str(to-java-stat)>stat* => java-stat*;
-	<debug(!$[Instruction stopcondition [i]:])>postcon;
+	<debug(!$[SeqAction stopcondition [i]:])>postcon;
 	<to-java-instr-stats(|i,<conc-strings>(java-evhdlrs,java-stat*))>(precon,postcon) => instr;
-	<debug>$[Instruction end [i]]
+	<debug>$[SeqAction end [i]]
 
 to-java-stat: EvHdlr(name,receive,vardecl,instr) -> "" where <debug(!"Java EV hdlr as stat!")>receive //  Will already be compiled by compile rule
 
@@ -256,7 +256,7 @@ to-java: Packet(p) -> $[Packet[p]]
 
 to-java-stat: Send(p@Packet(packet),AssignList(assigns),dests) -> $[
 	if (ctrl.freqLimit("[packet][<newname>]",mfConfig.getPropagationRate())) {
-		ctrl.unicast(([p'])new [p'](ctrl)[assigns'],[<to-java>dests]);
+		ctrl.send(([p'])new [p'](ctrl)[assigns'],[<to-java>dests]);
 	}]
 where
 	p' := <to-java>p;

@@ -117,6 +117,7 @@ exports
 	"metaID" 				-> NbsFilterKey
 	"connNb" 				-> NbsFilterKey
 	"connOwn"				-> NbsFilterKey
+	"in"					-> NbsFilterKey %% in "can" be omitted
 	
 	 context-free syntax
 	
@@ -390,7 +391,8 @@ exports
 	"sourceID" 		-> PayloadID 
 	"sourceGroup" 	-> PayloadID
 	"metaID" 		-> PayloadID
-	"regionID" 		-> PayloadID 
+	"regionID" 		-> PayloadID
+	"connected"		-> PayloadID 
 	"connOwn"		-> PayloadID
 	"connNb" 		-> PayloadID
 	
@@ -717,7 +719,8 @@ exports
 	"sourceID" 		-> PayloadID 
 	"sourceGroup" 	-> PayloadID
 	"metaID" 		-> PayloadID
-	"regionID" 		-> PayloadID 
+	"regionID" 		-> PayloadID
+	"connected"		-> PayloadID 
 	"connOwn"		-> PayloadID
 	"connNb" 		-> PayloadID
 	

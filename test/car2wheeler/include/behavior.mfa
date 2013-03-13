@@ -1,7 +1,7 @@
 package TwoWheeler
 
 sequence Turn {
-	stop(@Car); 
+	stop(@Wheel); 
 
 	do {
 		meta.drive (BACKWARD,BACKWARD);	
@@ -12,5 +12,5 @@ sequence Turn {
 		if (RIGHT) meta.drive (FORWARD,BACKWARD);
 	} wait(TIME_TURNAROUND);
 	
-	stop(@Car); // Stop all the wheels, before jumping back to Strategy
+	stop(@Wheel); // Stop all the wheels, before jumping back to Strategy
 }

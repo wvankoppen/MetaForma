@@ -42,11 +42,3 @@ sequence Turn {
 		if (RIGHT) meta.steer(STEER_DEGREES);
 	}
 }
-
-
-sequence Init {	
-	enable meta;
-	do {
-		meta.createCar();
-	} until(config.assignTime);
-}

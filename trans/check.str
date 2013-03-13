@@ -26,9 +26,10 @@ rules
   
   
   constraint-note = fail
+  constraint-warning = fail
 
 
-  // constraint-warning: FuncCall(f,d@args) -> (d,$[Parameters do not match])
+  // constraint-error: FuncCall(f,d@args) -> (d,$[Parameters do not match])
 //TODO: make type checking for function calls, by adding types of primitives to the index.
 
  	
@@ -36,7 +37,7 @@ rules
  	where
  		not (<collect-one(?Init(_))><index-getsequences(|p,None())>)	
  		
- 	constraint-warning: decl@Package(p,d,decls) -> (decl,$[Missing parts declaration in meta class])
+ 	constraint-error: decl@Package(p,d,decls) -> (decl,$[Missing parts declaration in meta class])
  	where
  		not (<collect-one(?MetaPart(_))><index-getclasses(|p)>)
  		
@@ -51,7 +52,7 @@ rules
  		<eq>(t1,t2) + <eq>(Int(),t1);<eq>(Byte(),t2) + <eq>(Int(),t2);<eq>(Byte(),t1)
  		  
  	
- 	constraint-warning:
+ 	constraint-error:
  	d@FuncCall( 
 	  FuncActuationRef(func)
 	, args
@@ -63,7 +64,7 @@ rules
 	 	 <elem>(<type-of><second>args,[Int(),Byte()])
 	 	 )
 	 	
-	constraint-warning:
+	constraint-error:
  	d@FuncCall(
 	  FuncActuationRef(func)
 	, args
@@ -77,22 +78,29 @@ rules
 	 	 )
 	 	 
 	 	 
-	 	 constraint-warning:
+constraint-error:
  	Assign(v,d@v2) -> (d,msg)
  	where
  		<check-type-e>(v,v2) => msg 
  
- constraint-warning:		
+ constraint-error:
+ 	If(d@e,s) -> (d,msg)
+ 	where
+ 		<check-type>(Boolean(),<type-of>d) => msg 
+ 
+ 
+ 
+ constraint-error:		
  	d@BoolOp(op,e1,e2) -> (d,msg)
  	where
  		<check-type-e>(e1,e2) => msg 
 	 	 
-  constraint-warning: d@ConstDecl (t,n,v) -> (d,msg)
+  constraint-error: d@ConstDecl (t,n,v) -> (d,msg)
   where
   	type-value := <type-of>v;
   	<check-type>(t,type-value) => msg
   
-  constraint-warning: d@FuncDecl (t,n,params,vars,stats) -> (e,msg)
+  constraint-error: d@FuncDecl (t,n,params,vars,stats) -> (e,msg)
   where
   	<collect-one(?Return(e))>stats => ret;
   	<check-type-e>(d,e) => msg

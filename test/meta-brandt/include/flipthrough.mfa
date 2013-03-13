@@ -1,12 +1,14 @@
 package Brandt
 
-group Uplifter [Top,Bottom,Left,Right]
+group Lifter [Top,Bottom,Left,Right]
 group Dummy [Left,Right]
  
-sequence FlipThrough {
-	if (BOTTOM_RIGHT, RIGHT_TOP, LEFT_BOTTOM, TOP_RIGHT) { // TOP_RIGHT?
+ // CORRECT: RIGHT_BOTTOM   BOTTOM_RIGHT RIGHT_TOP TOP_RIGHT
+ // INCORRECT: BOTTOM_LEFT
+sequence FlipThrough { // RIGHT_TOP appears to be correct
+	if (BOTTOM_RIGHT, RIGHT_TOP, LEFT_BOTTOM, TOP_LEFT) { // TOP_RIGHT incorrect?
 		QUART = 90;
-		HALF = 180; 
+		HALF = 180;
 	}
 	else {
 		QUART = -90; 
@@ -19,29 +21,29 @@ sequence FlipThrough {
 	} until (config.propagationTime);
 	
 	do {
-		if (gradPri==1 && gradSec==1) module.id = @Uplifter.Left;
-		if (gradPri==2 && gradSec==0) module.id = @Uplifter.Right;
+		if (gradPri==1 && gradSec==1) module.id = @Lifter.Right;
+		if (gradPri==2 && gradSec==0) module.id = @Lifter.Left;
 		if (gradPri==1 && gradSec==0) module.id = @Dummy.Left;
-		if (gradPri==0 && gradSec==0) module.id = @Uplifter.Top;
+		if (gradPri==0 && gradSec==0) module.id = @Lifter.Top;
 		if (gradPri==2 && gradSec==1) module.id = @Dummy.Right;
-		if (gradPri==3 && gradSec==1) module.id = @Uplifter.Bottom;			
+		if (gradPri==3 && gradSec==1) module.id = @Lifter.Bottom;			
 		isRef = gradPri==3 && gradSec==0;
 	}
 	do  {				 
-		disconnect(@Uplifter.Left,@Dummy.Left);
-		disconnect(@Uplifter.Right,@Dummy.Right);
+		disconnect(@Lifter.Right,@Dummy.Left);
+		disconnect(@Lifter.Left,@Dummy.Right);
 	} 
 	do  {				
-		rotate(@Uplifter.Left, QUART);
-		rotate(@Uplifter.Right, QUART);
+		rotate(@Lifter.Right, QUART);
+		rotate(@Lifter.Left, QUART);
 	} 
-	disconnect(@Uplifter.Left,@Dummy.Right);
-	rotate(@Uplifter.Bottom, HALF);
+	disconnect(@Lifter.Right,@Dummy.Right);
+	rotate(@Lifter.Bottom, HALF); // HALF
 	do  {				
-		rotate(@Uplifter.Left, QUART);
-		rotate(@Uplifter.Right, QUART);
+		rotate(@Lifter.Right, QUART); 
+		rotate(@Lifter.Left, QUART); 
 	} 
-	rotate(@Uplifter.Top, HALF);
+	rotate(@Lifter.Top, HALF); // HALF
 
 	 
 	module.restoreID();

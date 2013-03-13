@@ -18,7 +18,7 @@ imports
 	names
 	desugar
 	project
-	
+	functions
 		
 	
 rules
@@ -101,13 +101,21 @@ rules
      <desugar-all-nbl><index-get-all-values> DefData([cons, <strip-annos> package], cons, ()) => values
   
    
-   index-get-evhdlrs(|package) = !<flatten-list><map(index-get-evhdlr-packet(|package))><index-get-packets-names(|package)>
-   
+   // For editor view
+   index-get-evhdlrs(|package,strategy-unique-name) = !<flatten-list><map(index-get-evhdlr-packet(|package,strategy-unique-name))><index-get-packets-names(|package)>
+
+
+
+	events-other-strategies(|strategy-unique-name):  d@EvHdlr(   _{[EventHandler(), _, seqname, _]}   , _ , _,_  ) -> d
+      where
+      	<eq>(<first><split-at-space>seqname,"Strategy");
+      	not(<eq>(<second><split-at-space>seqname,strategy-unique-name)) 
+      	;<debug>(strategy-unique-name,seqname,"matched")
   
   
-  index-get-evhdlr-packet(|package): packet-name -> values
+  index-get-evhdlr-packet(|package,strategy-unique-name): packet-name -> values
    where   
-     <map(desugar-all-nbl)><index-get-all-values> DefData([EventHandler(), <strip-annos> packet-name,package], EventHandler(), () ) => values
+     <map(desugar-all-nbl)><debug(!"after")><filter(not(events-other-strategies(|strategy-unique-name)))><debug(!"before")><index-get-all-values> DefData([EventHandler(), <strip-annos> packet-name,package], EventHandler(), () ) => values
       
  
      

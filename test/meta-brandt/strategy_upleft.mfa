@@ -13,8 +13,8 @@ sequence Strategy {
 	}until(config.propagationTime);
 	
 	do {	
-		try region FlipThrough(BOTTOM_LEFT) including Top excluding Right, Bottom;
-		try region FlipOver(LEFT_BOTTOM) including Top,Right excluding Bottom;
-		try region FlipThrough(LEFT_BOTTOM) including Right excluding Top,Bottom,BottomRight,Left;
+		try region FlipThrough(BOTTOM_RIGHT) including Top excluding Left,Bottom;
+		try region FlipOver(BOTTOM_RIGHT) including Top,Left excluding Bottom;
+		try region FlipThrough(RIGHT_BOTTOM) including Left excluding Top,Bottom,BottomLeft,Right;
 	} until (false);
 }

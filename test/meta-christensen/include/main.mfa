@@ -7,13 +7,13 @@ debug {
 	 	north [
 	 		@X: blue;
 	 		@Walker: cyan;
-	 		@Uplifter: white; 
+	 		@Lifter: white; 
 	 	]
 	 	south [ 
 	 		Init: white; 
 	 		Strategy: red;
 	 		LiftUp: green;
-	 		WalkStep: brown;
+	 		WalkStep: yellow;
 	 		LiftDown: purple; 	 
 	 	]
 	} 
@@ -25,18 +25,17 @@ int QUART = 90
 int EIGHT = 45
 
 int DELAY_GETUP = 5
-byte LYING = 0
-byte STANDING = 1
+byte SCAFFOLD = 0
+byte WALKER = 1
 
 group Walker[Left,Middle,Right]
-group Uplifter[Main,Help]
+group Lifter[Main,Help]
 
 
 packet AssignMetaID {
 	byte newID, counter;
 }
  
-
 packet Gradient {
 	byte pri, sec;
 } 
@@ -47,9 +46,8 @@ when (receive (Absorb p)) {
 	if (module.metaID == 0) {
 		module.metaID = p.metaID;
 		module.storeID();
-		module.id = @Uplifter.Main; 
-	}
-}
+		module.id = @Lifter.Main; 
+}}
  
  
 when (receive (Gradient p)) {
@@ -63,11 +61,11 @@ when (receive (Gradient p)) {
 meta {
  	parts [LeftPart, MiddlePart, RightPart];	
 	byte Top,Bottom, Up; 	// Meta neighbors
-	byte type;				// LYING or STANDING
+	byte type;				// SCAFFOLD or WALKER
 
 	void neighborHook (Packet p) {
 		if (p.metaID != module.metaID && module.metaID != 0 && p.metaID != 0 && p.sourceGroup != @Walker) { // Walker not needs to be compromised
-			if (meta.type==LYING || (module.id != @Walker.Left)) {
+			if (meta.type==SCAFFOLD || (module.id != @Walker.Left)) {
 				if (module.metaPart == MiddlePart) 	
 					Bottom = p.metaID;		
 				else // Can happen on both LeftPart and RightPart 
@@ -78,8 +76,8 @@ meta {
 	void absorb() {
 		if (module.id == @Walker.Right) { // Otherwise we might capture modules intended for meta-module
 			send Absorb() to $(inRegion:false);
-			meta.sizeExtra = 1;
 		}
+		meta.sizeExtra = 1; // must be invoked on all modules, as the consensus might be earlier!
 	} 	 	
  }
 
@@ -112,7 +110,7 @@ module  {
 sequence Init {
 	do {  
 		when (#(connOwn: EAST&MALE&SOUTH,connected:true)>0 && #()>=2) { // Walker.Left might still be present
-			module.metaID = module.number; 
+			module.metaID = module.number; 		// STEP 1
 			module.metaPart = LeftPart;
 			send AssignMetaID (newID=module.metaID) to $(connOwn: EAST&MALE&SOUTH);
 		}	
@@ -120,9 +118,9 @@ sequence Init {
 			module.metaID = p.newID;
 				
 			if (p.counter == 0) 
-				module.metaPart = MiddlePart; 
+				module.metaPart = MiddlePart; 	// STEP 2
 			else if (p.counter == 1) {
-				module.metaPart = RightPart;
+				module.metaPart = RightPart;	// STEP 3
 				enable meta;
 				execute Strategy;
 			}

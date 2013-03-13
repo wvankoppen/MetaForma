@@ -1,0 +1,153 @@
+package FourWheeler
+
+byte NONE=0
+byte CAR=1
+byte EIGHT=2
+byte SNAKE=3
+
+sequence Strategy {
+	do {
+		if (meta.type == NONE) execute Eight2CarModRefs;
+		
+		if (meta.type == CAR) {
+			execute Drive;
+		}
+	}
+}
+
+// Using names is easier for building robots with random orientation!
+sequence Eight2CarModRefs {
+	module.fixSymmetry(module.id == @X[0]);
+	module.gradientInit();
+	
+	do {
+		module.gradientPropagate();
+	}	until (config.propagationTime);
+	
+	module.gradientAssignEight();	
+	
+	do{	disconnect(@Eight[0],@Eight[2]);
+		disconnect(@Eight[3],@Eight[4]);
+	}
+	do{	rotate(@Eight[3],-90);
+		rotate(@Eight[4],-90);
+	}
+	
+	connect(@Eight[4],@Eight[3]);
+	
+	do{	rotate(@Eight[1],-90);
+		disconnect(@Eight[6],@Eight[5]);
+	}
+	
+	do{	rotate(@Eight[4],90);
+		rotate(@Eight[6],90);
+	}
+	
+	connect(@Eight[0],@Eight[6]);
+	disconnect(@Eight[6],@Eight[4]);
+	
+	do{	rotate(@Eight[0],-90);
+		rotate(@Eight[1],90);
+	}
+	
+	rotate(@Eight[0],90);
+	
+	do{	connect(@Eight[5],@Eight[6]);
+		connect(@Eight[2],@Eight[6]);
+		connect(@Eight[1],@Eight[4]);
+	}
+	
+	disconnect(@Eight[4],@Eight[3]);
+	disconnect(@Eight[3],@Eight[1]);
+	
+	do{	rotate(@Eight[1],90);
+		rotate(@Eight[3],90);
+	}
+	
+	connect(@Eight[1],@Eight[3]);
+	
+	do{	disconnect(@Eight[3],@Eight[5]);
+		disconnect(@Eight[3],@Eight[2]);
+	}
+	
+	rotate(@Eight[1],90);
+	
+	module.restoreSymmetry();
+	
+	do {
+		meta.createCarAfterSnake();
+	} until(config.assignTime);
+}
+
+
+
+
+// 
+// sequence Eight2CarRevisted {
+// 	retractSet(@Eight[0],MALE&WEST);
+// 	rotate(@Eight[3],-QUART);
+// 	rotate(@Eight[4],-QUART);
+// 	
+// 	do {extend(@Eight[4],6);
+// 		rotate(@Eight[1],-QUART);
+// 		retract(@Eight[6],2);}
+// 	
+// 	do {rotate(@Eight[4],QUART);
+// 		rotate(@Eight[6],QUART); }
+// 	
+// 	extend(@Eight[0],0);
+// 	retract(@Eight[6],6);
+// 	
+// 	do {rotate(@Eight[0],-QUART);
+// 		rotate(@Eight[1],QUART);
+// 	}
+// 	
+// 	rotate(@Eight[0],QUART);
+// 	
+// 	do {extend(@Eight[5],4);
+// 		extend(@Eight[2],4);
+// 		extend(@Eight[1],4);
+// 	}
+// 	
+// 	retract(@Eight[4],6);
+// 	retract(@Eight[3],6);
+// 	
+// 	do {rotate(@Eight[1],QUART);
+// 		rotate(@Eight[3],QUART);
+// 	}
+// 	
+// 	extend(@Eight[1],6);
+// 	
+// 	retractSet(@Eight[3],NORTH&MALE);
+// 	
+// 	rotate(@Eight[1],QUART);
+// }
+// 
+// 
+// 
+// sequence Eight2CarSeq {
+// 	retract(@Eight[3],4); 	
+// 	rotate(@Eight[3],-90);
+// 	rotate(@Eight[4],-90);
+// 	extend(@Eight[4],6);
+// 	rotate(@Eight[1],-90);
+// 	retract(@Eight[6],2);
+// 	rotate(@Eight[4],90);
+// 	rotate(@Eight[6],90);
+// 	extend(@Eight[0],0);
+// 	retract(@Eight[6],6);
+// 	rotate(@Eight[0],-90);
+// 	rotate(@Eight[1],90);
+// 	rotate(@Eight[0],90);
+// 	extend(@Eight[5],4);
+// 	extend(@Eight[2],4);
+// 	extend(@Eight[1],4);
+// 	retract(@Eight[4],6);
+// 	retract(@Eight[3],6);
+// 	rotate(@Eight[1],90);
+// 	rotate(@Eight[3],90);
+// 	extend(@Eight[1],6);
+// 	retract(@Eight[3],0);
+// 	retract(@Eight[3],2);
+// 	rotate(@Eight[1],90);
+// }

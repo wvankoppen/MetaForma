@@ -164,14 +164,18 @@ desugar: Gt(e1,e2) -> BoolOp(Gt(),e1,e2)
 desugar: GtEq(e1,e2) -> BoolOp(GtEq(),e1,e2)
 
 
-desugar: NbsOp (filters) -> NbsOp(filters')
-where
-	<eq>(<length><filter(?NbsFilter("inRegion",_))>filters,0);
-	filters' := [NbsFilter("inRegion",Bool("true"))|filters]
-
-desugar: NbsFilter(d) -> NbsFilter("in",d)
+desugar: NbsOp (filters) -> NbsOp(filters'')
 where 
-	<?ModHolderRef(_)>d + <?ModHolderPrimRef()>d 
+	if <eq>(<length><filter(?NbsFilter("inRegion",_))>filters,0) then
+		filters' := [NbsFilter("inRegion",Bool("true"))|filters]
+	else
+		 filters' := filters
+	end;
+	filters'' := <map(try(nbsfilter))>filters'
+	
+	nbsfilter: NbsFilter(d) -> NbsFilter("in",d)
+	where 
+		<?ModHolderRef(_,_)>d + <?ModHolderRef(_)>d + <?ModHolderPrimRef()>d 
 
 
 desugar: MetaEnable(_) -> FuncCall(MethodPrimRef(Meta(), "enable"), [])
@@ -192,7 +196,7 @@ desugar-nbl: ModHolderPrimRef() -> ModHolderRef("X")
 desugar-nbl: ModHolderPrimNumRef(i) -> ModHolderNumRef("X",i)
 //   desugar-nbl: SequenceName(n) -> SequenceRef(n)
 desugar-nbl: SequencePrimRef(n) -> SequenceRef(n)	// We have to distinguish manually in the generate phase anyway, as NBL does not support constructors in URI
-desugar-nbl: Strategy(n,_) -> Strategy(n) 
+// desugar-nbl: Strategy(n,_) -> Strategy(n) NOO, we need the unique name to filter out events from other strategies 
 
 // Because we need to match the enum with an object 
 // We need to do this AFTER type checking!

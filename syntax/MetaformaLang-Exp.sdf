@@ -22,6 +22,7 @@ exports
 	"metaID" 				-> NbsFilterKey
 	"connNb" 				-> NbsFilterKey
 	"connOwn"				-> NbsFilterKey
+	"in"					-> NbsFilterKey %% in "can" be omitted
 	
 	 context-free syntax
 	

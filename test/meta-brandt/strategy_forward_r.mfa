@@ -1,0 +1,18 @@
+package Brandt
+
+sequence Strategy {
+	when (receive (Packet p)) {
+		meta.neighborHook (p);
+	}
+		
+	do {
+		meta.broadcastNeighbors();
+	}until(config.propagationTime);
+	
+	do {	
+		// Move meta-modules in forward direction
+		try region FlipThrough(BOTTOM_LEFT) including Top excluding TopRight,Left,Right,Bottom,BottomLeft,BottomRight;
+		try region FlipAlong(LEFT_BOTTOM) including Left,TopLeft excluding Top;
+		try region FlipThrough(RIGHT_BOTTOM) including Left excluding Top, TopLeft;
+	}until (false);
+}

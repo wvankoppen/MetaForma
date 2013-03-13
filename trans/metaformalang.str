@@ -175,7 +175,7 @@ rules // Debugging
       index-setup(|<language>, [project-path], $[[project-path]/[path]]);
       
       <project-name>ast => package;
-      evhdlrs := <index-get-evhdlrs(|package)>;
+      evhdlrs := <index-get-evhdlrs(|package,"Strategy")>;
       packets := <index-get-packets(|package)>;
       
       cons := [VisItem(),Group(),Class(),Sequence(),MetaPart(),Constant(),DebugItem()];
@@ -245,7 +245,7 @@ rules // Utility
 			
 			<debug>"##############################";
 			<debug>"COMPILE PACKETRECEIVES";
-			java-packetreceives := <map2str(compile-packetreceive(|package))>packets-all; // Add symmetry to it as the programmer does not define this packet
+			java-packetreceives := <map2str(compile-packetreceive(|package,path))>packets-all; // Add symmetry to it as the programmer does not define this packet
 			
 			<debug>"##############################";
 			<debug>"COMPILE PACKETS";
@@ -375,8 +375,9 @@ public class <classname> extends MfController implements ControllerInformationPr
 			super.makePacket(msg, connector);
 		}	
 	}	
-			
-	public boolean receivePacket(PacketSymmetry p) {
+	
+	@Override		
+	public boolean receive(PacketSymmetry p) {
 		boolean handled = false;
 		if (mfStateMngr.at(p.getState())) {
 			module().fixSymmetry(p.connNb, p.connOwn); // First the connNb, from the payload!

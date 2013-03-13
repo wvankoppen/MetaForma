@@ -85,8 +85,8 @@ strategies
 	
  
 	 
- compile-packetreceive(|namespace): packet-name -> $[
-  	public boolean receivePacket([<packet-name>packet-name] p) {
+ compile-packetreceive(|package,path): packet-name -> $[
+  	public boolean receive([<packet-name>packet-name] p) {
   		boolean handled = false;
   		[code]
 
@@ -102,7 +102,8 @@ strategies
   ]
   where
   	<debug>"Compile packetreceive";
- 	<index-get-evhdlr-packet(|namespace)>packet-name => eventhandlers;
+  	strategy-unique-name := <project-strategy-name-unique><debug><get-strategy>path;
+ 	<index-get-evhdlr-packet(|package,strategy-unique-name)>packet-name => eventhandlers;
   	code := <map2str(compile)>eventhandlers => code;
   	param := <name2param>packet-name
   	
@@ -116,8 +117,8 @@ strategies
 compile-packetbuild: p@PacketDecl(n,nr,payloads) -> $[		 if (typeNr == [name].getTypeNr()) {
 			[name] p = ([name])new [name](this).deserialize(msg,connector);
 			preprocessPacket(p);
-			receivePacket(p);
-			receivePacket((PacketBase)p);	
+			receive(p);
+			receive((PacketBase)p);	
 		}
 		else 
 			]
@@ -169,18 +170,18 @@ $[if (mfStateMngr.at([seq])) {
 }
 ]
 with
-	<aterm-content>namedec => n; 
+	<\Strategy(n,unique) -> n\ <+ aterm-content>namedec => n; 
 	seq := <to-seq>n;
 	<debug>$[## START COMPILE sequence [n]];
 	<map2str(to-java-stat)>evhdlrs => java-evts;
 	<map2str(to-java-instr(|seq))>instrs => java-instrs;
 	<debug>$[## END COMPILE sequence [n]]
- 
 
  
   	
   compile: e@EvHdlr(_{uri},receive,vardecls, stats) ->
-  	$[if (mfStateMngr.check(p,[java-state])) {
+  	$[//if (mfStateMngr.check(p,[java-state])) { we ignore the packets state
+  		if (mfStateMngr.at([java-state])) {
   		[java-code]
   		handled = true;
   	}]

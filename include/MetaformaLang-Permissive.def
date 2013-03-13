@@ -163,6 +163,7 @@ exports
     "metaID"    -> NbsFilterKey 
     "connNb"    -> NbsFilterKey 
     "connOwn"   -> NbsFilterKey 
+    "in"        -> NbsFilterKey 
 
   context-free syntax
     ID                 -> MetaPart {cons("MetaPart")}
@@ -373,6 +374,7 @@ exports
     "sourceGroup"     -> PayloadID        
     "metaID"          -> PayloadID        
     "regionID"        -> PayloadID        
+    "connected"       -> PayloadID        
     "connOwn"         -> PayloadID        
     "connNb"          -> PayloadID        
     "discover"        -> ModuleMethodRef  
@@ -594,6 +596,7 @@ exports
     "sourceGroup"     -> PayloadID        
     "metaID"          -> PayloadID        
     "regionID"        -> PayloadID        
+    "connected"       -> PayloadID        
     "connOwn"         -> PayloadID        
     "connNb"          -> PayloadID        
     "discover"        -> ModuleMethodRef  

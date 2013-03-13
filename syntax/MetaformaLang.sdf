@@ -209,7 +209,8 @@ exports
 	"sourceID" 		-> PayloadID 
 	"sourceGroup" 	-> PayloadID
 	"metaID" 		-> PayloadID
-	"regionID" 		-> PayloadID 
+	"regionID" 		-> PayloadID
+	"connected"		-> PayloadID 
 	"connOwn"		-> PayloadID
 	"connNb" 		-> PayloadID
 	
